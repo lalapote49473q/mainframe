@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantheon Wars - God vs God Battle</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .mode-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        
+        .mode-title {
+            font-size: 4rem;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255,215,0,0.8);
+        }
+        
+        .mode-subtitle {
+            font-size: 1.3rem;
+            color: #cccccc;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .mode-buttons {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .mode-btn {
+            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
+            border: 3px solid rgba(255,215,0,0.5);
+            color: #ffd700;
+            padding: 25px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+            box-shadow: 0 10px 30px rgba(255,215,0,0.4);
+            background: linear-gradient(145deg, rgba(255,215,0,0.3), rgba(255,215,0,0.15));
+        }
+        
+        .mode-btn-title {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        
+        .mode-btn-desc {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .god-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .god-avatar {
+            font-size: 2.2rem;
+            background: radial-gradient(circle, rgba(255,215,0,0.4), rgba(255,215,0,0.1));
+            border: 3px solid #ffd700;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: godPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes godPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+            50% { box-shadow: 0 0 40px rgba(255,215,0,0.8); }
+        }
+        
+        .god-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .god-name {
+            font-size: 1.1rem;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .bar {
+            width: 160px;
+            height: 10px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+        
+        .health-bar .bar-fill {
+            background: linear-gradient(90deg, #dc2626, #ef4444, #22c55e);
+        }
+        
+        .mana-bar .bar-fill {
+            background: linear-gradient(90deg, #1e40af, #3b82f6, #8b5cf6);
+        }
+        
+        .enemy-god-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .enemy-avatar {
+            font-size: 2.2rem;
+            background: radial-gradient(circle, rgba(220,38,38,0.4), rgba(220,38,38,0.1));
+            border: 3px solid #dc2626;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: enemyPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes enemyPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(220,38,38,0.5); }
+            50% { box-shadow: 0 0 40px rgba(220,38,38,0.8); }
+        }
+        
+        .controls-info {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #cccccc;
+            line-height: 1.4;
+        }
+        
+        .game-world {
+            position: relative;
+            width: 2000px;
+            height: 2000px;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(34, 197, 94, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                linear-gradient(45deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%);
+            transform-style: preserve-3d;
+        }
+        
+        .camera {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            transition: transform 0.1s ease;
+        }
+        
+        .player {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            font-size: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.4), rgba(255,215,0,0.1));
+            border: 4px solid #ffd700;
+            filter: drop-shadow(0 0 30px rgba(255,215,0,0.9));
+            animation: playerFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes playerFloat {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(2deg); }
+        }
+        
+        .enemy-god {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            font-size: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(220,38,38,0.4), rgba(220,38,38,0.1));
+            border: 4px solid #dc2626;
+            filter: drop-shadow(0 0 30px rgba(220,38,38,0.9));
+            animation: enemyFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes enemyFloat {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(-2deg); }
+        }
+        
+        @keyframes mortalFloat {
+            0%, 100% { transform: scale(1) translateY(0px); }
+            50% { transform: scale(1.02) translateY(-3px); }
+        }
+        
+        .projectile {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            z-index: 90;
+            pointer-events: none;
+        }
+        
+        .divine-projectile {
+            background: radial-gradient(circle, #ffd700, #ffed4e);
+            box-shadow: 0 0 20px #ffd700;
+            animation: projectileGlow 0.3s ease-in-out infinite;
+        }
+        
+        .enemy-projectile {
+            background: radial-gradient(circle, #dc2626, #ef4444);
+            box-shadow: 0 0 20px #dc2626;
+            animation: enemyProjectileGlow 0.3s ease-in-out infinite;
+        }
+        
+        @keyframes projectileGlow {
+            0%, 100% { box-shadow: 0 0 20px #ffd700; }
+            50% { box-shadow: 0 0 35px #ffd700; }
+        }
+        
+        @keyframes enemyProjectileGlow {
+            0%, 100% { box-shadow: 0 0 20px #dc2626; }
+            50% { box-shadow: 0 0 35px #dc2626; }
+        }
+        
+        .damage-text {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 200;
+            pointer-events: none;
+            animation: damageFloat 1.5s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .damage-text.player {
+            color: #ffd700;
+        }
+        
+        .damage-text.enemy {
+            color: #dc2626;
+        }
+        
+        @keyframes damageFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+        }
+        
+        .god-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .selection-title {
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+        
+        .selection-subtitle {
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .mythology-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .mythology-section {
+            background: linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.05));
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .mythology-title {
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .god-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .god-option {
+            background: linear-gradient(145deg, rgba(255,215,0,0.15), rgba(255,215,0,0.08));
+            border: 2px solid rgba(255,215,0,0.4);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .god-option:hover {
+            transform: translateY(-3px);
+            border-color: #ffd700;
+            box-shadow: 0 8px 25px rgba(255,215,0,0.4);
+        }
+        
+        .god-option.selected {
+            background: linear-gradient(145deg, rgba(255,215,0,0.3), rgba(255,215,0,0.2));
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.6);
+        }
+        
+        .god-option.selected::after {
+            content: '✓ P1';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ffd700;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .god-option-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .god-option-name {
+            font-size: 0.9rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        
+        .god-option-power {
+            font-size: 0.7rem;
+            color: #cccccc;
+        }
+        
+        .victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        
+        .victory-content {
+            background: linear-gradient(145deg, rgba(255,215,0,0.4), rgba(255,215,0,0.15));
+            border: 4px solid #ffd700;
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 0 50px rgba(255,215,0,0.5);
+        }
+        
+        .victory-title {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+        
+        .restart-btn {
+            background: linear-gradient(145deg, #ffd700, #f59e0b);
+            border: none;
+            color: #1a1a1a;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 65%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
+            border: 2px solid rgba(255,215,0,0.5);
+            color: #ffd700;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 4000;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            border-color: #ffd700;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+            background: linear-gradient(145deg, rgba(255,215,0,0.3), rgba(255,215,0,0.15));
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="main.html" class="back-btn">← Back to Main</a>
+    
+    <!-- Mode Selection Screen -->
+    <div class="mode-selection" id="modeSelection">
+        <h1 class="mode-title">⚡ PANTHEON WARS ⚡</h1>
+        <p class="mode-subtitle">Choose your battle mode and prepare for divine warfare</p>
+        <div class="mode-buttons">
+            <div class="mode-btn" onclick="selectMode('aiVsPlayer')">
+                <div class="mode-btn-title">⚔️ Battle AI God</div>
+                <div class="mode-btn-desc">Fight against an intelligent AI deity</div>
+            </div>
+            <div class="mode-btn" onclick="selectMode('playerVsPlayer')">
+                <div class="mode-btn-title">👥 God vs God Duel</div>
+                <div class="mode-btn-desc">Local multiplayer divine combat</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- God Selection Screen -->
+    <div class="god-selection" id="godSelection" style="display: none;">
+        <h1 class="selection-title">Choose Your Divine Form</h1>
+        <p class="selection-subtitle" id="selectionSubtitle">Select your god from the world's greatest mythologies</p>
+        <div class="mythology-sections">
+            <div class="mythology-section">
+                <h3 class="mythology-title">🏛️ Greek Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" onclick="selectGod('zeus')">
+                        <div class="god-option-icon">⚡</div>
+                        <div class="god-option-name">Zeus</div>
+                        <div class="god-option-power">Lightning Storm</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('poseidon')">
+                        <div class="god-option-icon">🌊</div>
+                        <div class="god-option-name">Poseidon</div>
+                        <div class="god-option-power">Tsunami Waves</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🔨 Norse Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" onclick="selectGod('thor')">
+                        <div class="god-option-icon">🔨</div>
+                        <div class="god-option-name">Thor</div>
+                        <div class="god-option-power">Mjolnir Thunder</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('odin')">
+                        <div class="god-option-icon">🐦‍⬛</div>
+                        <div class="god-option-name">Odin</div>
+                        <div class="god-option-power">Raven Storm</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🏺 Egyptian Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" onclick="selectGod('ra')">
+                        <div class="god-option-icon">☀️</div>
+                        <div class="god-option-name">Ra</div>
+                        <div class="god-option-power">Solar Fire</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('anubis')">
+                        <div class="god-option-icon">🐺</div>
+                        <div class="god-option-name">Anubis</div>
+                        <div class="god-option-power">Death Magic</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🕉️ Hindu Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" onclick="selectGod('shiva')">
+                        <div class="god-option-icon">💃</div>
+                        <div class="god-option-name">Shiva</div>
+                        <div class="god-option-power">Cosmic Dance</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('indra')">
+                        <div class="god-option-icon">⚡</div>
+                        <div class="god-option-name">Indra</div>
+                        <div class="god-option-power">Storm Bolts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Game Container -->
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="hud">
+            <div class="god-info">
+                <div class="god-avatar" id="godAvatar">⚡</div>
+                <div class="god-stats">
+                    <div class="god-name" id="godName">Player 1</div>
+                    <div class="stat-bar health-bar">
+                        <span>HP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="healthBar" style="width: 100%"></div>
+                        </div>
+                        <span id="healthText">1000/1000</span>
+                    </div>
+                    <div class="stat-bar mana-bar">
+                        <span>MP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="manaBar" style="width: 100%"></div>
+                        </div>
+                        <span id="manaText">100/100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-info" id="controlsInfo">
+                <div><strong>Player 1:</strong> WASD + Space</div>
+                <div><strong>Player 2:</strong> Arrow Keys + Enter</div>
+            </div>
+            
+            <div class="enemy-god-info" id="enemyGodInfo" style="display: none;">
+                <div class="god-stats">
+                    <div class="god-name" id="enemyGodName">Enemy</div>
+                    <div class="stat-bar health-bar">
+                        <span>HP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="enemyHealthBar" style="width: 100%"></div>
+                        </div>
+                        <span id="enemyHealthText">1000/1000</span>
+                    </div>
+                    <div class="stat-bar mana-bar">
+                        <span>MP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="enemyManaBar" style="width: 100%"></div>
+                        </div>
+                        <span id="enemyManaText">100/100</span>
+                    </div>
+                </div>
+                <div class="enemy-avatar" id="enemyGodAvatar">🔥</div>
+            </div>
+        </div>
+        
+        <div class="camera" id="camera">
+            <div class="game-world" id="gameWorld">
+                <!-- Game entities will be added here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Victory Screen -->
+    <div class="victory-screen" id="victoryScreen">
+        <div class="victory-content">
+            <div class="victory-title" id="victoryTitle">🏆 VICTORY! 🏆</div>
+            <p id="victoryText">You have achieved divine supremacy!</p>
+            <button class="restart-btn" onclick="restartGame()">Battle Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            mode: null,
+            player1: {
+                god: null,
+                x: 400,
+                y: 400,
+                health: 1000,
+                maxHealth: 1000,
+                mana: 100,
+                maxMana: 100,
+                lastAttack: 0
+            },
+            player2: {
+                god: null,
+                x: 1600,
+                y: 1600,
+                health: 1000,
+                maxHealth: 1000,
+                mana: 100,
+                maxMana: 100,
+                lastAttack: 0,
+                isAI: false,
+                aiStrategy: 'aggressive',
+                aiLastMove: 0
+            },
+            camera: { x: 0, y: 0 },
+            keys: {},
+            projectiles: [],
+            mortals: [],
+            score: 0,
+            wave: 1,
+            nextMortalSpawn: 0,
+            gameRunning: false,
+            selectionPhase: 0 // 0 = mode, 1 = player1 god, 2 = player2 god
+        };
+
+        // God configurations
+        const gods = {
+            zeus: { 
+                icon: '⚡', name: 'Zeus', 
+                damage: 45, cost: 20, cooldown: 400,
+                projectileCount: 5, spread: 0.3, speed: 8
+            },
+            poseidon: { 
+                icon: '🌊', name: 'Poseidon', 
+                damage: 50, cost: 25, cooldown: 500,
+                projectileCount: 3, spread: 0.2, speed: 10
+            },
+            thor: { 
+                icon: '🔨', name: 'Thor', 
+                damage: 60, cost: 30, cooldown: 600,
+                projectileCount: 1, spread: 0, speed: 12
+            },
+            odin: { 
+                icon: '🐦‍⬛', name: 'Odin', 
+                damage: 35, cost: 15, cooldown: 300,
+                projectileCount: 8, spread: 0.5, speed: 7
+            },
+            ra: { 
+                icon: '☀️', name: 'Ra', 
+                damage: 40, cost: 18, cooldown: 350,
+                projectileCount: 6, spread: 0.4, speed: 9
+            },
+            anubis: { 
+                icon: '🐺', name: 'Anubis', 
+                damage: 55, cost: 28, cooldown: 550,
+                projectileCount: 2, spread: 0.1, speed: 11
+            },
+            shiva: { 
+                icon: '💃', name: 'Shiva', 
+                damage: 38, cost: 16, cooldown: 280,
+                projectileCount: 9, spread: 0.6, speed: 6
+            },
+            indra: { 
+                icon: '⚡', name: 'Indra', 
+                damage: 42, cost: 19, cooldown: 380,
+                projectileCount: 4, spread: 0.25, speed: 8
+            }
+        };
+
+        // Mode selection
+        function selectMode(mode) {
+            gameState.mode = mode;
+            gameState.selectionPhase = 1;
+            
+            document.getElementById('modeSelection').style.display = 'none';
+            document.getElementById('godSelection').style.display = 'flex';
+            
+            if (mode === 'aiVsPlayer') {
+                document.getElementById('selectionSubtitle').textContent = 'Choose your god to battle the AI';
+            } else {
+                document.getElementById('selectionSubtitle').textContent = 'Player 1: Choose your god';
+            }
+        }
+
+        // God selection
+        function selectGod(godKey) {
+            const god = gods[godKey];
+            
+            if (gameState.selectionPhase === 1) {
+                // Player 1 selection
+                gameState.player1.god = god;
+                
+                if (gameState.mode === 'playerVsPlayer') {
+                    gameState.selectionPhase = 2;
+                    document.getElementById('selectionSubtitle').textContent = 'Player 2: Choose your god';
+                    
+                    // Highlight Player 1's selection and show it's taken
+                    document.querySelectorAll('.god-option').forEach(option => {
+                        option.classList.remove('selected', 'disabled');
+                        if (option.getAttribute('onclick').includes(godKey)) {
+                            option.classList.add('selected');
+                            option.style.opacity = '0.5';
+                            option.style.pointerEvents = 'none';
+                        }
+                    });
+                    return;
+                } else if (gameState.mode === 'aiVsPlayer') {
+                    // AI selects random different god
+                    const godKeys = Object.keys(gods).filter(k => k !== godKey);
+                    const aiGodKey = godKeys[Math.floor(Math.random() * godKeys.length)];
+                    gameState.player2.god = gods[aiGodKey];
+                    gameState.player2.isAI = true;
+                    startGame();
+                }
+            } else if (gameState.selectionPhase === 2) {
+                // Player 2 selection - can't pick same god as Player 1
+                if (gameState.player1.god.name === god.name) {
+                    return; // Ignore click on already selected god
+                }
+                
+                gameState.player2.god = god;
+                startGame();
+            }
+        }
+
+        // Start the game
+        function startGame() {
+            document.getElementById('godSelection').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            
+            // Setup UI
+            document.getElementById('godAvatar').textContent = gameState.player1.god.icon;
+            document.getElementById('godName').textContent = gameState.player1.god.name;
+            
+            document.getElementById('enemyGodInfo').style.display = 'flex';
+            document.getElementById('enemyGodAvatar').textContent = gameState.player2.god.icon;
+            document.getElementById('enemyGodName').textContent = gameState.player2.god.name;
+            
+            // Update controls info
+            if (gameState.mode === 'aiVsPlayer') {
+                document.getElementById('controlsInfo').innerHTML = '<div>WASD: Move</div><div>Space: Attack</div><div>vs AI God</div>';
+            } else {
+                document.getElementById('controlsInfo').innerHTML = '<div><strong>Player 1:</strong> WASD + Space</div><div><strong>Player 2:</strong> Arrow Keys + Enter</div>';
+            }
+            
+            // Create player entities
+            createPlayer();
+            createEnemyGod();
+            
+            setupControls();
+            gameState.gameRunning = true;
+            gameLoop();
+        }
+
+        // Create player
+        function createPlayer() {
+            const player = document.createElement('div');
+            player.className = 'player';
+            player.id = 'player1';
+            player.textContent = gameState.player1.god.icon;
+            player.style.left = gameState.player1.x + 'px';
+            player.style.top = gameState.player1.y + 'px';
+            document.getElementById('gameWorld').appendChild(player);
+        }
+
+        // Create enemy god
+        function createEnemyGod() {
+            const enemy = document.createElement('div');
+            enemy.className = 'enemy-god';
+            enemy.id = 'player2';
+            enemy.textContent = gameState.player2.god.icon;
+            enemy.style.left = gameState.player2.x + 'px';
+            enemy.style.top = gameState.player2.y + 'px';
+            document.getElementById('gameWorld').appendChild(enemy);
+        }
+
+        // Spawn initial mortals
+        function spawnInitialMortals() {
+            const mortalTypes = ['👤', '🧙‍♂️', '⚔️', '🏹', '🛡️'];
+            console.log('Spawning initial mortals...');
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    spawnMortal(mortalTypes[Math.floor(Math.random() * mortalTypes.length)]);
+                    console.log(`Spawned mortal ${i + 1}/8, total mortals: ${gameState.mortals.length}`);
+                }, i * 200); // Stagger spawning
+            }
+        }
+
+        // Spawn a single mortal
+        function spawnMortal(type = null) {
+            const mortalTypes = {
+                '👤': { health: 30, speed: 2, damage: 10, points: 1 },
+                '🧙‍♂️': { health: 20, speed: 1.5, damage: 15, points: 2 },
+                '⚔️': { health: 50, speed: 2.5, damage: 20, points: 3 },
+                '🏹': { health: 25, speed: 3, damage: 12, points: 2 },
+                '🛡️': { health: 80, speed: 1, damage: 8, points: 4 }
+            };
+
+            if (!type) {
+                const types = Object.keys(mortalTypes);
+                type = types[Math.floor(Math.random() * types.length)];
+            }
+
+            // Spawn closer to player but still at edges
+            let x, y;
+            const playerX = gameState.player1.x;
+            const playerY = gameState.player1.y;
+            const spawnDistance = 400 + Math.random() * 300; // 400-700 pixels from player
+            const angle = Math.random() * Math.PI * 2;
+            
+            x = playerX + Math.cos(angle) * spawnDistance;
+            y = playerY + Math.sin(angle) * spawnDistance;
+            
+            // Keep in bounds
+            x = Math.max(50, Math.min(1950, x));
+            y = Math.max(50, Math.min(1950, y));
+
+            const mortal = {
+                id: Date.now() + Math.random(),
+                type: type,
+                x: x,
+                y: y,
+                health: mortalTypes[type].health,
+                maxHealth: mortalTypes[type].health,
+                speed: mortalTypes[type].speed * (1 + gameState.wave * 0.1), // Speed increases with waves
+                damage: mortalTypes[type].damage,
+                points: mortalTypes[type].points,
+                lastAttack: 0,
+                aiDirection: Math.random() * Math.PI * 2
+            };
+
+            gameState.mortals.push(mortal);
+            console.log(`Created mortal at (${x}, ${y}) with type ${type}`);
+
+            const element = document.createElement('div');
+            element.className = 'mortal';
+            element.id = `mortal-${mortal.id}`;
+            element.textContent = type;
+            element.style.position = 'absolute';
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            element.style.width = '80px';
+            element.style.height = '80px';
+            element.style.fontSize = '4rem';
+            element.style.display = 'flex';
+            element.style.alignItems = 'center';
+            element.style.justifyContent = 'center';
+            element.style.zIndex = '200';
+            element.style.borderRadius = '50%';
+            element.style.background = 'radial-gradient(circle, rgba(255, 69, 0, 0.8), rgba(255, 69, 0, 0.4))';
+            element.style.border = '4px solid #ff4500';
+            element.style.filter = 'drop-shadow(0 0 25px rgba(255, 69, 0, 1))';
+            element.style.animation = 'mortalFloat 2s ease-in-out infinite';
+            element.style.boxShadow = '0 0 30px rgba(255, 69, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.3)';
+            
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        // Setup controls
+        function setupControls() {
+            document.addEventListener('keydown', (e) => {
+                gameState.keys[e.key.toLowerCase()] = true;
+                if (e.key === ' ' || e.key === 'Enter') e.preventDefault();
+            });
+
+            document.addEventListener('keyup', (e) => {
+                gameState.keys[e.key.toLowerCase()] = false;
+            });
+        }
+
+        // Main game loop
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+
+            updatePlayer1();
+            
+            if (gameState.player2.isAI) {
+                updateAI();
+            } else {
+                updatePlayer2();
+            }
+            
+            updateProjectiles();
+            updateCamera();
+            updateUI();
+            checkGameEnd();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Update player 1
+        function updatePlayer1() {
+            const speed = 5;
+            let moved = false;
+
+            if (gameState.keys['w']) {
+                gameState.player1.y = Math.max(40, gameState.player1.y - speed);
+                moved = true;
+            }
+            if (gameState.keys['s']) {
+                gameState.player1.y = Math.min(1960, gameState.player1.y + speed);
+                moved = true;
+            }
+            if (gameState.keys['a']) {
+                gameState.player1.x = Math.max(40, gameState.player1.x - speed);
+                moved = true;
+            }
+            if (gameState.keys['d']) {
+                gameState.player1.x = Math.min(1960, gameState.player1.x + speed);
+                moved = true;
+            }
+
+            if (gameState.keys[' ']) {
+                attack(gameState.player1, 'divine');
+            }
+
+            if (moved) {
+                document.getElementById('player1').style.left = gameState.player1.x + 'px';
+                document.getElementById('player1').style.top = gameState.player1.y + 'px';
+            }
+
+            // Mana regeneration
+            if (gameState.player1.mana < gameState.player1.maxMana) {
+                gameState.player1.mana = Math.min(gameState.player1.maxMana, gameState.player1.mana + 0.3);
+            }
+        }
+
+        // Update player 2
+        function updatePlayer2() {
+            const speed = 5;
+            let moved = false;
+
+            if (gameState.keys['arrowup']) {
+                gameState.player2.y = Math.max(40, gameState.player2.y - speed);
+                moved = true;
+            }
+            if (gameState.keys['arrowdown']) {
+                gameState.player2.y = Math.min(1960, gameState.player2.y + speed);
+                moved = true;
+            }
+            if (gameState.keys['arrowleft']) {
+                gameState.player2.x = Math.max(40, gameState.player2.x - speed);
+                moved = true;
+            }
+            if (gameState.keys['arrowright']) {
+                gameState.player2.x = Math.min(1960, gameState.player2.x + speed);
+                moved = true;
+            }
+
+            if (gameState.keys['enter']) {
+                attack(gameState.player2, 'enemy');
+            }
+
+            if (moved) {
+                document.getElementById('player2').style.left = gameState.player2.x + 'px';
+                document.getElementById('player2').style.top = gameState.player2.y + 'px';
+            }
+
+            // Mana regeneration
+            if (gameState.player2.mana < gameState.player2.maxMana) {
+                gameState.player2.mana = Math.min(gameState.player2.maxMana, gameState.player2.mana + 0.3);
+            }
+        }
+
+        // Update mortals
+        function updateMortals() {
+            for (let i = gameState.mortals.length - 1; i >= 0; i--) {
+                const mortal = gameState.mortals[i];
+                
+                // Move towards player
+                const dx = gameState.player1.x - mortal.x;
+                const dy = gameState.player1.y - mortal.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 0) {
+                    const angle = Math.atan2(dy, dx);
+                    mortal.x += Math.cos(angle) * mortal.speed;
+                    mortal.y += Math.sin(angle) * mortal.speed;
+                    
+                    // Keep in bounds
+                    mortal.x = Math.max(20, Math.min(1980, mortal.x));
+                    mortal.y = Math.max(20, Math.min(1980, mortal.y));
+                    
+                    // Update position
+                    const element = document.getElementById(`mortal-${mortal.id}`);
+                    if (element) {
+                        element.style.left = mortal.x + 'px';
+                        element.style.top = mortal.y + 'px';
+                    }
+                    
+                    // Attack player if close enough
+                    if (distance < 60 && Date.now() - mortal.lastAttack > 1500) {
+                        mortal.lastAttack = Date.now();
+                        damagePlayer(gameState.player1, mortal.damage);
+                    }
+                }
+            }
+        }
+
+        // Spawn mortals over time
+        function spawnMortalsOverTime() {
+            const now = Date.now();
+            const maxMortals = Math.min(20, 8 + gameState.wave * 2); // More mortals as waves progress
+            
+            if (now > gameState.nextMortalSpawn && gameState.mortals.length < maxMortals) {
+                spawnMortal();
+                gameState.nextMortalSpawn = now + Math.max(300, 1500 - (gameState.wave * 80));
+                
+                // Increase wave every 10 kills
+                if (gameState.score > 0 && gameState.score % 10 === 0 && gameState.score / 10 > gameState.wave - 1) {
+                    gameState.wave++;
+                }
+            }
+        }
+
+        // Update AI
+        function updateAI() {
+            const now = Date.now();
+            if (now - gameState.player2.aiLastMove < 50) return; // Throttle AI updates
+            
+            gameState.player2.aiLastMove = now;
+            
+            const dx = gameState.player1.x - gameState.player2.x;
+            const dy = gameState.player1.y - gameState.player2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            const speed = 3;
+            
+            if (gameState.player2.aiStrategy === 'aggressive') {
+                // Move towards player
+                if (distance > 200) {
+                    const angle = Math.atan2(dy, dx);
+                    gameState.player2.x += Math.cos(angle) * speed;
+                    gameState.player2.y += Math.sin(angle) * speed;
+                }
+            } else {
+                // Keep distance and circle
+                if (distance < 300) {
+                    const angle = Math.atan2(-dy, -dx);
+                    gameState.player2.x += Math.cos(angle) * speed;
+                    gameState.player2.y += Math.sin(angle) * speed;
+                }
+            }
+            
+            // Keep in bounds
+            gameState.player2.x = Math.max(40, Math.min(1960, gameState.player2.x));
+            gameState.player2.y = Math.max(40, Math.min(1960, gameState.player2.y));
+            
+            // Update position
+            document.getElementById('player2').style.left = gameState.player2.x + 'px';
+            document.getElementById('player2').style.top = gameState.player2.y + 'px';
+            
+            // AI attack
+            if (distance < 400 && Math.random() < 0.03) {
+                attack(gameState.player2, 'enemy');
+            }
+            
+            // Change strategy occasionally
+            if (Math.random() < 0.001) {
+                gameState.player2.aiStrategy = gameState.player2.aiStrategy === 'aggressive' ? 'defensive' : 'aggressive';
+            }
+            
+            // Mana regeneration
+            if (gameState.player2.mana < gameState.player2.maxMana) {
+                gameState.player2.mana = Math.min(gameState.player2.maxMana, gameState.player2.mana + 0.4);
+            }
+        }
+
+        // Attack function
+        function attack(player, type) {
+            const now = Date.now();
+            if (now - player.lastAttack < player.god.cooldown) return;
+            if (player.mana < player.god.cost) return;
+            
+            player.mana -= player.god.cost;
+            player.lastAttack = now;
+            
+            // Calculate target direction
+            let targetX, targetY;
+            if (player === gameState.player1) {
+                targetX = gameState.player2.x;
+                targetY = gameState.player2.y;
+            } else {
+                targetX = gameState.player1.x;
+                targetY = gameState.player1.y;
+            }
+            
+            const angle = Math.atan2(targetY - player.y, targetX - player.x);
+            
+            // Create projectiles
+            for (let i = 0; i < player.god.projectileCount; i++) {
+                const spreadAngle = angle + (i - (player.god.projectileCount - 1) / 2) * player.god.spread;
+                createProjectile(
+                    player.x + 40,
+                    player.y + 40,
+                    Math.cos(spreadAngle) * player.god.speed,
+                    Math.sin(spreadAngle) * player.god.speed,
+                    type,
+                    player.god.damage
+                );
+            }
+        }
+
+        // Create projectile
+        function createProjectile(x, y, vx, vy, type, damage) {
+            const projectile = {
+                x: x,
+                y: y,
+                vx: vx,
+                vy: vy,
+                type: type,
+                damage: damage,
+                life: 150,
+                id: Date.now() + Math.random()
+            };
+
+            gameState.projectiles.push(projectile);
+
+            const element = document.createElement('div');
+            element.className = `projectile ${type}-projectile`;
+            element.id = `projectile-${projectile.id}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        // Update projectiles
+        function updateProjectiles() {
+            for (let i = gameState.projectiles.length - 1; i >= 0; i--) {
+                const projectile = gameState.projectiles[i];
+                
+                projectile.x += projectile.vx;
+                projectile.y += projectile.vy;
+                projectile.life--;
+
+                const element = document.getElementById(`projectile-${projectile.id}`);
+                if (element) {
+                    element.style.left = projectile.x + 'px';
+                    element.style.top = projectile.y + 'px';
+                }
+
+                // Check collisions
+                let hit = false;
+                
+                if (projectile.type === 'divine') {
+                    // Player 1 projectile hits player 2
+                    const dx = projectile.x - (gameState.player2.x + 40);
+                    const dy = projectile.y - (gameState.player2.y + 40);
+                    if (Math.sqrt(dx * dx + dy * dy) < 50) {
+                        damagePlayer(gameState.player2, projectile.damage);
+                        hit = true;
+                    }
+                } else if (projectile.type === 'enemy') {
+                    // Player 2 projectile hits player 1
+                    const dx = projectile.x - (gameState.player1.x + 40);
+                    const dy = projectile.y - (gameState.player1.y + 40);
+                    if (Math.sqrt(dx * dx + dy * dy) < 50) {
+                        damagePlayer(gameState.player1, projectile.damage);
+                        hit = true;
+                    }
+                }
+
+                // Remove projectile if hit or expired
+                if (hit || projectile.life <= 0 || 
+                    projectile.x < 0 || projectile.x > 2000 || 
+                    projectile.y < 0 || projectile.y > 2000) {
+                    
+                    if (element) element.remove();
+                    gameState.projectiles.splice(i, 1);
+                }
+            }
+        }
+
+        // Damage player
+        function damagePlayer(player, damage) {
+            player.health -= damage;
+            
+            // Show damage text
+            const damageText = document.createElement('div');
+            damageText.className = `damage-text ${player === gameState.player1 ? 'enemy' : 'player'}`;
+            damageText.textContent = `-${damage}`;
+            damageText.style.left = (player.x + 40) + 'px';
+            damageText.style.top = (player.y + 20) + 'px';
+            document.getElementById('gameWorld').appendChild(damageText);
+            
+            setTimeout(() => damageText.remove(), 1500);
+            
+            if (player.health <= 0) {
+                player.health = 0;
+                endGame(player === gameState.player1 ? 'player2' : 'player1');
+            }
+        }
+
+        // Damage mortal
+        function damageMortal(mortal, damage, index) {
+            mortal.health -= damage;
+            
+            // Show damage text
+            const damageText = document.createElement('div');
+            damageText.className = 'damage-text player';
+            damageText.textContent = `-${damage}`;
+            damageText.style.left = (mortal.x + 40) + 'px';
+            damageText.style.top = (mortal.y + 20) + 'px';
+            document.getElementById('gameWorld').appendChild(damageText);
+            
+            setTimeout(() => damageText.remove(), 1500);
+            
+            if (mortal.health <= 0) {
+                // Remove mortal
+                const element = document.getElementById(`mortal-${mortal.id}`);
+                if (element) element.remove();
+                
+                // Add to score
+                gameState.score += mortal.points;
+                
+                // Remove from array
+                gameState.mortals.splice(index, 1);
+                
+                // Show points gained
+                const pointsText = document.createElement('div');
+                pointsText.className = 'damage-text player';
+                pointsText.textContent = `+${mortal.points}`;
+                pointsText.style.left = (mortal.x + 40) + 'px';
+                pointsText.style.top = (mortal.y - 20) + 'px';
+                pointsText.style.color = '#ffd700';
+                document.getElementById('gameWorld').appendChild(pointsText);
+                
+                setTimeout(() => pointsText.remove(), 1500);
+            }
+        }
+
+        // Update camera
+        function updateCamera() {
+            gameState.camera.x = -gameState.player1.x + window.innerWidth / 2 - 40;
+            gameState.camera.y = -gameState.player1.y + window.innerHeight / 2 - 40;
+            
+            document.getElementById('camera').style.transform = 
+                `translate(${gameState.camera.x}px, ${gameState.camera.y}px)`;
+        }
+
+        // Update UI
+        function updateUI() {
+            // Player 1 stats
+            const p1HealthPercent = (gameState.player1.health / gameState.player1.maxHealth) * 100;
+            const p1ManaPercent = (gameState.player1.mana / gameState.player1.maxMana) * 100;
+            
+            document.getElementById('healthBar').style.width = p1HealthPercent + '%';
+            document.getElementById('manaBar').style.width = p1ManaPercent + '%';
+            document.getElementById('healthText').textContent = 
+                `${Math.floor(gameState.player1.health)}/${gameState.player1.maxHealth}`;
+            document.getElementById('manaText').textContent = 
+                `${Math.floor(gameState.player1.mana)}/${gameState.player1.maxMana}`;
+            
+            // Player 2 stats
+            const p2HealthPercent = (gameState.player2.health / gameState.player2.maxHealth) * 100;
+            const p2ManaPercent = (gameState.player2.mana / gameState.player2.maxMana) * 100;
+            
+            document.getElementById('enemyHealthBar').style.width = p2HealthPercent + '%';
+            document.getElementById('enemyManaBar').style.width = p2ManaPercent + '%';
+            document.getElementById('enemyHealthText').textContent = 
+                `${Math.floor(gameState.player2.health)}/${gameState.player2.maxHealth}`;
+            document.getElementById('enemyManaText').textContent = 
+                `${Math.floor(gameState.player2.mana)}/${gameState.player2.maxMana}`;
+        }
+
+        // Check game end
+        function checkGameEnd() {
+            if (gameState.player1.health <= 0) {
+                endGame('player2');
+            } else if (gameState.player2.health <= 0) {
+                endGame('player1');
+            }
+        }
+
+        // End game
+        function endGame(winner) {
+            gameState.gameRunning = false;
+            
+            let title, text;
+            if (winner === 'player1') {
+                title = '🏆 VICTORY! 🏆';
+                text = `${gameState.player1.god.name} has achieved divine supremacy!`;
+            } else {
+                title = '💀 DEFEAT 💀';
+                if (gameState.mode === 'aiVsPlayer') {
+                    text = `The AI ${gameState.player2.god.name} has defeated you!`;
+                } else {
+                    text = `${gameState.player2.god.name} has achieved divine supremacy!`;
+                }
+            }
+            
+            document.getElementById('victoryTitle').textContent = title;
+            document.getElementById('victoryText').textContent = text;
+            document.getElementById('victoryScreen').style.display = 'flex';
+        }
+
+        // Restart game
+        function restartGame() {
+            // Reset game state
+            gameState = {
+                mode: null,
+                player1: {
+                    god: null,
+                    x: 400,
+                    y: 400,
+                    health: 1000,
+                    maxHealth: 1000,
+                    mana: 100,
+                    maxMana: 100,
+                    lastAttack: 0
+                },
+                player2: {
+                    god: null,
+                    x: 1600,
+                    y: 1600,
+                    health: 1000,
+                    maxHealth: 1000,
+                    mana: 100,
+                    maxMana: 100,
+                    lastAttack: 0,
+                    isAI: false,
+                    aiStrategy: 'aggressive',
+                    aiLastMove: 0
+                },
+                camera: { x: 0, y: 0 },
+                keys: {},
+                projectiles: [],
+                mortals: [],
+                score: 0,
+                wave: 1,
+                nextMortalSpawn: 0,
+                gameRunning: false,
+                selectionPhase: 0
+            };
+            
+            // Clear game world
+            document.getElementById('gameWorld').innerHTML = '';
+            
+            // Show mode selection
+            document.getElementById('victoryScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('godSelection').style.display = 'none';
+            document.getElementById('modeSelection').style.display = 'flex';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970371e897f99444',t:'MTc1NTM3MzY2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

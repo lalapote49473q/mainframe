@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Timer</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 1rem;
+        }
+        
+        .app-container {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .app-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .timer-section {
+            display: none;
+        }
+        
+        .timer-section.active {
+            display: block;
+        }
+        
+        .timer-circle {
+            position: relative;
+            width: 380px;
+            height: 320px;
+            margin: 0 auto 2rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .timer-circle.pulsing {
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 60px rgba(255, 255, 255, 0.5);
+            }
+        }
+        
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .clock-display {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .date-display {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+        
+        .time-format-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 1rem;
+        }
+        
+        .time-format-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .custom-input {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .time-input {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            width: 80px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .time-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .time-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .input-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn.start {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+        
+        .control-btn.start:hover {
+            background: rgba(76, 175, 80, 0.4);
+        }
+        
+        .control-btn.pause {
+            background: rgba(255, 193, 7, 0.3);
+            border-color: rgba(255, 193, 7, 0.5);
+        }
+        
+        .control-btn.pause:hover {
+            background: rgba(255, 193, 7, 0.4);
+        }
+        
+        .control-btn.reset {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: rgba(244, 67, 54, 0.5);
+        }
+        
+        .control-btn.reset:hover {
+            background: rgba(244, 67, 54, 0.4);
+        }
+        
+        .timer-status {
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.8;
+            margin-top: 1rem;
+            letter-spacing: 1px;
+        }
+        
+        .progress-ring {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: 384px;
+            height: 324px;
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.4);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+        
+        .sound-alert {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sound-alert:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .lap-times {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .lap-time {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .lap-time:last-child {
+            border-bottom: none;
+        }
+        
+        .home-button {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 100;
+        }
+        
+        .home-link {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            letter-spacing: 0.5px;
+        }
+        
+        .home-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .timer-circle {
+                width: 320px;
+                height: 260px;
+            }
+            
+            .timer-display {
+                font-size: 2.5rem;
+            }
+            
+            .clock-display {
+                font-size: 3rem;
+            }
+            
+            .progress-ring {
+                width: 324px;
+                height: 264px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1 class="app-title">Ultimate Timer</h1>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="countdown">Countdown</button>
+            <button class="mode-btn" data-mode="stopwatch">Stopwatch</button>
+            <button class="mode-btn" data-mode="clock">Clock</button>
+        </div>
+        
+        <!-- Countdown Timer Section -->
+        <div class="timer-section active" id="countdown-section">
+            <div class="preset-buttons">
+                <button class="preset-btn" data-time="300">5 min</button>
+                <button class="preset-btn" data-time="600">10 min</button>
+                <button class="preset-btn" data-time="900">15 min</button>
+                <button class="preset-btn" data-time="1800">30 min</button>
+                <button class="preset-btn" data-time="3600">1 hour</button>
+            </div>
+            
+            <div class="custom-input">
+                <div>
+                    <input type="number" class="time-input" id="hours" placeholder="0" min="0" max="23">
+                    <div class="input-label">Hours</div>
+                </div>
+                <div>
+                    <input type="number" class="time-input" id="minutes" placeholder="0" min="0" max="59">
+                    <div class="input-label">Minutes</div>
+                </div>
+                <div>
+                    <input type="number" class="time-input" id="seconds" placeholder="0" min="0" max="59">
+                    <div class="input-label">Seconds</div>
+                </div>
+                <button class="control-btn" id="setCustomTime">Set</button>
+            </div>
+            
+            <div class="timer-circle" id="countdownCircle">
+                <svg class="progress-ring" id="countdownProgressRing">
+                    <rect class="progress-ring-circle" x="12" y="12" width="360" height="300" rx="30" ry="30"
+                          stroke-dasharray="1320" stroke-dashoffset="1320" id="countdownProgressCircle"></rect>
+                </svg>
+                <div class="timer-display" id="countdownDisplay">00:00</div>
+            </div>
+            
+            <div class="timer-controls">
+                <button class="control-btn start" id="countdownStartBtn">Start</button>
+                <button class="control-btn pause" id="countdownPauseBtn" style="display: none;">Pause</button>
+                <button class="control-btn reset" id="countdownResetBtn">Reset</button>
+            </div>
+            
+            <div class="timer-status" id="countdownStatus">Set your timer and click start</div>
+        </div>
+        
+        <!-- Stopwatch Section -->
+        <div class="timer-section" id="stopwatch-section">
+            <div class="timer-circle" id="stopwatchCircle">
+                <div class="timer-display" id="stopwatchDisplay">00:00:00</div>
+            </div>
+            
+            <div class="timer-controls">
+                <button class="control-btn start" id="stopwatchStartBtn">Start</button>
+                <button class="control-btn pause" id="stopwatchPauseBtn" style="display: none;">Pause</button>
+                <button class="control-btn" id="lapBtn" style="display: none;">Lap</button>
+                <button class="control-btn reset" id="stopwatchResetBtn">Reset</button>
+            </div>
+            
+            <div class="timer-status" id="stopwatchStatus">Ready to start timing</div>
+            
+            <div class="lap-times" id="lapTimes" style="display: none;"></div>
+        </div>
+        
+        <!-- Clock Section -->
+        <div class="timer-section" id="clock-section">
+            <div class="timer-circle">
+                <div>
+                    <div class="clock-display" id="clockDisplay">00:00:00</div>
+                    <div class="date-display" id="dateDisplay">Monday, January 1, 2024</div>
+                </div>
+            </div>
+            <button class="time-format-toggle" id="timeFormatToggle">Switch to 12-hour</button>
+        </div>
+    </div>
+    
+    <div class="sound-alert" id="soundToggle" title="Sound alerts enabled">
+        🔊
+    </div>
+    
+    <div class="notification" id="notification">
+        Timer Complete! ⏰
+    </div>
+    
+    <div class="home-button">
+        <a href="main.html" class="home-link">
+            🏠 Back to Main
+        </a>
+    </div>
+
+    <script>
+        class UltimateTimer {
+            constructor() {
+                this.currentMode = 'countdown';
+                this.soundEnabled = true;
+                
+                // Countdown timer properties
+                this.countdownTotalTime = 0;
+                this.countdownTimeLeft = 0;
+                this.countdownRunning = false;
+                this.countdownInterval = null;
+                
+                // Stopwatch properties
+                this.stopwatchTime = 0;
+                this.stopwatchRunning = false;
+                this.stopwatchInterval = null;
+                this.lapTimes = [];
+                
+                // Clock properties
+                this.clockInterval = null;
+                this.is24HourFormat = true;
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.updateCountdownDisplay();
+                this.startClock();
+            }
+            
+            initializeElements() {
+                // Mode buttons
+                this.modeBtns = document.querySelectorAll('.mode-btn');
+                
+                // Countdown elements
+                this.countdownDisplay = document.getElementById('countdownDisplay');
+                this.countdownCircle = document.getElementById('countdownCircle');
+                this.countdownStatus = document.getElementById('countdownStatus');
+                this.countdownStartBtn = document.getElementById('countdownStartBtn');
+                this.countdownPauseBtn = document.getElementById('countdownPauseBtn');
+                this.countdownResetBtn = document.getElementById('countdownResetBtn');
+                this.countdownProgressCircle = document.getElementById('countdownProgressCircle');
+                
+                // Stopwatch elements
+                this.stopwatchDisplay = document.getElementById('stopwatchDisplay');
+                this.stopwatchCircle = document.getElementById('stopwatchCircle');
+                this.stopwatchStatus = document.getElementById('stopwatchStatus');
+                this.stopwatchStartBtn = document.getElementById('stopwatchStartBtn');
+                this.stopwatchPauseBtn = document.getElementById('stopwatchPauseBtn');
+                this.stopwatchResetBtn = document.getElementById('stopwatchResetBtn');
+                this.lapBtn = document.getElementById('lapBtn');
+                this.lapTimesContainer = document.getElementById('lapTimes');
+                
+                // Clock elements
+                this.clockDisplay = document.getElementById('clockDisplay');
+                this.dateDisplay = document.getElementById('dateDisplay');
+                this.timeFormatToggle = document.getElementById('timeFormatToggle');
+                
+                // Other elements
+                this.soundToggle = document.getElementById('soundToggle');
+                this.notification = document.getElementById('notification');
+                
+                // Custom time inputs
+                this.hoursInput = document.getElementById('hours');
+                this.minutesInput = document.getElementById('minutes');
+                this.secondsInput = document.getElementById('seconds');
+                this.setCustomTimeBtn = document.getElementById('setCustomTime');
+                
+                // Progress ring setup
+                this.circumference = 1320; // Perimeter of rounded rectangle
+                this.countdownProgressCircle.style.strokeDasharray = this.circumference;
+                this.countdownProgressCircle.style.strokeDashoffset = this.circumference;
+            }
+            
+            bindEvents() {
+                // Mode switching
+                this.modeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => this.switchMode(btn.dataset.mode));
+                });
+                
+                // Preset buttons
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.setPresetTime(parseInt(btn.dataset.time)));
+                });
+                
+                // Custom time
+                this.setCustomTimeBtn.addEventListener('click', () => this.setCustomTime());
+                
+                // Countdown controls
+                this.countdownStartBtn.addEventListener('click', () => this.startCountdown());
+                this.countdownPauseBtn.addEventListener('click', () => this.pauseCountdown());
+                this.countdownResetBtn.addEventListener('click', () => this.resetCountdown());
+                
+                // Stopwatch controls
+                this.stopwatchStartBtn.addEventListener('click', () => this.startStopwatch());
+                this.stopwatchPauseBtn.addEventListener('click', () => this.pauseStopwatch());
+                this.stopwatchResetBtn.addEventListener('click', () => this.resetStopwatch());
+                this.lapBtn.addEventListener('click', () => this.addLap());
+                
+                // Sound toggle
+                this.soundToggle.addEventListener('click', () => this.toggleSound());
+                
+                // Time format toggle
+                this.timeFormatToggle.addEventListener('click', () => this.toggleTimeFormat());
+            }
+            
+            switchMode(mode) {
+                this.currentMode = mode;
+                
+                // Update active button
+                this.modeBtns.forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+                
+                // Show/hide sections
+                document.querySelectorAll('.timer-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`${mode}-section`).classList.add('active');
+                
+                // Stop all timers when switching modes
+                this.pauseCountdown();
+                this.pauseStopwatch();
+            }
+            
+            // Countdown Timer Methods
+            setPresetTime(seconds) {
+                this.countdownTotalTime = seconds;
+                this.countdownTimeLeft = seconds;
+                this.updateCountdownDisplay();
+                this.updateCountdownProgress();
+                this.countdownStatus.textContent = 'Timer set - Click start to begin';
+            }
+            
+            setCustomTime() {
+                const hours = parseInt(this.hoursInput.value) || 0;
+                const minutes = parseInt(this.minutesInput.value) || 0;
+                const seconds = parseInt(this.secondsInput.value) || 0;
+                
+                const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+                
+                if (totalSeconds > 0) {
+                    this.setPresetTime(totalSeconds);
+                    this.hoursInput.value = '';
+                    this.minutesInput.value = '';
+                    this.secondsInput.value = '';
+                }
+            }
+            
+            startCountdown() {
+                if (this.countdownTotalTime > 0 && !this.countdownRunning) {
+                    this.countdownRunning = true;
+                    this.countdownStartBtn.style.display = 'none';
+                    this.countdownPauseBtn.style.display = 'inline-block';
+                    this.countdownCircle.classList.add('pulsing');
+                    this.countdownStatus.textContent = 'Timer running...';
+                    
+                    this.countdownInterval = setInterval(() => {
+                        this.countdownTimeLeft--;
+                        this.updateCountdownDisplay();
+                        this.updateCountdownProgress();
+                        
+                        if (this.countdownTimeLeft <= 0) {
+                            this.completeCountdown();
+                        }
+                    }, 1000);
+                }
+            }
+            
+            pauseCountdown() {
+                if (this.countdownRunning) {
+                    this.countdownRunning = false;
+                    clearInterval(this.countdownInterval);
+                    this.countdownStartBtn.style.display = 'inline-block';
+                    this.countdownPauseBtn.style.display = 'none';
+                    this.countdownCircle.classList.remove('pulsing');
+                    this.countdownStatus.textContent = 'Paused - Click start to continue';
+                }
+            }
+            
+            resetCountdown() {
+                this.countdownRunning = false;
+                this.countdownTimeLeft = this.countdownTotalTime;
+                clearInterval(this.countdownInterval);
+                this.countdownStartBtn.style.display = 'inline-block';
+                this.countdownPauseBtn.style.display = 'none';
+                this.countdownCircle.classList.remove('pulsing');
+                this.countdownStatus.textContent = this.countdownTotalTime > 0 ? 'Timer reset - Click start to begin' : 'Set your timer and click start';
+                this.updateCountdownDisplay();
+                this.updateCountdownProgress();
+            }
+            
+            completeCountdown() {
+                this.countdownRunning = false;
+                clearInterval(this.countdownInterval);
+                this.countdownStartBtn.style.display = 'inline-block';
+                this.countdownPauseBtn.style.display = 'none';
+                this.countdownCircle.classList.remove('pulsing');
+                this.countdownStatus.textContent = 'Timer complete!';
+                
+                this.showNotification('Timer Complete! ⏰');
+                
+                if (this.soundEnabled) {
+                    this.countdownCircle.style.animation = 'pulse 0.5s ease-in-out 3';
+                    setTimeout(() => {
+                        this.countdownCircle.style.animation = '';
+                    }, 1500);
+                }
+            }
+            
+            updateCountdownDisplay() {
+                const hours = Math.floor(this.countdownTimeLeft / 3600);
+                const minutes = Math.floor((this.countdownTimeLeft % 3600) / 60);
+                const seconds = this.countdownTimeLeft % 60;
+                
+                if (hours > 0) {
+                    this.countdownDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    this.countdownDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }
+            
+            updateCountdownProgress() {
+                if (this.countdownTotalTime > 0) {
+                    const progress = (this.countdownTotalTime - this.countdownTimeLeft) / this.countdownTotalTime;
+                    const offset = this.circumference - (progress * this.circumference);
+                    this.countdownProgressCircle.style.strokeDashoffset = offset;
+                }
+            }
+            
+            // Stopwatch Methods
+            startStopwatch() {
+                if (!this.stopwatchRunning) {
+                    this.stopwatchRunning = true;
+                    this.stopwatchStartBtn.style.display = 'none';
+                    this.stopwatchPauseBtn.style.display = 'inline-block';
+                    this.lapBtn.style.display = 'inline-block';
+                    this.stopwatchCircle.classList.add('pulsing');
+                    this.stopwatchStatus.textContent = 'Stopwatch running...';
+                    
+                    this.stopwatchInterval = setInterval(() => {
+                        this.stopwatchTime++;
+                        this.updateStopwatchDisplay();
+                    }, 10); // Update every 10ms for precision
+                }
+            }
+            
+            pauseStopwatch() {
+                if (this.stopwatchRunning) {
+                    this.stopwatchRunning = false;
+                    clearInterval(this.stopwatchInterval);
+                    this.stopwatchStartBtn.style.display = 'inline-block';
+                    this.stopwatchPauseBtn.style.display = 'none';
+                    this.lapBtn.style.display = 'none';
+                    this.stopwatchCircle.classList.remove('pulsing');
+                    this.stopwatchStatus.textContent = 'Paused - Click start to continue';
+                }
+            }
+            
+            resetStopwatch() {
+                this.stopwatchRunning = false;
+                this.stopwatchTime = 0;
+                this.lapTimes = [];
+                clearInterval(this.stopwatchInterval);
+                this.stopwatchStartBtn.style.display = 'inline-block';
+                this.stopwatchPauseBtn.style.display = 'none';
+                this.lapBtn.style.display = 'none';
+                this.stopwatchCircle.classList.remove('pulsing');
+                this.stopwatchStatus.textContent = 'Ready to start timing';
+                this.updateStopwatchDisplay();
+                this.lapTimesContainer.style.display = 'none';
+                this.lapTimesContainer.innerHTML = '';
+            }
+            
+            addLap() {
+                if (this.stopwatchRunning) {
+                    this.lapTimes.push(this.stopwatchTime);
+                    this.updateLapDisplay();
+                }
+            }
+            
+            updateStopwatchDisplay() {
+                const totalMs = this.stopwatchTime * 10;
+                const minutes = Math.floor(totalMs / 60000);
+                const seconds = Math.floor((totalMs % 60000) / 1000);
+                const milliseconds = Math.floor((totalMs % 1000) / 10);
+                
+                this.stopwatchDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateLapDisplay() {
+                this.lapTimesContainer.style.display = 'block';
+                this.lapTimesContainer.innerHTML = '';
+                
+                this.lapTimes.forEach((lapTime, index) => {
+                    const totalMs = lapTime * 10;
+                    const minutes = Math.floor(totalMs / 60000);
+                    const seconds = Math.floor((totalMs % 60000) / 1000);
+                    const milliseconds = Math.floor((totalMs % 1000) / 10);
+                    
+                    const lapDiv = document.createElement('div');
+                    lapDiv.className = 'lap-time';
+                    lapDiv.textContent = `Lap ${index + 1}: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+                    this.lapTimesContainer.appendChild(lapDiv);
+                });
+            }
+            
+            // Clock Methods
+            startClock() {
+                this.updateClock();
+                this.clockInterval = setInterval(() => {
+                    this.updateClock();
+                }, 1000);
+            }
+            
+            updateClock() {
+                const now = new Date();
+                
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                
+                if (this.is24HourFormat) {
+                    this.clockDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds}`;
+                } else {
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12; // 0 should be 12
+                    this.clockDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+                }
+                
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                this.dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+            }
+            
+            // Utility Methods
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                this.soundToggle.textContent = this.soundEnabled ? '🔊' : '🔇';
+                this.soundToggle.title = this.soundEnabled ? 'Sound alerts enabled' : 'Sound alerts disabled';
+            }
+            
+            toggleTimeFormat() {
+                this.is24HourFormat = !this.is24HourFormat;
+                this.timeFormatToggle.textContent = this.is24HourFormat ? 'Switch to 12-hour' : 'Switch to 24-hour';
+                this.updateClock(); // Immediately update the display
+            }
+            
+            showNotification(message) {
+                this.notification.textContent = message;
+                this.notification.classList.add('show');
+                setTimeout(() => {
+                    this.notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new UltimateTimer();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f5622364f3ebed',t:'MTc1NTIyNjIxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

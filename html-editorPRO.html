@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Editor Pro</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .btn.success {
+            background: #27ae60;
+        }
+
+        .btn.success:hover {
+            background: #229954;
+        }
+
+        .btn.warning {
+            background: #f39c12;
+        }
+
+        .btn.warning:hover {
+            background: #e67e22;
+        }
+
+        .btn.info {
+            background: #9b59b6;
+        }
+
+        .btn.info:hover {
+            background: #8e44ad;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #ecf0f1;
+        }
+
+        .panel-header {
+            background: #34495e;
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .editor {
+            flex: 1;
+            border: none;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-frame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .status-bar {
+            background: #ecf0f1;
+            padding: 10px 20px;
+            font-size: 12px;
+            color: #7f8c8d;
+            border-top: 1px solid #bdc3c7;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .editor-panel {
+                border-right: none;
+                border-bottom: 2px solid #ecf0f1;
+            }
+            
+            .editor {
+                height: 300px;
+            }
+            
+            .preview-frame {
+                height: 300px;
+            }
+            
+            .toolbar {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 HTML Editor Pro</h1>
+            <div class="toolbar">
+                <button class="btn" onclick="goBack()" style="background: #e74c3c;">
+                    ← Back
+                </button>
+                <button class="btn" onclick="newFile()">
+                    📄 New
+                </button>
+                <button class="btn success" onclick="loadFile()">
+                    📁 Load
+                </button>
+                <button class="btn warning" onclick="saveFile()">
+                    💾 Save
+                </button>
+                <button class="btn info" onclick="openInNewTab()">
+                    🔗 Open in New Tab
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="editor-panel">
+                <div class="panel-header">HTML Code Editor</div>
+                <textarea class="editor" id="htmlEditor" placeholder="Start typing your HTML code here..."><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My HTML Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+        }
+        p {
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to HTML Editor Pro! 🎉</h1>
+        <p>This is your starting template. Edit the code on the left to see changes here!</p>
+        <p>You can create amazing web pages with HTML, CSS, and JavaScript.</p>
+        <button onclick="alert('Hello from your HTML page!')">Click me!</button>
+    </div>
+</body>
+</html></textarea>
+            </div>
+
+            <div class="preview-panel">
+                <div class="panel-header">Live Preview</div>
+                <iframe class="preview-frame" id="previewFrame"></iframe>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            Ready • Use the toolbar to load, save, or open your HTML in a new tab
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" class="file-input" accept=".html,.htm" onchange="handleFileLoad(event)">
+
+    <script>
+        const editor = document.getElementById('htmlEditor');
+        const previewFrame = document.getElementById('previewFrame');
+        const fileInput = document.getElementById('fileInput');
+
+        // Update preview in real-time
+        function updatePreview() {
+            const htmlContent = editor.value;
+            const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            previewDoc.open();
+            previewDoc.write(htmlContent);
+            previewDoc.close();
+        }
+
+        // Initialize preview
+        updatePreview();
+
+        // Update preview on input
+        editor.addEventListener('input', updatePreview);
+
+        // New file function
+        function newFile() {
+            if (confirm('Are you sure you want to create a new file? Any unsaved changes will be lost.')) {
+                editor.value = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New HTML Page</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>Start building your amazing web page here!</p>
+</body>
+</html>`;
+                updatePreview();
+            }
+        }
+
+        // Load file function
+        function loadFile() {
+            fileInput.click();
+        }
+
+        // Handle file loading
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editor.value = e.target.result;
+                    updatePreview();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Save file function
+        function saveFile() {
+            const htmlContent = editor.value;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'my-webpage.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Open in new tab function
+        function openInNewTab() {
+            const htmlContent = editor.value;
+            const newWindow = window.open('about:blank', '_blank');
+            newWindow.document.open();
+            newWindow.document.write(htmlContent);
+            newWindow.document.close();
+        }
+
+        // Back button function
+        function goBack() {
+            window.location.href = 'main.html';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        newFile();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        loadFile();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveFile();
+                        break;
+                }
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97034bf0c6c167e8',t:'MTc1NTM3MjEwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

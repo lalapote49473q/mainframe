@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Tank War - WebGL Edition</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        #gameCanvas {
+            display: block;
+            background: #000;
+        }
+        
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .health-bar {
+            width: 250px;
+            height: 25px;
+            background: #333;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 2px solid #555;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
+            transition: width 0.3s ease;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+        
+        .score {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            font-size: 1rem;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .minimap {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            height: 200px;
+            background: rgba(0,0,0,0.8);
+            border: 3px solid #f39c12;
+            border-radius: 15px;
+            z-index: 100;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(0,0,0,0.95);
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            border: 3px solid #f39c12;
+            backdrop-filter: blur(20px);
+        }
+        
+        .game-over.show {
+            display: block;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #e74c3c;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+        }
+        
+        .game-over.victory h2 {
+            color: #2ecc71;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+        }
+        
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f39c12;
+            border-radius: 50%;
+            z-index: 50;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.8);
+        }
+        
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.8);
+        }
+        
+        .crosshair::before {
+            width: 3px;
+            height: 15px;
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .crosshair::after {
+            width: 15px;
+            height: 3px;
+            top: 50%;
+            left: -7px;
+            transform: translateY(-50%);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: #f39c12;
+            z-index: 300;
+        }
+        
+        @media (max-width: 768px) {
+            .hud, .controls {
+                font-size: 0.9rem;
+                padding: 15px;
+            }
+            
+            .health-bar {
+                width: 200px;
+                height: 20px;
+            }
+            
+            .minimap {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">🎮 Loading 3D War Game...</div>
+    
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="crosshair"></div>
+    
+    <div class="hud">
+        <div class="score">🎯 Score: <span id="score">0</span></div>
+        <div>❤️ Health:</div>
+        <div class="health-bar">
+            <div class="health-fill" id="healthBar" style="width: 100%;"></div>
+        </div>
+        <div>🎯 Enemies: <span id="enemyCount">8</span></div>
+        <div>🔫 Ammo: <span id="ammo">∞</span></div>
+        <div>⚡ Speed: <span id="speed">0</span> km/h</div>
+    </div>
+    
+    <canvas class="minimap" id="minimap" width="200" height="200"></canvas>
+    
+    <div class="controls">
+        <div><strong>🎮 3D Tank Controls:</strong></div>
+        <div>🔄 WASD - Move Tank</div>
+        <div>🖱️ Mouse - Look & Aim</div>
+        <div>🔫 Click - Fire Cannon</div>
+        <div>⏸️ ESC - Pause Game</div>
+        <div>🎯 Destroy all enemy tanks!</div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <h2 id="gameOverTitle">Game Over</h2>
+        <p id="gameOverText">You were destroyed in battle!</p>
+        <button class="btn" onclick="restartGame()">🔄 Battle Again</button>
+        <button class="btn" onclick="backToMainMenu()">🏠 Main Menu</button>
+    </div>
+
+    <script>
+        // WebGL and 3D math utilities
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            
+            return shader;
+        }
+        
+        function createProgram(gl, vertexShader, fragmentShader) {
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Program linking error:', gl.getProgramInfoLog(program));
+                gl.deleteProgram(program);
+                return null;
+            }
+            
+            return program;
+        }
+        
+        // Matrix math
+        class Mat4 {
+            constructor() {
+                this.elements = new Float32Array(16);
+                this.identity();
+            }
+            
+            identity() {
+                const e = this.elements;
+                e[0] = 1; e[4] = 0; e[8] = 0; e[12] = 0;
+                e[1] = 0; e[5] = 1; e[9] = 0; e[13] = 0;
+                e[2] = 0; e[6] = 0; e[10] = 1; e[14] = 0;
+                e[3] = 0; e[7] = 0; e[11] = 0; e[15] = 1;
+                return this;
+            }
+            
+            perspective(fov, aspect, near, far) {
+                const f = 1.0 / Math.tan(fov / 2);
+                const rangeInv = 1 / (near - far);
+                const e = this.elements;
+                
+                e[0] = f / aspect; e[1] = 0; e[2] = 0; e[3] = 0;
+                e[4] = 0; e[5] = f; e[6] = 0; e[7] = 0;
+                e[8] = 0; e[9] = 0; e[10] = (near + far) * rangeInv; e[11] = -1;
+                e[12] = 0; e[13] = 0; e[14] = near * far * rangeInv * 2; e[15] = 0;
+                
+                return this;
+            }
+            
+            lookAt(eye, target, up) {
+                const zAxis = this.normalize([eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]]);
+                const xAxis = this.normalize(this.cross(up, zAxis));
+                const yAxis = this.normalize(this.cross(zAxis, xAxis));
+                
+                const e = this.elements;
+                e[0] = xAxis[0]; e[1] = yAxis[0]; e[2] = zAxis[0]; e[3] = 0;
+                e[4] = xAxis[1]; e[5] = yAxis[1]; e[6] = zAxis[1]; e[7] = 0;
+                e[8] = xAxis[2]; e[9] = yAxis[2]; e[10] = zAxis[2]; e[11] = 0;
+                e[12] = -this.dot(xAxis, eye); e[13] = -this.dot(yAxis, eye); e[14] = -this.dot(zAxis, eye); e[15] = 1;
+                
+                return this;
+            }
+            
+            translate(x, y, z) {
+                const e = this.elements;
+                e[12] += e[0] * x + e[4] * y + e[8] * z;
+                e[13] += e[1] * x + e[5] * y + e[9] * z;
+                e[14] += e[2] * x + e[6] * y + e[10] * z;
+                e[15] += e[3] * x + e[7] * y + e[11] * z;
+                return this;
+            }
+            
+            rotateY(angle) {
+                const c = Math.cos(angle);
+                const s = Math.sin(angle);
+                const e = this.elements;
+                
+                const m00 = e[0], m01 = e[1], m02 = e[2], m03 = e[3];
+                const m20 = e[8], m21 = e[9], m22 = e[10], m23 = e[11];
+                
+                e[0] = m00 * c + m20 * s;
+                e[1] = m01 * c + m21 * s;
+                e[2] = m02 * c + m22 * s;
+                e[3] = m03 * c + m23 * s;
+                e[8] = m20 * c - m00 * s;
+                e[9] = m21 * c - m01 * s;
+                e[10] = m22 * c - m02 * s;
+                e[11] = m23 * c - m03 * s;
+                
+                return this;
+            }
+            
+            scale(x, y, z) {
+                const e = this.elements;
+                e[0] *= x; e[1] *= x; e[2] *= x; e[3] *= x;
+                e[4] *= y; e[5] *= y; e[6] *= y; e[7] *= y;
+                e[8] *= z; e[9] *= z; e[10] *= z; e[11] *= z;
+                return this;
+            }
+            
+            normalize(v) {
+                const length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+                return [v[0] / length, v[1] / length, v[2] / length];
+            }
+            
+            cross(a, b) {
+                return [
+                    a[1] * b[2] - a[2] * b[1],
+                    a[2] * b[0] - a[0] * b[2],
+                    a[0] * b[1] - a[1] * b[0]
+                ];
+            }
+            
+            dot(a, b) {
+                return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+            }
+        }
+        
+        // Game state
+        let gameState = {
+            canvas: null,
+            gl: null,
+            program: null,
+            camera: { 
+                x: 0, y: 20, z: 50, 
+                rotX: -0.3, rotY: 0,
+                targetX: 0, targetY: 20, targetZ: 0
+            },
+            player: null,
+            enemies: [],
+            bullets: [],
+            explosions: [],
+            terrain: null,
+            keys: {},
+            mouse: { x: 0, y: 0, locked: false },
+            score: 0,
+            gameActive: true,
+            lastTime: 0,
+            buffers: {},
+            uniforms: {}
+        };
+        
+        // Shaders
+        const vertexShaderSource = `
+            attribute vec3 a_position;
+            attribute vec3 a_normal;
+            attribute vec3 a_color;
+            
+            uniform mat4 u_modelMatrix;
+            uniform mat4 u_viewMatrix;
+            uniform mat4 u_projectionMatrix;
+            uniform vec3 u_lightDirection;
+            
+            varying vec3 v_color;
+            varying float v_lighting;
+            
+            void main() {
+                vec4 worldPosition = u_modelMatrix * vec4(a_position, 1.0);
+                gl_Position = u_projectionMatrix * u_viewMatrix * worldPosition;
+                
+                vec3 normal = normalize((u_modelMatrix * vec4(a_normal, 0.0)).xyz);
+                v_lighting = max(dot(normal, -u_lightDirection), 0.3);
+                v_color = a_color;
+            }
+        `;
+        
+        const fragmentShaderSource = `
+            precision mediump float;
+            
+            varying vec3 v_color;
+            varying float v_lighting;
+            
+            void main() {
+                gl_FragColor = vec4(v_color * v_lighting, 1.0);
+            }
+        `;
+        
+        // Tank class
+        class Tank3D {
+            constructor(x, z, color, isPlayer = false) {
+                this.x = x;
+                this.y = 0;
+                this.z = z;
+                this.rotation = 0;
+                this.turretRotation = 0;
+                this.color = color;
+                this.isPlayer = isPlayer;
+                this.health = 100;
+                this.maxHealth = 100;
+                this.speed = 0;
+                this.maxSpeed = 25;
+                this.acceleration = 0.5;
+                this.size = 4;
+                this.lastShot = 0;
+                this.shootCooldown = isPlayer ? 500 : 1200;
+                this.vertices = null;
+                this.normals = null;
+                this.colors = null;
+                this.vertexCount = 0;
+                
+                this.createGeometry();
+            }
+            
+            createGeometry() {
+                const vertices = [];
+                const normals = [];
+                const colors = [];
+                
+                // Tank body (box)
+                const bodyVertices = [
+                    // Front face
+                    -2, 0, 3,  2, 0, 3,  2, 2, 3,  -2, 2, 3,
+                    // Back face
+                    -2, 0, -3,  -2, 2, -3,  2, 2, -3,  2, 0, -3,
+                    // Top face
+                    -2, 2, -3,  -2, 2, 3,  2, 2, 3,  2, 2, -3,
+                    // Bottom face
+                    -2, 0, -3,  2, 0, -3,  2, 0, 3,  -2, 0, 3,
+                    // Right face
+                    2, 0, -3,  2, 2, -3,  2, 2, 3,  2, 0, 3,
+                    // Left face
+                    -2, 0, -3,  -2, 0, 3,  -2, 2, 3,  -2, 2, -3
+                ];
+                
+                const bodyNormals = [
+                    0, 0, 1,  0, 0, 1,  0, 0, 1,  0, 0, 1,   // Front
+                    0, 0, -1,  0, 0, -1,  0, 0, -1,  0, 0, -1, // Back
+                    0, 1, 0,  0, 1, 0,  0, 1, 0,  0, 1, 0,   // Top
+                    0, -1, 0,  0, -1, 0,  0, -1, 0,  0, -1, 0, // Bottom
+                    1, 0, 0,  1, 0, 0,  1, 0, 0,  1, 0, 0,   // Right
+                    -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0  // Left
+                ];
+                
+                // Add body vertices
+                for (let i = 0; i < bodyVertices.length; i += 3) {
+                    vertices.push(bodyVertices[i], bodyVertices[i + 1], bodyVertices[i + 2]);
+                    normals.push(bodyNormals[i], bodyNormals[i + 1], bodyNormals[i + 2]);
+                    colors.push(this.color[0], this.color[1], this.color[2]);
+                }
+                
+                // Turret (smaller box)
+                const turretVertices = [
+                    -1, 2, 1,  1, 2, 1,  1, 3, 1,  -1, 3, 1,   // Front
+                    -1, 2, -1,  -1, 3, -1,  1, 3, -1,  1, 2, -1, // Back
+                    -1, 3, -1,  -1, 3, 1,  1, 3, 1,  1, 3, -1,  // Top
+                    -1, 2, -1,  1, 2, -1,  1, 2, 1,  -1, 2, 1,  // Bottom
+                    1, 2, -1,  1, 3, -1,  1, 3, 1,  1, 2, 1,    // Right
+                    -1, 2, -1,  -1, 2, 1,  -1, 3, 1,  -1, 3, -1  // Left
+                ];
+                
+                // Add turret vertices
+                for (let i = 0; i < turretVertices.length; i += 3) {
+                    vertices.push(turretVertices[i], turretVertices[i + 1], turretVertices[i + 2]);
+                    normals.push(bodyNormals[i], bodyNormals[i + 1], bodyNormals[i + 2]);
+                    colors.push(this.color[0] * 0.8, this.color[1] * 0.8, this.color[2] * 0.8);
+                }
+                
+                // Cannon barrel (cylinder approximation)
+                const barrelLength = 4;
+                const barrelRadius = 0.3;
+                for (let i = 0; i < 8; i++) {
+                    const angle1 = (i / 8) * Math.PI * 2;
+                    const angle2 = ((i + 1) / 8) * Math.PI * 2;
+                    
+                    const x1 = Math.cos(angle1) * barrelRadius;
+                    const y1 = Math.sin(angle1) * barrelRadius;
+                    const x2 = Math.cos(angle2) * barrelRadius;
+                    const y2 = Math.sin(angle2) * barrelRadius;
+                    
+                    // Barrel side
+                    vertices.push(x1, y1 + 2.5, 1, x2, y2 + 2.5, 1, x2, y2 + 2.5, 1 + barrelLength);
+                    vertices.push(x1, y1 + 2.5, 1, x2, y2 + 2.5, 1 + barrelLength, x1, y1 + 2.5, 1 + barrelLength);
+                    
+                    for (let j = 0; j < 6; j++) {
+                        normals.push(x1, y1, 0);
+                        colors.push(0.3, 0.3, 0.3);
+                    }
+                }
+                
+                this.vertices = new Float32Array(vertices);
+                this.normals = new Float32Array(normals);
+                this.colors = new Float32Array(colors);
+                this.vertexCount = vertices.length / 3;
+            }
+            
+            update(deltaTime) {
+                if (this.isPlayer) {
+                    this.updatePlayer(deltaTime);
+                } else {
+                    this.updateAI(deltaTime);
+                }
+                
+                // Apply terrain height
+                this.y = this.getTerrainHeight(this.x, this.z);
+                
+                // Keep in bounds
+                this.x = Math.max(-100, Math.min(100, this.x));
+                this.z = Math.max(-100, Math.min(100, this.z));
+            }
+            
+            updatePlayer(deltaTime) {
+                let acceleration = 0;
+                
+                if (gameState.keys['w'] || gameState.keys['W']) {
+                    acceleration = this.acceleration;
+                }
+                if (gameState.keys['s'] || gameState.keys['S']) {
+                    acceleration = -this.acceleration;
+                }
+                if (gameState.keys['a'] || gameState.keys['A']) {
+                    this.rotation += 0.03;
+                }
+                if (gameState.keys['d'] || gameState.keys['D']) {
+                    this.rotation -= 0.03;
+                }
+                
+                // Update speed
+                this.speed += acceleration;
+                this.speed *= 0.95; // Friction
+                this.speed = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.speed));
+                
+                // Move tank
+                this.x += Math.sin(this.rotation) * this.speed * deltaTime * 0.01;
+                this.z += Math.cos(this.rotation) * this.speed * deltaTime * 0.01;
+                
+                // Update camera
+                const cameraDistance = 30;
+                const cameraHeight = 15;
+                gameState.camera.x = this.x - Math.sin(this.rotation) * cameraDistance;
+                gameState.camera.z = this.z - Math.cos(this.rotation) * cameraDistance;
+                gameState.camera.y = this.y + cameraHeight;
+                gameState.camera.targetX = this.x;
+                gameState.camera.targetY = this.y + 5;
+                gameState.camera.targetZ = this.z;
+            }
+            
+            updateAI(deltaTime) {
+                if (!gameState.player) return;
+                
+                const dx = gameState.player.x - this.x;
+                const dz = gameState.player.z - this.z;
+                const distance = Math.sqrt(dx * dx + dz * dz);
+                
+                // AI movement logic
+                if (distance > 40) {
+                    const targetRotation = Math.atan2(dx, dz);
+                    this.rotation = this.lerp(this.rotation, targetRotation, 0.02);
+                    this.speed = Math.min(this.speed + this.acceleration, this.maxSpeed * 0.7);
+                } else if (distance < 20) {
+                    this.speed = Math.max(this.speed - this.acceleration, -this.maxSpeed * 0.5);
+                } else {
+                    this.speed *= 0.9;
+                }
+                
+                // Move
+                this.x += Math.sin(this.rotation) * this.speed * deltaTime * 0.01;
+                this.z += Math.cos(this.rotation) * this.speed * deltaTime * 0.01;
+                
+                // Aim turret at player
+                this.turretRotation = Math.atan2(dx, dz);
+                
+                // Shoot at player
+                if (distance < 60 && Date.now() - this.lastShot > this.shootCooldown) {
+                    this.shoot();
+                }
+            }
+            
+            shoot() {
+                if (Date.now() - this.lastShot < this.shootCooldown) return;
+                
+                const barrelLength = 4;
+                const bulletX = this.x + Math.sin(this.turretRotation) * (this.size + barrelLength);
+                const bulletZ = this.z + Math.cos(this.turretRotation) * (this.size + barrelLength);
+                const bulletY = this.y + 3;
+                
+                gameState.bullets.push(new Bullet3D(
+                    bulletX, bulletY, bulletZ,
+                    Math.sin(this.turretRotation) * 80,
+                    Math.cos(this.turretRotation) * 80,
+                    this.isPlayer
+                ));
+                
+                this.lastShot = Date.now();
+            }
+            
+            takeDamage(damage) {
+                this.health -= damage;
+                if (this.health <= 0) {
+                    this.explode();
+                    return true;
+                }
+                return false;
+            }
+            
+            explode() {
+                gameState.explosions.push(new Explosion3D(this.x, this.y + 3, this.z));
+                
+                if (this.isPlayer) {
+                    endGame(false);
+                } else {
+                    gameState.score += 150;
+                }
+            }
+            
+            getTerrainHeight(x, z) {
+                // Simple terrain height calculation
+                return Math.sin(x * 0.1) * 2 + Math.cos(z * 0.1) * 2;
+            }
+            
+            lerp(a, b, t) {
+                return a + (b - a) * t;
+            }
+        }
+        
+        // Bullet class
+        class Bullet3D {
+            constructor(x, y, z, vx, vz, fromPlayer) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.vx = vx;
+                this.vy = 0;
+                this.vz = vz;
+                this.fromPlayer = fromPlayer;
+                this.life = 3000;
+                this.damage = 30;
+                this.color = fromPlayer ? [1, 0.8, 0] : [1, 0.2, 0.2];
+            }
+            
+            update(deltaTime) {
+                this.x += this.vx * deltaTime * 0.01;
+                this.z += this.vz * deltaTime * 0.01;
+                this.y += this.vy * deltaTime * 0.01;
+                this.vy -= 20 * deltaTime * 0.01; // Gravity
+                
+                this.life -= deltaTime;
+                
+                // Check terrain collision
+                if (this.y <= this.getTerrainHeight(this.x, this.z)) {
+                    return true;
+                }
+                
+                // Check tank collisions
+                const targets = this.fromPlayer ? gameState.enemies : [gameState.player];
+                
+                for (let i = targets.length - 1; i >= 0; i--) {
+                    const target = targets[i];
+                    if (!target) continue;
+                    
+                    const dx = this.x - target.x;
+                    const dy = this.y - target.y;
+                    const dz = this.z - target.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    
+                    if (distance < target.size) {
+                        if (target.takeDamage(this.damage)) {
+                            if (!target.isPlayer) {
+                                gameState.enemies.splice(gameState.enemies.indexOf(target), 1);
+                            }
+                        }
+                        return true;
+                    }
+                }
+                
+                return this.life <= 0;
+            }
+            
+            getTerrainHeight(x, z) {
+                return Math.sin(x * 0.1) * 2 + Math.cos(z * 0.1) * 2;
+            }
+        }
+        
+        // Explosion class
+        class Explosion3D {
+            constructor(x, y, z) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.life = 1000;
+                this.maxLife = 1000;
+                this.particles = [];
+                
+                for (let i = 0; i < 30; i++) {
+                    this.particles.push({
+                        x: 0, y: 0, z: 0,
+                        vx: (Math.random() - 0.5) * 40,
+                        vy: Math.random() * 30,
+                        vz: (Math.random() - 0.5) * 40,
+                        life: Math.random() * 800 + 200,
+                        color: [Math.random() * 0.5 + 0.5, Math.random() * 0.3, 0]
+                    });
+                }
+            }
+            
+            update(deltaTime) {
+                this.life -= deltaTime;
+                
+                for (let particle of this.particles) {
+                    particle.x += particle.vx * deltaTime * 0.01;
+                    particle.y += particle.vy * deltaTime * 0.01;
+                    particle.z += particle.vz * deltaTime * 0.01;
+                    particle.vy -= 30 * deltaTime * 0.01;
+                    particle.life -= deltaTime;
+                }
+                
+                return this.life <= 0;
+            }
+        }
+        
+        // Initialize WebGL
+        function initWebGL() {
+            gameState.canvas = document.getElementById('gameCanvas');
+            gameState.gl = gameState.canvas.getContext('webgl');
+            
+            if (!gameState.gl) {
+                alert('WebGL not supported!');
+                return false;
+            }
+            
+            const gl = gameState.gl;
+            
+            // Create shaders
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+            
+            // Create program
+            gameState.program = createProgram(gl, vertexShader, fragmentShader);
+            
+            // Get uniform locations
+            gameState.uniforms = {
+                modelMatrix: gl.getUniformLocation(gameState.program, 'u_modelMatrix'),
+                viewMatrix: gl.getUniformLocation(gameState.program, 'u_viewMatrix'),
+                projectionMatrix: gl.getUniformLocation(gameState.program, 'u_projectionMatrix'),
+                lightDirection: gl.getUniformLocation(gameState.program, 'u_lightDirection')
+            };
+            
+            // Enable depth testing
+            gl.enable(gl.DEPTH_TEST);
+            gl.enable(gl.CULL_FACE);
+            
+            return true;
+        }
+        
+        // Initialize game
+        function initGame() {
+            document.getElementById('loading').style.display = 'none';
+            
+            if (!initWebGL()) return;
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Initialize player
+            gameState.player = new Tank3D(0, 0, [0.9, 0.2, 0.2], true);
+            
+            // Initialize enemies
+            gameState.enemies = [];
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = 60 + Math.random() * 40;
+                const x = Math.cos(angle) * distance;
+                const z = Math.sin(angle) * distance;
+                gameState.enemies.push(new Tank3D(x, z, [0.5, 0.5, 0.5], false));
+            }
+            
+            setupEventListeners();
+            gameState.lastTime = performance.now();
+            gameLoop();
+            updateHUD();
+        }
+        
+        function resizeCanvas() {
+            gameState.canvas.width = window.innerWidth;
+            gameState.canvas.height = window.innerHeight;
+            gameState.gl.viewport(0, 0, gameState.canvas.width, gameState.canvas.height);
+        }
+        
+        function setupEventListeners() {
+            document.addEventListener('keydown', (e) => {
+                gameState.keys[e.key] = true;
+                if (e.key === 'Escape') togglePause();
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                gameState.keys[e.key] = false;
+            });
+            
+            gameState.canvas.addEventListener('click', () => {
+                if (!gameState.mouse.locked) {
+                    gameState.canvas.requestPointerLock();
+                } else if (gameState.gameActive && gameState.player) {
+                    gameState.player.shoot();
+                }
+            });
+            
+            document.addEventListener('pointerlockchange', () => {
+                gameState.mouse.locked = document.pointerLockElement === gameState.canvas;
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (gameState.mouse.locked && gameState.gameActive && gameState.player) {
+                    gameState.player.turretRotation -= e.movementX * 0.003;
+                    gameState.camera.rotX = Math.max(-Math.PI/3, Math.min(Math.PI/6, gameState.camera.rotX - e.movementY * 0.003));
+                }
+            });
+        }
+        
+        function gameLoop() {
+            const currentTime = performance.now();
+            const deltaTime = currentTime - gameState.lastTime;
+            gameState.lastTime = currentTime;
+            
+            if (gameState.gameActive) {
+                update(deltaTime);
+            }
+            
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function update(deltaTime) {
+            // Update player
+            if (gameState.player) {
+                gameState.player.update(deltaTime);
+            }
+            
+            // Update enemies
+            for (let i = gameState.enemies.length - 1; i >= 0; i--) {
+                gameState.enemies[i].update(deltaTime);
+            }
+            
+            // Update bullets
+            for (let i = gameState.bullets.length - 1; i >= 0; i--) {
+                if (gameState.bullets[i].update(deltaTime)) {
+                    gameState.bullets.splice(i, 1);
+                }
+            }
+            
+            // Update explosions
+            for (let i = gameState.explosions.length - 1; i >= 0; i--) {
+                if (gameState.explosions[i].update(deltaTime)) {
+                    gameState.explosions.splice(i, 1);
+                }
+            }
+            
+            // Check win condition
+            if (gameState.enemies.length === 0) {
+                endGame(true);
+            }
+            
+            updateHUD();
+            updateMinimap();
+        }
+        
+        function render() {
+            const gl = gameState.gl;
+            
+            // Clear
+            gl.clearColor(0.5, 0.8, 1.0, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            
+            gl.useProgram(gameState.program);
+            
+            // Set up matrices
+            const projectionMatrix = new Mat4().perspective(
+                Math.PI / 4,
+                gameState.canvas.width / gameState.canvas.height,
+                0.1,
+                1000
+            );
+            
+            const viewMatrix = new Mat4().lookAt(
+                [gameState.camera.x, gameState.camera.y, gameState.camera.z],
+                [gameState.camera.targetX, gameState.camera.targetY, gameState.camera.targetZ],
+                [0, 1, 0]
+            );
+            
+            // Set uniforms
+            gl.uniformMatrix4fv(gameState.uniforms.projectionMatrix, false, projectionMatrix.elements);
+            gl.uniformMatrix4fv(gameState.uniforms.viewMatrix, false, viewMatrix.elements);
+            gl.uniform3f(gameState.uniforms.lightDirection, 0.3, -0.7, 0.5);
+            
+            // Render terrain
+            renderTerrain(gl);
+            
+            // Render player
+            if (gameState.player) {
+                renderTank(gl, gameState.player);
+            }
+            
+            // Render enemies
+            for (let enemy of gameState.enemies) {
+                renderTank(gl, enemy);
+            }
+            
+            // Render bullets
+            for (let bullet of gameState.bullets) {
+                renderBullet(gl, bullet);
+            }
+            
+            // Render explosions
+            for (let explosion of gameState.explosions) {
+                renderExplosion(gl, explosion);
+            }
+        }
+        
+        function renderTank(gl, tank) {
+            const modelMatrix = new Mat4()
+                .translate(tank.x, tank.y, tank.z)
+                .rotateY(tank.rotation);
+            
+            gl.uniformMatrix4fv(gameState.uniforms.modelMatrix, false, modelMatrix.elements);
+            
+            // Create buffers if needed
+            if (!tank.positionBuffer) {
+                tank.positionBuffer = gl.createBuffer();
+                tank.normalBuffer = gl.createBuffer();
+                tank.colorBuffer = gl.createBuffer();
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, tank.positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, tank.vertices, gl.STATIC_DRAW);
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, tank.normalBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, tank.normals, gl.STATIC_DRAW);
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, tank.colorBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, tank.colors, gl.STATIC_DRAW);
+            }
+            
+            // Bind attributes
+            const positionLocation = gl.getAttribLocation(gameState.program, 'a_position');
+            const normalLocation = gl.getAttribLocation(gameState.program, 'a_normal');
+            const colorLocation = gl.getAttribLocation(gameState.program, 'a_color');
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, tank.positionBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, tank.normalBuffer);
+            gl.enableVertexAttribArray(normalLocation);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, tank.colorBuffer);
+            gl.enableVertexAttribArray(colorLocation);
+            gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            // Draw
+            gl.drawArrays(gl.TRIANGLES, 0, tank.vertexCount);
+        }
+        
+        function renderTerrain(gl) {
+            // Simple terrain rendering
+            const size = 200;
+            const resolution = 20;
+            const vertices = [];
+            const normals = [];
+            const colors = [];
+            
+            for (let x = -size; x < size; x += resolution) {
+                for (let z = -size; z < size; z += resolution) {
+                    const h1 = Math.sin(x * 0.1) * 2 + Math.cos(z * 0.1) * 2;
+                    const h2 = Math.sin((x + resolution) * 0.1) * 2 + Math.cos(z * 0.1) * 2;
+                    const h3 = Math.sin(x * 0.1) * 2 + Math.cos((z + resolution) * 0.1) * 2;
+                    const h4 = Math.sin((x + resolution) * 0.1) * 2 + Math.cos((z + resolution) * 0.1) * 2;
+                    
+                    // Two triangles per quad
+                    vertices.push(x, h1, z, x + resolution, h2, z, x, h3, z + resolution);
+                    vertices.push(x + resolution, h2, z, x + resolution, h4, z + resolution, x, h3, z + resolution);
+                    
+                    // Simple normals (pointing up)
+                    for (let i = 0; i < 6; i++) {
+                        normals.push(0, 1, 0);
+                        colors.push(0.2, 0.6, 0.2);
+                    }
+                }
+            }
+            
+            if (!gameState.terrainBuffer) {
+                gameState.terrainBuffer = gl.createBuffer();
+                gameState.terrainNormalBuffer = gl.createBuffer();
+                gameState.terrainColorBuffer = gl.createBuffer();
+                gameState.terrainVertexCount = vertices.length / 3;
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, gameState.terrainBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, gameState.terrainNormalBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, gameState.terrainColorBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+            }
+            
+            const modelMatrix = new Mat4();
+            gl.uniformMatrix4fv(gameState.uniforms.modelMatrix, false, modelMatrix.elements);
+            
+            const positionLocation = gl.getAttribLocation(gameState.program, 'a_position');
+            const normalLocation = gl.getAttribLocation(gameState.program, 'a_normal');
+            const colorLocation = gl.getAttribLocation(gameState.program, 'a_color');
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, gameState.terrainBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, gameState.terrainNormalBuffer);
+            gl.enableVertexAttribArray(normalLocation);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, gameState.terrainColorBuffer);
+            gl.enableVertexAttribArray(colorLocation);
+            gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.drawArrays(gl.TRIANGLES, 0, gameState.terrainVertexCount);
+        }
+        
+        function renderBullet(gl, bullet) {
+            const modelMatrix = new Mat4()
+                .translate(bullet.x, bullet.y, bullet.z)
+                .scale(0.5, 0.5, 0.5);
+            
+            gl.uniformMatrix4fv(gameState.uniforms.modelMatrix, false, modelMatrix.elements);
+            
+            // Simple sphere for bullet
+            if (!gameState.bulletBuffer) {
+                const vertices = [];
+                const normals = [];
+                const colors = [];
+                
+                // Simple cube for bullet
+                const cubeVertices = [
+                    -1, -1, 1,  1, -1, 1,  1, 1, 1,  -1, 1, 1,   // Front
+                    -1, -1, -1,  -1, 1, -1,  1, 1, -1,  1, -1, -1, // Back
+                    -1, 1, -1,  -1, 1, 1,  1, 1, 1,  1, 1, -1,   // Top
+                    -1, -1, -1,  1, -1, -1,  1, -1, 1,  -1, -1, 1, // Bottom
+                    1, -1, -1,  1, 1, -1,  1, 1, 1,  1, -1, 1,   // Right
+                    -1, -1, -1,  -1, -1, 1,  -1, 1, 1,  -1, 1, -1 // Left
+                ];
+                
+                const cubeNormals = [
+                    0, 0, 1,  0, 0, 1,  0, 0, 1,  0, 0, 1,
+                    0, 0, -1,  0, 0, -1,  0, 0, -1,  0, 0, -1,
+                    0, 1, 0,  0, 1, 0,  0, 1, 0,  0, 1, 0,
+                    0, -1, 0,  0, -1, 0,  0, -1, 0,  0, -1, 0,
+                    1, 0, 0,  1, 0, 0,  1, 0, 0,  1, 0, 0,
+                    -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0
+                ];
+                
+                for (let i = 0; i < cubeVertices.length; i += 3) {
+                    vertices.push(cubeVertices[i], cubeVertices[i + 1], cubeVertices[i + 2]);
+                    normals.push(cubeNormals[i], cubeNormals[i + 1], cubeNormals[i + 2]);
+                    colors.push(1, 0.8, 0);
+                }
+                
+                gameState.bulletBuffer = gl.createBuffer();
+                gameState.bulletNormalBuffer = gl.createBuffer();
+                gameState.bulletColorBuffer = gl.createBuffer();
+                gameState.bulletVertexCount = vertices.length / 3;
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletNormalBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+                
+                gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletColorBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+            }
+            
+            const positionLocation = gl.getAttribLocation(gameState.program, 'a_position');
+            const normalLocation = gl.getAttribLocation(gameState.program, 'a_normal');
+            const colorLocation = gl.getAttribLocation(gameState.program, 'a_color');
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletNormalBuffer);
+            gl.enableVertexAttribArray(normalLocation);
+            gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletColorBuffer);
+            gl.enableVertexAttribArray(colorLocation);
+            gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.drawArrays(gl.TRIANGLES, 0, gameState.bulletVertexCount);
+        }
+        
+        function renderExplosion(gl, explosion) {
+            for (let particle of explosion.particles) {
+                if (particle.life <= 0) continue;
+                
+                const modelMatrix = new Mat4()
+                    .translate(explosion.x + particle.x, explosion.y + particle.y, explosion.z + particle.z)
+                    .scale(0.3, 0.3, 0.3);
+                
+                gl.uniformMatrix4fv(gameState.uniforms.modelMatrix, false, modelMatrix.elements);
+                
+                // Use bullet geometry for particles
+                if (gameState.bulletBuffer) {
+                    const positionLocation = gl.getAttribLocation(gameState.program, 'a_position');
+                    const normalLocation = gl.getAttribLocation(gameState.program, 'a_normal');
+                    const colorLocation = gl.getAttribLocation(gameState.program, 'a_color');
+                    
+                    gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletBuffer);
+                    gl.enableVertexAttribArray(positionLocation);
+                    gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+                    
+                    gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletNormalBuffer);
+                    gl.enableVertexAttribArray(normalLocation);
+                    gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+                    
+                    gl.bindBuffer(gl.ARRAY_BUFFER, gameState.bulletColorBuffer);
+                    gl.enableVertexAttribArray(colorLocation);
+                    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+                    
+                    gl.drawArrays(gl.TRIANGLES, 0, gameState.bulletVertexCount);
+                }
+            }
+        }
+        
+        function updateHUD() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('enemyCount').textContent = gameState.enemies.length;
+            
+            if (gameState.player) {
+                const healthPercent = (gameState.player.health / gameState.player.maxHealth) * 100;
+                document.getElementById('healthBar').style.width = healthPercent + '%';
+                document.getElementById('speed').textContent = Math.abs(Math.round(gameState.player.speed));
+            }
+        }
+        
+        function updateMinimap() {
+            const minimap = document.getElementById('minimap');
+            const ctx = minimap.getContext('2d');
+            
+            ctx.clearRect(0, 0, 200, 200);
+            
+            // Draw background
+            ctx.fillStyle = 'rgba(0, 100, 0, 0.3)';
+            ctx.fillRect(0, 0, 200, 200);
+            
+            // Draw border
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, 200, 200);
+            
+            const scale = 200 / 200; // Map 200x200 world to 200x200 minimap
+            const centerX = 100;
+            const centerY = 100;
+            
+            // Draw player
+            if (gameState.player) {
+                const px = centerX + gameState.player.x * scale;
+                const py = centerY + gameState.player.z * scale;
+                
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(px, py, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Player direction
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(px + Math.sin(gameState.player.rotation) * 8, py + Math.cos(gameState.player.rotation) * 8);
+                ctx.stroke();
+            }
+            
+            // Draw enemies
+            ctx.fillStyle = '#7f8c8d';
+            for (let enemy of gameState.enemies) {
+                const ex = centerX + enemy.x * scale;
+                const ey = centerY + enemy.z * scale;
+                
+                ctx.beginPath();
+                ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw bullets
+            ctx.fillStyle = '#f39c12';
+            for (let bullet of gameState.bullets) {
+                const bx = centerX + bullet.x * scale;
+                const by = centerY + bullet.z * scale;
+                
+                ctx.beginPath();
+                ctx.arc(bx, by, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function endGame(victory) {
+            gameState.gameActive = false;
+            const gameOver = document.getElementById('gameOver');
+            const title = document.getElementById('gameOverTitle');
+            const text = document.getElementById('gameOverText');
+            
+            if (victory) {
+                gameOver.classList.add('victory');
+                title.textContent = '🏆 VICTORY!';
+                text.textContent = `Outstanding! You destroyed all enemy tanks! Final Score: ${gameState.score}`;
+            } else {
+                gameOver.classList.remove('victory');
+                title.textContent = '💥 DEFEATED';
+                text.textContent = `Your tank was destroyed in battle! Final Score: ${gameState.score}`;
+            }
+            
+            gameOver.classList.add('show');
+        }
+
+        function backToMainMenu() {
+            window.location.href = "main.html";
+        }
+        
+        function restartGame() {
+            gameState.gameActive = true;
+            gameState.score = 0;
+            gameState.bullets = [];
+            gameState.explosions = [];
+            
+            // Reset player
+            gameState.player = new Tank3D(0, 0, [0.9, 0.2, 0.2], true);
+            
+            // Reset enemies
+            gameState.enemies = [];
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = 60 + Math.random() * 40;
+                const x = Math.cos(angle) * distance;
+                const z = Math.sin(angle) * distance;
+                gameState.enemies.push(new Tank3D(x, z, [0.5, 0.5, 0.5], false));
+            }
+            
+            document.getElementById('gameOver').classList.remove('show');
+            updateHUD();
+        }
+        
+        function togglePause() {
+            gameState.gameActive = !gameState.gameActive;
+        }
+        
+        // Start the game
+        window.onload = () => {
+            setTimeout(initGame, 1000);
+        };
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970215064630fa6a',t:'MTc1NTM1OTM3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

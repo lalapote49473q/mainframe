@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .task-completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl font-bold text-gray-800">My To-Do List</h1>
+                <button onclick="window.location.href='main.html'" 
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium">
+                    ← Back to Main
+                </button>
+            </div>
+            
+            <!-- Add Task Section -->
+            <div class="flex gap-3 mb-4">
+                <input type="text" id="taskInput" placeholder="Add a new task..." 
+                       class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button onclick="addTask()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 font-medium">
+                    Add Task
+                </button>
+            </div>
+
+            <!-- Import/Export Section -->
+            <div class="flex gap-3 mb-6">
+                <button onclick="exportTasks()" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium">
+                    📥 Export Tasks
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importTasks(event)">
+                <button onclick="document.getElementById('importFile').click()" 
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium">
+                    📤 Import Tasks
+                </button>
+                <button onclick="clearAllTasks()" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium">
+                    🗑️ Clear All
+                </button>
+            </div>
+
+            <!-- Task Stats -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>Total Tasks: <span id="totalTasks" class="font-semibold">0</span></span>
+                    <span>Completed: <span id="completedTasks" class="font-semibold">0</span></span>
+                    <span>Remaining: <span id="remainingTasks" class="font-semibold">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks List -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Tasks</h2>
+            <div id="tasksList" class="space-y-3">
+                <!-- Tasks will be added here dynamically -->
+            </div>
+            <div id="emptyState" class="text-center py-12 text-gray-500">
+                <div class="text-6xl mb-4">📝</div>
+                <p class="text-lg">No tasks yet. Add one above to get started!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('todoTasks')) || [];
+        let taskIdCounter = parseInt(localStorage.getItem('taskIdCounter')) || 1;
+
+        function saveTasks() {
+            localStorage.setItem('todoTasks', JSON.stringify(tasks));
+            localStorage.setItem('taskIdCounter', taskIdCounter.toString());
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            
+            if (taskText === '') {
+                alert('Please enter a task!');
+                return;
+            }
+
+            const newTask = {
+                id: taskIdCounter++,
+                text: taskText,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.unshift(newTask);
+            taskInput.value = '';
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (tasks.length === 0) {
+                tasksList.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                tasksList.style.display = 'block';
+                emptyState.style.display = 'none';
+                
+                tasksList.innerHTML = tasks.map(task => `
+                    <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 fade-in">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask(${task.id})"
+                               class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+                        <span class="flex-1 ${task.completed ? 'task-completed' : ''} text-gray-800">
+                            ${task.text}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                            ${new Date(task.createdAt).toLocaleDateString()}
+                        </span>
+                        <button onclick="deleteTask(${task.id})" 
+                                class="text-red-500 hover:text-red-700 transition-colors duration-200 p-1">
+                            🗑️
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const remaining = total - completed;
+            
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('remainingTasks').textContent = remaining;
+        }
+
+        function exportTasks() {
+            if (tasks.length === 0) {
+                alert('No tasks to export!');
+                return;
+            }
+
+            const dataStr = JSON.stringify(tasks, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `todo-tasks-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('Tasks exported successfully!');
+        }
+
+        function importTasks(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedTasks = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedTasks)) {
+                        throw new Error('Invalid file format');
+                    }
+
+                    // Validate task structure
+                    const validTasks = importedTasks.filter(task => 
+                        task.hasOwnProperty('text') && 
+                        task.hasOwnProperty('completed') &&
+                        typeof task.text === 'string' &&
+                        typeof task.completed === 'boolean'
+                    );
+
+                    if (validTasks.length === 0) {
+                        throw new Error('No valid tasks found in file');
+                    }
+
+                    // Assign new IDs to imported tasks
+                    validTasks.forEach(task => {
+                        task.id = taskIdCounter++;
+                        if (!task.createdAt) {
+                            task.createdAt = new Date().toISOString();
+                        }
+                    });
+
+                    if (confirm(`Import ${validTasks.length} tasks? This will add to your existing tasks.`)) {
+                        tasks = [...validTasks, ...tasks];
+                        saveTasks();
+                        renderTasks();
+                        alert(`Successfully imported ${validTasks.length} tasks!`);
+                    }
+                } catch (error) {
+                    alert('Error importing tasks: Invalid file format. Please select a valid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        function clearAllTasks() {
+            if (tasks.length === 0) {
+                alert('No tasks to clear!');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete all tasks? This cannot be undone.')) {
+                tasks = [];
+                saveTasks();
+                renderTasks();
+                alert('All tasks cleared!');
+            }
+        }
+
+        // Allow adding tasks with Enter key
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Initial render
+        renderTasks();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9703be5055d6169c',t:'MTc1NTM3Njc5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

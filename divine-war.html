@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divine Conquest - God Action RPG</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .god-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .god-avatar {
+            font-size: 2rem;
+            background: radial-gradient(circle, rgba(255,215,0,0.3), rgba(255,215,0,0.1));
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .god-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .bar {
+            width: 150px;
+            height: 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .health-bar .bar-fill {
+            background: linear-gradient(90deg, #22c55e, #84cc16);
+        }
+        
+        .mana-bar .bar-fill {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+        
+        .territory-info {
+            text-align: center;
+            position: relative;
+        }
+        
+        .territory-count {
+            font-size: 1.5rem;
+            color: #ffd700;
+            font-weight: 700;
+        }
+        
+        .territory-label {
+            font-size: 0.8rem;
+            color: #cccccc;
+        }
+        
+        .controls-info {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #cccccc;
+            line-height: 1.3;
+        }
+        
+        .game-world {
+            position: relative;
+            width: 2000px;
+            height: 2000px;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                linear-gradient(45deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #16213e 75%, #1a1a2e 100%);
+            background-size: 400px 400px, 600px 600px, 100% 100%;
+        }
+        
+        .camera {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            transition: transform 0.1s ease;
+        }
+        
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 600;
+            pointer-events: none;
+        }
+        
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .crosshair::before {
+            width: 20px;
+            height: 2px;
+            top: -1px;
+            left: -10px;
+        }
+        
+        .crosshair::after {
+            width: 2px;
+            height: 20px;
+            top: -10px;
+            left: -1px;
+        }
+        
+        .divine-aura {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            background: radial-gradient(circle at center, transparent 30%, rgba(255, 215, 0, 0.05) 70%, rgba(255, 215, 0, 0.1) 100%);
+            animation: auraShimmer 4s ease-in-out infinite;
+        }
+        
+        @keyframes auraShimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        
+        .player {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0px;
+            height: 0px;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .divine-hands {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            display: flex;
+            align-items: flex-end;
+            gap: 100px;
+            pointer-events: none;
+        }
+        
+        .divine-hand {
+            font-size: 4rem;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+            animation: handFloat 3s ease-in-out infinite;
+            transition: transform 0.2s ease;
+        }
+        
+        .divine-hand.left {
+            animation-delay: -1.5s;
+        }
+        
+        .divine-hand.attacking {
+            transform: scale(1.3) translateY(-20px);
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1));
+        }
+        
+        @keyframes handFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes godGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.5)); }
+        }
+        
+        .mortal {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .mortal.hostile {
+            color: #ff4444;
+            filter: drop-shadow(0 0 5px rgba(255, 68, 68, 0.8));
+        }
+        
+        .mortal.neutral {
+            color: #cccccc;
+        }
+        
+        .mortal.fleeing {
+            animation: flee 0.5s ease-in-out;
+        }
+        
+        @keyframes flee {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.8) rotate(180deg); }
+        }
+        
+        .territory {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 215, 0, 0.6);
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+            pointer-events: none;
+            animation: territoryPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes territoryPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        
+        .building {
+            position: absolute;
+            font-size: 1.5rem;
+            z-index: 30;
+            transition: all 0.3s ease;
+        }
+        
+        .building.conquered {
+            color: #ffd700;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+        }
+        
+        .building.unconquered {
+            color: #8b5a3c;
+        }
+        
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            z-index: 80;
+            pointer-events: none;
+        }
+        
+        .divine-projectile {
+            background: radial-gradient(circle, #ffd700, #ffed4e);
+            box-shadow: 0 0 10px #ffd700;
+        }
+        
+        .mortal-projectile {
+            background: radial-gradient(circle, #ff4444, #ff6b6b);
+            box-shadow: 0 0 5px #ff4444;
+        }
+        
+        .damage-text {
+            position: absolute;
+            font-size: 1rem;
+            font-weight: bold;
+            z-index: 200;
+            pointer-events: none;
+            animation: damageFloat 1s ease-out forwards;
+        }
+        
+        .damage-text.player {
+            color: #ffd700;
+        }
+        
+        .damage-text.enemy {
+            color: #ff4444;
+        }
+        
+        @keyframes damageFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+        
+        .god-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .selection-title {
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .god-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 800px;
+        }
+        
+        .god-option {
+            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
+            border: 2px solid rgba(255,215,0,0.5);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .god-option:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+            box-shadow: 0 10px 30px rgba(255,215,0,0.3);
+        }
+        
+        .god-option-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .god-option-name {
+            font-size: 1.2rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .god-option-power {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+        
+        .victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .victory-content {
+            background: linear-gradient(145deg, rgba(255,215,0,0.3), rgba(255,215,0,0.1));
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .victory-title {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(145deg, #ffd700, #f59e0b);
+            border: none;
+            color: #1a1a1a;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .hud {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .god-grid {
+                grid-template-columns: 1fr;
+                max-width: 300px;
+            }
+            
+            .controls-info {
+                text-align: center;
+            }
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 10px;
+            z-index: 1001;
+            padding: 6px 10px;
+            background: #8b0000;
+            color: #ffd700;
+            border: 2px solid #ff4444;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        .back-button[style*="position: fixed"] {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            right: auto !important;
+            transform: none !important;
+            z-index: 99999 !important;
+            padding: 10px 16px !important;
+            font-size: 0.9rem !important;
+        }
+        
+        .back-button:hover {
+            background: #a00000;
+            border-color: #ff6666;
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="god-selection" id="godSelection">
+        <a href="main.html" class="back-button" style="position: fixed; top: 20px; left: 20px;">← Back</a>
+        <h1 class="selection-title">Choose Your Divine Form</h1>
+        <div class="god-grid">
+            <div class="god-option" data-god="zeus">
+                <div class="god-option-icon">⚡</div>
+                <div class="god-option-name">Zeus</div>
+                <div class="god-option-power">Lightning Bolts</div>
+            </div>
+            <div class="god-option" data-god="ares">
+                <div class="god-option-icon">⚔️</div>
+                <div class="god-option-name">Ares</div>
+                <div class="god-option-power">War Strikes</div>
+            </div>
+            <div class="god-option" data-god="poseidon">
+                <div class="god-option-icon">🌊</div>
+                <div class="god-option-name">Poseidon</div>
+                <div class="god-option-power">Tidal Waves</div>
+            </div>
+            <div class="god-option" data-god="apollo">
+                <div class="god-option-icon">☀️</div>
+                <div class="god-option-name">Apollo</div>
+                <div class="god-option-power">Solar Rays</div>
+            </div>
+            <div class="god-option" data-god="artemis">
+                <div class="god-option-icon">🏹</div>
+                <div class="god-option-name">Artemis</div>
+                <div class="god-option-power">Divine Arrows</div>
+            </div>
+            <div class="god-option" data-god="hades">
+                <div class="god-option-icon">💀</div>
+                <div class="god-option-name">Hades</div>
+                <div class="god-option-power">Soul Drain</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="hud">
+            <div class="god-info">
+                <div class="god-avatar" id="godAvatar">⚡</div>
+                <div class="god-stats">
+                    <div class="stat-bar health-bar">
+                        <span>HP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="healthBar" style="width: 100%"></div>
+                        </div>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="stat-bar mana-bar">
+                        <span>MP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="manaBar" style="width: 100%"></div>
+                        </div>
+                        <span id="manaText">100/100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="territory-info">
+                <div class="territory-count" id="territoryCount">0</div>
+                <div class="territory-label">Territories Conquered</div>
+                <a href="main.html" class="back-button">← Back</a>
+            </div>
+            
+            <div class="controls-info">
+                <div>WASD: Move</div>
+                <div>SPACE: Divine Attack</div>
+                <div>Click: Target Attack</div>
+            </div>
+        </div>
+        
+        <div class="divine-aura"></div>
+        <div class="crosshair"></div>
+        <div class="divine-hands">
+            <div class="divine-hand left" id="leftHand">👐</div>
+            <div class="divine-hand right" id="rightHand">👐</div>
+        </div>
+        
+        <div class="camera" id="camera">
+            <div class="game-world" id="gameWorld">
+                <div class="player" id="player"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="victory-screen" id="victoryScreen">
+        <div class="victory-content">
+            <div class="victory-title">🏆 DIVINE VICTORY! 🏆</div>
+            <p id="victoryText">You have conquered the mortal realm!</p>
+            <button class="restart-btn" onclick="restartGame()">Conquer Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            selectedGod: null,
+            playerHealth: 100,
+            playerMaxHealth: 100,
+            playerMana: 100,
+            playerMaxMana: 100,
+            playerX: 1000,
+            playerY: 1000,
+            cameraX: 0,
+            cameraY: 0,
+            territories: [],
+            mortals: [],
+            buildings: [],
+            projectiles: [],
+            keys: {},
+            lastAttack: 0,
+            conqueredTerritories: 0,
+            gameRunning: false
+        };
+
+        // God configurations
+        const gods = {
+            zeus: { icon: '⚡', name: 'Zeus', attackDamage: 25, attackCost: 15, attackSpeed: 300 },
+            ares: { icon: '⚔️', name: 'Ares', attackDamage: 35, attackCost: 20, attackSpeed: 400 },
+            poseidon: { icon: '🌊', name: 'Poseidon', attackDamage: 30, attackCost: 18, attackSpeed: 350 },
+            apollo: { icon: '☀️', name: 'Apollo', attackDamage: 20, attackCost: 12, attackSpeed: 250 },
+            artemis: { icon: '🏹', name: 'Artemis', attackDamage: 28, attackCost: 16, attackSpeed: 200 },
+            hades: { icon: '💀', name: 'Hades', attackDamage: 40, attackCost: 25, attackSpeed: 500 }
+        };
+
+        // Initialize game
+        function initGame() {
+            setupGodSelection();
+        }
+
+        function setupGodSelection() {
+            const godOptions = document.querySelectorAll('.god-option');
+            godOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const godId = option.dataset.god;
+                    selectGod(godId);
+                });
+            });
+        }
+
+        function selectGod(godId) {
+            gameState.selectedGod = gods[godId];
+            document.getElementById('godSelection').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('godAvatar').textContent = gameState.selectedGod.icon;
+            
+            // Update divine hands based on god type
+            updateDivineHands();
+            
+            startGame();
+        }
+        
+        function updateDivineHands() {
+            const leftHand = document.getElementById('leftHand');
+            const rightHand = document.getElementById('rightHand');
+            
+            switch(gameState.selectedGod.name) {
+                case 'Zeus':
+                    leftHand.textContent = '⚡';
+                    rightHand.textContent = '⚡';
+                    break;
+                case 'Ares':
+                    leftHand.textContent = '⚔️';
+                    rightHand.textContent = '🛡️';
+                    break;
+                case 'Poseidon':
+                    leftHand.textContent = '🌊';
+                    rightHand.textContent = '🔱';
+                    break;
+                case 'Apollo':
+                    leftHand.textContent = '☀️';
+                    rightHand.textContent = '🏹';
+                    break;
+                case 'Artemis':
+                    leftHand.textContent = '🏹';
+                    rightHand.textContent = '🌙';
+                    break;
+                case 'Hades':
+                    leftHand.textContent = '💀';
+                    rightHand.textContent = '🔥';
+                    break;
+                default:
+                    leftHand.textContent = '👐';
+                    rightHand.textContent = '👐';
+            }
+        }
+
+        function startGame() {
+            gameState.gameRunning = true;
+            generateWorld();
+            setupControls();
+            gameLoop();
+        }
+
+        function generateWorld() {
+            // Generate territories
+            for (let i = 0; i < 15; i++) {
+                const territory = {
+                    x: Math.random() * 1800 + 100,
+                    y: Math.random() * 1800 + 100,
+                    size: Math.random() * 100 + 80,
+                    conquered: false,
+                    id: i
+                };
+                gameState.territories.push(territory);
+                createTerritoryElement(territory);
+            }
+
+            // Generate buildings
+            for (let i = 0; i < 25; i++) {
+                const building = {
+                    x: Math.random() * 1900 + 50,
+                    y: Math.random() * 1900 + 50,
+                    type: Math.random() > 0.5 ? '🏰' : '🏛️',
+                    conquered: false,
+                    id: i
+                };
+                gameState.buildings.push(building);
+                createBuildingElement(building);
+            }
+
+            // Generate mortals
+            for (let i = 0; i < 40; i++) {
+                const mortal = {
+                    x: Math.random() * 1900 + 50,
+                    y: Math.random() * 1900 + 50,
+                    health: 50 + Math.random() * 30,
+                    maxHealth: 50 + Math.random() * 30,
+                    type: Math.random() > 0.7 ? '🛡️' : '⚔️',
+                    hostile: Math.random() > 0.3,
+                    speed: 0.5 + Math.random() * 1,
+                    lastAttack: 0,
+                    id: i,
+                    alive: true
+                };
+                mortal.maxHealth = mortal.health;
+                gameState.mortals.push(mortal);
+                createMortalElement(mortal);
+            }
+        }
+
+        function createTerritoryElement(territory) {
+            const element = document.createElement('div');
+            element.className = 'territory';
+            element.id = `territory-${territory.id}`;
+            element.style.left = territory.x + 'px';
+            element.style.top = territory.y + 'px';
+            element.style.width = territory.size + 'px';
+            element.style.height = territory.size + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function createBuildingElement(building) {
+            const element = document.createElement('div');
+            element.className = 'building unconquered';
+            element.id = `building-${building.id}`;
+            element.style.left = building.x + 'px';
+            element.style.top = building.y + 'px';
+            element.textContent = building.type;
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function createMortalElement(mortal) {
+            const element = document.createElement('div');
+            element.className = `mortal ${mortal.hostile ? 'hostile' : 'neutral'}`;
+            element.id = `mortal-${mortal.id}`;
+            element.style.left = mortal.x + 'px';
+            element.style.top = mortal.y + 'px';
+            element.textContent = mortal.type;
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function setupControls() {
+            document.addEventListener('keydown', (e) => {
+                gameState.keys[e.key.toLowerCase()] = true;
+                
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    divineAttack();
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                gameState.keys[e.key.toLowerCase()] = false;
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('mortal')) {
+                    const mortalId = parseInt(e.target.id.split('-')[1]);
+                    targetedAttack(mortalId);
+                }
+            });
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+
+            updatePlayer();
+            updateMortals();
+            updateProjectiles();
+            updateCamera();
+            updateUI();
+            checkVictory();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updatePlayer() {
+            const speed = 3;
+            let moved = false;
+
+            if (gameState.keys['w'] || gameState.keys['arrowup']) {
+                gameState.playerY = Math.max(20, gameState.playerY - speed);
+                moved = true;
+            }
+            if (gameState.keys['s'] || gameState.keys['arrowdown']) {
+                gameState.playerY = Math.min(1980, gameState.playerY + speed);
+                moved = true;
+            }
+            if (gameState.keys['a'] || gameState.keys['arrowleft']) {
+                gameState.playerX = Math.max(20, gameState.playerX - speed);
+                moved = true;
+            }
+            if (gameState.keys['d'] || gameState.keys['arrowright']) {
+                gameState.playerX = Math.min(1980, gameState.playerX + speed);
+                moved = true;
+            }
+
+            if (moved) {
+                checkTerritoryConquest();
+            }
+
+            // Regenerate mana
+            if (gameState.playerMana < gameState.playerMaxMana) {
+                gameState.playerMana = Math.min(gameState.playerMaxMana, gameState.playerMana + 0.2);
+            }
+        }
+
+        function updateMortals() {
+            gameState.mortals.forEach(mortal => {
+                if (!mortal.alive) return;
+
+                const element = document.getElementById(`mortal-${mortal.id}`);
+                if (!element) return;
+
+                // AI behavior
+                const distanceToPlayer = Math.sqrt(
+                    Math.pow(mortal.x - gameState.playerX, 2) + 
+                    Math.pow(mortal.y - gameState.playerY, 2)
+                );
+
+                if (mortal.hostile && distanceToPlayer < 200) {
+                    // Move towards player
+                    const angle = Math.atan2(gameState.playerY - mortal.y, gameState.playerX - mortal.x);
+                    mortal.x += Math.cos(angle) * mortal.speed;
+                    mortal.y += Math.sin(angle) * mortal.speed;
+
+                    // Attack player if close enough
+                    if (distanceToPlayer < 50 && Date.now() - mortal.lastAttack > 1000) {
+                        mortalAttackPlayer(mortal);
+                        mortal.lastAttack = Date.now();
+                    }
+                } else if (!mortal.hostile && distanceToPlayer < 100) {
+                    // Flee from player
+                    const angle = Math.atan2(mortal.y - gameState.playerY, mortal.x - gameState.playerX);
+                    mortal.x += Math.cos(angle) * mortal.speed * 1.5;
+                    mortal.y += Math.sin(angle) * mortal.speed * 1.5;
+                    element.classList.add('fleeing');
+                } else {
+                    element.classList.remove('fleeing');
+                    // Random movement
+                    if (Math.random() < 0.02) {
+                        const angle = Math.random() * Math.PI * 2;
+                        mortal.x += Math.cos(angle) * mortal.speed * 0.5;
+                        mortal.y += Math.sin(angle) * mortal.speed * 0.5;
+                    }
+                }
+
+                // Keep mortals in bounds
+                mortal.x = Math.max(25, Math.min(1975, mortal.x));
+                mortal.y = Math.max(25, Math.min(1975, mortal.y));
+
+                element.style.left = mortal.x + 'px';
+                element.style.top = mortal.y + 'px';
+            });
+        }
+
+        function updateProjectiles() {
+            gameState.projectiles.forEach((projectile, index) => {
+                projectile.x += projectile.vx;
+                projectile.y += projectile.vy;
+                projectile.life--;
+
+                const element = document.getElementById(`projectile-${projectile.id}`);
+                if (element) {
+                    element.style.left = projectile.x + 'px';
+                    element.style.top = projectile.y + 'px';
+                }
+
+                // Check collisions
+                if (projectile.type === 'divine') {
+                    gameState.mortals.forEach(mortal => {
+                        if (!mortal.alive) return;
+                        const distance = Math.sqrt(
+                            Math.pow(projectile.x - mortal.x, 2) + 
+                            Math.pow(projectile.y - mortal.y, 2)
+                        );
+                        if (distance < 20) {
+                            damageMortal(mortal, gameState.selectedGod.attackDamage);
+                            removeProjectile(index);
+                        }
+                    });
+                }
+
+                // Remove expired projectiles
+                if (projectile.life <= 0) {
+                    removeProjectile(index);
+                }
+            });
+        }
+
+        function updateCamera() {
+            // Center the world around the player position
+            gameState.cameraX = -gameState.playerX + window.innerWidth / 2;
+            gameState.cameraY = -gameState.playerY + window.innerHeight / 2;
+
+            const gameWorld = document.getElementById('gameWorld');
+            gameWorld.style.transform = `translate(${gameState.cameraX}px, ${gameState.cameraY}px)`;
+        }
+
+        function updateUI() {
+            const healthPercent = (gameState.playerHealth / gameState.playerMaxHealth) * 100;
+            const manaPercent = (gameState.playerMana / gameState.playerMaxMana) * 100;
+
+            document.getElementById('healthBar').style.width = healthPercent + '%';
+            document.getElementById('manaBar').style.width = manaPercent + '%';
+            document.getElementById('healthText').textContent = `${Math.floor(gameState.playerHealth)}/${gameState.playerMaxHealth}`;
+            document.getElementById('manaText').textContent = `${Math.floor(gameState.playerMana)}/${gameState.playerMaxMana}`;
+            document.getElementById('territoryCount').textContent = gameState.conqueredTerritories;
+        }
+
+        function divineAttack() {
+            if (Date.now() - gameState.lastAttack < gameState.selectedGod.attackSpeed) return;
+            if (gameState.playerMana < gameState.selectedGod.attackCost) return;
+
+            gameState.playerMana -= gameState.selectedGod.attackCost;
+            gameState.lastAttack = Date.now();
+
+            // Animate hands
+            animateAttack();
+
+            // Create multiple projectiles in a spread
+            for (let i = 0; i < 5; i++) {
+                const angle = (i - 2) * 0.3;
+                createProjectile(
+                    gameState.playerX,
+                    gameState.playerY,
+                    Math.cos(angle) * 8,
+                    Math.sin(angle) * 8,
+                    'divine'
+                );
+            }
+        }
+        
+        function animateAttack() {
+            const leftHand = document.getElementById('leftHand');
+            const rightHand = document.getElementById('rightHand');
+            
+            leftHand.classList.add('attacking');
+            rightHand.classList.add('attacking');
+            
+            setTimeout(() => {
+                leftHand.classList.remove('attacking');
+                rightHand.classList.remove('attacking');
+            }, 300);
+        }
+
+        function targetedAttack(mortalId) {
+            if (Date.now() - gameState.lastAttack < gameState.selectedGod.attackSpeed) return;
+            if (gameState.playerMana < gameState.selectedGod.attackCost) return;
+
+            const mortal = gameState.mortals[mortalId];
+            if (!mortal || !mortal.alive) return;
+
+            const distance = Math.sqrt(
+                Math.pow(mortal.x - gameState.playerX, 2) + 
+                Math.pow(mortal.y - gameState.playerY, 2)
+            );
+
+            if (distance > 300) return; // Too far
+
+            gameState.playerMana -= gameState.selectedGod.attackCost;
+            gameState.lastAttack = Date.now();
+
+            // Animate hands
+            animateAttack();
+
+            const angle = Math.atan2(mortal.y - gameState.playerY, mortal.x - gameState.playerX);
+            createProjectile(
+                gameState.playerX,
+                gameState.playerY,
+                Math.cos(angle) * 10,
+                Math.sin(angle) * 10,
+                'divine'
+            );
+        }
+
+        function createProjectile(x, y, vx, vy, type) {
+            const projectile = {
+                x: x,
+                y: y,
+                vx: vx,
+                vy: vy,
+                type: type,
+                life: 100,
+                id: Date.now() + Math.random()
+            };
+
+            gameState.projectiles.push(projectile);
+
+            const element = document.createElement('div');
+            element.className = `projectile ${type}-projectile`;
+            element.id = `projectile-${projectile.id}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function removeProjectile(index) {
+            const projectile = gameState.projectiles[index];
+            const element = document.getElementById(`projectile-${projectile.id}`);
+            if (element) {
+                element.remove();
+            }
+            gameState.projectiles.splice(index, 1);
+        }
+
+        function damageMortal(mortal, damage) {
+            mortal.health -= damage;
+            showDamageText(mortal.x, mortal.y, damage, 'player');
+
+            if (mortal.health <= 0) {
+                mortal.alive = false;
+                const element = document.getElementById(`mortal-${mortal.id}`);
+                if (element) {
+                    element.style.opacity = '0';
+                    setTimeout(() => element.remove(), 300);
+                }
+            }
+        }
+
+        function mortalAttackPlayer(mortal) {
+            const damage = 15 + Math.random() * 10;
+            gameState.playerHealth -= damage;
+            showDamageText(gameState.playerX, gameState.playerY, Math.floor(damage), 'enemy');
+
+            if (gameState.playerHealth <= 0) {
+                gameOver();
+            }
+        }
+
+        function showDamageText(x, y, damage, type) {
+            const element = document.createElement('div');
+            element.className = `damage-text ${type}`;
+            element.textContent = `-${damage}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+
+            setTimeout(() => element.remove(), 1000);
+        }
+
+        function checkTerritoryConquest() {
+            gameState.territories.forEach(territory => {
+                if (territory.conquered) return;
+
+                const distance = Math.sqrt(
+                    Math.pow(territory.x + territory.size/2 - gameState.playerX, 2) + 
+                    Math.pow(territory.y + territory.size/2 - gameState.playerY, 2)
+                );
+
+                if (distance < territory.size/2) {
+                    territory.conquered = true;
+                    gameState.conqueredTerritories++;
+                    
+                    const element = document.getElementById(`territory-${territory.id}`);
+                    element.style.borderColor = '#ffd700';
+                    element.style.background = 'radial-gradient(circle, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.1))';
+                }
+            });
+        }
+
+        function checkVictory() {
+            const aliveMortals = gameState.mortals.filter(m => m.alive).length;
+            if (aliveMortals === 0 && gameState.conqueredTerritories >= 10) {
+                victory();
+            }
+        }
+
+        function victory() {
+            gameState.gameRunning = false;
+            document.getElementById('victoryText').textContent = 
+                `Congratulations! You have conquered ${gameState.conqueredTerritories} territories and defeated all mortals as ${gameState.selectedGod.name}!`;
+            document.getElementById('victoryScreen').style.display = 'flex';
+        }
+
+        function gameOver() {
+            gameState.gameRunning = false;
+            alert('Game Over! The mortals have defeated you.');
+            restartGame();
+        }
+
+        function restartGame() {
+            // Reset game state
+            gameState = {
+                selectedGod: null,
+                playerHealth: 100,
+                playerMaxHealth: 100,
+                playerMana: 100,
+                playerMaxMana: 100,
+                playerX: 1000,
+                playerY: 1000,
+                cameraX: 0,
+                cameraY: 0,
+                territories: [],
+                mortals: [],
+                buildings: [],
+                projectiles: [],
+                keys: {},
+                lastAttack: 0,
+                conqueredTerritories: 0,
+                gameRunning: false
+            };
+
+            // Clear world
+            document.getElementById('gameWorld').innerHTML = '<div class="player" id="player">⚡</div>';
+            
+            // Show god selection
+            document.getElementById('victoryScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('godSelection').style.display = 'flex';
+        }
+
+        // Initialize the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97031dbed48a1749',t:'MTc1NTM3MDIxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

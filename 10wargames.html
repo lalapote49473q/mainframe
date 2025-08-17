@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>War Games Collection</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            padding: 12px 20px;
+            background: #4ecdc4;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-button:hover {
+            background: #45b7aa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #4ecdc4;
+            margin-bottom: 20px;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .game-card:hover {
+            border-color: #4ecdc4;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+        }
+        
+        .game-card.active {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4ecdc4;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .game-description {
+            color: #b8b8b8;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .game-area {
+            min-height: 300px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .game-area.active {
+            display: block;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .btn-primary:hover {
+            background: #45b7aa;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #40c057;
+            transform: translateY(-2px);
+        }
+        
+        .game-board {
+            display: grid;
+            gap: 2px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+        }
+        
+        .cell:hover {
+            background: rgba(78, 205, 196, 0.3);
+        }
+        
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            min-height: 25px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .cell {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">← Back to Main</a>
+    
+    <div class="header">
+        <h1 class="main-title">⚔️ WAR GAMES COLLECTION ⚔️</h1>
+        <p class="subtitle">Choose your battlefield and dominate your enemies!</p>
+    </div>
+    
+    <div class="games-grid">
+        <!-- Game 1: Naval Battle -->
+        <div class="game-card" onclick="selectGame(1)">
+            <div class="game-title">🚢 Naval Battle</div>
+            <div class="game-description">Command your fleet in epic sea battles. Sink enemy ships before they sink yours!</div>
+            <div class="game-area" id="game1">
+                <div class="status" id="status1">Click to place your ships!</div>
+                <div class="game-board" id="board1" style="grid-template-columns: repeat(8, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startNavalBattle()">New Battle</button>
+                    <button class="btn btn-danger" onclick="autoPlaceShips()">Auto Place Ships</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Your Ships: <span id="playerShips">5</span></div>
+                    <div class="stat-item">Enemy Ships: <span id="enemyShips">5</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 2: Tank Commander -->
+        <div class="game-card" onclick="selectGame(2)">
+            <div class="game-title">🛡️ Tank Commander</div>
+            <div class="game-description">Control your tank through enemy territory. Destroy targets and avoid obstacles!</div>
+            <div class="game-area" id="game2">
+                <div class="status" id="status2">Use WASD or arrow keys to move your tank!</div>
+                <div class="game-board" id="board2" style="grid-template-columns: repeat(10, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startTankGame()">New Mission</button>
+                    <button class="btn btn-success" onclick="fireTankWeapon()">Fire! 💥</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Score: <span id="tankScore">0</span></div>
+                    <div class="stat-item">Ammo: <span id="tankAmmo">10</span></div>
+                    <div class="stat-item">Enemies: <span id="tankEnemies">8</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 3: Air Strike -->
+        <div class="game-card" onclick="selectGame(3)">
+            <div class="game-title">✈️ Air Strike</div>
+            <div class="game-description">Pilot your fighter jet and eliminate ground targets. Dodge enemy fire!</div>
+            <div class="game-area" id="game3">
+                <div class="status" id="status3">Click to move your jet and bomb targets!</div>
+                <div class="game-board" id="board3" style="grid-template-columns: repeat(12, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startAirStrike()">Take Off</button>
+                    <button class="btn btn-danger" onclick="dropBomb()">Drop Bomb 💣</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Altitude: <span id="altitude">1000ft</span></div>
+                    <div class="stat-item">Bombs: <span id="bombCount">5</span></div>
+                    <div class="stat-item">Targets: <span id="airTargets">6</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 4: Castle Siege -->
+        <div class="game-card" onclick="selectGame(4)">
+            <div class="game-title">🏰 Castle Siege</div>
+            <div class="game-description">Defend your castle from waves of enemies. Build defenses and command troops!</div>
+            <div class="game-area" id="game4">
+                <div class="status" id="status4">Build towers and prepare for battle!</div>
+                <div class="game-board" id="board4" style="grid-template-columns: repeat(10, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startCastleSiege()">New Siege</button>
+                    <button class="btn btn-success" onclick="buildTower()">Build Tower 🗼</button>
+                    <button class="btn btn-danger" onclick="startWave()">Start Wave</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Gold: <span id="gold">100</span></div>
+                    <div class="stat-item">Wave: <span id="wave">1</span></div>
+                    <div class="stat-item">Lives: <span id="lives">3</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 5: Submarine Hunt -->
+        <div class="game-card" onclick="selectGame(5)">
+            <div class="game-title">🔱 Submarine Hunt</div>
+            <div class="game-description">Hunt enemy submarines in the deep ocean. Use sonar to locate and destroy!</div>
+            <div class="game-area" id="game5">
+                <div class="status" id="status5">Use sonar to detect enemy submarines!</div>
+                <div class="game-board" id="board5" style="grid-template-columns: repeat(9, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startSubHunt()">Dive Deep</button>
+                    <button class="btn btn-success" onclick="useSonar()">Sonar Ping 📡</button>
+                    <button class="btn btn-danger" onclick="fireTorpedo()">Fire Torpedo 🚀</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Depth: <span id="depth">200m</span></div>
+                    <div class="stat-item">Torpedoes: <span id="torpedoes">6</span></div>
+                    <div class="stat-item">Subs Found: <span id="subsFound">0/4</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 6: Space War -->
+        <div class="game-card" onclick="selectGame(6)">
+            <div class="game-title">🚀 Space War</div>
+            <div class="game-description">Command your space fleet against alien invaders. Protect Earth at all costs!</div>
+            <div class="game-area" id="game6">
+                <div class="status" id="status6">Alien invasion detected! Defend Earth!</div>
+                <div class="game-board" id="board6" style="grid-template-columns: repeat(8, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startSpaceWar()">Launch Fleet</button>
+                    <button class="btn btn-success" onclick="deployShield()">Deploy Shield 🛡️</button>
+                    <button class="btn btn-danger" onclick="fireLasers()">Fire Lasers ⚡</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Energy: <span id="energy">100</span></div>
+                    <div class="stat-item">Ships: <span id="spaceShips">3</span></div>
+                    <div class="stat-item">Aliens: <span id="aliens">12</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 7: Trench Warfare -->
+        <div class="game-card" onclick="selectGame(7)">
+            <div class="game-title">⚰️ Trench Warfare</div>
+            <div class="game-description">Lead your soldiers across no man's land. Capture enemy trenches!</div>
+            <div class="game-area" id="game7">
+                <div class="status" id="status7">Order your troops to advance!</div>
+                <div class="game-board" id="board7" style="grid-template-columns: repeat(12, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startTrenchWar()">Begin Battle</button>
+                    <button class="btn btn-success" onclick="sendReinforcements()">Reinforcements 👥</button>
+                    <button class="btn btn-danger" onclick="artillery()">Artillery Strike 💥</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Troops: <span id="troops">20</span></div>
+                    <div class="stat-item">Morale: <span id="morale">High</span></div>
+                    <div class="stat-item">Territory: <span id="territory">30%</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 8: Missile Defense -->
+        <div class="game-card" onclick="selectGame(8)">
+            <div class="game-title">🎯 Missile Defense</div>
+            <div class="game-description">Intercept incoming missiles before they hit your cities. Quick reflexes needed!</div>
+            <div class="game-area" id="game8">
+                <div class="status" id="status8">Incoming missiles detected! Defend the cities!</div>
+                <div class="game-board" id="board8" style="grid-template-columns: repeat(10, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startMissileDefense()">Activate Defense</button>
+                    <button class="btn btn-danger" onclick="interceptMissile()">Intercept! 🚀</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Cities: <span id="cities">5</span></div>
+                    <div class="stat-item">Interceptors: <span id="interceptors">10</span></div>
+                    <div class="stat-item">Wave: <span id="missileWave">1</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 9: Guerrilla Warfare -->
+        <div class="game-card" onclick="selectGame(9)">
+            <div class="game-title">🌿 Guerrilla Warfare</div>
+            <div class="game-description">Use stealth and tactics to outmaneuver a larger enemy force. Strike and vanish!</div>
+            <div class="game-area" id="game9">
+                <div class="status" id="status9">Stay hidden and strike when the enemy is weak!</div>
+                <div class="game-board" id="board9" style="grid-template-columns: repeat(8, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startGuerrilla()">Begin Mission</button>
+                    <button class="btn btn-success" onclick="hideInJungle()">Hide 🌿</button>
+                    <button class="btn btn-danger" onclick="ambushEnemy()">Ambush! ⚔️</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Stealth: <span id="stealth">100%</span></div>
+                    <div class="stat-item">Squad: <span id="squad">8</span></div>
+                    <div class="stat-item">Supplies: <span id="supplies">Good</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game 10: Nuclear Strategy -->
+        <div class="game-card" onclick="selectGame(10)">
+            <div class="game-title">☢️ Nuclear Strategy</div>
+            <div class="game-description">Manage nuclear arsenals and prevent global war. Diplomacy or destruction?</div>
+            <div class="game-area" id="game10">
+                <div class="status" id="status10">Global tensions rising. Choose your strategy wisely!</div>
+                <div class="game-board" id="board10" style="grid-template-columns: repeat(6, 1fr);"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startNuclearGame()">Begin Crisis</button>
+                    <button class="btn btn-success" onclick="negotiate()">Negotiate 🕊️</button>
+                    <button class="btn btn-danger" onclick="showForce()">Show Force ☢️</button>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">Tension: <span id="tension">Medium</span></div>
+                    <div class="stat-item">Allies: <span id="allies">3</span></div>
+                    <div class="stat-item">Warheads: <span id="warheads">50</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGame = null;
+        let gameStates = {};
+        
+        function selectGame(gameNum) {
+            // Hide all games
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelectorAll('.game-area').forEach(area => {
+                area.classList.remove('active');
+            });
+            
+            // Show selected game
+            document.querySelector(`.game-card:nth-child(${gameNum})`).classList.add('active');
+            document.getElementById(`game${gameNum}`).classList.add('active');
+            currentGame = gameNum;
+            
+            // Initialize game if not already done
+            if (!gameStates[gameNum]) {
+                initializeGame(gameNum);
+            }
+        }
+        
+        function initializeGame(gameNum) {
+            gameStates[gameNum] = {};
+            
+            switch(gameNum) {
+                case 1: initNavalBattle(); break;
+                case 2: initTankGame(); break;
+                case 3: initAirStrike(); break;
+                case 4: initCastleSiege(); break;
+                case 5: initSubHunt(); break;
+                case 6: initSpaceWar(); break;
+                case 7: initTrenchWar(); break;
+                case 8: initMissileDefense(); break;
+                case 9: initGuerrilla(); break;
+                case 10: initNuclearGame(); break;
+            }
+        }
+        
+        // Game 1: Naval Battle
+        function initNavalBattle() {
+            const board = document.getElementById('board1');
+            board.innerHTML = '';
+            gameStates[1] = {
+                playerShips: [],
+                enemyShips: [],
+                playerHits: [],
+                enemyHits: [],
+                turn: 'player',
+                shipsToPlace: 5
+            };
+            
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#1e3a8a';
+                cell.onclick = () => navalBattleClick(i);
+                board.appendChild(cell);
+            }
+            
+            // Place enemy ships randomly
+            for (let i = 0; i < 5; i++) {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * 64);
+                } while (gameStates[1].enemyShips.includes(pos));
+                gameStates[1].enemyShips.push(pos);
+            }
+        }
+        
+        function startNavalBattle() {
+            initNavalBattle();
+        }
+        
+        function autoPlaceShips() {
+            gameStates[1].playerShips = [];
+            for (let i = 0; i < 5; i++) {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * 64);
+                } while (gameStates[1].playerShips.includes(pos));
+                gameStates[1].playerShips.push(pos);
+                
+                const cell = document.getElementById('board1').children[pos];
+                cell.style.background = '#059669';
+                cell.textContent = '🚢';
+            }
+            gameStates[1].shipsToPlace = 0;
+            document.getElementById('status1').textContent = 'Ships placed! Click enemy waters to attack!';
+        }
+        
+        function navalBattleClick(pos) {
+            const state = gameStates[1];
+            if (state.shipsToPlace > 0) {
+                // Place player ships
+                if (!state.playerShips.includes(pos)) {
+                    state.playerShips.push(pos);
+                    const cell = document.getElementById('board1').children[pos];
+                    cell.style.background = '#059669';
+                    cell.textContent = '🚢';
+                    state.shipsToPlace--;
+                    
+                    if (state.shipsToPlace === 0) {
+                        document.getElementById('status1').textContent = 'Ships placed! Click enemy waters to attack!';
+                    } else {
+                        document.getElementById('status1').textContent = `Place ${state.shipsToPlace} more ships!`;
+                    }
+                }
+            } else if (state.turn === 'player' && !state.playerHits.includes(pos)) {
+                // Player attack
+                state.playerHits.push(pos);
+                const cell = document.getElementById('board1').children[pos];
+                
+                if (state.enemyShips.includes(pos)) {
+                    cell.style.background = '#dc2626';
+                    cell.textContent = '💥';
+                    document.getElementById('status1').textContent = 'Hit! Enemy ship destroyed!';
+                    
+                    const enemyShipsLeft = state.enemyShips.filter(ship => !state.playerHits.includes(ship)).length;
+                    document.getElementById('enemyShips').textContent = enemyShipsLeft;
+                    
+                    if (enemyShipsLeft === 0) {
+                        document.getElementById('status1').textContent = '🎉 Victory! All enemy ships destroyed!';
+                        return;
+                    }
+                } else {
+                    cell.style.background = '#374151';
+                    cell.textContent = '💧';
+                    document.getElementById('status1').textContent = 'Miss! Enemy turn...';
+                }
+                
+                // Enemy turn
+                setTimeout(() => {
+                    let enemyTarget;
+                    do {
+                        enemyTarget = Math.floor(Math.random() * 64);
+                    } while (state.enemyHits.includes(enemyTarget));
+                    
+                    state.enemyHits.push(enemyTarget);
+                    const targetCell = document.getElementById('board1').children[enemyTarget];
+                    
+                    if (state.playerShips.includes(enemyTarget)) {
+                        targetCell.style.background = '#dc2626';
+                        targetCell.textContent = '💥';
+                        document.getElementById('status1').textContent = 'Enemy hit your ship!';
+                        
+                        const playerShipsLeft = state.playerShips.filter(ship => !state.enemyHits.includes(ship)).length;
+                        document.getElementById('playerShips').textContent = playerShipsLeft;
+                        
+                        if (playerShipsLeft === 0) {
+                            document.getElementById('status1').textContent = '💀 Defeat! All your ships are sunk!';
+                            return;
+                        }
+                    } else {
+                        document.getElementById('status1').textContent = 'Enemy missed! Your turn!';
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Game 2: Tank Commander
+        function initTankGame() {
+            const board = document.getElementById('board2');
+            board.innerHTML = '';
+            gameStates[2] = {
+                tankPos: 45,
+                enemies: [],
+                obstacles: [],
+                score: 0,
+                ammo: 10
+            };
+            
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#22c55e';
+                board.appendChild(cell);
+            }
+            
+            // Place tank
+            board.children[45].textContent = '🛡️';
+            board.children[45].style.background = '#3b82f6';
+            
+            // Place enemies
+            for (let i = 0; i < 8; i++) {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * 100);
+                } while (pos === 45 || gameStates[2].enemies.includes(pos));
+                gameStates[2].enemies.push(pos);
+                board.children[pos].textContent = '💀';
+                board.children[pos].style.background = '#dc2626';
+            }
+            
+            // Place obstacles
+            for (let i = 0; i < 15; i++) {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * 100);
+                } while (pos === 45 || gameStates[2].enemies.includes(pos) || gameStates[2].obstacles.includes(pos));
+                gameStates[2].obstacles.push(pos);
+                board.children[pos].textContent = '🧱';
+                board.children[pos].style.background = '#6b7280';
+            }
+            
+            document.getElementById('tankEnemies').textContent = gameStates[2].enemies.length;
+        }
+        
+        function startTankGame() {
+            initTankGame();
+            document.getElementById('tankScore').textContent = '0';
+            document.getElementById('tankAmmo').textContent = '10';
+        }
+        
+        function fireTankWeapon() {
+            const state = gameStates[2];
+            if (state.ammo <= 0) return;
+            
+            state.ammo--;
+            document.getElementById('tankAmmo').textContent = state.ammo;
+            
+            // Find nearest enemy
+            const tankRow = Math.floor(state.tankPos / 10);
+            const tankCol = state.tankPos % 10;
+            
+            let nearestEnemy = null;
+            let minDistance = Infinity;
+            
+            state.enemies.forEach((enemyPos, index) => {
+                const enemyRow = Math.floor(enemyPos / 10);
+                const enemyCol = enemyPos % 10;
+                const distance = Math.abs(tankRow - enemyRow) + Math.abs(tankCol - enemyCol);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestEnemy = index;
+                }
+            });
+            
+            if (nearestEnemy !== null && minDistance <= 3) {
+                const enemyPos = state.enemies[nearestEnemy];
+                state.enemies.splice(nearestEnemy, 1);
+                
+                const board = document.getElementById('board2');
+                board.children[enemyPos].textContent = '💥';
+                board.children[enemyPos].style.background = '#f59e0b';
+                
+                state.score += 10;
+                document.getElementById('tankScore').textContent = state.score;
+                document.getElementById('tankEnemies').textContent = state.enemies.length;
+                document.getElementById('status2').textContent = 'Enemy destroyed! +10 points';
+                
+                if (state.enemies.length === 0) {
+                    document.getElementById('status2').textContent = '🎉 Mission Complete! All enemies eliminated!';
+                }
+            } else {
+                document.getElementById('status2').textContent = 'No enemies in range!';
+            }
+        }
+        
+        // Add keyboard controls for tank
+        document.addEventListener('keydown', (e) => {
+            if (currentGame !== 2) return;
+            
+            const state = gameStates[2];
+            const board = document.getElementById('board2');
+            const oldPos = state.tankPos;
+            let newPos = oldPos;
+            
+            switch(e.key.toLowerCase()) {
+                case 'w':
+                case 'arrowup':
+                    if (oldPos >= 10) newPos = oldPos - 10;
+                    break;
+                case 's':
+                case 'arrowdown':
+                    if (oldPos < 90) newPos = oldPos + 10;
+                    break;
+                case 'a':
+                case 'arrowleft':
+                    if (oldPos % 10 > 0) newPos = oldPos - 1;
+                    break;
+                case 'd':
+                case 'arrowright':
+                    if (oldPos % 10 < 9) newPos = oldPos + 1;
+                    break;
+            }
+            
+            if (newPos !== oldPos && !state.obstacles.includes(newPos) && !state.enemies.includes(newPos)) {
+                board.children[oldPos].textContent = '';
+                board.children[oldPos].style.background = '#22c55e';
+                
+                board.children[newPos].textContent = '🛡️';
+                board.children[newPos].style.background = '#3b82f6';
+                
+                state.tankPos = newPos;
+                document.getElementById('status2').textContent = 'Tank moved! Use Fire button to attack nearby enemies.';
+            }
+        });
+        
+        // Game 3: Air Strike
+        function initAirStrike() {
+            const board = document.getElementById('board3');
+            board.innerHTML = '';
+            gameStates[3] = {
+                jetPos: 6,
+                targets: [],
+                bombs: 5,
+                score: 0
+            };
+            
+            for (let i = 0; i < 144; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#0ea5e9';
+                cell.onclick = () => moveJet(i);
+                board.appendChild(cell);
+            }
+            
+            // Place jet
+            board.children[6].textContent = '✈️';
+            board.children[6].style.background = '#1d4ed8';
+            
+            // Place ground targets
+            for (let i = 0; i < 6; i++) {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * 144);
+                } while (pos < 24 || gameStates[3].targets.includes(pos)); // Keep targets away from top rows
+                gameStates[3].targets.push(pos);
+                board.children[pos].textContent = '🏭';
+                board.children[pos].style.background = '#dc2626';
+            }
+            
+            document.getElementById('airTargets').textContent = gameStates[3].targets.length;
+            document.getElementById('bombCount').textContent = gameStates[3].bombs;
+        }
+        
+        function startAirStrike() {
+            initAirStrike();
+        }
+        
+        function moveJet(pos) {
+            const state = gameStates[3];
+            const board = document.getElementById('board3');
+            
+            // Clear old position
+            board.children[state.jetPos].textContent = '';
+            board.children[state.jetPos].style.background = '#0ea5e9';
+            
+            // Move to new position
+            state.jetPos = pos;
+            board.children[pos].textContent = '✈️';
+            board.children[pos].style.background = '#1d4ed8';
+            
+            document.getElementById('status3').textContent = 'Jet repositioned! Drop bombs on targets below.';
+        }
+        
+        function dropBomb() {
+            const state = gameStates[3];
+            if (state.bombs <= 0) return;
+            
+            const board = document.getElementById('board3');
+            const jetRow = Math.floor(state.jetPos / 12);
+            const jetCol = state.jetPos % 12;
+            
+            // Bomb affects area below jet
+            for (let row = jetRow + 1; row < 12; row++) {
+                for (let col = Math.max(0, jetCol - 1); col <= Math.min(11, jetCol + 1); col++) {
+                    const pos = row * 12 + col;
+                    const targetIndex = state.targets.indexOf(pos);
+                    
+                    if (targetIndex !== -1) {
+                        state.targets.splice(targetIndex, 1);
+                        board.children[pos].textContent = '💥';
+                        board.children[pos].style.background = '#f59e0b';
+                        state.score += 20;
+                    }
+                }
+            }
+            
+            state.bombs--;
+            document.getElementById('bombCount').textContent = state.bombs;
+            document.getElementById('airTargets').textContent = state.targets.length;
+            document.getElementById('status3').textContent = `Bomb dropped! Targets remaining: ${state.targets.length}`;
+            
+            if (state.targets.length === 0) {
+                document.getElementById('status3').textContent = '🎉 Mission Success! All targets destroyed!';
+            } else if (state.bombs === 0) {
+                document.getElementById('status3').textContent = '💀 Mission Failed! Out of bombs!';
+            }
+        }
+        
+        // Game 4: Castle Siege
+        function initCastleSiege() {
+            const board = document.getElementById('board4');
+            board.innerHTML = '';
+            gameStates[4] = {
+                towers: [],
+                enemies: [],
+                gold: 100,
+                wave: 1,
+                lives: 3,
+                waveActive: false
+            };
+            
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#22c55e';
+                cell.onclick = () => placeTower(i);
+                board.appendChild(cell);
+            }
+            
+            // Place castle
+            board.children[94].textContent = '🏰';
+            board.children[94].style.background = '#6366f1';
+        }
+        
+        function startCastleSiege() {
+            initCastleSiege();
+            document.getElementById('gold').textContent = '100';
+            document.getElementById('wave').textContent = '1';
+            document.getElementById('lives').textContent = '3';
+        }
+        
+        function placeTower(pos) {
+            const state = gameStates[4];
+            if (state.gold < 20 || state.towers.includes(pos) || pos === 94) return;
+            
+            state.towers.push(pos);
+            state.gold -= 20;
+            
+            const board = document.getElementById('board4');
+            board.children[pos].textContent = '🗼';
+            board.children[pos].style.background = '#8b5cf6';
+            
+            document.getElementById('gold').textContent = state.gold;
+            document.getElementById('status4').textContent = 'Tower built! Costs 20 gold each.';
+        }
+        
+        function buildTower() {
+            document.getElementById('status4').textContent = 'Click on empty ground to build a tower (20 gold)';
+        }
+        
+        function startWave() {
+            const state = gameStates[4];
+            if (state.waveActive) return;
+            
+            state.waveActive = true;
+            state.enemies = [];
+            
+            // Spawn enemies from top
+            const enemyCount = state.wave * 2 + 3;
+            for (let i = 0; i < enemyCount; i++) {
+                setTimeout(() => {
+                    const startPos = Math.floor(Math.random() * 10);
+                    spawnEnemy(startPos);
+                }, i * 1000);
+            }
+            
+            document.getElementById('status4').textContent = `Wave ${state.wave} incoming!`;
+        }
+        
+        function spawnEnemy(pos) {
+            const state = gameStates[4];
+            const board = document.getElementById('board4');
+            
+            state.enemies.push({pos: pos, health: 3});
+            board.children[pos].textContent = '👹';
+            board.children[pos].style.background = '#dc2626';
+            
+            // Move enemy towards castle
+            const moveEnemy = () => {
+                const enemy = state.enemies.find(e => e.pos === pos);
+                if (!enemy) return;
+                
+                // Check if towers can attack
+                state.towers.forEach(towerPos => {
+                    const distance = Math.abs(Math.floor(towerPos / 10) - Math.floor(enemy.pos / 10)) + 
+                                   Math.abs(towerPos % 10 - enemy.pos % 10);
+                    if (distance <= 2) {
+                        enemy.health--;
+                        if (enemy.health <= 0) {
+                            board.children[enemy.pos].textContent = '';
+                            board.children[enemy.pos].style.background = '#22c55e';
+                            state.enemies = state.enemies.filter(e => e !== enemy);
+                            state.gold += 5;
+                            document.getElementById('gold').textContent = state.gold;
+                            return;
+                        }
+                    }
+                });
+                
+                // Move enemy down
+                if (enemy.pos < 90) {
+                    board.children[enemy.pos].textContent = '';
+                    board.children[enemy.pos].style.background = '#22c55e';
+                    enemy.pos += 10;
+                    board.children[enemy.pos].textContent = '👹';
+                    board.children[enemy.pos].style.background = '#dc2626';
+                    setTimeout(moveEnemy, 2000);
+                } else {
+                    // Enemy reached castle
+                    state.lives--;
+                    document.getElementById('lives').textContent = state.lives;
+                    board.children[enemy.pos].textContent = '';
+                    board.children[enemy.pos].style.background = '#22c55e';
+                    state.enemies = state.enemies.filter(e => e !== enemy);
+                    
+                    if (state.lives <= 0) {
+                        document.getElementById('status4').textContent = '💀 Castle destroyed! Game Over!';
+                    }
+                }
+            };
+            
+            setTimeout(moveEnemy, 2000);
+        }
+        
+        // Game 5: Submarine Hunt
+        function initSubHunt() {
+            const board = document.getElementById('board5');
+            board.innerHTML = '';
+            gameStates[5] = {
+                playerSub: 40,
+                enemySubs: [],
+                torpedoes: 6,
+                sonarUses: 3,
+                foundSubs: 0
+            };
+            
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#1e40af';
+                cell.onclick = () => movePlayerSub(i);
+                board.appendChild(cell);
+            }
+            
+            // Place player submarine
+            board.children[40].textContent = '🔱';
+            board.children[40].style.background = '#059669';
+            
+            // Place enemy submarines (hidden)
+            for (let i = 0; i < 4; i++) {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * 81);
+                } while (pos === 40 || gameStates[5].enemySubs.includes(pos));
+                gameStates[5].enemySubs.push(pos);
+            }
+            
+            document.getElementById('torpedoes').textContent = gameStates[5].torpedoes;
+            document.getElementById('subsFound').textContent = `0/4`;
+        }
+        
+        function startSubHunt() {
+            initSubHunt();
+        }
+        
+        function movePlayerSub(pos) {
+            const state = gameStates[5];
+            const board = document.getElementById('board5');
+            
+            // Clear old position
+            board.children[state.playerSub].textContent = '';
+            board.children[state.playerSub].style.background = '#1e40af';
+            
+            // Move to new position
+            state.playerSub = pos;
+            board.children[pos].textContent = '🔱';
+            board.children[pos].style.background = '#059669';
+            
+            document.getElementById('status5').textContent = 'Submarine moved. Use sonar to detect enemies.';
+        }
+        
+        function useSonar() {
+            const state = gameStates[5];
+            if (state.sonarUses <= 0) return;
+            
+            state.sonarUses--;
+            const board = document.getElementById('board5');
+            const playerRow = Math.floor(state.playerSub / 9);
+            const playerCol = state.playerSub % 9;
+            
+            let detected = 0;
+            state.enemySubs.forEach(subPos => {
+                const subRow = Math.floor(subPos / 9);
+                const subCol = subPos % 9;
+                const distance = Math.abs(playerRow - subRow) + Math.abs(playerCol - subCol);
+                
+                if (distance <= 3) {
+                    board.children[subPos].style.background = '#f59e0b';
+                    board.children[subPos].textContent = '📡';
+                    detected++;
+                }
+            });
+            
+            document.getElementById('status5').textContent = `Sonar ping! Detected ${detected} submarines nearby.`;
+        }
+        
+        function fireTorpedo() {
+            const state = gameStates[5];
+            if (state.torpedoes <= 0) return;
+            
+            state.torpedoes--;
+            document.getElementById('torpedoes').textContent = state.torpedoes;
+            
+            const board = document.getElementById('board5');
+            const playerRow = Math.floor(state.playerSub / 9);
+            const playerCol = state.playerSub % 9;
+            
+            // Check for hits in adjacent cells
+            let hit = false;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const targetRow = playerRow + dr;
+                    const targetCol = playerCol + dc;
+                    const targetPos = targetRow * 9 + targetCol;
+                    
+                    if (targetRow >= 0 && targetRow < 9 && targetCol >= 0 && targetCol < 9) {
+                        const subIndex = state.enemySubs.indexOf(targetPos);
+                        if (subIndex !== -1) {
+                            state.enemySubs.splice(subIndex, 1);
+                            board.children[targetPos].textContent = '💥';
+                            board.children[targetPos].style.background = '#dc2626';
+                            state.foundSubs++;
+                            hit = true;
+                        }
+                    }
+                }
+            }
+            
+            document.getElementById('subsFound').textContent = `${state.foundSubs}/4`;
+            
+            if (hit) {
+                document.getElementById('status5').textContent = 'Direct hit! Enemy submarine destroyed!';
+                if (state.foundSubs === 4) {
+                    document.getElementById('status5').textContent = '🎉 Mission Complete! All submarines destroyed!';
+                }
+            } else {
+                document.getElementById('status5').textContent = 'Torpedo missed! No targets in range.';
+                if (state.torpedoes === 0 && state.foundSubs < 4) {
+                    document.getElementById('status5').textContent = '💀 Mission Failed! Out of torpedoes!';
+                }
+            }
+        }
+        
+        // Initialize remaining games with basic functionality
+        function initSpaceWar() {
+            const board = document.getElementById('board6');
+            board.innerHTML = '';
+            gameStates[6] = { energy: 100, ships: 3, aliens: 12 };
+            
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#000';
+                board.appendChild(cell);
+            }
+            
+            // Add some stars and aliens
+            for (let i = 0; i < 12; i++) {
+                const pos = Math.floor(Math.random() * 32);
+                board.children[pos].textContent = '👽';
+                board.children[pos].style.background = '#dc2626';
+            }
+            
+            board.children[60].textContent = '🚀';
+            board.children[60].style.background = '#3b82f6';
+        }
+        
+        function startSpaceWar() { initSpaceWar(); }
+        function deployShield() { document.getElementById('status6').textContent = 'Shield deployed! Energy -20'; }
+        function fireLasers() { document.getElementById('status6').textContent = 'Lasers fired! Alien destroyed!'; }
+        
+        function initTrenchWar() {
+            const board = document.getElementById('board7');
+            board.innerHTML = '';
+            gameStates[7] = { troops: 20, morale: 'High', territory: 30 };
+            
+            for (let i = 0; i < 144; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = i < 48 ? '#8b5cf6' : i > 96 ? '#dc2626' : '#a3a3a3';
+                if (i >= 48 && i <= 96 && Math.random() < 0.3) {
+                    cell.textContent = '💀';
+                }
+                board.appendChild(cell);
+            }
+        }
+        
+        function startTrenchWar() { initTrenchWar(); }
+        function sendReinforcements() { document.getElementById('status7').textContent = 'Reinforcements arriving! +10 troops'; }
+        function artillery() { document.getElementById('status7').textContent = 'Artillery strike successful! Enemy positions hit!'; }
+        
+        function initMissileDefense() {
+            const board = document.getElementById('board8');
+            board.innerHTML = '';
+            gameStates[8] = { cities: 5, interceptors: 10, wave: 1 };
+            
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#0ea5e9';
+                board.appendChild(cell);
+            }
+            
+            // Place cities at bottom
+            for (let i = 0; i < 5; i++) {
+                board.children[90 + i * 2].textContent = '🏙️';
+                board.children[90 + i * 2].style.background = '#059669';
+            }
+        }
+        
+        function startMissileDefense() { initMissileDefense(); }
+        function interceptMissile() { document.getElementById('status8').textContent = 'Interceptor launched! Missile destroyed!'; }
+        
+        function initGuerrilla() {
+            const board = document.getElementById('board9');
+            board.innerHTML = '';
+            gameStates[9] = { stealth: 100, squad: 8, supplies: 'Good' };
+            
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = Math.random() < 0.4 ? '#22c55e' : '#a3a3a3';
+                if (Math.random() < 0.2) cell.textContent = '🌿';
+                board.appendChild(cell);
+            }
+            
+            board.children[56].textContent = '🥷';
+            board.children[56].style.background = '#059669';
+        }
+        
+        function startGuerrilla() { initGuerrilla(); }
+        function hideInJungle() { document.getElementById('status9').textContent = 'Hidden in jungle! Stealth increased.'; }
+        function ambushEnemy() { document.getElementById('status9').textContent = 'Ambush successful! Enemy patrol eliminated!'; }
+        
+        function initNuclearGame() {
+            const board = document.getElementById('board10');
+            board.innerHTML = '';
+            gameStates[10] = { tension: 'Medium', allies: 3, warheads: 50 };
+            
+            for (let i = 0; i < 36; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.background = '#374151';
+                board.appendChild(cell);
+            }
+            
+            // Place world regions
+            const regions = ['🇺🇸', '🇷🇺', '🇨🇳', '🇬🇧', '🇫🇷', '🇮🇳'];
+            regions.forEach((flag, i) => {
+                board.children[i * 6].textContent = flag;
+                board.children[i * 6].style.background = '#6366f1';
+            });
+        }
+        
+        function startNuclearGame() { initNuclearGame(); }
+        function negotiate() { document.getElementById('status10').textContent = 'Diplomatic talks initiated. Tension reduced.'; }
+        function showForce() { document.getElementById('status10').textContent = 'Military exercises conducted. Allies impressed.'; }
+        
+        // Auto-select first game on load
+        window.onload = () => selectGame(1);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9701fd05751367a8',t:'MTc1NTM1ODM4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

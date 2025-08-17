@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic War Game</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+        
+        .game-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .player-info {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid;
+        }
+        
+        .player1 { border-color: #3498db; }
+        .player2 { border-color: #e74c3c; }
+        .current-turn { box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        
+        .battlefield {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            gap: 2px;
+            background: #34495e;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: #2c3e50;
+            border: 1px solid #34495e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            position: relative;
+        }
+        
+        .cell:hover {
+            background: #3498db;
+            transform: scale(1.05);
+        }
+        
+        .cell.selected {
+            background: #f39c12;
+            box-shadow: 0 0 10px #f39c12;
+        }
+        
+        .cell.valid-move {
+            background: #27ae60;
+            animation: pulse 1s infinite;
+        }
+        
+        .cell.enemy-target {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .unit {
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            user-select: none;
+        }
+        
+        .player1-unit { color: #3498db; }
+        .player2-unit { color: #e74c3c; }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .game-status {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            min-height: 30px;
+        }
+        
+        .victory-message {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: victory 2s ease-in-out infinite;
+        }
+        
+        @keyframes victory {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .unit-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .battlefield {
+                grid-template-columns: repeat(8, 45px);
+                grid-template-rows: repeat(8, 45px);
+            }
+            
+            .cell {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">← Back</a>
+    
+    <div class="game-header">
+        <h1 class="game-title">⚔️ Strategic War Game ⚔️</h1>
+        <div class="game-info">
+            <div class="player-info player1" id="player1Info">
+                <div>🔵 Player 1</div>
+                <div>Units: <span id="p1Units">8</span></div>
+            </div>
+            <div class="player-info player2" id="player2Info">
+                <div>🔴 Player 2</div>
+                <div>Units: <span id="p2Units">8</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-status" id="gameStatus">Player 1's turn - Select a unit to move</div>
+    
+    <div class="battlefield" id="battlefield"></div>
+    
+    <div class="controls">
+        <button class="btn btn-primary" onclick="newGame()">New Game</button>
+        <button class="btn btn-danger" onclick="endTurn()" id="endTurnBtn" disabled>End Turn</button>
+    </div>
+    
+    <div class="unit-legend">
+        <div class="legend-item">
+            <span style="color: #3498db; font-size: 1.5rem;">♜</span>
+            <span>Tank (Strong)</span>
+        </div>
+        <div class="legend-item">
+            <span style="color: #3498db; font-size: 1.5rem;">♞</span>
+            <span>Cavalry (Fast)</span>
+        </div>
+        <div class="legend-item">
+            <span style="color: #3498db; font-size: 1.5rem;">♟</span>
+            <span>Infantry (Basic)</span>
+        </div>
+    </div>
+
+    <script>
+        class WarGame {
+            constructor() {
+                this.board = Array(8).fill().map(() => Array(8).fill(null));
+                this.currentPlayer = 1;
+                this.selectedUnit = null;
+                this.gameOver = false;
+                this.moveCount = 0;
+                this.initializeBoard();
+                this.renderBoard();
+                this.updateUI();
+            }
+            
+            initializeBoard() {
+                // Player 1 units (bottom)
+                this.board[7] = [
+                    {player: 1, type: 'tank', symbol: '♜'},
+                    {player: 1, type: 'cavalry', symbol: '♞'},
+                    {player: 1, type: 'infantry', symbol: '♟'},
+                    {player: 1, type: 'infantry', symbol: '♟'},
+                    {player: 1, type: 'infantry', symbol: '♟'},
+                    {player: 1, type: 'infantry', symbol: '♟'},
+                    {player: 1, type: 'cavalry', symbol: '♞'},
+                    {player: 1, type: 'tank', symbol: '♜'}
+                ];
+                
+                // Player 2 units (top)
+                this.board[0] = [
+                    {player: 2, type: 'tank', symbol: '♜'},
+                    {player: 2, type: 'cavalry', symbol: '♞'},
+                    {player: 2, type: 'infantry', symbol: '♟'},
+                    {player: 2, type: 'infantry', symbol: '♟'},
+                    {player: 2, type: 'infantry', symbol: '♟'},
+                    {player: 2, type: 'infantry', symbol: '♟'},
+                    {player: 2, type: 'cavalry', symbol: '♞'},
+                    {player: 2, type: 'tank', symbol: '♜'}
+                ];
+            }
+            
+            renderBoard() {
+                const battlefield = document.getElementById('battlefield');
+                battlefield.innerHTML = '';
+                
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        
+                        const unit = this.board[row][col];
+                        if (unit) {
+                            const unitElement = document.createElement('span');
+                            unitElement.className = `unit player${unit.player}-unit`;
+                            unitElement.textContent = unit.symbol;
+                            cell.appendChild(unitElement);
+                        }
+                        
+                        cell.addEventListener('click', () => this.handleCellClick(row, col));
+                        battlefield.appendChild(cell);
+                    }
+                }
+            }
+            
+            handleCellClick(row, col) {
+                if (this.gameOver) return;
+                
+                const unit = this.board[row][col];
+                
+                // If clicking on own unit, select it
+                if (unit && unit.player === this.currentPlayer) {
+                    this.selectUnit(row, col);
+                }
+                // If unit is selected and clicking on valid move
+                else if (this.selectedUnit) {
+                    this.attemptMove(row, col);
+                }
+            }
+            
+            selectUnit(row, col) {
+                this.clearHighlights();
+                this.selectedUnit = {row, col};
+                
+                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                cell.classList.add('selected');
+                
+                this.highlightValidMoves(row, col);
+                document.getElementById('gameStatus').textContent = `Player ${this.currentPlayer} - Unit selected. Choose where to move or attack.`;
+                document.getElementById('endTurnBtn').disabled = false;
+            }
+            
+            highlightValidMoves(row, col) {
+                const unit = this.board[row][col];
+                const moves = this.getValidMoves(row, col, unit.type);
+                
+                moves.forEach(([r, c]) => {
+                    const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    const targetUnit = this.board[r][c];
+                    
+                    if (targetUnit && targetUnit.player !== this.currentPlayer) {
+                        cell.classList.add('enemy-target');
+                    } else if (!targetUnit) {
+                        cell.classList.add('valid-move');
+                    }
+                });
+            }
+            
+            getValidMoves(row, col, unitType) {
+                const moves = [];
+                let range = 1;
+                
+                if (unitType === 'cavalry') range = 2;
+                if (unitType === 'tank') range = 1;
+                
+                for (let dr = -range; dr <= range; dr++) {
+                    for (let dc = -range; dc <= range; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        
+                        const newRow = row + dr;
+                        const newCol = col + dc;
+                        
+                        if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                            const targetUnit = this.board[newRow][newCol];
+                            if (!targetUnit || targetUnit.player !== this.currentPlayer) {
+                                moves.push([newRow, newCol]);
+                            }
+                        }
+                    }
+                }
+                
+                return moves;
+            }
+            
+            attemptMove(row, col) {
+                const moves = this.getValidMoves(this.selectedUnit.row, this.selectedUnit.col, 
+                    this.board[this.selectedUnit.row][this.selectedUnit.col].type);
+                
+                const isValidMove = moves.some(([r, c]) => r === row && c === col);
+                
+                if (isValidMove) {
+                    this.executeMove(row, col);
+                } else {
+                    this.clearSelection();
+                    document.getElementById('gameStatus').textContent = `Player ${this.currentPlayer} - Invalid move. Select a unit.`;
+                }
+            }
+            
+            executeMove(row, col) {
+                const unit = this.board[this.selectedUnit.row][this.selectedUnit.col];
+                const targetUnit = this.board[row][col];
+                
+                // Combat resolution
+                if (targetUnit) {
+                    const attackWins = this.resolveCombat(unit, targetUnit);
+                    if (attackWins) {
+                        this.board[row][col] = unit;
+                        this.board[this.selectedUnit.row][this.selectedUnit.col] = null;
+                        document.getElementById('gameStatus').textContent = `Player ${this.currentPlayer} destroyed enemy ${targetUnit.type}!`;
+                    } else {
+                        this.board[this.selectedUnit.row][this.selectedUnit.col] = null;
+                        document.getElementById('gameStatus').textContent = `Player ${this.currentPlayer}'s ${unit.type} was destroyed in combat!`;
+                    }
+                } else {
+                    // Simple move
+                    this.board[row][col] = unit;
+                    this.board[this.selectedUnit.row][this.selectedUnit.col] = null;
+                    document.getElementById('gameStatus').textContent = `Player ${this.currentPlayer} moved ${unit.type}.`;
+                }
+                
+                this.clearSelection();
+                this.renderBoard();
+                this.updateUI();
+                this.checkGameOver();
+                
+                if (!this.gameOver) {
+                    setTimeout(() => this.switchTurn(), 1500);
+                }
+            }
+            
+            resolveCombat(attacker, defender) {
+                const unitStrength = {tank: 3, cavalry: 2, infantry: 1};
+                const attackPower = unitStrength[attacker.type] + Math.random();
+                const defensePower = unitStrength[defender.type] + Math.random();
+                return attackPower > defensePower;
+            }
+            
+            switchTurn() {
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.moveCount++;
+                document.getElementById('gameStatus').textContent = `Player ${this.currentPlayer}'s turn - Select a unit to move`;
+                this.updateUI();
+            }
+            
+            clearSelection() {
+                this.selectedUnit = null;
+                this.clearHighlights();
+                document.getElementById('endTurnBtn').disabled = true;
+            }
+            
+            clearHighlights() {
+                document.querySelectorAll('.cell').forEach(cell => {
+                    cell.classList.remove('selected', 'valid-move', 'enemy-target');
+                });
+            }
+            
+            updateUI() {
+                const p1Units = this.countUnits(1);
+                const p2Units = this.countUnits(2);
+                
+                document.getElementById('p1Units').textContent = p1Units;
+                document.getElementById('p2Units').textContent = p2Units;
+                
+                document.getElementById('player1Info').classList.toggle('current-turn', this.currentPlayer === 1);
+                document.getElementById('player2Info').classList.toggle('current-turn', this.currentPlayer === 2);
+            }
+            
+            countUnits(player) {
+                let count = 0;
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        if (this.board[row][col] && this.board[row][col].player === player) {
+                            count++;
+                        }
+                    }
+                }
+                return count;
+            }
+            
+            checkGameOver() {
+                const p1Units = this.countUnits(1);
+                const p2Units = this.countUnits(2);
+                
+                if (p1Units === 0) {
+                    this.gameOver = true;
+                    document.getElementById('gameStatus').innerHTML = '<div class="victory-message">🎉 Player 2 Wins! 🎉</div>';
+                } else if (p2Units === 0) {
+                    this.gameOver = true;
+                    document.getElementById('gameStatus').innerHTML = '<div class="victory-message">🎉 Player 1 Wins! 🎉</div>';
+                }
+            }
+        }
+        
+        let game = new WarGame();
+        
+        function newGame() {
+            game = new WarGame();
+        }
+        
+        function endTurn() {
+            if (game.selectedUnit) {
+                game.clearSelection();
+                game.switchTurn();
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9701f0bb45c217d1',t:'MTc1NTM1Nzg4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

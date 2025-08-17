@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantheon Wars - Multi-Mythology God Battle</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            perspective: 1200px;
+            perspective-origin: center center;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            border-bottom: 2px solid rgba(255,215,0,0.3);
+        }
+        
+        .god-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .god-avatar {
+            font-size: 2.2rem;
+            background: radial-gradient(circle, rgba(255,215,0,0.4), rgba(255,215,0,0.1));
+            border: 3px solid #ffd700;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: godPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes godPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+            50% { box-shadow: 0 0 40px rgba(255,215,0,0.8); }
+        }
+        
+        .god-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .god-name {
+            font-size: 1.1rem;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .bar {
+            width: 160px;
+            height: 10px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+        
+        .health-bar .bar-fill {
+            background: linear-gradient(90deg, #dc2626, #ef4444, #22c55e);
+        }
+        
+        .mana-bar .bar-fill {
+            background: linear-gradient(90deg, #1e40af, #3b82f6, #8b5cf6);
+        }
+        
+        .territory-info {
+            text-align: center;
+        }
+        
+        .territory-count {
+            font-size: 2rem;
+            color: #ffd700;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255,215,0,0.8);
+        }
+        
+        .territory-label {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+        
+        .controls-info {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #cccccc;
+            line-height: 1.4;
+        }
+        
+        .weather-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 25;
+            opacity: 0.6;
+            transition: all 1s ease;
+        }
+        
+        .weather-lightning {
+            background: radial-gradient(circle at random, rgba(255,255,0,0.3) 0%, transparent 70%);
+            animation: lightning 3s infinite;
+        }
+        
+        .weather-storm {
+            background: linear-gradient(45deg, rgba(100,100,100,0.2) 0%, rgba(50,50,50,0.1) 100%);
+            animation: stormClouds 8s infinite;
+        }
+        
+        .weather-solar {
+            background: radial-gradient(circle at center, rgba(255,200,0,0.2) 0%, rgba(255,100,0,0.1) 50%, transparent 100%);
+            animation: solarFlare 4s infinite;
+        }
+        
+        @keyframes lightning {
+            0%, 90%, 100% { opacity: 0.3; }
+            5%, 15% { opacity: 1; background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.8) 0%, transparent 20%); }
+        }
+        
+        @keyframes stormClouds {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-20px); }
+        }
+        
+        @keyframes solarFlare {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+        
+        .game-world {
+            position: relative;
+            width: 2500px;
+            height: 2500px;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(34, 197, 94, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 60%),
+                linear-gradient(45deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%);
+            background-size: 600px 600px, 800px 800px, 1000px 1000px, 100% 100%;
+            transform-style: preserve-3d;
+            transform: rotateX(35deg) rotateY(0deg);
+        }
+        
+        .camera {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            transition: transform 0.15s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 600;
+            pointer-events: none;
+        }
+        
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 215, 0, 0.9);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+        
+        .crosshair::before {
+            width: 25px;
+            height: 3px;
+            top: -1.5px;
+            left: -12.5px;
+        }
+        
+        .crosshair::after {
+            width: 3px;
+            height: 25px;
+            top: -12.5px;
+            left: -1.5px;
+        }
+        
+        .divine-aura {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            background: 
+                radial-gradient(circle at center, transparent 15%, rgba(255, 215, 0, 0.04) 35%, rgba(255, 215, 0, 0.12) 70%, rgba(255, 215, 0, 0.2) 100%),
+                radial-gradient(ellipse at top, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.15) 0%, transparent 40%);
+            animation: divineBreathing 7s ease-in-out infinite;
+        }
+        
+        @keyframes divineBreathing {
+            0%, 100% { 
+                opacity: 0.5; 
+                transform: scale(1) rotate(0deg);
+            }
+            50% { 
+                opacity: 0.9; 
+                transform: scale(1.03) rotate(1deg);
+            }
+        }
+        
+        .player {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0px;
+            height: 0px;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .divine-hands {
+            position: fixed;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            display: flex;
+            align-items: flex-end;
+            gap: 140px;
+            pointer-events: none;
+        }
+        
+        .divine-hand {
+            font-size: 6rem;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 60px rgba(255, 215, 0, 0.5));
+            animation: handFloat 4s ease-in-out infinite;
+            transition: all 0.4s ease;
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+        }
+        
+        .divine-hand.left {
+            animation-delay: -2s;
+            transform: rotate(-12deg);
+        }
+        
+        .divine-hand.right {
+            transform: rotate(12deg);
+        }
+        
+        .divine-hand.attacking {
+            transform: scale(1.6) translateY(-40px) rotate(0deg);
+            filter: drop-shadow(0 0 50px rgba(255, 215, 0, 1)) drop-shadow(0 0 100px rgba(255, 215, 0, 0.7));
+            animation: attackPulse 0.4s ease-out;
+        }
+        
+        @keyframes attackPulse {
+            0% { transform: scale(1.6) translateY(-40px) rotate(0deg); }
+            50% { transform: scale(1.8) translateY(-50px) rotate(0deg); }
+            100% { transform: scale(1.6) translateY(-40px) rotate(0deg); }
+        }
+        
+        @keyframes handFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .mortal {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15), transparent);
+            transform-style: preserve-3d;
+            transform: translateZ(25px) rotateX(-35deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+        
+        .mortal.hostile {
+            color: #dc2626;
+            filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.9));
+            animation: heroicStance 2.5s ease-in-out infinite;
+        }
+        
+        .mortal.neutral {
+            color: #3b82f6;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+        }
+        
+        .mortal.boss {
+            width: 60px;
+            height: 60px;
+            font-size: 3rem;
+            color: #7c2d12;
+            filter: drop-shadow(0 0 20px rgba(124, 45, 18, 1));
+            animation: bossAura 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes heroicStance {
+            0%, 100% { transform: translateZ(25px) rotateX(-35deg) scale(1) rotate(0deg); }
+            50% { transform: translateZ(30px) rotateX(-35deg) scale(1.15) rotate(8deg); }
+        }
+        
+        @keyframes bossAura {
+            0%, 100% { transform: translateZ(35px) rotateX(-35deg) scale(1); }
+            50% { transform: translateZ(45px) rotateX(-35deg) scale(1.2); }
+        }
+        
+        .mortal.fleeing {
+            animation: flee 0.6s ease-in-out;
+        }
+        
+        @keyframes flee {
+            0%, 100% { transform: translateZ(25px) rotateX(-35deg) scale(1); }
+            50% { transform: translateZ(15px) rotateX(-35deg) scale(0.7) rotate(180deg); }
+        }
+        
+        .territory {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 215, 0, 0.7);
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.08));
+            pointer-events: none;
+            animation: territoryPulse 4s ease-in-out infinite;
+            transform-style: preserve-3d;
+            transform: translateZ(8px) rotateX(-35deg);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+        
+        @keyframes territoryPulse {
+            0%, 100% { transform: translateZ(8px) rotateX(-35deg) scale(1); opacity: 0.8; }
+            50% { transform: translateZ(12px) rotateX(-35deg) scale(1.08); opacity: 1; }
+        }
+        
+        .building {
+            position: absolute;
+            font-size: 2rem;
+            z-index: 40;
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+            transform: translateZ(40px) rotateX(-35deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        
+        .building.conquered {
+            color: #ffd700;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.9));
+            animation: conqueredGlow 3s ease-in-out infinite;
+        }
+        
+        .building.unconquered {
+            color: #92400e;
+            filter: drop-shadow(0 0 8px rgba(146, 64, 14, 0.6));
+        }
+        
+        @keyframes conqueredGlow {
+            0%, 100% { transform: translateZ(40px) rotateX(-35deg) scale(1); }
+            50% { transform: translateZ(50px) rotateX(-35deg) scale(1.1); }
+        }
+        
+        .projectile {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            z-index: 90;
+            pointer-events: none;
+            transform-style: preserve-3d;
+            transform: translateZ(50px) rotateX(-35deg);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+        }
+        
+        .divine-projectile {
+            background: radial-gradient(circle, #ffd700, #ffed4e);
+            box-shadow: 0 0 20px #ffd700, 0 12px 24px rgba(0,0,0,0.4);
+            animation: projectileGlow 0.3s ease-in-out infinite;
+        }
+        
+        .mortal-projectile {
+            background: radial-gradient(circle, #dc2626, #ef4444);
+            box-shadow: 0 0 15px #dc2626, 0 12px 24px rgba(0,0,0,0.4);
+        }
+        
+        @keyframes projectileGlow {
+            0%, 100% { box-shadow: 0 0 20px #ffd700, 0 12px 24px rgba(0,0,0,0.4); }
+            50% { box-shadow: 0 0 35px #ffd700, 0 12px 24px rgba(0,0,0,0.4); }
+        }
+        
+        .damage-text {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 200;
+            pointer-events: none;
+            animation: damageFloat 1.2s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .damage-text.player {
+            color: #ffd700;
+        }
+        
+        .damage-text.enemy {
+            color: #dc2626;
+        }
+        
+        @keyframes damageFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-60px) scale(1.3); opacity: 0; }
+        }
+        
+        .god-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .selection-title {
+            font-size: 3.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+        
+        .selection-subtitle {
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .mythology-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .mythology-section {
+            background: linear-gradient(145deg, rgba(255,215,0,0.1), rgba(255,215,0,0.05));
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .mythology-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .god-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .god-option {
+            background: linear-gradient(145deg, rgba(255,215,0,0.15), rgba(255,215,0,0.08));
+            border: 2px solid rgba(255,215,0,0.4);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .god-option:hover {
+            transform: translateY(-3px);
+            border-color: #ffd700;
+            box-shadow: 0 8px 25px rgba(255,215,0,0.4);
+        }
+        
+        .god-option-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .god-option-name {
+            font-size: 1rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .god-option-power {
+            font-size: 0.8rem;
+            color: #cccccc;
+        }
+        
+        .victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .victory-content {
+            background: linear-gradient(145deg, rgba(255,215,0,0.4), rgba(255,215,0,0.15));
+            border: 4px solid #ffd700;
+            border-radius: 25px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 0 50px rgba(255,215,0,0.5);
+        }
+        
+        .victory-title {
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 25px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+        
+        .restart-btn {
+            background: linear-gradient(145deg, #ffd700, #f59e0b);
+            border: none;
+            color: #1a1a1a;
+            padding: 18px 35px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .hud {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .mythology-sections {
+                grid-template-columns: 1fr;
+                max-width: 350px;
+            }
+            
+            .god-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-info {
+                text-align: center;
+            }
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            padding: 6px 12px;
+            background: rgba(139, 0, 0, 0.8);
+            color: #ffd700;
+            border: 1px solid #ff4444;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        .back-button:hover {
+            background: rgba(160, 0, 0, 0.9);
+            border-color: #ff6666;
+            transform: translateX(-50%) translateY(-1px);
+            box-shadow: 0 3px 12px rgba(255, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">← Back</a>
+    
+    <div class="god-selection" id="godSelection">
+        <h1 class="selection-title">Pantheon Wars</h1>
+        <p class="selection-subtitle">Choose your divine form from the world's greatest mythologies</p>
+        <div class="mythology-sections">
+            <div class="mythology-section">
+                <h3 class="mythology-title">🏛️ Greek Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" data-god="zeus">
+                        <div class="god-option-icon">⚡</div>
+                        <div class="god-option-name">Zeus</div>
+                        <div class="god-option-power">Lightning Bolts</div>
+                    </div>
+                    <div class="god-option" data-god="poseidon">
+                        <div class="god-option-icon">🌊</div>
+                        <div class="god-option-name">Poseidon</div>
+                        <div class="god-option-power">Tsunami Waves</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🔨 Norse Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" data-god="thor">
+                        <div class="god-option-icon">🔨</div>
+                        <div class="god-option-name">Thor</div>
+                        <div class="god-option-power">Mjolnir Thunder</div>
+                    </div>
+                    <div class="god-option" data-god="odin">
+                        <div class="god-option-icon">🐦‍⬛</div>
+                        <div class="god-option-name">Odin</div>
+                        <div class="god-option-power">Raven Storm</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🏺 Egyptian Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" data-god="ra">
+                        <div class="god-option-icon">☀️</div>
+                        <div class="god-option-name">Ra</div>
+                        <div class="god-option-power">Solar Fire</div>
+                    </div>
+                    <div class="god-option" data-god="anubis">
+                        <div class="god-option-icon">🐺</div>
+                        <div class="god-option-name">Anubis</div>
+                        <div class="god-option-power">Death Magic</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🕉️ Hindu Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" data-god="shiva">
+                        <div class="god-option-icon">💃</div>
+                        <div class="god-option-name">Shiva</div>
+                        <div class="god-option-power">Cosmic Dance</div>
+                    </div>
+                    <div class="god-option" data-god="indra">
+                        <div class="god-option-icon">⚡</div>
+                        <div class="god-option-name">Indra</div>
+                        <div class="god-option-power">Storm Bolts</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🌸 Japanese Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" data-god="amaterasu">
+                        <div class="god-option-icon">🌞</div>
+                        <div class="god-option-name">Amaterasu</div>
+                        <div class="god-option-power">Divine Light</div>
+                    </div>
+                    <div class="god-option" data-god="susanoo">
+                        <div class="god-option-icon">🌪️</div>
+                        <div class="god-option-name">Susanoo</div>
+                        <div class="god-option-power">Wind Storm</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mythology-section">
+                <h3 class="mythology-title">🐍 Aztec Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" data-god="quetzalcoatl">
+                        <div class="god-option-icon">🐉</div>
+                        <div class="god-option-name">Quetzalcoatl</div>
+                        <div class="god-option-power">Feathered Serpent</div>
+                    </div>
+                    <div class="god-option" data-god="tezcatlipoca">
+                        <div class="god-option-icon">🪞</div>
+                        <div class="god-option-name">Tezcatlipoca</div>
+                        <div class="god-option-power">Obsidian Mirrors</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="weather-overlay" id="weatherOverlay"></div>
+        
+        <div class="hud">
+            <div class="god-info">
+                <div class="god-avatar" id="godAvatar">⚡</div>
+                <div class="god-stats">
+                    <div class="god-name" id="godName">Zeus</div>
+                    <div class="stat-bar health-bar">
+                        <span>HP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="healthBar" style="width: 100%"></div>
+                        </div>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="stat-bar mana-bar">
+                        <span>MP:</span>
+                        <div class="bar">
+                            <div class="bar-fill" id="manaBar" style="width: 100%"></div>
+                        </div>
+                        <span id="manaText">100/100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="territory-info">
+                <div class="territory-count" id="territoryCount">0</div>
+                <div class="territory-label">Realms Conquered</div>
+            </div>
+            
+            <div class="controls-info">
+                <div>WASD: Divine Movement</div>
+                <div>SPACE: Unleash Power</div>
+                <div>Click: Target Strike</div>
+                <div>ESC: Pause</div>
+            </div>
+        </div>
+        
+        <div class="divine-aura"></div>
+        <div class="crosshair"></div>
+        <div class="divine-hands">
+            <div class="divine-hand left" id="leftHand">👐</div>
+            <div class="divine-hand right" id="rightHand">👐</div>
+        </div>
+        
+        <div class="camera" id="camera">
+            <div class="game-world" id="gameWorld">
+                <div class="player" id="player"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="victory-screen" id="victoryScreen">
+        <div class="victory-content">
+            <div class="victory-title">🏆 DIVINE SUPREMACY! 🏆</div>
+            <p id="victoryText">You have conquered the mortal realm!</p>
+            <button class="restart-btn" onclick="restartGame()">Ascend Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            selectedGod: null,
+            playerHealth: 2000,
+            playerMaxHealth: 2000,
+            playerMana: 100,
+            playerMaxMana: 100,
+            playerX: 1250,
+            playerY: 1250,
+            cameraX: 0,
+            cameraY: 0,
+            territories: [],
+            mortals: [],
+            buildings: [],
+            projectiles: [],
+            keys: {},
+            lastAttack: 0,
+            conqueredTerritories: 0,
+            gameRunning: false,
+            bossesDefeated: 0
+        };
+
+        // Enhanced god configurations with unique abilities
+        const gods = {
+            // Greek Pantheon
+            zeus: { 
+                icon: '⚡', 
+                name: 'Zeus', 
+                attackDamage: 30, 
+                attackCost: 18, 
+                attackSpeed: 350,
+                leftHand: '⚡', 
+                rightHand: '☁️',
+                weather: 'lightning',
+                projectileCount: 7,
+                projectileSpread: 0.4
+            },
+            poseidon: { 
+                icon: '🌊', 
+                name: 'Poseidon', 
+                attackDamage: 35, 
+                attackCost: 22, 
+                attackSpeed: 400,
+                leftHand: '🌊', 
+                rightHand: '🔱',
+                weather: 'storm',
+                projectileCount: 5,
+                projectileSpread: 0.6
+            },
+            
+            // Norse Pantheon
+            thor: { 
+                icon: '🔨', 
+                name: 'Thor', 
+                attackDamage: 40, 
+                attackCost: 25, 
+                attackSpeed: 450,
+                leftHand: '🔨', 
+                rightHand: '⚡',
+                weather: 'lightning',
+                projectileCount: 3,
+                projectileSpread: 0.3
+            },
+            odin: { 
+                icon: '🐦‍⬛', 
+                name: 'Odin', 
+                attackDamage: 28, 
+                attackCost: 20, 
+                attackSpeed: 300,
+                leftHand: '🐦‍⬛', 
+                rightHand: '🗡️',
+                weather: 'storm',
+                projectileCount: 8,
+                projectileSpread: 0.5
+            },
+            
+            // Egyptian Pantheon
+            ra: { 
+                icon: '☀️', 
+                name: 'Ra', 
+                attackDamage: 32, 
+                attackCost: 20, 
+                attackSpeed: 320,
+                leftHand: '☀️', 
+                rightHand: '🔥',
+                weather: 'solar',
+                projectileCount: 6,
+                projectileSpread: 0.4
+            },
+            anubis: { 
+                icon: '🐺', 
+                name: 'Anubis', 
+                attackDamage: 38, 
+                attackCost: 24, 
+                attackSpeed: 380,
+                leftHand: '🐺', 
+                rightHand: '💀',
+                weather: 'storm',
+                projectileCount: 4,
+                projectileSpread: 0.3
+            },
+            
+            // Hindu Pantheon
+            shiva: { 
+                icon: '💃', 
+                name: 'Shiva', 
+                attackDamage: 45, 
+                attackCost: 28, 
+                attackSpeed: 500,
+                leftHand: '💃', 
+                rightHand: '🔥',
+                weather: 'solar',
+                projectileCount: 9,
+                projectileSpread: 0.7
+            },
+            indra: { 
+                icon: '⚡', 
+                name: 'Indra', 
+                attackDamage: 33, 
+                attackCost: 19, 
+                attackSpeed: 330,
+                leftHand: '⚡', 
+                rightHand: '🌩️',
+                weather: 'lightning',
+                projectileCount: 6,
+                projectileSpread: 0.4
+            },
+            
+            // Japanese Pantheon
+            amaterasu: { 
+                icon: '🌞', 
+                name: 'Amaterasu', 
+                attackDamage: 29, 
+                attackCost: 17, 
+                attackSpeed: 280,
+                leftHand: '🌞', 
+                rightHand: '✨',
+                weather: 'solar',
+                projectileCount: 8,
+                projectileSpread: 0.5
+            },
+            susanoo: { 
+                icon: '🌪️', 
+                name: 'Susanoo', 
+                attackDamage: 36, 
+                attackCost: 23, 
+                attackSpeed: 420,
+                leftHand: '🌪️', 
+                rightHand: '⚔️',
+                weather: 'storm',
+                projectileCount: 5,
+                projectileSpread: 0.6
+            },
+            
+            // Aztec Pantheon
+            quetzalcoatl: { 
+                icon: '🐉', 
+                name: 'Quetzalcoatl', 
+                attackDamage: 34, 
+                attackCost: 21, 
+                attackSpeed: 360,
+                leftHand: '🐉', 
+                rightHand: '🪶',
+                weather: 'storm',
+                projectileCount: 7,
+                projectileSpread: 0.5
+            },
+            tezcatlipoca: { 
+                icon: '🪞', 
+                name: 'Tezcatlipoca', 
+                attackDamage: 42, 
+                attackCost: 26, 
+                attackSpeed: 480,
+                leftHand: '🪞', 
+                rightHand: '🌑',
+                weather: 'storm',
+                projectileCount: 4,
+                projectileSpread: 0.4
+            }
+        };
+
+        // Mythology-themed enemies
+        const enemyTypes = {
+            greek: ['🛡️', '⚔️', '🏹', '🗡️'],
+            norse: ['🪓', '🛡️', '⚔️', '🏹'],
+            egyptian: ['🏺', '🐍', '🦅', '⚱️'],
+            hindu: ['🕉️', '🐘', '🦚', '🪷'],
+            japanese: ['🥷', '⚔️', '🏹', '🌸'],
+            aztec: ['🪶', '🐍', '🌽', '🗿']
+        };
+
+        const bossTypes = ['👑', '🦁', '🐲', '🔥', '💎', '⭐'];
+
+        // Initialize game
+        function initGame() {
+            setupGodSelection();
+        }
+
+        function setupGodSelection() {
+            const godOptions = document.querySelectorAll('.god-option');
+            godOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const godId = option.dataset.god;
+                    selectGod(godId);
+                });
+            });
+        }
+
+        function selectGod(godId) {
+            gameState.selectedGod = gods[godId];
+            document.getElementById('godSelection').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('godAvatar').textContent = gameState.selectedGod.icon;
+            document.getElementById('godName').textContent = gameState.selectedGod.name;
+            
+            updateDivineHands();
+            updateWeather();
+            startGame();
+        }
+        
+        function updateDivineHands() {
+            const leftHand = document.getElementById('leftHand');
+            const rightHand = document.getElementById('rightHand');
+            
+            leftHand.textContent = gameState.selectedGod.leftHand;
+            rightHand.textContent = gameState.selectedGod.rightHand;
+        }
+        
+        function updateWeather() {
+            const weatherOverlay = document.getElementById('weatherOverlay');
+            weatherOverlay.className = `weather-overlay weather-${gameState.selectedGod.weather}`;
+        }
+
+        function startGame() {
+            gameState.gameRunning = true;
+            generateWorld();
+            setupControls();
+            gameLoop();
+        }
+
+        function generateWorld() {
+            // Generate territories
+            for (let i = 0; i < 20; i++) {
+                const territory = {
+                    x: Math.random() * 2300 + 100,
+                    y: Math.random() * 2300 + 100,
+                    size: Math.random() * 120 + 100,
+                    conquered: false,
+                    id: i
+                };
+                gameState.territories.push(territory);
+                createTerritoryElement(territory);
+            }
+
+            // Generate buildings
+            for (let i = 0; i < 35; i++) {
+                const buildingTypes = ['🏰', '🏛️', '🗼', '🏯', '🕌', '⛩️'];
+                const building = {
+                    x: Math.random() * 2400 + 50,
+                    y: Math.random() * 2400 + 50,
+                    type: buildingTypes[Math.floor(Math.random() * buildingTypes.length)],
+                    conquered: false,
+                    id: i
+                };
+                gameState.buildings.push(building);
+                createBuildingElement(building);
+            }
+
+            // Generate diverse mortals and bosses
+            for (let i = 0; i < 60; i++) {
+                const mythologies = Object.keys(enemyTypes);
+                const mythology = mythologies[Math.floor(Math.random() * mythologies.length)];
+                const enemyPool = enemyTypes[mythology];
+                
+                const isBoss = i < 8; // First 8 are bosses
+                
+                const mortal = {
+                    x: Math.random() * 2400 + 50,
+                    y: Math.random() * 2400 + 50,
+                    health: isBoss ? 150 + Math.random() * 100 : 100 + Math.random() * 50,
+                    maxHealth: isBoss ? 150 + Math.random() * 100 : 100 + Math.random() * 50,
+                    type: isBoss ? bossTypes[Math.floor(Math.random() * bossTypes.length)] : enemyPool[Math.floor(Math.random() * enemyPool.length)],
+                    hostile: Math.random() > 0.15,
+                    speed: isBoss ? 0.8 + Math.random() * 0.7 : 1.2 + Math.random() * 1.8,
+                    lastAttack: 0,
+                    id: i,
+                    alive: true,
+                    heroClass: isBoss ? 'boss' : (Math.random() > 0.5 ? 'warrior' : 'guardian'),
+                    mythology: mythology
+                };
+                mortal.maxHealth = mortal.health;
+                gameState.mortals.push(mortal);
+                createMortalElement(mortal);
+            }
+        }
+
+        function createTerritoryElement(territory) {
+            const element = document.createElement('div');
+            element.className = 'territory';
+            element.id = `territory-${territory.id}`;
+            element.style.left = territory.x + 'px';
+            element.style.top = territory.y + 'px';
+            element.style.width = territory.size + 'px';
+            element.style.height = territory.size + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function createBuildingElement(building) {
+            const element = document.createElement('div');
+            element.className = 'building unconquered';
+            element.id = `building-${building.id}`;
+            element.style.left = building.x + 'px';
+            element.style.top = building.y + 'px';
+            element.textContent = building.type;
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function createMortalElement(mortal) {
+            const element = document.createElement('div');
+            element.className = `mortal ${mortal.hostile ? 'hostile' : 'neutral'} ${mortal.heroClass}`;
+            element.id = `mortal-${mortal.id}`;
+            element.style.left = mortal.x + 'px';
+            element.style.top = mortal.y + 'px';
+            element.textContent = mortal.type;
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function setupControls() {
+            document.addEventListener('keydown', (e) => {
+                gameState.keys[e.key.toLowerCase()] = true;
+                
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    divineAttack();
+                }
+                
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    // Could add pause functionality here
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                gameState.keys[e.key.toLowerCase()] = false;
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('mortal')) {
+                    const mortalId = parseInt(e.target.id.split('-')[1]);
+                    targetedAttack(mortalId);
+                }
+            });
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+
+            updatePlayer();
+            updateMortals();
+            updateProjectiles();
+            updateCamera();
+            updateUI();
+            checkVictory();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updatePlayer() {
+            const speed = 4;
+            let moved = false;
+
+            if (gameState.keys['w'] || gameState.keys['arrowup']) {
+                gameState.playerY = Math.max(30, gameState.playerY - speed);
+                moved = true;
+            }
+            if (gameState.keys['s'] || gameState.keys['arrowdown']) {
+                gameState.playerY = Math.min(2470, gameState.playerY + speed);
+                moved = true;
+            }
+            if (gameState.keys['a'] || gameState.keys['arrowleft']) {
+                gameState.playerX = Math.max(30, gameState.playerX - speed);
+                moved = true;
+            }
+            if (gameState.keys['d'] || gameState.keys['arrowright']) {
+                gameState.playerX = Math.min(2470, gameState.playerX + speed);
+                moved = true;
+            }
+
+            if (moved) {
+                checkTerritoryConquest();
+            }
+
+            // Regenerate mana
+            if (gameState.playerMana < gameState.playerMaxMana) {
+                gameState.playerMana = Math.min(gameState.playerMaxMana, gameState.playerMana + 0.25);
+            }
+        }
+
+        function updateMortals() {
+            gameState.mortals.forEach(mortal => {
+                if (!mortal.alive) return;
+
+                const element = document.getElementById(`mortal-${mortal.id}`);
+                if (!element) return;
+
+                const distanceToPlayer = Math.sqrt(
+                    Math.pow(mortal.x - gameState.playerX, 2) + 
+                    Math.pow(mortal.y - gameState.playerY, 2)
+                );
+
+                if (mortal.hostile && distanceToPlayer < 250) {
+                    // Move towards player
+                    const angle = Math.atan2(gameState.playerY - mortal.y, gameState.playerX - mortal.x);
+                    mortal.x += Math.cos(angle) * mortal.speed;
+                    mortal.y += Math.sin(angle) * mortal.speed;
+
+                    // Attack player if close enough
+                    const attackRange = mortal.heroClass === 'boss' ? 80 : 60;
+                    const attackCooldown = mortal.heroClass === 'boss' ? 800 : 1200;
+                    
+                    if (distanceToPlayer < attackRange && Date.now() - mortal.lastAttack > attackCooldown) {
+                        mortalAttackPlayer(mortal);
+                        mortal.lastAttack = Date.now();
+                    }
+                } else if (!mortal.hostile && distanceToPlayer < 120) {
+                    // Flee from player
+                    const angle = Math.atan2(mortal.y - gameState.playerY, mortal.x - gameState.playerX);
+                    mortal.x += Math.cos(angle) * mortal.speed * 1.8;
+                    mortal.y += Math.sin(angle) * mortal.speed * 1.8;
+                    element.classList.add('fleeing');
+                } else {
+                    element.classList.remove('fleeing');
+                    // Random movement
+                    if (Math.random() < 0.025) {
+                        const angle = Math.random() * Math.PI * 2;
+                        mortal.x += Math.cos(angle) * mortal.speed * 0.6;
+                        mortal.y += Math.sin(angle) * mortal.speed * 0.6;
+                    }
+                }
+
+                // Keep mortals in bounds
+                mortal.x = Math.max(30, Math.min(2470, mortal.x));
+                mortal.y = Math.max(30, Math.min(2470, mortal.y));
+
+                element.style.left = mortal.x + 'px';
+                element.style.top = mortal.y + 'px';
+            });
+        }
+
+        function updateProjectiles() {
+            gameState.projectiles.forEach((projectile, index) => {
+                projectile.x += projectile.vx;
+                projectile.y += projectile.vy;
+                projectile.life--;
+
+                const element = document.getElementById(`projectile-${projectile.id}`);
+                if (element) {
+                    element.style.left = projectile.x + 'px';
+                    element.style.top = projectile.y + 'px';
+                }
+
+                // Check collisions
+                if (projectile.type === 'divine') {
+                    gameState.mortals.forEach(mortal => {
+                        if (!mortal.alive) return;
+                        const distance = Math.sqrt(
+                            Math.pow(projectile.x - mortal.x, 2) + 
+                            Math.pow(projectile.y - mortal.y, 2)
+                        );
+                        if (distance < 25) {
+                            damageMortal(mortal, gameState.selectedGod.attackDamage);
+                            removeProjectile(index);
+                        }
+                    });
+                }
+
+                // Remove expired projectiles
+                if (projectile.life <= 0 || projectile.x < 0 || projectile.x > 2500 || projectile.y < 0 || projectile.y > 2500) {
+                    removeProjectile(index);
+                }
+            });
+        }
+
+        function updateCamera() {
+            gameState.cameraX = -gameState.playerX + window.innerWidth / 2;
+            gameState.cameraY = -gameState.playerY + window.innerHeight / 2;
+
+            const gameWorld = document.getElementById('gameWorld');
+            gameWorld.style.transform = `translate3d(${gameState.cameraX}px, ${gameState.cameraY}px, 0px) rotateX(35deg) rotateY(0deg)`;
+        }
+
+        function updateUI() {
+            const healthPercent = (gameState.playerHealth / gameState.playerMaxHealth) * 100;
+            const manaPercent = (gameState.playerMana / gameState.playerMaxMana) * 100;
+
+            document.getElementById('healthBar').style.width = healthPercent + '%';
+            document.getElementById('manaBar').style.width = manaPercent + '%';
+            document.getElementById('healthText').textContent = `${Math.floor(gameState.playerHealth)}/${gameState.playerMaxHealth}`;
+            document.getElementById('manaText').textContent = `${Math.floor(gameState.playerMana)}/${gameState.playerMaxMana}`;
+            document.getElementById('territoryCount').textContent = gameState.conqueredTerritories;
+        }
+
+        function divineAttack() {
+            if (Date.now() - gameState.lastAttack < gameState.selectedGod.attackSpeed) return;
+            if (gameState.playerMana < gameState.selectedGod.attackCost) return;
+
+            gameState.playerMana -= gameState.selectedGod.attackCost;
+            gameState.lastAttack = Date.now();
+
+            animateAttack();
+
+            // Create projectiles based on god's unique pattern
+            const projectileCount = gameState.selectedGod.projectileCount;
+            const spread = gameState.selectedGod.projectileSpread;
+            
+            for (let i = 0; i < projectileCount; i++) {
+                const angle = (i - (projectileCount - 1) / 2) * spread;
+                createProjectile(
+                    gameState.playerX,
+                    gameState.playerY,
+                    Math.cos(angle) * 9,
+                    Math.sin(angle) * 9,
+                    'divine'
+                );
+            }
+        }
+        
+        function animateAttack() {
+            const leftHand = document.getElementById('leftHand');
+            const rightHand = document.getElementById('rightHand');
+            
+            leftHand.classList.add('attacking');
+            rightHand.classList.add('attacking');
+            
+            setTimeout(() => {
+                leftHand.classList.remove('attacking');
+                rightHand.classList.remove('attacking');
+            }, 400);
+        }
+
+        function targetedAttack(mortalId) {
+            if (Date.now() - gameState.lastAttack < gameState.selectedGod.attackSpeed) return;
+            if (gameState.playerMana < gameState.selectedGod.attackCost) return;
+
+            const mortal = gameState.mortals[mortalId];
+            if (!mortal || !mortal.alive) return;
+
+            const distance = Math.sqrt(
+                Math.pow(mortal.x - gameState.playerX, 2) + 
+                Math.pow(mortal.y - gameState.playerY, 2)
+            );
+
+            if (distance > 400) return;
+
+            gameState.playerMana -= gameState.selectedGod.attackCost;
+            gameState.lastAttack = Date.now();
+
+            animateAttack();
+
+            const angle = Math.atan2(mortal.y - gameState.playerY, mortal.x - gameState.playerX);
+            createProjectile(
+                gameState.playerX,
+                gameState.playerY,
+                Math.cos(angle) * 12,
+                Math.sin(angle) * 12,
+                'divine'
+            );
+        }
+
+        function createProjectile(x, y, vx, vy, type) {
+            const projectile = {
+                x: x,
+                y: y,
+                vx: vx,
+                vy: vy,
+                type: type,
+                life: 120,
+                id: Date.now() + Math.random()
+            };
+
+            gameState.projectiles.push(projectile);
+
+            const element = document.createElement('div');
+            element.className = `projectile ${type}-projectile`;
+            element.id = `projectile-${projectile.id}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+        }
+
+        function removeProjectile(index) {
+            if (index < 0 || index >= gameState.projectiles.length) return;
+            
+            const projectile = gameState.projectiles[index];
+            const element = document.getElementById(`projectile-${projectile.id}`);
+            if (element) {
+                element.remove();
+            }
+            gameState.projectiles.splice(index, 1);
+        }
+
+        function damageMortal(mortal, damage) {
+            mortal.health -= damage;
+            showDamageText(mortal.x, mortal.y, damage, 'player');
+
+            if (mortal.health <= 0) {
+                mortal.alive = false;
+                if (mortal.heroClass === 'boss') {
+                    gameState.bossesDefeated++;
+                }
+                
+                const element = document.getElementById(`mortal-${mortal.id}`);
+                if (element) {
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateZ(0px) rotateX(-35deg) scale(0.5)';
+                    setTimeout(() => element.remove(), 500);
+                }
+            }
+        }
+
+        function mortalAttackPlayer(mortal) {
+            let baseDamage;
+            if (mortal.heroClass === 'boss') {
+                baseDamage = 35;
+            } else if (mortal.heroClass === 'warrior') {
+                baseDamage = 25;
+            } else {
+                baseDamage = 18;
+            }
+            
+            const damage = baseDamage + Math.random() * 20;
+            gameState.playerHealth -= damage;
+            showDamageText(gameState.playerX, gameState.playerY, Math.floor(damage), 'enemy');
+
+            // Enhanced battle effects
+            const mortalElement = document.getElementById(`mortal-${mortal.id}`);
+            if (mortalElement) {
+                const scale = mortal.heroClass === 'boss' ? 1.5 : 1.3;
+                mortalElement.style.transform = `translateZ(${mortal.heroClass === 'boss' ? 60 : 40}px) rotateX(-35deg) scale(${scale})`;
+                setTimeout(() => {
+                    const normalScale = mortal.heroClass === 'boss' ? 1.2 : 1;
+                    const normalZ = mortal.heroClass === 'boss' ? 35 : 25;
+                    mortalElement.style.transform = `translateZ(${normalZ}px) rotateX(-35deg) scale(${normalScale})`;
+                }, 300);
+            }
+
+            if (gameState.playerHealth <= 0) {
+                gameOver();
+            }
+        }
+
+        function showDamageText(x, y, damage, type) {
+            const element = document.createElement('div');
+            element.className = `damage-text ${type}`;
+            element.textContent = `-${damage}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            document.getElementById('gameWorld').appendChild(element);
+
+            setTimeout(() => element.remove(), 1200);
+        }
+
+        function checkTerritoryConquest() {
+            gameState.territories.forEach(territory => {
+                if (territory.conquered) return;
+
+                const distance = Math.sqrt(
+                    Math.pow(territory.x + territory.size/2 - gameState.playerX, 2) + 
+                    Math.pow(territory.y + territory.size/2 - gameState.playerY, 2)
+                );
+
+                if (distance < territory.size/2) {
+                    territory.conquered = true;
+                    gameState.conqueredTerritories++;
+                    
+                    const element = document.getElementById(`territory-${territory.id}`);
+                    element.style.borderColor = '#ffd700';
+                    element.style.background = 'radial-gradient(circle, rgba(255, 215, 0, 0.4), rgba(255, 215, 0, 0.15))';
+                    element.style.boxShadow = '0 8px 25px rgba(255, 215, 0, 0.6)';
+                }
+            });
+        }
+
+        function checkVictory() {
+            const aliveMortals = gameState.mortals.filter(m => m.alive).length;
+            const aliveHostiles = gameState.mortals.filter(m => m.alive && m.hostile).length;
+            
+            if (aliveHostiles === 0 && gameState.conqueredTerritories >= 15) {
+                victory();
+            }
+        }
+
+        function victory() {
+            gameState.gameRunning = false;
+            document.getElementById('victoryText').innerHTML = 
+                `<strong>Magnificent!</strong><br>
+                As <em>${gameState.selectedGod.name}</em>, you have conquered <strong>${gameState.conqueredTerritories}</strong> realms,<br>
+                defeated <strong>${gameState.bossesDefeated}</strong> legendary bosses,<br>
+                and established divine supremacy over the mortal world!`;
+            document.getElementById('victoryScreen').style.display = 'flex';
+        }
+
+        function gameOver() {
+            gameState.gameRunning = false;
+            alert(`The mortals have defeated ${gameState.selectedGod.name}! Your divine reign has ended.`);
+            restartGame();
+        }
+
+        function restartGame() {
+            // Reset game state
+            gameState = {
+                selectedGod: null,
+                playerHealth: 2000,
+                playerMaxHealth: 2000,
+                playerMana: 100,
+                playerMaxMana: 100,
+                playerX: 1250,
+                playerY: 1250,
+                cameraX: 0,
+                cameraY: 0,
+                territories: [],
+                mortals: [],
+                buildings: [],
+                projectiles: [],
+                keys: {},
+                lastAttack: 0,
+                conqueredTerritories: 0,
+                gameRunning: false,
+                bossesDefeated: 0
+            };
+
+            // Clear world
+            document.getElementById('gameWorld').innerHTML = '<div class="player" id="player"></div>';
+            
+            // Show god selection
+            document.getElementById('victoryScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('godSelection').style.display = 'flex';
+        }
+
+        // Initialize the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970359ae005aeb2d',t:'MTc1NTM3MjY2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

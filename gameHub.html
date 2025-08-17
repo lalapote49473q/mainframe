@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Playable Mini Games</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 2rem;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .game-description {
+            opacity: 0.8;
+            text-align: center;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .play-button {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-screen {
+            display: none;
+            background: rgba(0, 0, 0, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            padding: 2rem;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .game-area {
+            background: #333;
+            border-radius: 10px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .minecraft-game {
+            width: 100%;
+            height: 400px;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            gap: 1px;
+            background: #87CEEB;
+        }
+
+        .block {
+            background: #8B4513;
+            border: 1px solid #654321;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .block:hover {
+            brightness: 1.2;
+        }
+
+        .block.grass {
+            background: #228B22;
+            border-color: #006400;
+        }
+
+        .block.stone {
+            background: #696969;
+            border-color: #2F4F4F;
+        }
+
+        .block.water {
+            background: #4169E1;
+            border-color: #0000CD;
+        }
+
+        .block.wood {
+            background: #8B4513;
+            border-color: #654321;
+        }
+
+        .snake-game {
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            background: #000;
+            position: relative;
+            border: 2px solid #fff;
+        }
+
+        .snake-segment {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #0f0;
+            border: 1px solid #090;
+        }
+
+        .food {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #f00;
+            border-radius: 50%;
+        }
+
+        .puzzle-game {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            background: #333;
+        }
+
+        .puzzle-tile {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .puzzle-tile:hover {
+            transform: scale(0.95);
+        }
+
+        .puzzle-tile.empty {
+            background: #222;
+        }
+
+        .controls {
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .score {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .snake-game {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🎮 GameHub</div>
+            <button class="back-btn" onclick="window.location.href='main.html'">← Back to Games</button>
+        </nav>
+    </header>
+
+    <div class="container" id="gameList">
+        <section class="hero">
+            <h1>Playable Mini Games</h1>
+            <p>Actually playable browser games inspired by your favorites!</p>
+        </section>
+
+        <div class="games-grid">
+            <div class="game-card" onclick="startGame('minecraft')">
+                <div class="game-icon">⛏️</div>
+                <h3 class="game-title">Block Builder</h3>
+                <p class="game-description">Click to place and remove blocks! Build your own pixelated world.</p>
+                <button class="play-button">Play Now</button>
+            </div>
+
+            <div class="game-card" onclick="startGame('snake')">
+                <div class="game-icon">🐍</div>
+                <h3 class="game-title">Snake Adventure</h3>
+                <p class="game-description">Classic snake game! Eat food, grow longer, don't hit the walls!</p>
+                <button class="play-button">Play Now</button>
+            </div>
+
+            <div class="game-card" onclick="startGame('puzzle')">
+                <div class="game-icon">🧩</div>
+                <h3 class="game-title">Number Puzzle</h3>
+                <p class="game-description">Slide the tiles to arrange numbers 1-8 in order. Can you solve it?</p>
+                <button class="play-button">Play Now</button>
+            </div>
+
+            <div class="game-card" onclick="startGame('memory')">
+                <div class="game-icon">🧠</div>
+                <h3 class="game-title">Memory Match</h3>
+                <p class="game-description">Find matching pairs of cards. Test your memory skills!</p>
+                <button class="play-button">Play Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screens -->
+    <div class="game-screen" id="minecraftScreen">
+        <div class="game-container">
+            <h2>Block Builder</h2>
+            <div class="controls">
+                <button class="control-btn" onclick="setBlockType('grass')">🌱 Grass</button>
+                <button class="control-btn" onclick="setBlockType('stone')">🪨 Stone</button>
+                <button class="control-btn" onclick="setBlockType('water')">💧 Water</button>
+                <button class="control-btn" onclick="setBlockType('wood')">🪵 Wood</button>
+                <button class="control-btn" onclick="clearWorld()">🗑️ Clear</button>
+            </div>
+            <div class="game-area">
+                <div class="minecraft-game" id="minecraftGrid"></div>
+            </div>
+            <p>Click blocks to place/remove them. Use the buttons above to select block types!</p>
+        </div>
+    </div>
+
+    <div class="game-screen" id="snakeScreen">
+        <div class="game-container">
+            <h2>Snake Adventure</h2>
+            <div class="score">Score: <span id="snakeScore">0</span></div>
+            <div class="controls">
+                <button class="control-btn" onclick="startSnakeGame()">🎮 Start Game</button>
+                <button class="control-btn" onclick="pauseSnakeGame()">⏸️ Pause</button>
+            </div>
+            <div class="game-area">
+                <div class="snake-game" id="snakeGame"></div>
+            </div>
+            <p>Use WASD or Arrow Keys to move. Eat red food to grow!</p>
+        </div>
+    </div>
+
+    <div class="game-screen" id="puzzleScreen">
+        <div class="game-container">
+            <h2>Number Puzzle</h2>
+            <div class="score">Moves: <span id="puzzleMoves">0</span></div>
+            <div class="controls">
+                <button class="control-btn" onclick="shufflePuzzle()">🔀 Shuffle</button>
+                <button class="control-btn" onclick="resetPuzzle()">🔄 Reset</button>
+            </div>
+            <div class="game-area">
+                <div class="puzzle-game" id="puzzleGrid"></div>
+            </div>
+            <p>Click tiles next to the empty space to move them. Arrange 1-8 in order!</p>
+        </div>
+    </div>
+
+    <div class="game-screen" id="memoryScreen">
+        <div class="game-container">
+            <h2>Memory Match</h2>
+            <div class="score">Pairs Found: <span id="memoryScore">0</span> / 8</div>
+            <div class="controls">
+                <button class="control-btn" onclick="startMemoryGame()">🎮 New Game</button>
+            </div>
+            <div class="game-area">
+                <div class="puzzle-game" id="memoryGrid"></div>
+            </div>
+            <p>Click cards to flip them. Find matching pairs!</p>
+        </div>
+    </div>
+
+    <script>
+        let currentBlockType = 'grass';
+        let snakeGame = null;
+        let puzzleMoves = 0;
+        let memoryCards = [];
+        let flippedCards = [];
+        let memoryScore = 0;
+
+        function showGameList() {
+            document.querySelectorAll('.game-screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            document.getElementById('gameList').style.display = 'block';
+        }
+
+        function startGame(gameType) {
+            document.getElementById('gameList').style.display = 'none';
+            document.querySelectorAll('.game-screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+
+            switch(gameType) {
+                case 'minecraft':
+                    document.getElementById('minecraftScreen').style.display = 'block';
+                    initMinecraft();
+                    break;
+                case 'snake':
+                    document.getElementById('snakeScreen').style.display = 'block';
+                    initSnake();
+                    break;
+                case 'puzzle':
+                    document.getElementById('puzzleScreen').style.display = 'block';
+                    initPuzzle();
+                    break;
+                case 'memory':
+                    document.getElementById('memoryScreen').style.display = 'block';
+                    initMemory();
+                    break;
+            }
+        }
+
+        // Minecraft-style Block Builder
+        function initMinecraft() {
+            const grid = document.getElementById('minecraftGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 300; i++) {
+                const block = document.createElement('div');
+                block.className = 'block';
+                if (i >= 240) block.classList.add('grass'); // Bottom rows are grass
+                block.addEventListener('click', () => toggleBlock(block));
+                grid.appendChild(block);
+            }
+        }
+
+        function setBlockType(type) {
+            currentBlockType = type;
+        }
+
+        function toggleBlock(block) {
+            if (block.classList.contains(currentBlockType)) {
+                block.className = 'block';
+            } else {
+                block.className = `block ${currentBlockType}`;
+            }
+        }
+
+        function clearWorld() {
+            document.querySelectorAll('#minecraftGrid .block').forEach(block => {
+                block.className = 'block';
+            });
+        }
+
+        // Snake Game
+        function initSnake() {
+            const gameArea = document.getElementById('snakeGame');
+            gameArea.innerHTML = '';
+            
+            snakeGame = {
+                snake: [{x: 200, y: 200}],
+                direction: {x: 20, y: 0},
+                food: {x: 100, y: 100},
+                score: 0,
+                running: false
+            };
+            
+            updateSnakeDisplay();
+        }
+
+        function startSnakeGame() {
+            if (snakeGame.running) return;
+            
+            snakeGame.running = true;
+            snakeGame.gameLoop = setInterval(() => {
+                moveSnake();
+                checkCollisions();
+                updateSnakeDisplay();
+            }, 150);
+        }
+
+        function pauseSnakeGame() {
+            snakeGame.running = false;
+            clearInterval(snakeGame.gameLoop);
+        }
+
+        function moveSnake() {
+            const head = {...snakeGame.snake[0]};
+            head.x += snakeGame.direction.x;
+            head.y += snakeGame.direction.y;
+            
+            snakeGame.snake.unshift(head);
+            
+            if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
+                snakeGame.score++;
+                document.getElementById('snakeScore').textContent = snakeGame.score;
+                generateFood();
+            } else {
+                snakeGame.snake.pop();
+            }
+        }
+
+        function checkCollisions() {
+            const head = snakeGame.snake[0];
+            
+            if (head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400) {
+                gameOver();
+                return;
+            }
+            
+            for (let i = 1; i < snakeGame.snake.length; i++) {
+                if (head.x === snakeGame.snake[i].x && head.y === snakeGame.snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+        }
+
+        function generateFood() {
+            snakeGame.food = {
+                x: Math.floor(Math.random() * 20) * 20,
+                y: Math.floor(Math.random() * 20) * 20
+            };
+        }
+
+        function updateSnakeDisplay() {
+            const gameArea = document.getElementById('snakeGame');
+            gameArea.innerHTML = '';
+            
+            snakeGame.snake.forEach(segment => {
+                const segmentEl = document.createElement('div');
+                segmentEl.className = 'snake-segment';
+                segmentEl.style.left = segment.x + 'px';
+                segmentEl.style.top = segment.y + 'px';
+                gameArea.appendChild(segmentEl);
+            });
+            
+            const foodEl = document.createElement('div');
+            foodEl.className = 'food';
+            foodEl.style.left = snakeGame.food.x + 'px';
+            foodEl.style.top = snakeGame.food.y + 'px';
+            gameArea.appendChild(foodEl);
+        }
+
+        function gameOver() {
+            pauseSnakeGame();
+            setTimeout(() => {
+                alert(`Game Over! Score: ${snakeGame.score}`);
+                initSnake();
+            }, 100);
+        }
+
+        // Snake controls
+        document.addEventListener('keydown', (e) => {
+            if (!snakeGame || !snakeGame.running) return;
+            
+            switch(e.key.toLowerCase()) {
+                case 'w':
+                case 'arrowup':
+                    if (snakeGame.direction.y === 0) snakeGame.direction = {x: 0, y: -20};
+                    break;
+                case 's':
+                case 'arrowdown':
+                    if (snakeGame.direction.y === 0) snakeGame.direction = {x: 0, y: 20};
+                    break;
+                case 'a':
+                case 'arrowleft':
+                    if (snakeGame.direction.x === 0) snakeGame.direction = {x: -20, y: 0};
+                    break;
+                case 'd':
+                case 'arrowright':
+                    if (snakeGame.direction.x === 0) snakeGame.direction = {x: 20, y: 0};
+                    break;
+            }
+        });
+
+        // Number Puzzle
+        function initPuzzle() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.innerHTML = '';
+            puzzleMoves = 0;
+            document.getElementById('puzzleMoves').textContent = puzzleMoves;
+            
+            const tiles = [1, 2, 3, 4, 5, 6, 7, 8, ''];
+            
+            tiles.forEach((num, index) => {
+                const tile = document.createElement('button');
+                tile.className = num === '' ? 'puzzle-tile empty' : 'puzzle-tile';
+                tile.textContent = num;
+                tile.addEventListener('click', () => movePuzzleTile(index));
+                grid.appendChild(tile);
+            });
+        }
+
+        function movePuzzleTile(index) {
+            const tiles = document.querySelectorAll('#puzzleGrid .puzzle-tile');
+            const emptyIndex = Array.from(tiles).findIndex(tile => tile.classList.contains('empty'));
+            
+            const validMoves = [
+                emptyIndex - 1, emptyIndex + 1, // horizontal
+                emptyIndex - 3, emptyIndex + 3  // vertical
+            ].filter(i => {
+                if (i < 0 || i > 8) return false;
+                if (emptyIndex % 3 === 0 && i === emptyIndex - 1) return false;
+                if (emptyIndex % 3 === 2 && i === emptyIndex + 1) return false;
+                return true;
+            });
+            
+            if (validMoves.includes(index)) {
+                const temp = tiles[index].textContent;
+                tiles[index].textContent = tiles[emptyIndex].textContent;
+                tiles[emptyIndex].textContent = temp;
+                
+                tiles[index].className = 'puzzle-tile empty';
+                tiles[emptyIndex].className = 'puzzle-tile';
+                
+                puzzleMoves++;
+                document.getElementById('puzzleMoves').textContent = puzzleMoves;
+                
+                checkPuzzleWin();
+            }
+        }
+
+        function checkPuzzleWin() {
+            const tiles = document.querySelectorAll('#puzzleGrid .puzzle-tile');
+            const current = Array.from(tiles).map(tile => tile.textContent);
+            const target = ['1', '2', '3', '4', '5', '6', '7', '8', ''];
+            
+            if (JSON.stringify(current) === JSON.stringify(target)) {
+                setTimeout(() => {
+                    alert(`Congratulations! You solved it in ${puzzleMoves} moves!`);
+                }, 100);
+            }
+        }
+
+        function shufflePuzzle() {
+            for (let i = 0; i < 100; i++) {
+                const tiles = document.querySelectorAll('#puzzleGrid .puzzle-tile');
+                const emptyIndex = Array.from(tiles).findIndex(tile => tile.classList.contains('empty'));
+                const validMoves = [
+                    emptyIndex - 1, emptyIndex + 1,
+                    emptyIndex - 3, emptyIndex + 3
+                ].filter(i => {
+                    if (i < 0 || i > 8) return false;
+                    if (emptyIndex % 3 === 0 && i === emptyIndex - 1) return false;
+                    if (emptyIndex % 3 === 2 && i === emptyIndex + 1) return false;
+                    return true;
+                });
+                
+                if (validMoves.length > 0) {
+                    const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    movePuzzleTile(randomMove);
+                }
+            }
+            puzzleMoves = 0;
+            document.getElementById('puzzleMoves').textContent = puzzleMoves;
+        }
+
+        function resetPuzzle() {
+            initPuzzle();
+        }
+
+        // Memory Game
+        function initMemory() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            memoryScore = 0;
+            flippedCards = [];
+            document.getElementById('memoryScore').textContent = memoryScore;
+            
+            const symbols = ['🎮', '🎯', '🏆', '⭐', '🎨', '🎪', '🎭', '🎪'];
+            const cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            
+            memoryCards = cards.map((symbol, index) => ({
+                symbol,
+                flipped: false,
+                matched: false,
+                index
+            }));
+            
+            memoryCards.forEach((card, index) => {
+                const cardEl = document.createElement('button');
+                cardEl.className = 'puzzle-tile';
+                cardEl.textContent = '?';
+                cardEl.addEventListener('click', () => flipMemoryCard(index));
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function flipMemoryCard(index) {
+            if (flippedCards.length >= 2 || memoryCards[index].flipped || memoryCards[index].matched) return;
+            
+            const cardEl = document.querySelectorAll('#memoryGrid .puzzle-tile')[index];
+            cardEl.textContent = memoryCards[index].symbol;
+            memoryCards[index].flipped = true;
+            flippedCards.push(index);
+            
+            if (flippedCards.length === 2) {
+                setTimeout(checkMemoryMatch, 1000);
+            }
+        }
+
+        function checkMemoryMatch() {
+            const [first, second] = flippedCards;
+            const cardEls = document.querySelectorAll('#memoryGrid .puzzle-tile');
+            
+            if (memoryCards[first].symbol === memoryCards[second].symbol) {
+                memoryCards[first].matched = true;
+                memoryCards[second].matched = true;
+                memoryScore++;
+                document.getElementById('memoryScore').textContent = memoryScore;
+                
+                if (memoryScore === 8) {
+                    setTimeout(() => {
+                        alert('Congratulations! You found all pairs!');
+                    }, 100);
+                }
+            } else {
+                cardEls[first].textContent = '?';
+                cardEls[second].textContent = '?';
+                memoryCards[first].flipped = false;
+                memoryCards[second].flipped = false;
+            }
+            
+            flippedCards = [];
+        }
+
+        function startMemoryGame() {
+            initMemory();
+        }
+
+        // Initialize first game
+        window.addEventListener('load', () => {
+            showGameList();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9701f7f7839b3c35',t:'MTc1NTM1ODE4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

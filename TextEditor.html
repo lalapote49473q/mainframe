@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Editor</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Placeholder styling for contenteditable */
+        #textEditor:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <button onclick="goToMain()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Main
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-800">Text Editor</h1>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <input type="file" id="fileInput" accept=".txt,.md,.json" class="hidden" onchange="importFile(event)">
+                    <button onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                        Import
+                    </button>
+                    <button onclick="exportFile()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Controls -->
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+            <div class="flex items-center gap-4 flex-wrap">
+                <!-- Text Formatting Controls -->
+                <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
+                    <label class="text-sm font-medium text-gray-700">Font:</label>
+                    <select id="fontFamily" onchange="applyFontFamily()" class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                        <option value="Impact, sans-serif">Impact</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="'Lucida Console', monospace">Lucida Console</option>
+                        <option value="'Palatino Linotype', serif">Palatino</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
+                    <label class="text-sm font-medium text-gray-700">Size:</label>
+                    <select id="fontSize" onchange="applyFontSize()" class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="8">8px</option>
+                        <option value="10">10px</option>
+                        <option value="12">12px</option>
+                        <option value="14" selected>14px</option>
+                        <option value="16">16px</option>
+                        <option value="18">18px</option>
+                        <option value="20">20px</option>
+                        <option value="24">24px</option>
+                        <option value="28">28px</option>
+                        <option value="32">32px</option>
+                        <option value="36">36px</option>
+                        <option value="48">48px</option>
+                    </select>
+                </div>
+
+                <!-- Style Controls -->
+                <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
+                    <button onclick="applyStyle('bold')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded font-bold transition-colors duration-200">B</button>
+                    <button onclick="applyStyle('italic')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded italic transition-colors duration-200">I</button>
+                    <button onclick="applyStyle('underline')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded underline transition-colors duration-200">U</button>
+                </div>
+
+                <!-- Color Controls -->
+                <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
+                    <label class="text-sm font-medium text-gray-700">Color:</label>
+                    <input type="color" id="textColor" onchange="applyTextColor()" class="w-8 h-8 border border-gray-300 rounded cursor-pointer" value="#000000">
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700">Theme:</label>
+                    <select id="theme" onchange="changeTheme()" class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="light" selected>Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2 ml-auto">
+                    <span class="text-sm text-gray-600">Words: <span id="wordCount">0</span></span>
+                    <span class="text-sm text-gray-600">Characters: <span id="charCount">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Editor -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6">
+                <div 
+                    id="textEditor" 
+                    contenteditable="true"
+                    class="w-full h-96 p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-y-auto"
+                    style="font-size: 14px; line-height: 1.6; font-family: Arial, sans-serif;"
+                    oninput="updateCounts()"
+                    data-placeholder="Start typing your text here..."
+                ></div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="mt-4 text-center">
+            <p class="text-sm text-gray-500" id="statusMessage">Ready to edit</p>
+        </div>
+
+        <!-- Export Dialog Modal -->
+        <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Export File</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Filename:</label>
+                        <input type="text" id="exportFilename" value="document" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Format:</label>
+                        <select id="exportFormat" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="html">HTML (with formatting)</option>
+                            <option value="txt">Plain Text</option>
+                            <option value="md">Markdown</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeExportModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Cancel
+                    </button>
+                    <button onclick="confirmExport()" class="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize editor
+        let currentFileName = 'document.html';
+        
+        // Go to main page
+        function goToMain() {
+            window.location.href = 'main.html';
+        }
+
+        // Update word and character counts
+        function updateCounts() {
+            const editor = document.getElementById('textEditor');
+            const text = editor.innerText || editor.textContent || '';
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const chars = text.length;
+            
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('charCount').textContent = chars;
+        }
+
+        // Apply font family to selected text
+        function applyFontFamily() {
+            const fontFamily = document.getElementById('fontFamily').value;
+            document.execCommand('fontName', false, fontFamily);
+            document.getElementById('textEditor').focus();
+        }
+
+        // Apply font size to selected text
+        function applyFontSize() {
+            const fontSize = document.getElementById('fontSize').value;
+            // Create a span with the font size
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                if (!range.collapsed) {
+                    const span = document.createElement('span');
+                    span.style.fontSize = fontSize + 'px';
+                    try {
+                        range.surroundContents(span);
+                    } catch (e) {
+                        // If surroundContents fails, extract and wrap content
+                        const contents = range.extractContents();
+                        span.appendChild(contents);
+                        range.insertNode(span);
+                    }
+                    selection.removeAllRanges();
+                }
+            }
+            document.getElementById('textEditor').focus();
+        }
+
+        // Apply text styles (bold, italic, underline)
+        function applyStyle(style) {
+            document.execCommand(style, false, null);
+            document.getElementById('textEditor').focus();
+        }
+
+        // Apply text color to selected text
+        function applyTextColor() {
+            const color = document.getElementById('textColor').value;
+            document.execCommand('foreColor', false, color);
+            document.getElementById('textEditor').focus();
+        }
+
+        // Change theme
+        function changeTheme() {
+            const theme = document.getElementById('theme').value;
+            const editor = document.getElementById('textEditor');
+            
+            if (theme === 'dark') {
+                editor.style.backgroundColor = '#1f2937';
+                editor.style.color = '#f9fafb';
+                editor.style.borderColor = '#374151';
+            } else {
+                editor.style.backgroundColor = '#ffffff';
+                editor.style.color = '#111827';
+                editor.style.borderColor = '#d1d5db';
+            }
+        }
+
+        // Import file
+        function importFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const editor = document.getElementById('textEditor');
+                
+                // Check if it's HTML content
+                if (file.name.endsWith('.html') || content.includes('<')) {
+                    editor.innerHTML = content;
+                } else {
+                    // Plain text - convert line breaks to <br> tags
+                    editor.innerHTML = content.replace(/\n/g, '<br>');
+                }
+                
+                currentFileName = file.name;
+                updateCounts();
+                showStatus(`Imported: ${file.name}`, 'success');
+            };
+            reader.readAsText(file);
+        }
+
+        // Export file - show dialog
+        function exportFile() {
+            // Set default filename from current file
+            const baseFilename = currentFileName.replace(/\.[^/.]+$/, '') || 'document';
+            document.getElementById('exportFilename').value = baseFilename;
+            
+            // Show modal
+            const modal = document.getElementById('exportModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Focus on filename input
+            document.getElementById('exportFilename').focus();
+            document.getElementById('exportFilename').select();
+        }
+
+        // Close export modal
+        function closeExportModal() {
+            const modal = document.getElementById('exportModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Confirm export with selected options
+        function confirmExport() {
+            const filename = document.getElementById('exportFilename').value.trim();
+            const format = document.getElementById('exportFormat').value;
+            
+            if (!filename) {
+                alert('Please enter a filename');
+                return;
+            }
+
+            const editor = document.getElementById('textEditor');
+            let content;
+            let mimeType;
+            let fullFilename;
+
+            // Generate content based on selected format
+            switch (format) {
+                case 'txt':
+                    content = editor.innerText || editor.textContent || '';
+                    mimeType = 'text/plain';
+                    fullFilename = filename + '.txt';
+                    break;
+                case 'md':
+                    content = htmlToMarkdown(editor.innerHTML);
+                    mimeType = 'text/markdown';
+                    fullFilename = filename + '.md';
+                    break;
+                case 'html':
+                default:
+                    content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${filename}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+    </style>
+</head>
+<body>
+${editor.innerHTML}
+</body>
+</html>`;
+                    mimeType = 'text/html';
+                    fullFilename = filename + '.html';
+                    break;
+            }
+
+            // Create and download file
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fullFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Update current filename and close modal
+            currentFileName = fullFilename;
+            closeExportModal();
+            showStatus(`Exported: ${fullFilename}`, 'success');
+        }
+
+        // Convert HTML to basic Markdown
+        function htmlToMarkdown(html) {
+            let markdown = html;
+            
+            // Convert basic formatting
+            markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
+            markdown = markdown.replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**');
+            markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
+            markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*');
+            markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, '_$1_');
+            
+            // Convert line breaks
+            markdown = markdown.replace(/<br[^>]*>/gi, '\n');
+            markdown = markdown.replace(/<\/p>/gi, '\n\n');
+            markdown = markdown.replace(/<p[^>]*>/gi, '');
+            
+            // Remove remaining HTML tags
+            markdown = markdown.replace(/<[^>]*>/g, '');
+            
+            // Clean up extra whitespace
+            markdown = markdown.replace(/\n\s*\n\s*\n/g, '\n\n');
+            markdown = markdown.trim();
+            
+            return markdown;
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            
+            if (type === 'success') {
+                statusElement.className = 'text-sm text-green-600';
+            } else if (type === 'error') {
+                statusElement.className = 'text-sm text-red-600';
+            } else {
+                statusElement.className = 'text-sm text-gray-500';
+            }
+            
+            setTimeout(() => {
+                statusElement.textContent = 'Ready to edit';
+                statusElement.className = 'text-sm text-gray-500';
+            }, 3000);
+        }
+
+        // Auto-save to localStorage
+        function autoSave() {
+            const content = document.getElementById('textEditor').innerHTML;
+            localStorage.setItem('textEditor_content', content);
+        }
+
+        // Load from localStorage on page load
+        function loadSaved() {
+            const saved = localStorage.getItem('textEditor_content');
+            if (saved) {
+                document.getElementById('textEditor').innerHTML = saved;
+                updateCounts();
+            }
+        }
+
+        // Set up auto-save and event listeners
+        document.getElementById('textEditor').addEventListener('input', function() {
+            updateCounts();
+            autoSave();
+        });
+
+        // Handle paste events to maintain formatting
+        document.getElementById('textEditor').addEventListener('paste', function(e) {
+            setTimeout(() => {
+                updateCounts();
+                autoSave();
+            }, 10);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Close modal on Escape key
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('exportModal');
+                if (!modal.classList.contains('hidden')) {
+                    closeExportModal();
+                }
+            }
+            
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    exportFile();
+                } else if (e.key === 'o') {
+                    e.preventDefault();
+                    document.getElementById('fileInput').click();
+                } else if (e.key === 'b') {
+                    e.preventDefault();
+                    applyStyle('bold');
+                } else if (e.key === 'i') {
+                    e.preventDefault();
+                    applyStyle('italic');
+                } else if (e.key === 'u') {
+                    e.preventDefault();
+                    applyStyle('underline');
+                }
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        // Handle Enter key in export modal
+        document.getElementById('exportFilename').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                confirmExport();
+            }
+        });
+
+        // Load saved content on page load
+        window.addEventListener('load', loadSaved);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970320a0718ad025',t:'MTc1NTM3MDMzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

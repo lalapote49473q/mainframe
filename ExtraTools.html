@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Tools Collection</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tool-card { transition: all 0.3s ease; }
+        .tool-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="absolute top-4 left-4"></div>
+        <a href="main.html" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors">Back to Main</a>
+    </div>
+    <div class="container mx-auto px-6 py-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-4">🛠️ Computer Tools</h1>
+            <p class="text-xl text-white opacity-90">Essential utilities for your daily computing needs</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Password Generator -->
+            <div class="tool-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">🔐</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Password Generator</h3>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Length: <span id="pwdLength">12</span></label>
+                    <input type="range" id="lengthSlider" min="8" max="32" value="12" class="w-full">
+                </div>
+                <div class="mb-4 space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="includeSymbols" checked class="mr-2">
+                        <span class="text-sm text-gray-700">Include symbols</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="includeNumbers" checked class="mr-2">
+                        <span class="text-sm text-gray-700">Include numbers</span>
+                    </label>
+                </div>
+                <div class="mb-4">
+                    <input type="text" id="generatedPassword" readonly class="w-full p-3 border rounded-lg bg-gray-50 font-mono text-sm">
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="generatePassword()" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Generate</button>
+                    <button onclick="copyPassword()" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Copy</button>
+                </div>
+            </div>
+
+            <!-- QR Code Generator -->
+            <div class="tool-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">📱</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">QR Code Generator</h3>
+                </div>
+                <div class="mb-4">
+                    <textarea id="qrText" placeholder="Enter text or URL..." class="w-full p-3 border rounded-lg resize-none h-20"></textarea>
+                </div>
+                <div class="mb-4 flex justify-center">
+                    <div id="qrCode" class="border-2 border-dashed border-gray-300 w-48 h-48 flex items-center justify-center text-gray-500 rounded-lg">
+                        QR Code will appear here
+                    </div>
+                </div>
+                <button onclick="generateQR()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Generate QR Code</button>
+            </div>
+
+            <!-- Color Picker -->
+            <div class="tool-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">🎨</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Color Picker</h3>
+                </div>
+                <div class="mb-4">
+                    <input type="color" id="colorPicker" value="#3B82F6" class="w-full h-16 rounded-lg border-0 cursor-pointer">
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">HEX:</span>
+                        <input type="text" id="hexValue" readonly class="bg-gray-50 px-3 py-1 rounded border font-mono text-sm">
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">RGB:</span>
+                        <input type="text" id="rgbValue" readonly class="bg-gray-50 px-3 py-1 rounded border font-mono text-sm">
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">HSL:</span>
+                        <input type="text" id="hslValue" readonly class="bg-gray-50 px-3 py-1 rounded border font-mono text-sm">
+                    </div>
+                </div>
+                <button onclick="copyColorValues()" class="w-full mt-4 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">Copy All Values</button>
+            </div>
+
+            <!-- Text Counter -->
+            <div class="tool-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">📝</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Text Counter</h3>
+                </div>
+                <div class="mb-4">
+                    <textarea id="textInput" placeholder="Type or paste your text here..." class="w-full p-3 border rounded-lg resize-none h-32" oninput="updateTextStats()"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold text-orange-600" id="charCount">0</div>
+                        <div class="text-sm text-gray-600">Characters</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-2xl font-bold text-orange-600" id="wordCount">0</div>
+                        <div class="text-sm text-gray-600">Words</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unit Converter -->
+            <div class="tool-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">⚖️</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Unit Converter</h3>
+                </div>
+                <div class="mb-4">
+                    <select id="conversionType" onchange="updateConverter()" class="w-full p-3 border rounded-lg">
+                        <option value="length">Length</option>
+                        <option value="weight">Weight</option>
+                        <option value="temperature">Temperature</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <select id="fromUnit" class="w-full p-2 border rounded-lg mb-2"></select>
+                        <input type="number" id="fromValue" placeholder="Enter value" class="w-full p-2 border rounded-lg" oninput="convertUnits()">
+                    </div>
+                    <div>
+                        <select id="toUnit" class="w-full p-2 border rounded-lg mb-2"></select>
+                        <input type="number" id="toValue" readonly class="w-full p-2 border rounded-lg bg-gray-50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Base64 Encoder/Decoder -->
+            <div class="tool-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">🔄</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Base64 Encoder</h3>
+                </div>
+                <div class="mb-4">
+                    <textarea id="plainText" placeholder="Enter text to encode..." class="w-full p-3 border rounded-lg resize-none h-20" oninput="encodeBase64()"></textarea>
+                </div>
+                <div class="mb-4">
+                    <textarea id="encodedText" placeholder="Encoded text will appear here..." readonly class="w-full p-3 border rounded-lg resize-none h-20 bg-gray-50 font-mono text-sm"></textarea>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="copyEncoded()" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">Copy Encoded</button>
+                    <button onclick="decodeBase64()" class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Decode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password Generator
+        function generatePassword() {
+            const length = document.getElementById('lengthSlider').value;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            
+            let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeNumbers) chars += '0123456789';
+            if (includeSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            document.getElementById('generatedPassword').value = password;
+        }
+
+        function copyPassword() {
+            const password = document.getElementById('generatedPassword');
+            password.select();
+            document.execCommand('copy');
+            alert('Password copied to clipboard!');
+        }
+
+        document.getElementById('lengthSlider').oninput = function() {
+            document.getElementById('pwdLength').textContent = this.value;
+        }
+
+        // QR Code Generator
+        function generateQR() {
+            const text = document.getElementById('qrText').value;
+            if (!text) {
+                alert('Please enter text or URL');
+                return;
+            }
+            
+            const qrDiv = document.getElementById('qrCode');
+            qrDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}" alt="QR Code" class="rounded-lg">`;
+        }
+
+        // Color Picker
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        document.getElementById('colorPicker').oninput = function() {
+            const hex = this.value;
+            const rgb = hexToRgb(hex);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            
+            document.getElementById('hexValue').value = hex.toUpperCase();
+            document.getElementById('rgbValue').value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            document.getElementById('hslValue').value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+        }
+
+        function copyColorValues() {
+            const hex = document.getElementById('hexValue').value;
+            const rgb = document.getElementById('rgbValue').value;
+            const hsl = document.getElementById('hslValue').value;
+            
+            const colorInfo = `HEX: ${hex}\nRGB: ${rgb}\nHSL: ${hsl}`;
+            navigator.clipboard.writeText(colorInfo);
+            alert('Color values copied to clipboard!');
+        }
+
+        // Text Counter
+        function updateTextStats() {
+            const text = document.getElementById('textInput').value;
+            const charCount = text.length;
+            const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            
+            document.getElementById('charCount').textContent = charCount;
+            document.getElementById('wordCount').textContent = wordCount;
+        }
+
+        // Unit Converter
+        const conversions = {
+            length: {
+                units: ['meters', 'feet', 'inches', 'centimeters', 'kilometers', 'miles'],
+                toMeters: {
+                    meters: 1,
+                    feet: 0.3048,
+                    inches: 0.0254,
+                    centimeters: 0.01,
+                    kilometers: 1000,
+                    miles: 1609.34
+                }
+            },
+            weight: {
+                units: ['kilograms', 'pounds', 'ounces', 'grams', 'tons'],
+                toKg: {
+                    kilograms: 1,
+                    pounds: 0.453592,
+                    ounces: 0.0283495,
+                    grams: 0.001,
+                    tons: 1000
+                }
+            },
+            temperature: {
+                units: ['celsius', 'fahrenheit', 'kelvin'],
+                convert: function(value, from, to) {
+                    let celsius;
+                    if (from === 'fahrenheit') celsius = (value - 32) * 5/9;
+                    else if (from === 'kelvin') celsius = value - 273.15;
+                    else celsius = value;
+                    
+                    if (to === 'fahrenheit') return celsius * 9/5 + 32;
+                    else if (to === 'kelvin') return celsius + 273.15;
+                    else return celsius;
+                }
+            }
+        };
+
+        function updateConverter() {
+            const type = document.getElementById('conversionType').value;
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            
+            fromUnit.innerHTML = '';
+            toUnit.innerHTML = '';
+            
+            conversions[type].units.forEach(unit => {
+                fromUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+                toUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+            });
+            
+            toUnit.selectedIndex = 1;
+        }
+
+        function convertUnits() {
+            const type = document.getElementById('conversionType').value;
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            if (isNaN(fromValue)) {
+                document.getElementById('toValue').value = '';
+                return;
+            }
+            
+            let result;
+            if (type === 'temperature') {
+                result = conversions.temperature.convert(fromValue, fromUnit, toUnit);
+            } else {
+                const baseUnit = type === 'length' ? 'toMeters' : 'toKg';
+                const baseValue = fromValue * conversions[type][baseUnit][fromUnit];
+                result = baseValue / conversions[type][baseUnit][toUnit];
+            }
+            
+            document.getElementById('toValue').value = result.toFixed(4);
+        }
+
+        // Base64 Encoder/Decoder
+        function encodeBase64() {
+            const plainText = document.getElementById('plainText').value;
+            if (plainText) {
+                const encoded = btoa(plainText);
+                document.getElementById('encodedText').value = encoded;
+            } else {
+                document.getElementById('encodedText').value = '';
+            }
+        }
+
+        function decodeBase64() {
+            const encodedText = document.getElementById('encodedText').value;
+            if (encodedText) {
+                try {
+                    const decoded = atob(encodedText);
+                    document.getElementById('plainText').value = decoded;
+                } catch (e) {
+                    alert('Invalid Base64 string');
+                }
+            }
+        }
+
+        function copyEncoded() {
+            const encoded = document.getElementById('encodedText');
+            encoded.select();
+            document.execCommand('copy');
+            alert('Encoded text copied to clipboard!');
+        }
+
+        // Initialize
+        generatePassword();
+        document.getElementById('colorPicker').oninput();
+        updateConverter();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9703783ee7c8b976',t:'MTc1NTM3MzkyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
