@@ -1088,19 +1088,19 @@
             // Set AI parameters based on difficulty
             switch(difficulty) {
                 case 'easy':
-                    gameState.player2.aiSpeed = 2;
-                    gameState.player2.aiAttackChance = 0.015;
-                    gameState.player2.aiReactionTime = 100;
-                    break;
-                case 'medium':
                     gameState.player2.aiSpeed = 3;
                     gameState.player2.aiAttackChance = 0.03;
                     gameState.player2.aiReactionTime = 50;
                     break;
-                case 'hard':
+                case 'medium':
                     gameState.player2.aiSpeed = 4.5;
-                    gameState.player2.aiAttackChance = 0.05;
+                    gameState.player2.aiAttackChance = 0.07;
                     gameState.player2.aiReactionTime = 25;
+                    break;
+                case 'hard':
+                    gameState.player2.aiSpeed = 7;
+                    gameState.player2.aiAttackChance = 0.5;
+                    gameState.player2.aiReactionTime = 12.5;
                     break;
             }
             
@@ -1117,21 +1117,22 @@
             // Set AI parameters based on difficulty
             switch(difficulty) {
                 case 'easy':
-                    gameState.player2.aiSpeed = 2;
-                    gameState.player2.aiAttackChance = 0.015;
-                    gameState.player2.aiReactionTime = 100;
-                    break;
-                case 'medium':
                     gameState.player2.aiSpeed = 3;
                     gameState.player2.aiAttackChance = 0.03;
                     gameState.player2.aiReactionTime = 50;
                     break;
-                case 'hard':
+                case 'medium':
                     gameState.player2.aiSpeed = 4.5;
-                    gameState.player2.aiAttackChance = 0.05;
+                    gameState.player2.aiAttackChance = 0.07;
                     gameState.player2.aiReactionTime = 25;
                     break;
+                case 'hard':
+                    gameState.player2.aiSpeed = 7;
+                    gameState.player2.aiAttackChance = 0.5;
+                    gameState.player2.aiReactionTime = 12.5;
+                    break;
             }
+            
             
             document.getElementById('difficultySelection').style.display = 'none';
             document.getElementById('godSelection').style.display = 'flex';
@@ -1546,22 +1547,22 @@
             document.getElementById('player2').style.top = gameState.player2.y + 'px';
             
             // AI attack based on difficulty
-            const attackRange = gameState.difficulty === 'hard' ? 500 : 
-                               gameState.difficulty === 'medium' ? 400 : 350;
+            const attackRange = gameState.difficulty === 'hard' ? 700 : 
+                               gameState.difficulty === 'medium' ? 600 : 500;
             
             if (distance < attackRange && Math.random() < gameState.player2.aiAttackChance) {
                 attack(gameState.player2, 'enemy');
             }
             
             // Change strategy occasionally (less frequent on easy)
-            const strategyChangeChance = gameState.difficulty === 'easy' ? 0.0005 : 0.001;
+            const strategyChangeChance = gameState.difficulty === 'easy' ? 0.003 : 0.01;
             if (Math.random() < strategyChangeChance) {
                 gameState.player2.aiStrategy = gameState.player2.aiStrategy === 'aggressive' ? 'defensive' : 'aggressive';
             }
             
             // Mana regeneration (faster on harder difficulties)
-            const manaRegen = gameState.difficulty === 'hard' ? 0.5 : 
-                             gameState.difficulty === 'medium' ? 0.4 : 0.3;
+            const manaRegen = gameState.difficulty === 'hard' ? 0.7 : 
+                             gameState.difficulty === 'medium' ? 0.6 : 0.4;
             if (gameState.player2.mana < gameState.player2.maxMana) {
                 gameState.player2.mana = Math.min(gameState.player2.maxMana, gameState.player2.mana + manaRegen);
             }
