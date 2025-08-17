@@ -379,18 +379,18 @@
         }
         
         .toolbar-btn {
-            padding: 10px 18px;
+            padding: 6px 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 6px;
             color: var(--text-primary);
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         .toolbar-btn:hover {
@@ -420,17 +420,17 @@
         }
         
         .device-btn {
-            padding: 10px 16px;
+            padding: 6px 10px;
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
         
         .device-btn.active {
@@ -449,18 +449,19 @@
         }
         
         .zoom-btn {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             background: none;
             border: none;
             color: var(--text-secondary);
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 3px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            font-size: 12px;
         }
         
         .zoom-btn:hover {
@@ -1143,6 +1144,9 @@
         <div class="main-editor">
             <div class="toolbar">
                 <div class="toolbar-group">
+                    <button class="toolbar-btn tooltip" data-tooltip="Back to main page" onclick="window.location.href='main.html'">
+                        ← Back to Main
+                    </button>
                     <button class="toolbar-btn tooltip" data-tooltip="Undo (Ctrl+Z)" onclick="undoAction()">
                         ↶ Undo
                     </button>
@@ -1259,29 +1263,7 @@
             </div>
         </div>
     </div>
-    <!-- Back to Main Button -->
-    <a href="main.html" style="
-        position: fixed;
-        top: 18px;
-        left: 18px;
-        z-index: 2001;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: #fff;
-        padding: 12px 22px;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 15px;
-        text-decoration: none;
-        box-shadow: 0 4px 15px rgba(102,126,234,0.25);
-        transition: background 0.3s, transform 0.2s;
-        letter-spacing: 0.5px;
-        display: inline-block;
-    "
-    onmouseover="this.style.background='linear-gradient(135deg, #764ba2, #667eea)';this.style.transform='scale(1.05)'"
-    onmouseout="this.style.background='linear-gradient(135deg, #667eea, #764ba2)';this.style.transform='scale(1)'"
-    >
-    ← Back to Main
-    </a>
+    
     <!-- Enhanced Export Modal -->
     <div class="modal-overlay" id="exportModal">
         <div class="modal">
@@ -2235,5 +2217,5 @@
             console.log('   • Double-click elements for quick editing');
         }, 1500);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970b7d7ed3af1597',t:'MTc1NTQ1ODAyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970c0937f255eb36',t:'MTc1NTQ2Mzc0NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
