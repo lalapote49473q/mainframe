@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebCraft Studio Pro - Advanced Website Creator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(20, 20, 20, 0.95);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-blue: #667eea;
+            --accent-purple: #764ba2;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+        }
+        
+        .studio-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Enhanced Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo-section {
+            padding: 25px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: var(--success-gradient);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+        
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 18px 12px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            position: relative;
+        }
+        
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transition: all 0.4s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+        
+        .tab-btn.active {
+            color: var(--accent-blue);
+            background: rgba(102, 126, 234, 0.08);
+        }
+        
+        .tab-btn.active::after {
+            width: 60%;
+        }
+        
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+        }
+        
+        .tab-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .tab-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .tab-content::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 3px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+        
+        /* Enhanced Templates */
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .template-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .template-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .template-card:hover {
+            background: rgba(102, 126, 234, 0.08);
+            border-color: var(--accent-blue);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .template-card:hover::before {
+            left: 100%;
+        }
+        
+        .template-preview {
+            width: 100%;
+            height: 70px;
+            background: var(--primary-gradient);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .template-preview::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+        }
+        
+        .template-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+        
+        .template-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .template-description {
+            font-size: 10px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        /* Enhanced Elements */
+        .element-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .element-category {
+            margin-bottom: 20px;
+        }
+        
+        .category-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+        
+        .element-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: grab;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .element-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .element-item:hover {
+            background: rgba(102, 126, 234, 0.08);
+            border-color: var(--accent-blue);
+            transform: translateX(4px);
+        }
+        
+        .element-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .element-item:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+        
+        .element-icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 16px;
+            background: var(--primary-gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .element-details {
+            flex: 1;
+        }
+        
+        .element-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        
+        .element-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.3;
+        }
+        
+        /* Enhanced Main Editor */
+        .main-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #111111;
+            position: relative;
+        }
+        
+        .toolbar {
+            height: 70px;
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            gap: 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .toolbar-btn {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toolbar-btn:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .toolbar-btn.primary {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .toolbar-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .device-selector {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .device-btn {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .device-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--accent-blue);
+        }
+        
+        .zoom-level {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
+            position: relative;
+            overflow: auto;
+        }
+        
+        .canvas {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            min-height: 600px;
+            transform-origin: center;
+        }
+        
+        .canvas.desktop { width: 1200px; height: 800px; }
+        .canvas.tablet { width: 768px; height: 1024px; }
+        .canvas.mobile { width: 375px; height: 667px; }
+        
+        .canvas-ruler {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.1);
+            pointer-events: none;
+        }
+        
+        .canvas-ruler.horizontal {
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 20px;
+        }
+        
+        .canvas-ruler.vertical {
+            left: -20px;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+        }
+        
+        .drop-zone {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px dashed transparent;
+            transition: all 0.3s ease;
+            border-radius: 16px;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: var(--accent-blue);
+            background: rgba(102, 126, 234, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Enhanced Properties Panel */
+        .properties-panel {
+            width: 350px;
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .properties-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .properties-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+        
+        .properties-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .properties-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .properties-content::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 3px;
+        }
+        
+        .property-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .property-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .property-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .property-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: rgba(102, 126, 234, 0.08);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .property-slider {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .property-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .color-picker {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
+        
+        .color-option::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected::after {
+            opacity: 1;
+        }
+        
+        /* Enhanced Website Elements */
+        .website-element {
+            position: absolute;
+            cursor: move;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+        
+        .website-element:hover {
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+        }
+        
+        .website-element.selected {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .element-header {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: #fff;
+            padding: 30px 50px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .element-text {
+            background: #ffffff;
+            color: #2d3748;
+            padding: 25px;
+            font-size: 16px;
+            line-height: 1.7;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .element-button {
+            background: var(--primary-gradient);
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            font-size: 16px;
+        }
+        
+        .element-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .element-image {
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            min-height: 200px;
+            border-radius: 8px;
+        }
+        
+        .element-navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2d3748;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 35px;
+        }
+        
+        .navbar-item {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-item:hover {
+            color: var(--accent-blue);
+        }
+        
+        .element-footer {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: #fff;
+            padding: 50px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        /* Enhanced Resize Handles */
+        .resize-handle {
+            position: absolute;
+            background: var(--accent-blue);
+            border: 3px solid #ffffff;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .resize-handle:hover {
+            transform: scale(1.2);
+            background: var(--accent-purple);
+        }
+        
+        .resize-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+        
+        /* Enhanced Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .modal-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .code-editor {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #c9d1d9;
+            white-space: pre-wrap;
+            overflow: auto;
+            max-height: 450px;
+            line-height: 1.6;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: flex-end;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .website-element {
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .loading-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .sidebar { width: 280px; }
+            .properties-panel { width: 300px; }
+        }
+        
+        @media (max-width: 1200px) {
+            .sidebar { width: 250px; }
+            .properties-panel { width: 280px; }
+            .canvas.desktop { width: 900px; height: 600px; }
+        }
+        
+        @media (max-width: 768px) {
+            .studio-container { flex-direction: column; }
+            .sidebar, .properties-panel {
+                width: 100%;
+                height: 200px;
+            }
+            .canvas.desktop {
+                width: 100%;
+                height: 400px;
+            }
+        }
+        
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+        
+        /* Success/Error Messages */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification.success {
+            background: var(--success-gradient);
+        }
+        
+        .notification.error {
+            background: var(--secondary-gradient);
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-container">
+        <!-- Enhanced Sidebar -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    WebCraft Studio
+                    <span class="version-badge">Pro</span>
+                </div>
+                <div class="subtitle">Advanced Drag & Drop Website Builder</div>
+            </div>
+            
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="switchTab('templates')">Templates</button>
+                <button class="tab-btn" onclick="switchTab('elements')">Elements</button>
+                <button class="tab-btn" onclick="switchTab('assets')">Assets</button>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Enhanced Templates Tab -->
+                <div id="templates-tab" class="tab-panel">
+                    <div class="section-title">🎨 Professional Templates</div>
+                    <div class="template-grid">
+                        <div class="template-card" onclick="loadTemplate('business')">
+                            <div class="template-preview"></div>
+                            <div class="template-name">Business Pro</div>
+                            <div class="template-description">Corporate website with modern design</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('portfolio')">
+                            <div class="template-preview"></div>
+                            <div class="template-name">Creative Portfolio</div>
+                            <div class="template-description">Showcase your work beautifully</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('blog')">
+                            <div class="template-preview"></div>
+                            <div class="template-name">Modern Blog</div>
+                            <div class="template-description">Clean blogging platform</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('landing')">
+                            <div class="template-preview"></div>
+                            <div class="template-name">Landing Page</div>
+                            <div class="template-description">High-converting landing page</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('ecommerce')">
+                            <div class="template-preview"></div>
+                            <div class="template-name">E-commerce</div>
+                            <div class="template-description">Online store template</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('blank')">
+                            <div class="template-preview"></div>
+                            <div class="template-name">Blank Canvas</div>
+                            <div class="template-description">Start from scratch</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Elements Tab -->
+                <div id="elements-tab" class="tab-panel" style="display: none;">
+                    <div class="element-category">
+                        <div class="section-title">📐 Layout Elements</div>
+                        <div class="element-list">
+                            <div class="element-item" draggable="true" data-element="header">
+                                <div class="element-icon">H</div>
+                                <div class="element-details">
+                                    <div class="element-name">Hero Header</div>
+                                    <div class="element-desc">Eye-catching page header</div>
+                                </div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="navbar">
+                                <div class="element-icon">N</div>
+                                <div class="element-details">
+                                    <div class="element-name">Navigation Bar</div>
+                                    <div class="element-desc">Site navigation menu</div>
+                                </div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="footer">
+                                <div class="element-icon">F</div>
+                                <div class="element-details">
+                                    <div class="element-name">Footer Section</div>
+                                    <div class="element-desc">Page footer with links</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="element-category">
+                        <div class="section-title">📝 Content Elements</div>
+                        <div class="element-list">
+                            <div class="element-item" draggable="true" data-element="text">
+                                <div class="element-icon">T</div>
+                                <div class="element-details">
+                                    <div class="element-name">Text Block</div>
+                                    <div class="element-desc">Rich text content area</div>
+                                </div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="button">
+                                <div class="element-icon">B</div>
+                                <div class="element-details">
+                                    <div class="element-name">Call-to-Action</div>
+                                    <div class="element-desc">Interactive button element</div>
+                                </div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="image">
+                                <div class="element-icon">I</div>
+                                <div class="element-details">
+                                    <div class="element-name">Image Block</div>
+                                    <div class="element-desc">Visual content placeholder</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Assets Tab -->
+                <div id="assets-tab" class="tab-panel" style="display: none;">
+                    <div class="section-title">🎬 Media Assets</div>
+                    <div class="element-list">
+                        <div class="element-item">
+                            <div class="element-icon">📷</div>
+                            <div class="element-details">
+                                <div class="element-name">Upload Images</div>
+                                <div class="element-desc">Add photos and graphics</div>
+                            </div>
+                        </div>
+                        <div class="element-item">
+                            <div class="element-icon">🎵</div>
+                            <div class="element-details">
+                                <div class="element-name">Audio Files</div>
+                                <div class="element-desc">Background music & sounds</div>
+                            </div>
+                        </div>
+                        <div class="element-item">
+                            <div class="element-icon">🎬</div>
+                            <div class="element-details">
+                                <div class="element-name">Video Content</div>
+                                <div class="element-desc">Embed videos and clips</div>
+                            </div>
+                        </div>
+                        <div class="element-item">
+                            <div class="element-icon">📄</div>
+                            <div class="element-details">
+                                <div class="element-name">Documents</div>
+                                <div class="element-desc">PDFs and downloadables</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Main Editor -->
+        <div class="main-editor">
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn tooltip" data-tooltip="Undo (Ctrl+Z)" onclick="undoAction()">
+                        ↶ Undo
+                    </button>
+                    <button class="toolbar-btn tooltip" data-tooltip="Redo (Ctrl+Y)" onclick="redoAction()">
+                        ↷ Redo
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <div class="device-selector">
+                        <button class="device-btn active" onclick="setDevice('desktop')">
+                            🖥️ Desktop
+                        </button>
+                        <button class="device-btn" onclick="setDevice('tablet')">
+                            📱 Tablet
+                        </button>
+                        <button class="device-btn" onclick="setDevice('mobile')">
+                            📱 Mobile
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="toolbar-group">
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="adjustZoom(-0.1)">−</button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+                    </div>
+                </div>
+                
+                <div class="toolbar-group" style="margin-left: auto;">
+                    <button class="toolbar-btn tooltip" data-tooltip="Preview website" onclick="previewSite()">
+                        👁️ Preview
+                    </button>
+                    <button class="toolbar-btn tooltip" data-tooltip="Export HTML code" onclick="exportCode()">
+                        💾 Export
+                    </button>
+                    <button class="toolbar-btn primary tooltip" data-tooltip="Publish to web" onclick="publishSite()">
+                        🚀 Publish
+                    </button>
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <div class="canvas desktop" id="canvas">
+                    <div class="canvas-ruler horizontal"></div>
+                    <div class="canvas-ruler vertical"></div>
+                    <div class="drop-zone" id="dropZone"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Properties Panel -->
+        <div class="properties-panel">
+            <div class="properties-header">
+                <div class="section-title">⚙️ Element Properties</div>
+            </div>
+            
+            <div class="properties-content">
+                <div id="no-selection" style="color: var(--text-secondary); text-align: center; margin-top: 80px; font-size: 14px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🎯</div>
+                    <div style="font-weight: 600; margin-bottom: 8px;">No Element Selected</div>
+                    <div>Click on any element to edit its properties</div>
+                </div>
+                
+                <div id="element-properties" style="display: none;">
+                    <div class="property-group">
+                        <div class="property-label">📝 Content</div>
+                        <input type="text" class="property-input" id="element-content" placeholder="Enter your content...">
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">🎨 Background Colors</div>
+                        <div class="color-picker">
+                            <div class="color-option" style="background: linear-gradient(135deg, #667eea, #764ba2);" onclick="setColor('linear-gradient(135deg, #667eea, #764ba2)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #f093fb, #f5576c);" onclick="setColor('linear-gradient(135deg, #f093fb, #f5576c)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #4facfe, #00f2fe);" onclick="setColor('linear-gradient(135deg, #4facfe, #00f2fe)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #43e97b, #38f9d7);" onclick="setColor('linear-gradient(135deg, #43e97b, #38f9d7)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #fa709a, #fee140);" onclick="setColor('linear-gradient(135deg, #fa709a, #fee140)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #a8edea, #fed6e3);" onclick="setColor('linear-gradient(135deg, #a8edea, #fed6e3)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);" onclick="setColor('linear-gradient(135deg, #ffecd2, #fcb69f)')"></div>
+                            <div class="color-option" style="background: linear-gradient(135deg, #2d3748, #4a5568);" onclick="setColor('linear-gradient(135deg, #2d3748, #4a5568)')"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">📏 Dimensions</div>
+                        <input type="text" class="property-input" id="element-width" placeholder="Width (e.g., 300px, 50%)">
+                        <input type="text" class="property-input" id="element-height" placeholder="Height (e.g., 200px, auto)" style="margin-top: 10px;">
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">🔤 Typography</div>
+                        <input type="text" class="property-input" id="element-fontsize" placeholder="Font size (e.g., 16px, 1.2em)">
+                        <input type="range" class="property-slider" id="font-weight" min="300" max="900" step="100" value="400" style="margin-top: 15px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">Font Weight: <span id="font-weight-value">400</span></div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">📐 Spacing</div>
+                        <input type="text" class="property-input" id="element-padding" placeholder="Padding (e.g., 20px, 10px 15px)">
+                        <input type="text" class="property-input" id="element-margin" placeholder="Margin (e.g., 10px, auto)" style="margin-top: 10px;">
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">✨ Effects</div>
+                        <input type="range" class="property-slider" id="border-radius" min="0" max="50" value="0">
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">Border Radius: <span id="border-radius-value">0px</span></div>
+                        
+                        <input type="range" class="property-slider" id="opacity" min="0" max="100" value="100" style="margin-top: 15px;">
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">Opacity: <span id="opacity-value">100%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Back to Main Button -->
+    <a href="main.html" style="
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 2001;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(102,126,234,0.25);
+        transition: background 0.3s, transform 0.2s;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    "
+    onmouseover="this.style.background='linear-gradient(135deg, #764ba2, #667eea)';this.style.transform='scale(1.05)'"
+    onmouseout="this.style.background='linear-gradient(135deg, #667eea, #764ba2)';this.style.transform='scale(1)'"
+    >
+    ← Back to Main
+    </a>
+    <!-- Enhanced Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-title">🚀 Export Website Code</div>
+            <div style="margin-bottom: 20px; color: var(--text-secondary);">
+                Your website has been generated as clean, production-ready HTML code.
+            </div>
+            <div class="code-editor" id="exportedCode">
+                <!-- Generated HTML will appear here -->
+            </div>
+            <div class="modal-actions">
+                <button class="toolbar-btn" onclick="copyCode()">📋 Copy Code</button>
+                <button class="toolbar-btn" onclick="downloadCode()">💾 Download HTML</button>
+                <button class="toolbar-btn" onclick="closeModal('exportModal')">✕ Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Preview Modal -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal" style="max-width: 95%; max-height: 95%;">
+            <div class="modal-title">👁️ Live Website Preview</div>
+            <iframe id="previewFrame" style="width: 100%; height: 600px; border: 1px solid var(--border-color); border-radius: 12px; background: white;"></iframe>
+            <div class="modal-actions">
+                <button class="toolbar-btn" onclick="closeModal('previewModal')">✕ Close Preview</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class WebsiteBuilderPro {
+            constructor() {
+                this.elements = [];
+                this.selectedElement = null;
+                this.draggedElement = null;
+                this.currentDevice = 'desktop';
+                this.history = [];
+                this.historyIndex = -1;
+                this.elementCounter = 0;
+                this.zoomLevel = 1;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupDragAndDrop();
+                this.setupCanvas();
+                this.setupPropertyPanel();
+                this.setupSliders();
+                this.saveState();
+                this.showWelcomeMessage();
+            }
+            
+            setupDragAndDrop() {
+                const elementItems = document.querySelectorAll('.element-item[draggable="true"]');
+                const dropZone = document.getElementById('dropZone');
+                
+                elementItems.forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        this.draggedElement = e.target.dataset.element;
+                        e.dataTransfer.effectAllowed = 'copy';
+                        item.style.opacity = '0.5';
+                    });
+                    
+                    item.addEventListener('dragend', () => {
+                        item.style.opacity = '1';
+                    });
+                });
+                
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    dropZone.classList.add('drag-over');
+                });
+                
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('drag-over');
+                });
+                
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-over');
+                    
+                    if (this.draggedElement) {
+                        const rect = dropZone.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / this.zoomLevel;
+                        const y = (e.clientY - rect.top) / this.zoomLevel;
+                        
+                        this.createElement(this.draggedElement, x, y);
+                        this.draggedElement = null;
+                        this.showNotification('Element added successfully!', 'success');
+                    }
+                });
+            }
+            
+            setupCanvas() {
+                const canvas = document.getElementById('canvas');
+                
+                canvas.addEventListener('click', (e) => {
+                    if (e.target === canvas || e.target.id === 'dropZone') {
+                        this.selectElement(null);
+                    }
+                });
+            }
+            
+            setupPropertyPanel() {
+                const inputs = document.querySelectorAll('.property-input');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        this.updateSelectedElement();
+                    });
+                });
+            }
+            
+            setupSliders() {
+                const fontWeightSlider = document.getElementById('font-weight');
+                const borderRadiusSlider = document.getElementById('border-radius');
+                const opacitySlider = document.getElementById('opacity');
+                
+                if (fontWeightSlider) {
+                    fontWeightSlider.addEventListener('input', (e) => {
+                        document.getElementById('font-weight-value').textContent = e.target.value;
+                        this.updateSelectedElement();
+                    });
+                }
+                
+                if (borderRadiusSlider) {
+                    borderRadiusSlider.addEventListener('input', (e) => {
+                        document.getElementById('border-radius-value').textContent = e.target.value + 'px';
+                        this.updateSelectedElement();
+                    });
+                }
+                
+                if (opacitySlider) {
+                    opacitySlider.addEventListener('input', (e) => {
+                        document.getElementById('opacity-value').textContent = e.target.value + '%';
+                        this.updateSelectedElement();
+                    });
+                }
+            }
+            
+            createElement(type, x, y) {
+                const element = document.createElement('div');
+                element.className = 'website-element';
+                element.id = `element-${++this.elementCounter}`;
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+                
+                let content = '';
+                let defaultStyles = {};
+                
+                switch(type) {
+                    case 'header':
+                        content = '<div class="element-header">Your Amazing Header</div>';
+                        defaultStyles = { width: '100%', height: '120px' };
+                        break;
+                    case 'navbar':
+                        content = `
+                            <div class="element-navbar">
+                                <div class="navbar-brand">Your Brand</div>
+                                <div class="navbar-menu">
+                                    <a href="#" class="navbar-item">Home</a>
+                                    <a href="#" class="navbar-item">About</a>
+                                    <a href="#" class="navbar-item">Services</a>
+                                    <a href="#" class="navbar-item">Contact</a>
+                                </div>
+                            </div>
+                        `;
+                        defaultStyles = { width: '100%', height: '80px' };
+                        break;
+                    case 'text':
+                        content = '<div class="element-text">This is a beautifully crafted text block. Click to edit this content and make it your own. You can add any text you want here and style it however you like.</div>';
+                        defaultStyles = { width: '450px', minHeight: '120px' };
+                        break;
+                    case 'button':
+                        content = '<div class="element-button">Get Started</div>';
+                        defaultStyles = { width: '180px', height: '60px' };
+                        break;
+                    case 'image':
+                        content = '<div class="element-image">📷 Beautiful Image<br>Click to upload your photo</div>';
+                        defaultStyles = { width: '350px', height: '250px' };
+                        break;
+                    case 'footer':
+                        content = '<div class="element-footer">© 2024 Your Amazing Website. All rights reserved.<br>Built with WebCraft Studio Pro</div>';
+                        defaultStyles = { width: '100%', height: '140px' };
+                        break;
+                }
+                
+                element.innerHTML = content;
+                
+                // Apply default styles
+                Object.assign(element.style, defaultStyles);
+                
+                // Make element interactive
+                this.makeElementInteractive(element);
+                
+                // Add to canvas
+                document.getElementById('canvas').appendChild(element);
+                
+                // Store element data
+                this.elements.push({
+                    id: element.id,
+                    type: type,
+                    element: element,
+                    styles: defaultStyles
+                });
+                
+                // Select the new element
+                this.selectElement(element);
+                
+                // Save state for undo/redo
+                this.saveState();
+            }
+            
+            makeElementInteractive(element) {
+                // Click to select
+                element.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.selectElement(element);
+                });
+                
+                // Double click to edit content
+                element.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    this.editElementContent(element);
+                });
+                
+                // Make draggable
+                this.makeDraggable(element);
+                
+                // Add resize handles
+                this.addResizeHandles(element);
+            }
+            
+            makeDraggable(element) {
+                let isDragging = false;
+                let startX, startY, startLeft, startTop;
+                
+                element.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('resize-handle')) return;
+                    
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLeft = parseInt(element.style.left) || 0;
+                    startTop = parseInt(element.style.top) || 0;
+                    
+                    element.style.cursor = 'grabbing';
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    
+                    const deltaX = (e.clientX - startX) / this.zoomLevel;
+                    const deltaY = (e.clientY - startY) / this.zoomLevel;
+                    
+                    element.style.left = `${startLeft + deltaX}px`;
+                    element.style.top = `${startTop + deltaY}px`;
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        element.style.cursor = 'move';
+                        this.saveState();
+                    }
+                });
+            }
+            
+            addResizeHandles(element) {
+                const handles = ['nw', 'ne', 'sw', 'se'];
+                
+                handles.forEach(handle => {
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = `resize-handle ${handle}`;
+                    element.appendChild(resizeHandle);
+                    
+                    this.makeResizable(element, resizeHandle, handle);
+                });
+            }
+            
+            makeResizable(element, handle, direction) {
+                let isResizing = false;
+                let startX, startY, startWidth, startHeight, startLeft, startTop;
+                
+                handle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startWidth = parseInt(getComputedStyle(element).width);
+                    startHeight = parseInt(getComputedStyle(element).height);
+                    startLeft = parseInt(element.style.left) || 0;
+                    startTop = parseInt(element.style.top) || 0;
+                    
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    
+                    const deltaX = (e.clientX - startX) / this.zoomLevel;
+                    const deltaY = (e.clientY - startY) / this.zoomLevel;
+                    
+                    let newWidth = startWidth;
+                    let newHeight = startHeight;
+                    let newLeft = startLeft;
+                    let newTop = startTop;
+                    
+                    if (direction.includes('e')) {
+                        newWidth = startWidth + deltaX;
+                    }
+                    if (direction.includes('w')) {
+                        newWidth = startWidth - deltaX;
+                        newLeft = startLeft + deltaX;
+                    }
+                    if (direction.includes('s')) {
+                        newHeight = startHeight + deltaY;
+                    }
+                    if (direction.includes('n')) {
+                        newHeight = startHeight - deltaY;
+                        newTop = startTop + deltaY;
+                    }
+                    
+                    // Apply minimum sizes
+                    newWidth = Math.max(50, newWidth);
+                    newHeight = Math.max(30, newHeight);
+                    
+                    element.style.width = `${newWidth}px`;
+                    element.style.height = `${newHeight}px`;
+                    element.style.left = `${newLeft}px`;
+                    element.style.top = `${newTop}px`;
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isResizing) {
+                        isResizing = false;
+                        this.saveState();
+                    }
+                });
+            }
+            
+            selectElement(element) {
+                // Remove previous selection
+                document.querySelectorAll('.website-element').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                this.selectedElement = element;
+                
+                if (element) {
+                    element.classList.add('selected');
+                    this.showElementProperties(element);
+                } else {
+                    this.hideElementProperties();
+                }
+            }
+            
+            showElementProperties(element) {
+                document.getElementById('no-selection').style.display = 'none';
+                document.getElementById('element-properties').style.display = 'block';
+                
+                // Get element data
+                const elementData = this.elements.find(el => el.element === element);
+                
+                // Populate property inputs
+                const contentEl = element.querySelector('.element-header, .element-text, .element-button, .element-footer');
+                if (contentEl) {
+                    document.getElementById('element-content').value = contentEl.textContent;
+                }
+                
+                document.getElementById('element-width').value = element.style.width || '';
+                document.getElementById('element-height').value = element.style.height || '';
+                document.getElementById('element-fontsize').value = getComputedStyle(element).fontSize || '';
+                document.getElementById('element-padding').value = element.style.padding || '';
+                document.getElementById('element-margin').value = element.style.margin || '';
+                
+                // Update sliders
+                const fontWeight = getComputedStyle(element).fontWeight || '400';
+                document.getElementById('font-weight').value = fontWeight;
+                document.getElementById('font-weight-value').textContent = fontWeight;
+                
+                const borderRadius = parseInt(element.style.borderRadius) || 0;
+                document.getElementById('border-radius').value = borderRadius;
+                document.getElementById('border-radius-value').textContent = borderRadius + 'px';
+                
+                const opacity = Math.round((parseFloat(element.style.opacity) || 1) * 100);
+                document.getElementById('opacity').value = opacity;
+                document.getElementById('opacity-value').textContent = opacity + '%';
+            }
+            
+            hideElementProperties() {
+                document.getElementById('no-selection').style.display = 'block';
+                document.getElementById('element-properties').style.display = 'none';
+            }
+            
+            updateSelectedElement() {
+                if (!this.selectedElement) return;
+                
+                const content = document.getElementById('element-content').value;
+                const width = document.getElementById('element-width').value;
+                const height = document.getElementById('element-height').value;
+                const fontSize = document.getElementById('element-fontsize').value;
+                const padding = document.getElementById('element-padding').value;
+                const margin = document.getElementById('element-margin').value;
+                const fontWeight = document.getElementById('font-weight').value;
+                const borderRadius = document.getElementById('border-radius').value;
+                const opacity = document.getElementById('opacity').value;
+                
+                // Update content
+                const contentEl = this.selectedElement.querySelector('.element-header, .element-text, .element-button, .element-footer');
+                if (contentEl && content) {
+                    contentEl.textContent = content;
+                }
+                
+                // Update styles
+                if (width) this.selectedElement.style.width = width;
+                if (height) this.selectedElement.style.height = height;
+                if (fontSize) this.selectedElement.style.fontSize = fontSize;
+                if (padding) this.selectedElement.style.padding = padding;
+                if (margin) this.selectedElement.style.margin = margin;
+                if (fontWeight) this.selectedElement.style.fontWeight = fontWeight;
+                if (borderRadius) this.selectedElement.style.borderRadius = borderRadius + 'px';
+                if (opacity) this.selectedElement.style.opacity = opacity / 100;
+            }
+            
+            editElementContent(element) {
+                const contentEl = element.querySelector('.element-header, .element-text, .element-button, .element-footer');
+                if (!contentEl) return;
+                
+                const currentText = contentEl.textContent;
+                const newText = prompt('✏️ Edit Content:', currentText);
+                
+                if (newText !== null) {
+                    contentEl.textContent = newText;
+                    this.saveState();
+                    this.showNotification('Content updated!', 'success');
+                }
+            }
+            
+            loadTemplate(templateName) {
+                // Clear canvas
+                this.elements = [];
+                document.getElementById('canvas').innerHTML = '<div class="canvas-ruler horizontal"></div><div class="canvas-ruler vertical"></div><div class="drop-zone" id="dropZone"></div>';
+                
+                // Load template based on name
+                switch(templateName) {
+                    case 'business':
+                        this.createElement('navbar', 0, 0);
+                        this.createElement('header', 0, 80);
+                        this.createElement('text', 60, 250);
+                        this.createElement('button', 60, 420);
+                        this.createElement('footer', 0, 550);
+                        break;
+                    case 'portfolio':
+                        this.createElement('navbar', 0, 0);
+                        this.createElement('header', 0, 80);
+                        this.createElement('image', 60, 250);
+                        this.createElement('text', 450, 250);
+                        this.createElement('footer', 0, 550);
+                        break;
+                    case 'blog':
+                        this.createElement('navbar', 0, 0);
+                        this.createElement('header', 0, 80);
+                        this.createElement('text', 60, 250);
+                        this.createElement('text', 60, 420);
+                        this.createElement('footer', 0, 590);
+                        break;
+                    case 'landing':
+                        this.createElement('header', 0, 0);
+                        this.createElement('text', 60, 180);
+                        this.createElement('button', 60, 350);
+                        this.createElement('image', 500, 180);
+                        break;
+                    case 'ecommerce':
+                        this.createElement('navbar', 0, 0);
+                        this.createElement('header', 0, 80);
+                        this.createElement('image', 60, 250);
+                        this.createElement('image', 350, 250);
+                        this.createElement('image', 640, 250);
+                        this.createElement('footer', 0, 550);
+                        break;
+                    case 'blank':
+                        // Just clear the canvas
+                        break;
+                }
+                
+                this.selectElement(null);
+                this.saveState();
+                this.showNotification(`${templateName.charAt(0).toUpperCase() + templateName.slice(1)} template loaded!`, 'success');
+            }
+            
+            setDevice(device) {
+                this.currentDevice = device;
+                
+                // Update device buttons
+                document.querySelectorAll('.device-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Update canvas size
+                const canvas = document.getElementById('canvas');
+                canvas.className = `canvas ${device}`;
+                
+                this.showNotification(`Switched to ${device} view`, 'success');
+            }
+            
+            adjustZoom(delta) {
+                this.zoomLevel = Math.max(0.25, Math.min(2, this.zoomLevel + delta));
+                const canvas = document.getElementById('canvas');
+                canvas.style.transform = `scale(${this.zoomLevel})`;
+                
+                document.getElementById('zoomLevel').textContent = Math.round(this.zoomLevel * 100) + '%';
+            }
+            
+            saveState() {
+                const state = {
+                    elements: this.elements.map(el => ({
+                        id: el.id,
+                        type: el.type,
+                        html: el.element.outerHTML,
+                        styles: el.styles
+                    }))
+                };
+                
+                // Remove future history if we're not at the end
+                this.history = this.history.slice(0, this.historyIndex + 1);
+                
+                // Add new state
+                this.history.push(JSON.stringify(state));
+                this.historyIndex++;
+                
+                // Limit history size
+                if (this.history.length > 50) {
+                    this.history.shift();
+                    this.historyIndex--;
+                }
+            }
+            
+            undoAction() {
+                if (this.historyIndex > 0) {
+                    this.historyIndex--;
+                    this.restoreState();
+                    this.showNotification('Action undone', 'success');
+                }
+            }
+            
+            redoAction() {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.restoreState();
+                    this.showNotification('Action redone', 'success');
+                }
+            }
+            
+            restoreState() {
+                const state = JSON.parse(this.history[this.historyIndex]);
+                
+                // Clear canvas
+                const canvas = document.getElementById('canvas');
+                canvas.innerHTML = '<div class="canvas-ruler horizontal"></div><div class="canvas-ruler vertical"></div><div class="drop-zone" id="dropZone"></div>';
+                
+                // Restore elements
+                this.elements = [];
+                state.elements.forEach(elementData => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = elementData.html;
+                    const element = tempDiv.firstChild;
+                    
+                    canvas.appendChild(element);
+                    this.makeElementInteractive(element);
+                    
+                    this.elements.push({
+                        id: elementData.id,
+                        type: elementData.type,
+                        element: element,
+                        styles: elementData.styles
+                    });
+                });
+                
+                this.selectElement(null);
+            }
+            
+            generateHTML() {
+                const canvas = document.getElementById('canvas');
+                const elements = Array.from(canvas.children).filter(el => el.classList.contains('website-element'));
+                
+                let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Amazing Website</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #ffffff;
+        }
+        
+        .element-header {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: #fff;
+            padding: 30px 50px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .element-text {
+            background: #ffffff;
+            color: #2d3748;
+            padding: 25px;
+            font-size: 16px;
+            line-height: 1.7;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .element-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            font-size: 16px;
+            display: inline-block;
+        }
+        
+        .element-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .element-image {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            min-height: 200px;
+            border-radius: 8px;
+        }
+        
+        .element-navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2d3748;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 35px;
+        }
+        
+        .navbar-item {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-item:hover {
+            color: #667eea;
+        }
+        
+        .element-footer {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: #fff;
+            padding: 50px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .website-element {
+            position: absolute;
+        }
+        
+        @media (max-width: 768px) {
+            .element-navbar {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .navbar-menu {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .element-header {
+                font-size: 28px;
+                padding: 20px 30px;
+            }
+            
+            .element-text {
+                padding: 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+`;
+                
+                elements.forEach(element => {
+                    const clone = element.cloneNode(true);
+                    
+                    // Remove editor-specific classes and elements
+                    clone.classList.remove('selected');
+                    clone.querySelectorAll('.resize-handle').forEach(handle => handle.remove());
+                    
+                    html += `    ${clone.outerHTML}\n`;
+                });
+                
+                html += `</body>
+</html>`;
+                
+                return html;
+            }
+            
+            exportCode() {
+                const html = this.generateHTML();
+                document.getElementById('exportedCode').textContent = html;
+                document.getElementById('exportModal').style.display = 'flex';
+            }
+            
+            previewSite() {
+                const html = this.generateHTML();
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                document.getElementById('previewFrame').src = url;
+                document.getElementById('previewModal').style.display = 'flex';
+            }
+            
+            copyCode() {
+                const code = document.getElementById('exportedCode').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    this.showNotification('Code copied to clipboard!', 'success');
+                }).catch(() => {
+                    this.showNotification('Failed to copy code', 'error');
+                });
+            }
+            
+            downloadCode() {
+                const code = document.getElementById('exportedCode').textContent;
+                const blob = new Blob([code], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'my-amazing-website.html';
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                this.showNotification('Website downloaded successfully!', 'success');
+            }
+            
+            publishSite() {
+                this.showNotification('🚀 Publishing feature coming soon! Export your code and host it anywhere.', 'success');
+            }
+            
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+            
+            showWelcomeMessage() {
+                setTimeout(() => {
+                    this.showNotification('🎨 Welcome to WebCraft Studio Pro! Drag elements to get started.', 'success');
+                }, 1000);
+            }
+        }
+        
+        // Global functions
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+        }
+        
+        function loadTemplate(templateName) {
+            builder.loadTemplate(templateName);
+        }
+        
+        function setDevice(device) {
+            builder.setDevice(device);
+        }
+        
+        function adjustZoom(delta) {
+            builder.adjustZoom(delta);
+        }
+        
+        function undoAction() {
+            builder.undoAction();
+        }
+        
+        function redoAction() {
+            builder.redoAction();
+        }
+        
+        function exportCode() {
+            builder.exportCode();
+        }
+        
+        function previewSite() {
+            builder.previewSite();
+        }
+        
+        function publishSite() {
+            builder.publishSite();
+        }
+        
+        function copyCode() {
+            builder.copyCode();
+        }
+        
+        function downloadCode() {
+            builder.downloadCode();
+        }
+        
+        function setColor(color) {
+            if (builder.selectedElement) {
+                builder.selectedElement.style.background = color;
+                
+                // Update color picker selection
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                event.target.classList.add('selected');
+                
+                builder.saveState();
+                builder.showNotification('Color updated!', 'success');
+            }
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Initialize the website builder
+        const builder = new WebsiteBuilderPro();
+        
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            builder.redoAction();
+                        } else {
+                            builder.undoAction();
+                        }
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        builder.exportCode();
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        builder.previewSite();
+                        break;
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        builder.adjustZoom(0.1);
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        builder.adjustZoom(-0.1);
+                        break;
+                }
+            }
+            
+            // Delete selected element
+            if (e.key === 'Delete' && builder.selectedElement) {
+                builder.selectedElement.remove();
+                builder.elements = builder.elements.filter(el => el.element !== builder.selectedElement);
+                builder.selectElement(null);
+                builder.saveState();
+                builder.showNotification('Element deleted', 'success');
+            }
+            
+            // Escape to deselect
+            if (e.key === 'Escape') {
+                builder.selectElement(null);
+            }
+        });
+        
+        // Enhanced welcome message
+        setTimeout(() => {
+            console.log('🎨 Welcome to WebCraft Studio Pro!');
+            console.log('✨ Enhanced Features:');
+            console.log('   • Professional templates with modern design');
+            console.log('   • Advanced property panel with sliders');
+            console.log('   • Gradient color picker');
+            console.log('   • Zoom controls and responsive preview');
+            console.log('   • Enhanced animations and effects');
+            console.log('   • Improved keyboard shortcuts');
+            console.log('   • Better visual feedback and notifications');
+            console.log('');
+            console.log('🚀 Pro Tips:');
+            console.log('   • Use Ctrl+P for instant preview');
+            console.log('   • Use +/- keys to zoom in/out');
+            console.log('   • Press Escape to deselect elements');
+            console.log('   • Double-click elements for quick editing');
+        }, 1500);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970b7d7ed3af1597',t:'MTc1NTQ1ODAyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

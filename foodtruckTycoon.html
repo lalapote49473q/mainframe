@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Truck Tycoon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 50%, #ff9ff3 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            background: linear-gradient(45deg, #feca57, #ff9ff3, #48dbfb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .city-map {
+            background: linear-gradient(45deg, #2ed573, #7bed9f);
+            border-radius: 15px;
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+            border: 3px solid #2f3542;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .location {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #2f3542;
+            border-radius: 10px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+            color: #2f3542;
+            font-weight: bold;
+        }
+
+        .location:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .location.occupied {
+            background: rgba(255, 107, 107, 0.9);
+            border-color: #ff6b6b;
+        }
+
+        .location-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .location-name {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .food-truck {
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            background: #feca57;
+            border: 2px solid #ff9ff3;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .food-truck:hover {
+            transform: scale(1.2);
+            box-shadow: 0 5px 15px rgba(254, 202, 87, 0.6);
+        }
+
+        .food-truck.moving {
+            animation: drive 3s linear;
+        }
+
+        @keyframes drive {
+            0% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(20px) translateY(-10px); }
+            100% { transform: translateX(0) translateY(0); }
+        }
+
+        .customer {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #48dbfb;
+            border: 2px solid #0abde3;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            animation: customerWalk 4s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes customerWalk {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #feca57;
+            border-bottom: 2px solid #feca57;
+            padding-bottom: 0.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #7bed9f;
+        }
+
+        .stat-value.negative {
+            color: #ff6b6b;
+        }
+
+        .truck-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .truck-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .truck-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .truck-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #feca57;
+        }
+
+        .truck-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .truck-price {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7bed9f;
+            margin-top: 0.5rem;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.buy {
+            background: linear-gradient(45deg, #7bed9f, #2ed573);
+        }
+
+        .action-btn.research {
+            background: linear-gradient(45deg, #ff9ff3, #ee5a24);
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #ff9ff3;
+        }
+
+        .menu-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-price {
+            text-align: center;
+            font-weight: bold;
+            color: #7bed9f;
+        }
+
+        .fleet-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .fleet-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #feca57;
+        }
+
+        .fleet-item.premium {
+            border-left-color: #ff9ff3;
+        }
+
+        .fleet-item.gourmet {
+            border-left-color: #48dbfb;
+        }
+
+        .fleet-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .fleet-status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #7bed9f, #2ed573);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .reputation-bar .progress-fill {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+
+        .activity-log {
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border-left: 3px solid #48dbfb;
+            padding-left: 0.8rem;
+            font-size: 0.9rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .log-entry.earning {
+            border-left-color: #7bed9f;
+        }
+
+        .log-entry.expense {
+            border-left-color: #ff6b6b;
+        }
+
+        .log-entry.info {
+            border-left-color: #feca57;
+        }
+
+        .weather-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #7bed9f;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @media (max-width: 1200px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .city-map {
+                height: 400px;
+            }
+        }
+
+        .upgrade-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #48dbfb;
+        }
+
+        .upgrade-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .upgrade-cost {
+            text-align: center;
+            font-weight: bold;
+            color: #7bed9f;
+        }
+
+        .time-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">🚚 Food Truck Tycoon</h1>
+            <p class="subtitle">Build your mobile food empire and serve the city!</p>
+        </div>
+
+        <div class="game-layout">
+            <!-- Left Panel - Business Management -->
+            <div class="panel">
+                <div class="section-title">💰 Business Stats</div>
+                <div class="stat-item">
+                    <span>Cash:</span>
+                    <span class="stat-value" id="cash">$10,000</span>
+                </div>
+                <div class="stat-item">
+                    <span>Daily Revenue:</span>
+                    <span class="stat-value" id="dailyRevenue">$0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Daily Costs:</span>
+                    <span class="stat-value negative" id="dailyCosts">$0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Net Profit:</span>
+                    <span class="stat-value" id="netProfit">$0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Total Sales:</span>
+                    <span class="stat-value" id="totalSales">0</span>
+                </div>
+
+                <div class="section-title">⭐ Reputation</div>
+                <div class="progress-bar reputation-bar">
+                    <div class="progress-fill" id="reputationBar" style="width: 50%"></div>
+                </div>
+                <div style="text-align: center; margin-top: 0.5rem;">
+                    <span id="reputationLevel">Average (50%)</span>
+                </div>
+
+                <div class="section-title">🍔 Menu Items</div>
+                <div id="menuList">
+                    <div class="menu-item">
+                        <div class="menu-name">🌭 Hot Dogs</div>
+                        <div class="menu-stats">
+                            <div>Price: $5</div>
+                            <div>Cost: $2</div>
+                            <div>Time: 2min</div>
+                            <div>Appeal: ⭐⭐</div>
+                        </div>
+                        <button class="action-btn" onclick="addMenuItem('hotdog')">Add to Menu - $500</button>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-name">🍔 Burgers</div>
+                        <div class="menu-stats">
+                            <div>Price: $8</div>
+                            <div>Cost: $3</div>
+                            <div>Time: 4min</div>
+                            <div>Appeal: ⭐⭐⭐</div>
+                        </div>
+                        <button class="action-btn" onclick="addMenuItem('burger')">Add to Menu - $1,200</button>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-name">🌮 Tacos</div>
+                        <div class="menu-stats">
+                            <div>Price: $6</div>
+                            <div>Cost: $2.50</div>
+                            <div>Time: 3min</div>
+                            <div>Appeal: ⭐⭐⭐</div>
+                        </div>
+                        <button class="action-btn" onclick="addMenuItem('taco')">Add to Menu - $800</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center - City Map -->
+            <div class="city-map" id="cityMap">
+                <div class="time-indicator" id="timeIndicator">Day 1 - 8:00 AM</div>
+                <div class="weather-indicator" id="weatherIndicator">☀️</div>
+                
+                <!-- Locations -->
+                <div class="location" data-location="park" style="top: 50px; left: 100px;" onclick="moveToLocation('park')">
+                    <div class="location-icon">🌳</div>
+                    <div class="location-name">City Park</div>
+                </div>
+                
+                <div class="location" data-location="office" style="top: 80px; right: 120px;" onclick="moveToLocation('office')">
+                    <div class="location-icon">🏢</div>
+                    <div class="location-name">Business District</div>
+                </div>
+                
+                <div class="location" data-location="school" style="top: 200px; left: 50px;" onclick="moveToLocation('school')">
+                    <div class="location-icon">🏫</div>
+                    <div class="location-name">University</div>
+                </div>
+                
+                <div class="location" data-location="mall" style="top: 300px; right: 80px;" onclick="moveToLocation('mall')">
+                    <div class="location-icon">🏬</div>
+                    <div class="location-name">Shopping Mall</div>
+                </div>
+                
+                <div class="location" data-location="beach" style="bottom: 100px; left: 150px;" onclick="moveToLocation('beach')">
+                    <div class="location-icon">🏖️</div>
+                    <div class="location-name">Beach</div>
+                </div>
+                
+                <div class="location" data-location="stadium" style="bottom: 80px; right: 150px;" onclick="moveToLocation('stadium')">
+                    <div class="location-icon">🏟️</div>
+                    <div class="location-name">Stadium</div>
+                </div>
+                
+                <div class="location" data-location="festival" style="top: 250px; left: 250px;" onclick="moveToLocation('festival')">
+                    <div class="location-icon">🎪</div>
+                    <div class="location-name">Festival Grounds</div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Fleet & Upgrades -->
+            <div class="panel">
+                <div class="section-title">🚚 Buy Food Trucks</div>
+                <div class="truck-option" onclick="buyTruck('basic')">
+                    <div class="truck-name">🚚 Basic Food Truck</div>
+                    <div class="truck-stats">
+                        <div>Speed: ⭐⭐</div>
+                        <div>Capacity: ⭐⭐</div>
+                        <div>Equipment: ⭐⭐</div>
+                        <div>Appeal: ⭐⭐</div>
+                    </div>
+                    <div class="truck-price">$8,000</div>
+                </div>
+
+                <div class="truck-option" onclick="buyTruck('premium')">
+                    <div class="truck-name">🚛 Premium Food Truck</div>
+                    <div class="truck-stats">
+                        <div>Speed: ⭐⭐⭐</div>
+                        <div>Capacity: ⭐⭐⭐⭐</div>
+                        <div>Equipment: ⭐⭐⭐⭐</div>
+                        <div>Appeal: ⭐⭐⭐</div>
+                    </div>
+                    <div class="truck-price">$18,000</div>
+                </div>
+
+                <div class="truck-option" onclick="buyTruck('gourmet')">
+                    <div class="truck-name">🚐 Gourmet Food Truck</div>
+                    <div class="truck-stats">
+                        <div>Speed: ⭐⭐⭐⭐</div>
+                        <div>Capacity: ⭐⭐⭐⭐⭐</div>
+                        <div>Equipment: ⭐⭐⭐⭐⭐</div>
+                        <div>Appeal: ⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="truck-price">$35,000</div>
+                </div>
+
+                <div class="section-title">⚡ Upgrades</div>
+                <div class="upgrade-item">
+                    <div class="upgrade-name">🔥 Better Equipment</div>
+                    <div class="upgrade-desc">Faster cooking times</div>
+                    <button class="action-btn research" onclick="buyUpgrade('equipment')">
+                        <div class="upgrade-cost">$2,500</div>
+                    </button>
+                </div>
+
+                <div class="upgrade-item">
+                    <div class="upgrade-name">📱 Mobile App</div>
+                    <div class="upgrade-desc">Customers can pre-order</div>
+                    <button class="action-btn research" onclick="buyUpgrade('app')">
+                        <div class="upgrade-cost">$5,000</div>
+                    </button>
+                </div>
+
+                <div class="upgrade-item">
+                    <div class="upgrade-name">🎨 Custom Design</div>
+                    <div class="upgrade-desc">Attracts more customers</div>
+                    <button class="action-btn research" onclick="buyUpgrade('design')">
+                        <div class="upgrade-cost">$3,500</div>
+                    </button>
+                </div>
+
+                <div class="section-title">🚚 Your Fleet</div>
+                <div class="fleet-list" id="fleetList">
+                    <div style="text-align: center; opacity: 0.6; padding: 2rem;">
+                        No food trucks yet. Buy your first truck to start!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="panel">
+            <div class="section-title">📊 Activity Log</div>
+            <div class="activity-log" id="activityLog">
+                <div class="log-entry info">🚚 Welcome to Food Truck Tycoon! Start by buying your first truck.</div>
+                <div class="log-entry info">💡 Tip: Different locations have different customer preferences and peak hours.</div>
+                <div class="log-entry info">📈 Build your reputation by serving quality food quickly.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class FoodTruckTycoon {
+            constructor() {
+                this.cash = 10000;
+                this.dailyRevenue = 0;
+                this.dailyCosts = 0;
+                this.totalSales = 0;
+                this.reputation = 50;
+                this.day = 1;
+                this.hour = 8;
+                this.weather = 'sunny';
+                
+                this.trucks = [];
+                this.customers = [];
+                this.activeOrders = [];
+                this.availableMenuItems = [];
+                this.upgrades = {
+                    equipment: false,
+                    app: false,
+                    design: false
+                };
+                
+                this.truckTypes = {
+                    basic: {
+                        name: 'Basic Food Truck',
+                        cost: 8000,
+                        speed: 2,
+                        capacity: 3,
+                        equipment: 2,
+                        appeal: 2,
+                        dailyMaintenance: 50,
+                        icon: '🚚'
+                    },
+                    premium: {
+                        name: 'Premium Food Truck',
+                        cost: 18000,
+                        speed: 3,
+                        capacity: 4,
+                        equipment: 4,
+                        appeal: 3,
+                        dailyMaintenance: 80,
+                        icon: '🚛'
+                    },
+                    gourmet: {
+                        name: 'Gourmet Food Truck',
+                        cost: 35000,
+                        speed: 4,
+                        capacity: 5,
+                        equipment: 5,
+                        appeal: 5,
+                        dailyMaintenance: 120,
+                        icon: '🚐'
+                    }
+                };
+                
+                this.menuItems = {
+                    hotdog: {
+                        name: 'Hot Dogs',
+                        icon: '🌭',
+                        price: 5,
+                        cost: 2,
+                        cookTime: 2,
+                        appeal: 2,
+                        unlockCost: 500
+                    },
+                    burger: {
+                        name: 'Burgers',
+                        icon: '🍔',
+                        price: 8,
+                        cost: 3,
+                        cookTime: 4,
+                        appeal: 3,
+                        unlockCost: 1200
+                    },
+                    taco: {
+                        name: 'Tacos',
+                        icon: '🌮',
+                        price: 6,
+                        cost: 2.5,
+                        cookTime: 3,
+                        appeal: 3,
+                        unlockCost: 800
+                    },
+                    pizza: {
+                        name: 'Pizza Slices',
+                        icon: '🍕',
+                        price: 7,
+                        cost: 2.8,
+                        cookTime: 5,
+                        appeal: 4,
+                        unlockCost: 1500
+                    },
+                    icecream: {
+                        name: 'Ice Cream',
+                        icon: '🍦',
+                        price: 4,
+                        cost: 1.5,
+                        cookTime: 1,
+                        appeal: 3,
+                        unlockCost: 600
+                    }
+                };
+                
+                this.locations = {
+                    park: {
+                        name: 'City Park',
+                        icon: '🌳',
+                        peakHours: [12, 13, 17, 18],
+                        customerTypes: ['families', 'joggers'],
+                        weatherBonus: { sunny: 1.5, rainy: 0.7 },
+                        baseCustomers: 3
+                    },
+                    office: {
+                        name: 'Business District',
+                        icon: '🏢',
+                        peakHours: [12, 13, 18, 19],
+                        customerTypes: ['workers', 'executives'],
+                        weatherBonus: { sunny: 1.2, rainy: 1.1 },
+                        baseCustomers: 4
+                    },
+                    school: {
+                        name: 'University',
+                        icon: '🏫',
+                        peakHours: [11, 12, 16, 17],
+                        customerTypes: ['students'],
+                        weatherBonus: { sunny: 1.3, rainy: 0.9 },
+                        baseCustomers: 5
+                    },
+                    mall: {
+                        name: 'Shopping Mall',
+                        icon: '🏬',
+                        peakHours: [14, 15, 19, 20],
+                        customerTypes: ['shoppers', 'families'],
+                        weatherBonus: { sunny: 1.1, rainy: 1.3 },
+                        baseCustomers: 4
+                    },
+                    beach: {
+                        name: 'Beach',
+                        icon: '🏖️',
+                        peakHours: [13, 14, 15, 16],
+                        customerTypes: ['tourists', 'locals'],
+                        weatherBonus: { sunny: 2.0, rainy: 0.3 },
+                        baseCustomers: 3
+                    },
+                    stadium: {
+                        name: 'Stadium',
+                        icon: '🏟️',
+                        peakHours: [18, 19, 20, 21],
+                        customerTypes: ['sports fans'],
+                        weatherBonus: { sunny: 1.4, rainy: 1.0 },
+                        baseCustomers: 6
+                    },
+                    festival: {
+                        name: 'Festival Grounds',
+                        icon: '🎪',
+                        peakHours: [15, 16, 17, 18, 19, 20],
+                        customerTypes: ['festival goers'],
+                        weatherBonus: { sunny: 1.8, rainy: 0.8 },
+                        baseCustomers: 8
+                    }
+                };
+                
+                this.gameLoop = null;
+                this.timeLoop = null;
+                
+                this.initializeGame();
+            }
+
+            initializeGame() {
+                // Start with hot dogs unlocked
+                this.availableMenuItems.push('hotdog');
+                
+                this.updateUI();
+                this.startGameLoop();
+                this.startTimeLoop();
+                this.updateWeather();
+                
+                // Give starter truck after brief delay
+                setTimeout(() => {
+                    this.addLogEntry('🎁 Starter bonus: Free basic food truck!', 'info');
+                    this.buyTruck('basic', true);
+                }, 2000);
+            }
+
+            startGameLoop() {
+                this.gameLoop = setInterval(() => {
+                    this.updateTrucks();
+                    this.updateCustomers();
+                    this.updateOrders();
+                    this.spawnCustomers();
+                    this.updateDailyCosts();
+                }, 100);
+            }
+
+            startTimeLoop() {
+                this.timeLoop = setInterval(() => {
+                    this.hour += 0.5;
+                    if (this.hour >= 24) {
+                        this.hour = 0;
+                        this.newDay();
+                    }
+                    this.updateTimeDisplay();
+                }, 2000); // 30 minutes = 1 second
+            }
+
+            buyTruck(type, free = false) {
+                const truckType = this.truckTypes[type];
+                
+                if (!free && this.cash < truckType.cost) {
+                    this.showNotification('❌ Not enough cash!', 'error');
+                    return;
+                }
+                
+                if (!free) {
+                    this.cash -= truckType.cost;
+                }
+                
+                const truck = {
+                    id: Date.now() + Math.random(),
+                    type: type,
+                    location: 'park',
+                    x: 150,
+                    y: 200,
+                    status: 'idle', // idle, moving, serving
+                    currentOrders: [],
+                    totalEarnings: 0,
+                    totalSales: 0,
+                    condition: 100
+                };
+                
+                this.trucks.push(truck);
+                this.createTruckElement(truck);
+                this.updateFleetDisplay();
+                this.updateUI();
+                
+                if (!free) {
+                    this.addLogEntry(`🚚 Purchased ${truckType.name} for $${truckType.cost}`, 'expense');
+                }
+            }
+
+            addMenuItem(itemType) {
+                const item = this.menuItems[itemType];
+                
+                if (this.cash < item.unlockCost) {
+                    this.showNotification('❌ Not enough cash!', 'error');
+                    return;
+                }
+                
+                if (this.availableMenuItems.includes(itemType)) {
+                    this.showNotification('❌ Already unlocked!', 'error');
+                    return;
+                }
+                
+                this.cash -= item.unlockCost;
+                this.availableMenuItems.push(itemType);
+                
+                this.addLogEntry(`🍔 Unlocked ${item.name} for $${item.unlockCost}`, 'expense');
+                this.updateUI();
+            }
+
+            buyUpgrade(upgradeType) {
+                const costs = {
+                    equipment: 2500,
+                    app: 5000,
+                    design: 3500
+                };
+                
+                if (this.upgrades[upgradeType]) {
+                    this.showNotification('❌ Already purchased!', 'error');
+                    return;
+                }
+                
+                if (this.cash < costs[upgradeType]) {
+                    this.showNotification('❌ Not enough cash!', 'error');
+                    return;
+                }
+                
+                this.cash -= costs[upgradeType];
+                this.upgrades[upgradeType] = true;
+                
+                const names = {
+                    equipment: 'Better Equipment',
+                    app: 'Mobile App',
+                    design: 'Custom Design'
+                };
+                
+                this.addLogEntry(`⚡ Purchased ${names[upgradeType]} for $${costs[upgradeType]}`, 'expense');
+                this.updateUI();
+            }
+
+            createTruckElement(truck) {
+                const element = document.createElement('div');
+                element.className = `food-truck ${truck.type}`;
+                element.id = `truck-${truck.id}`;
+                element.style.left = truck.x + 'px';
+                element.style.top = truck.y + 'px';
+                element.textContent = this.truckTypes[truck.type].icon;
+                
+                element.addEventListener('click', () => {
+                    this.showTruckInfo(truck);
+                });
+                
+                document.getElementById('cityMap').appendChild(element);
+            }
+
+            showTruckInfo(truck) {
+                const location = this.locations[truck.location];
+                this.addLogEntry(`🚚 Truck #${truck.id.toString().slice(-4)}: ${truck.status} at ${location.name} | Sales: ${truck.totalSales}`, 'info');
+            }
+
+            moveToLocation(locationName) {
+                const availableTruck = this.trucks.find(truck => truck.status === 'idle');
+                
+                if (!availableTruck) {
+                    this.showNotification('❌ No available trucks!', 'error');
+                    return;
+                }
+                
+                // Clear previous location
+                const oldLocation = document.querySelector(`[data-location="${availableTruck.location}"]`);
+                if (oldLocation) {
+                    oldLocation.classList.remove('occupied');
+                }
+                
+                // Move truck
+                availableTruck.location = locationName;
+                availableTruck.status = 'moving';
+                
+                const newLocation = document.querySelector(`[data-location="${locationName}"]`);
+                const rect = newLocation.getBoundingClientRect();
+                const mapRect = document.getElementById('cityMap').getBoundingClientRect();
+                
+                availableTruck.x = rect.left - mapRect.left + 40;
+                availableTruck.y = rect.top - mapRect.top + 40;
+                
+                const element = document.getElementById(`truck-${availableTruck.id}`);
+                element.classList.add('moving');
+                element.style.left = availableTruck.x + 'px';
+                element.style.top = availableTruck.y + 'px';
+                
+                setTimeout(() => {
+                    availableTruck.status = 'idle';
+                    element.classList.remove('moving');
+                    newLocation.classList.add('occupied');
+                    this.addLogEntry(`🚚 Truck moved to ${this.locations[locationName].name}`, 'info');
+                }, 1000);
+            }
+
+            spawnCustomers() {
+                this.trucks.forEach(truck => {
+                    if (truck.status !== 'idle') return;
+                    
+                    const location = this.locations[truck.location];
+                    const isPeakHour = location.peakHours.includes(Math.floor(this.hour));
+                    const weatherMultiplier = location.weatherBonus[this.weather] || 1;
+                    
+                    let spawnChance = 0.02 * location.baseCustomers;
+                    if (isPeakHour) spawnChance *= 2;
+                    spawnChance *= weatherMultiplier;
+                    
+                    if (this.upgrades.design) spawnChance *= 1.3;
+                    
+                    if (Math.random() < spawnChance) {
+                        this.createCustomer(truck);
+                    }
+                });
+            }
+
+            createCustomer(truck) {
+                if (this.availableMenuItems.length === 0) return;
+                
+                const customer = {
+                    id: Date.now() + Math.random(),
+                    truckId: truck.id,
+                    patience: 100,
+                    orderItem: this.availableMenuItems[Math.floor(Math.random() * this.availableMenuItems.length)],
+                    willingness: 0.7 + (this.reputation / 200) // 0.7 to 1.2 based on reputation
+                };
+                
+                this.customers.push(customer);
+                this.createCustomerElement(customer, truck);
+                
+                // Create order
+                this.createOrder(customer, truck);
+            }
+
+            createCustomerElement(customer, truck) {
+                const element = document.createElement('div');
+                element.className = 'customer';
+                element.id = `customer-${customer.id}`;
+                element.style.left = (truck.x + Math.random() * 60 - 30) + 'px';
+                element.style.top = (truck.y + Math.random() * 60 - 30) + 'px';
+                element.textContent = '👤';
+                
+                document.getElementById('cityMap').appendChild(element);
+            }
+
+            createOrder(customer, truck) {
+                const item = this.menuItems[customer.orderItem];
+                const cookTimeModifier = this.upgrades.equipment ? 0.7 : 1.0;
+                
+                const order = {
+                    id: Date.now() + Math.random(),
+                    customerId: customer.id,
+                    truckId: truck.id,
+                    item: customer.orderItem,
+                    cookTime: item.cookTime * cookTimeModifier,
+                    progress: 0,
+                    price: item.price * customer.willingness
+                };
+                
+                this.activeOrders.push(order);
+                truck.currentOrders.push(order.id);
+                truck.status = 'serving';
+                
+                this.addLogEntry(`📝 New order: ${item.icon} ${item.name} for $${order.price.toFixed(2)}`, 'info');
+            }
+
+            updateTrucks() {
+                this.trucks.forEach(truck => {
+                    const element = document.getElementById(`truck-${truck.id}`);
+                    if (!element) return;
+                    
+                    // Update truck appearance based on status
+                    element.className = `food-truck ${truck.type} ${truck.status === 'serving' ? 'busy' : ''}`;
+                });
+            }
+
+            updateCustomers() {
+                this.customers.forEach(customer => {
+                    customer.patience -= 0.3;
+                    
+                    if (customer.patience <= 0) {
+                        // Remove impatient customer
+                        const element = document.getElementById(`customer-${customer.id}`);
+                        if (element) element.remove();
+                        
+                        this.customers = this.customers.filter(c => c.id !== customer.id);
+                        
+                        // Cancel their order
+                        this.activeOrders = this.activeOrders.filter(order => order.customerId !== customer.id);
+                        
+                        this.reputation = Math.max(0, this.reputation - 3);
+                        this.addLogEntry('😠 Customer left due to long wait!', 'expense');
+                        
+                        // Update truck status
+                        const truck = this.trucks.find(t => t.id === customer.truckId);
+                        if (truck && truck.currentOrders.length === 0) {
+                            truck.status = 'idle';
+                        }
+                    }
+                });
+            }
+
+            updateOrders() {
+                this.activeOrders.forEach(order => {
+                    order.progress += 1;
+                    
+                    if (order.progress >= order.cookTime * 20) { // 20 ticks per minute
+                        this.completeOrder(order);
+                    }
+                });
+            }
+
+            completeOrder(order) {
+                const customer = this.customers.find(c => c.id === order.customerId);
+                const truck = this.trucks.find(t => t.id === order.truckId);
+                const item = this.menuItems[order.item];
+                
+                if (!customer || !truck) return;
+                
+                // Calculate earnings
+                const earnings = order.price - item.cost;
+                this.cash += earnings;
+                this.dailyRevenue += earnings;
+                this.totalSales++;
+                
+                truck.totalEarnings += earnings;
+                truck.totalSales++;
+                
+                // Remove customer
+                const customerElement = document.getElementById(`customer-${customer.id}`);
+                if (customerElement) customerElement.remove();
+                
+                this.customers = this.customers.filter(c => c.id !== customer.id);
+                this.activeOrders = this.activeOrders.filter(o => o.id !== order.id);
+                
+                // Update truck
+                truck.currentOrders = truck.currentOrders.filter(id => id !== order.id);
+                if (truck.currentOrders.length === 0) {
+                    truck.status = 'idle';
+                }
+                
+                // Improve reputation
+                this.reputation = Math.min(100, this.reputation + 1);
+                
+                this.addLogEntry(`✅ Order completed: +$${earnings.toFixed(2)}`, 'earning');
+                this.updateUI();
+                this.updateFleetDisplay();
+            }
+
+            updateDailyCosts() {
+                // Calculate costs every few seconds
+                if (Math.floor(Date.now() / 1000) % 5 === 0) {
+                    let costs = 0;
+                    
+                    // Truck maintenance
+                    this.trucks.forEach(truck => {
+                        costs += this.truckTypes[truck.type].dailyMaintenance / 288; // Per 5-minute interval
+                    });
+                    
+                    if (costs > 0) {
+                        this.cash -= costs;
+                        this.dailyCosts += costs;
+                    }
+                }
+            }
+
+            newDay() {
+                this.day++;
+                this.addLogEntry(`🌅 Day ${this.day}! Revenue: $${this.dailyRevenue.toFixed(2)}, Costs: $${this.dailyCosts.toFixed(2)}`, 'info');
+                
+                this.dailyRevenue = 0;
+                this.dailyCosts = 0;
+                
+                // Random events
+                if (Math.random() < 0.3) {
+                    this.triggerRandomEvent();
+                }
+                
+                // Update weather
+                this.updateWeather();
+            }
+
+            updateWeather() {
+                const weathers = ['sunny', 'rainy', 'cloudy'];
+                const weatherIcons = { sunny: '☀️', rainy: '🌧️', cloudy: '☁️' };
+                
+                this.weather = weathers[Math.floor(Math.random() * weathers.length)];
+                document.getElementById('weatherIndicator').textContent = weatherIcons[this.weather];
+            }
+
+            updateTimeDisplay() {
+                const timeString = `Day ${this.day} - ${Math.floor(this.hour)}:${this.hour % 1 === 0 ? '00' : '30'}`;
+                document.getElementById('timeIndicator').textContent = timeString;
+            }
+
+            triggerRandomEvent() {
+                const events = [
+                    {
+                        message: '🎉 Food festival in town - increased customers!',
+                        effect: () => {
+                            for (let i = 0; i < 10; i++) {
+                                setTimeout(() => {
+                                    this.trucks.forEach(truck => {
+                                        if (Math.random() < 0.5) this.createCustomer(truck);
+                                    });
+                                }, i * 500);
+                            }
+                        }
+                    },
+                    {
+                        message: '📺 Featured on local TV - reputation boost!',
+                        effect: () => {
+                            this.reputation = Math.min(100, this.reputation + 15);
+                        }
+                    },
+                    {
+                        message: '💰 City grant received!',
+                        effect: () => {
+                            const bonus = 1000 + (this.trucks.length * 200);
+                            this.cash += bonus;
+                            this.addLogEntry(`💰 Received $${bonus} grant!`, 'earning');
+                        }
+                    },
+                    {
+                        message: '🚧 Road construction - slower movement today',
+                        effect: () => {
+                            // This would affect truck movement speed
+                        }
+                    }
+                ];
+                
+                const event = events[Math.floor(Math.random() * events.length)];
+                this.addLogEntry(event.message, 'info');
+                event.effect();
+            }
+
+            updateUI() {
+                document.getElementById('cash').textContent = `$${this.cash.toFixed(0)}`;
+                document.getElementById('dailyRevenue').textContent = `$${this.dailyRevenue.toFixed(0)}`;
+                document.getElementById('dailyCosts').textContent = `$${this.dailyCosts.toFixed(0)}`;
+                document.getElementById('netProfit').textContent = `$${(this.dailyRevenue - this.dailyCosts).toFixed(0)}`;
+                document.getElementById('totalSales').textContent = this.totalSales;
+                
+                // Update reputation
+                document.getElementById('reputationBar').style.width = this.reputation + '%';
+                let reputationLevel = 'Poor';
+                if (this.reputation > 80) reputationLevel = 'Excellent';
+                else if (this.reputation > 60) reputationLevel = 'Good';
+                else if (this.reputation > 40) reputationLevel = 'Average';
+                document.getElementById('reputationLevel').textContent = `${reputationLevel} (${Math.round(this.reputation)}%)`;
+            }
+
+            updateFleetDisplay() {
+                const fleetList = document.getElementById('fleetList');
+                
+                if (this.trucks.length === 0) {
+                    fleetList.innerHTML = '<div style="text-align: center; opacity: 0.6; padding: 2rem;">No food trucks yet. Buy your first truck to start!</div>';
+                    return;
+                }
+                
+                fleetList.innerHTML = this.trucks.map(truck => {
+                    const location = this.locations[truck.location];
+                    
+                    return `
+                        <div class="fleet-item ${truck.type}">
+                            <div class="fleet-header">
+                                <span>${this.truckTypes[truck.type].icon} #${truck.id.toString().slice(-4)}</span>
+                                <span>$${truck.totalEarnings.toFixed(0)}</span>
+                            </div>
+                            <div class="fleet-status">
+                                ${truck.status} at ${location.name} | Sales: ${truck.totalSales}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            addLogEntry(message, type) {
+                const log = document.getElementById('activityLog');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                
+                log.appendChild(entry);
+                log.scrollTop = log.scrollHeight;
+                
+                // Remove old entries
+                const entries = log.querySelectorAll('.log-entry');
+                if (entries.length > 50) {
+                    entries[0].remove();
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                
+                if (type === 'error') {
+                    notification.style.borderLeftColor = '#ff6b6b';
+                } else if (type === 'success') {
+                    notification.style.borderLeftColor = '#7bed9f';
+                }
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        }
+
+        // Global functions
+        let game;
+
+        function buyTruck(type) {
+            game.buyTruck(type);
+        }
+
+        function addMenuItem(itemType) {
+            game.addMenuItem(itemType);
+        }
+
+        function buyUpgrade(upgradeType) {
+            game.buyUpgrade(upgradeType);
+        }
+
+        function moveToLocation(locationName) {
+            game.moveToLocation(locationName);
+        }
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', function() {
+            game = new FoodTruckTycoon();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb6e4c05d6804',t:'MTc1NTQ2MDM3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

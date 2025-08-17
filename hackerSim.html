@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethical Hacker Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff00;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .hacker-world {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+        }
+
+        .terminal-area {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
+            border: 2px solid #00ff00;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .terminal-title {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .terminal-status {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .status-item {
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+        }
+
+        .terminal-output {
+            flex: 1;
+            background: #000000;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            animation: typewriter 0.5s ease-out;
+        }
+
+        @keyframes typewriter {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .terminal-line.success { color: #00ff00; }
+        .terminal-line.warning { color: #ffff00; }
+        .terminal-line.error { color: #ff0000; }
+        .terminal-line.info { color: #00ffff; }
+
+        .hacker-hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 25px;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            z-index: 1000;
+            min-width: 300px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .skill-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+            border-radius: 7px;
+            transition: width 0.5s ease;
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hack-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #001100, #003300);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 110px;
+        }
+
+        .hack-btn:hover {
+            background: linear-gradient(135deg, #003300, #005500);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .hack-btn.scan { background: linear-gradient(135deg, #001a1a, #003333); border-color: #00ffff; color: #00ffff; }
+        .hack-btn.crack { background: linear-gradient(135deg, #1a1a00, #333300); border-color: #ffff00; color: #ffff00; }
+        .hack-btn.social { background: linear-gradient(135deg, #1a0000, #330000); border-color: #ff0000; color: #ff0000; }
+        .hack-btn.mission { background: linear-gradient(135deg, #0000aa, #0000ff); border-color: #0080ff; color: #0080ff; }
+
+        .mission-selector {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #00ff00;
+            padding: 30px;
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            z-index: 2000;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+
+        .mission-selector h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #00ff00;
+            font-size: 22px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .mission-category {
+            margin: 25px 0;
+        }
+
+        .mission-category h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .mission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 50, 0, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #004400;
+        }
+
+        .mission-item:hover {
+            background: rgba(0, 100, 0, 0.4);
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .mission-item.locked {
+            background: rgba(50, 0, 0, 0.3);
+            border-color: #440000;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .mission-info {
+            flex: 1;
+        }
+
+        .mission-name {
+            font-weight: bold;
+            color: #00ff00;
+            font-size: 15px;
+        }
+
+        .mission-description {
+            font-size: 12px;
+            color: #cccccc;
+            margin: 5px 0;
+        }
+
+        .mission-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        .mission-stat {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            border: 1px solid #333;
+        }
+
+        .difficulty-beginner { color: #00ff00; border-color: #00ff00; }
+        .difficulty-intermediate { color: #ffff00; border-color: #ffff00; }
+        .difficulty-advanced { color: #ff8800; border-color: #ff8800; }
+        .difficulty-expert { color: #ff0000; border-color: #ff0000; }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .activity-log {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            min-width: 320px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(0, 50, 0, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            border-left: 3px solid #00ff00;
+        }
+
+        .log-entry.success {
+            border-left-color: #00ff00;
+            background: rgba(0, 100, 0, 0.1);
+        }
+
+        .log-entry.warning {
+            border-left-color: #ffff00;
+            background: rgba(100, 100, 0, 0.1);
+            color: #ffff00;
+        }
+
+        .log-entry.error {
+            border-left-color: #ff0000;
+            background: rgba(100, 0, 0, 0.1);
+            color: #ff0000;
+        }
+
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #00ff00;
+            padding: 25px 45px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 2500;
+            animation: notificationPop 4s ease-out forwards;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+            border: 2px solid #00ff00;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        @keyframes notificationPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            85% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+
+        .progress-indicator {
+            position: fixed;
+            bottom: 200px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 15px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffff00);
+            border-radius: 9px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .matrix-char {
+            position: absolute;
+            color: #00ff00;
+            font-size: 14px;
+            animation: matrixFall 10s linear infinite;
+        }
+
+        @keyframes matrixFall {
+            0% { transform: translateY(-100vh); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        .earnings-display {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 15px 30px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            z-index: 1000;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .certification-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #004400, #008800);
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin: 2px;
+            border: 1px solid #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="hacker-world">
+        <!-- Matrix Background -->
+        <div class="matrix-bg" id="matrixBg"></div>
+
+        <!-- Terminal Area -->
+        <div class="terminal-area">
+            <div class="terminal-header">
+                <div class="terminal-title">🖥️ ETHICAL HACKER TERMINAL v2.1</div>
+                <div class="terminal-status">
+                    <div class="status-item">🔒 VPN: ACTIVE</div>
+                    <div class="status-item">🛡️ FIREWALL: ON</div>
+                    <div class="status-item">📡 PROXY: SECURE</div>
+                </div>
+            </div>
+            <div class="terminal-output" id="terminalOutput">
+                <div class="terminal-line success">root@ethicalhacker:~$ Welcome to Ethical Hacker Simulator</div>
+                <div class="terminal-line info">System initialized. All activities are legal and educational.</div>
+                <div class="terminal-line">Type 'help' for available commands or use the control panel below.</div>
+                <div class="terminal-line warning">Remember: Always practice responsible disclosure!</div>
+                <div class="terminal-line">Ready for ethical hacking operations...</div>
+            </div>
+        </div>
+
+        <!-- Hacker HUD -->
+        <div class="hacker-hud">
+            <div><strong>👨‍💻 ETHICAL HACKER PROFILE</strong></div>
+            <div>Handle: <span id="hackerName">CyberGuardian</span></div>
+            <div>Level: <span id="hackerLevel">5</span> 🎖️</div>
+            <div>Reputation: <span id="reputation">White Hat</span></div>
+            <div class="skill-bar">
+                <div class="skill-fill" id="skillFill" style="width: 45%;"></div>
+            </div>
+            <div>Experience: <span id="experience">2,250</span> XP</div>
+            <div>Success Rate: <span id="successRate">87</span>%</div>
+            <div>Missions Completed: <span id="missionsCompleted">23</span></div>
+            <div>Specialization: <span id="specialization">Network Security</span></div>
+            <div style="margin-top: 10px;">
+                <div class="certification-badge">CEH</div>
+                <div class="certification-badge">CISSP</div>
+                <div class="certification-badge">Python</div>
+            </div>
+        </div>
+
+        <!-- Earnings Display -->
+        <div class="earnings-display">
+            💰 Bug Bounty Earnings: $<span id="totalEarnings">15,750</span>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="hack-btn scan" id="scanBtn">
+                <span>🔍</span>
+                <span>Network Scan</span>
+            </button>
+            <button class="hack-btn crack" id="crackBtn">
+                <span>🔓</span>
+                <span>Password Audit</span>
+            </button>
+            <button class="hack-btn social" id="socialBtn">
+                <span>🎭</span>
+                <span>OSINT Research</span>
+            </button>
+            <button class="hack-btn mission" id="missionBtn">
+                <span>🎯</span>
+                <span>Missions</span>
+            </button>
+            <button class="hack-btn" id="toolsBtn">
+                <span>🛠️</span>
+                <span>Security Tools</span>
+            </button>
+        </div>
+
+        <!-- Mission Selector -->
+        <div class="mission-selector" id="missionSelector">
+            <button class="close-btn" id="closeMissionSelector">×</button>
+            <h2>🎯 ETHICAL HACKING MISSIONS</h2>
+            
+            <div class="mission-category">
+                <h3>🏢 Corporate Security Audits</h3>
+                <div class="mission-item" data-mission="web-audit" data-difficulty="beginner">
+                    <div class="mission-info">
+                        <div class="mission-name">Web Application Security Audit</div>
+                        <div class="mission-description">Perform security assessment of company web application</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-beginner">Beginner</div>
+                            <div class="mission-stat">Reward: $500</div>
+                            <div class="mission-stat">Time: 2-4 hours</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-item" data-mission="network-pentest" data-difficulty="intermediate">
+                    <div class="mission-info">
+                        <div class="mission-name">Network Penetration Test</div>
+                        <div class="mission-description">Comprehensive network security assessment</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-intermediate">Intermediate</div>
+                            <div class="mission-stat">Reward: $1,200</div>
+                            <div class="mission-stat">Time: 1-2 days</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-item" data-mission="red-team" data-difficulty="advanced">
+                    <div class="mission-info">
+                        <div class="mission-name">Red Team Exercise</div>
+                        <div class="mission-description">Full-scale simulated attack on corporate infrastructure</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-advanced">Advanced</div>
+                            <div class="mission-stat">Reward: $3,500</div>
+                            <div class="mission-stat">Time: 1 week</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mission-category">
+                <h3>🐛 Bug Bounty Programs</h3>
+                <div class="mission-item" data-mission="xss-hunt" data-difficulty="beginner">
+                    <div class="mission-info">
+                        <div class="mission-name">XSS Vulnerability Hunt</div>
+                        <div class="mission-description">Find cross-site scripting vulnerabilities in web apps</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-beginner">Beginner</div>
+                            <div class="mission-stat">Reward: $200-800</div>
+                            <div class="mission-stat">Scope: Web Apps</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-item" data-mission="sql-injection" data-difficulty="intermediate">
+                    <div class="mission-info">
+                        <div class="mission-name">SQL Injection Research</div>
+                        <div class="mission-description">Discover database injection vulnerabilities</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-intermediate">Intermediate</div>
+                            <div class="mission-stat">Reward: $800-2000</div>
+                            <div class="mission-stat">Scope: Databases</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-item" data-mission="rce-research" data-difficulty="expert">
+                    <div class="mission-info">
+                        <div class="mission-name">Remote Code Execution</div>
+                        <div class="mission-description">Find critical RCE vulnerabilities</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-expert">Expert</div>
+                            <div class="mission-stat">Reward: $5000+</div>
+                            <div class="mission-stat">Scope: Critical Systems</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mission-category">
+                <h3>🎓 Training & Education</h3>
+                <div class="mission-item" data-mission="workshop" data-difficulty="beginner">
+                    <div class="mission-info">
+                        <div class="mission-name">Cybersecurity Workshop</div>
+                        <div class="mission-description">Teach security awareness to employees</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-beginner">Beginner</div>
+                            <div class="mission-stat">Reward: $300</div>
+                            <div class="mission-stat">Type: Education</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-item" data-mission="certification" data-difficulty="intermediate">
+                    <div class="mission-info">
+                        <div class="mission-name">Security Certification Prep</div>
+                        <div class="mission-description">Prepare for advanced security certifications</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-intermediate">Intermediate</div>
+                            <div class="mission-stat">Reward: Certification</div>
+                            <div class="mission-stat">Type: Learning</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mission-category">
+                <h3>🚨 Incident Response</h3>
+                <div class="mission-item" data-mission="malware-analysis" data-difficulty="advanced">
+                    <div class="mission-info">
+                        <div class="mission-name">Malware Analysis</div>
+                        <div class="mission-description">Analyze and reverse engineer malicious software</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-advanced">Advanced</div>
+                            <div class="mission-stat">Reward: $2,000</div>
+                            <div class="mission-stat">Type: Forensics</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mission-item locked" data-mission="apt-investigation" data-difficulty="expert">
+                    <div class="mission-info">
+                        <div class="mission-name">APT Investigation</div>
+                        <div class="mission-description">Investigate advanced persistent threat</div>
+                        <div class="mission-stats">
+                            <div class="mission-stat difficulty-expert">Expert</div>
+                            <div class="mission-stat">Reward: $10,000</div>
+                            <div class="mission-stat">Type: Investigation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="activity-log">
+            <h3 style="margin-bottom: 15px; color: #00ff00;">📊 Security Operations Log</h3>
+            <div id="activityLog">
+                <div class="log-entry success">✅ Completed web app security audit - Found 3 vulnerabilities</div>
+                <div class="log-entry success">🐛 Discovered XSS vulnerability - Earned $650 bounty</div>
+                <div class="log-entry warning">⚠️ Failed password audit - Need better wordlist</div>
+                <div class="log-entry success">🎓 Completed OSCP certification training</div>
+                <div class="log-entry success">🔍 Network scan revealed 5 open ports</div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator" id="progressIndicator">
+            <div>Operation in Progress...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class EthicalHackerSimulator {
+            constructor() {
+                this.hacker = {
+                    name: 'CyberGuardian',
+                    level: 5,
+                    experience: 2250,
+                    reputation: 'White Hat',
+                    successRate: 87,
+                    totalEarnings: 15750,
+                    missionsCompleted: 23,
+                    specialization: 'Network Security',
+                    certifications: ['CEH', 'CISSP', 'Python']
+                };
+
+                this.missions = {
+                    'web-audit': { name: 'Web Application Security Audit', difficulty: 'beginner', reward: [400, 600], time: 3000, learned: true },
+                    'xss-hunt': { name: 'XSS Vulnerability Hunt', difficulty: 'beginner', reward: [200, 800], time: 2000, learned: true },
+                    'workshop': { name: 'Cybersecurity Workshop', difficulty: 'beginner', reward: [250, 350], time: 1500, learned: true },
+                    'network-pentest': { name: 'Network Penetration Test', difficulty: 'intermediate', reward: [1000, 1400], time: 5000, learned: true },
+                    'sql-injection': { name: 'SQL Injection Research', difficulty: 'intermediate', reward: [800, 2000], time: 4000, learned: true },
+                    'certification': { name: 'Security Certification Prep', difficulty: 'intermediate', reward: [0, 0], time: 3000, learned: true },
+                    'red-team': { name: 'Red Team Exercise', difficulty: 'advanced', reward: [3000, 4000], time: 8000, learned: false },
+                    'malware-analysis': { name: 'Malware Analysis', difficulty: 'advanced', reward: [1800, 2200], time: 6000, learned: false },
+                    'rce-research': { name: 'Remote Code Execution', difficulty: 'expert', reward: [5000, 8000], time: 10000, learned: false },
+                    'apt-investigation': { name: 'APT Investigation', difficulty: 'expert', reward: [8000, 12000], time: 12000, learned: false }
+                };
+
+                this.tools = [
+                    'Nmap - Network Discovery',
+                    'Wireshark - Packet Analysis',
+                    'Burp Suite - Web App Testing',
+                    'Metasploit - Penetration Testing',
+                    'John the Ripper - Password Cracking',
+                    'OWASP ZAP - Security Scanner',
+                    'Aircrack-ng - WiFi Security',
+                    'Volatility - Memory Forensics'
+                ];
+
+                this.selectedMission = 'web-audit';
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.updateHUD();
+                this.startMatrixEffect();
+                this.startRandomEvents();
+                this.addTerminalLine('System ready. Select an operation to begin.', 'info');
+            }
+
+            setupControls() {
+                // Main action buttons
+                document.getElementById('scanBtn').addEventListener('click', () => this.performNetworkScan());
+                document.getElementById('crackBtn').addEventListener('click', () => this.performPasswordAudit());
+                document.getElementById('socialBtn').addEventListener('click', () => this.performOSINT());
+                document.getElementById('missionBtn').addEventListener('click', () => this.openMissionSelector());
+                document.getElementById('toolsBtn').addEventListener('click', () => this.showSecurityTools());
+
+                // Mission selector
+                document.getElementById('closeMissionSelector').addEventListener('click', () => this.closeMissionSelector());
+                document.querySelectorAll('.mission-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (!item.classList.contains('locked')) {
+                            this.selectMission(item.dataset.mission);
+                        }
+                    });
+                });
+            }
+
+            performNetworkScan() {
+                this.addTerminalLine('root@ethicalhacker:~$ nmap -sS -O target.company.com', 'info');
+                this.showProgress('Performing network discovery scan...', 3000);
+                
+                setTimeout(() => {
+                    const findings = [
+                        'Host is up (0.045s latency)',
+                        'PORT     STATE SERVICE',
+                        '22/tcp   open  ssh',
+                        '80/tcp   open  http',
+                        '443/tcp  open  https',
+                        '3306/tcp open  mysql',
+                        'OS: Linux 3.2 - 4.9'
+                    ];
+                    
+                    findings.forEach((line, index) => {
+                        setTimeout(() => {
+                            this.addTerminalLine(line, 'success');
+                        }, index * 200);
+                    });
+                    
+                    this.addTerminalLine('Scan complete. 4 open ports discovered.', 'success');
+                    this.gainExperience(15);
+                    this.addActivityLog('🔍 Network scan completed - Found 4 open services', 'success');
+                }, 3000);
+            }
+
+            performPasswordAudit() {
+                this.addTerminalLine('root@ethicalhacker:~$ john --wordlist=rockyou.txt hashes.txt', 'info');
+                this.showProgress('Auditing password strength...', 4000);
+                
+                setTimeout(() => {
+                    const results = [
+                        'Loaded 1000 password hashes',
+                        'Using default input encoding: UTF-8',
+                        'Will run 4 OpenMP threads',
+                        'Press \'q\' or Ctrl-C to abort',
+                        'password123      (user1)',
+                        'admin            (admin)',
+                        'qwerty           (user2)',
+                        '3 passwords cracked, 997 left'
+                    ];
+                    
+                    results.forEach((line, index) => {
+                        setTimeout(() => {
+                            this.addTerminalLine(line, index < 4 ? 'info' : 'warning');
+                        }, index * 300);
+                    });
+                    
+                    this.addTerminalLine('Password audit complete. Weak passwords identified.', 'warning');
+                    this.gainExperience(20);
+                    this.addActivityLog('🔓 Password audit revealed 3 weak passwords', 'warning');
+                }, 4000);
+            }
+
+            performOSINT() {
+                this.addTerminalLine('root@ethicalhacker:~$ Starting OSINT reconnaissance...', 'info');
+                this.showProgress('Gathering open source intelligence...', 3500);
+                
+                setTimeout(() => {
+                    const intelligence = [
+                        'Searching public databases...',
+                        'Found company LinkedIn profiles: 247',
+                        'Email pattern identified: firstname.lastname@company.com',
+                        'Technology stack: Apache, MySQL, PHP',
+                        'Recent job postings mention: AWS, Docker',
+                        'Social media presence: Active on Twitter, Facebook',
+                        'Potential attack vectors identified'
+                    ];
+                    
+                    intelligence.forEach((line, index) => {
+                        setTimeout(() => {
+                            this.addTerminalLine(line, 'info');
+                        }, index * 250);
+                    });
+                    
+                    this.addTerminalLine('OSINT gathering complete. Intelligence compiled.', 'success');
+                    this.gainExperience(25);
+                    this.addActivityLog('🎭 OSINT research completed - Gathered valuable intelligence', 'success');
+                }, 3500);
+            }
+
+            selectMission(missionId) {
+                const mission = this.missions[missionId];
+                if (!mission) return;
+
+                this.selectedMission = missionId;
+                this.addTerminalLine(`Mission selected: ${mission.name}`, 'info');
+                this.showNotification(`🎯 Mission Selected: ${mission.name}`);
+                this.closeMissionSelector();
+                
+                // Start mission automatically
+                setTimeout(() => this.executeMission(missionId), 1000);
+            }
+
+            executeMission(missionId) {
+                const mission = this.missions[missionId];
+                if (!mission) return;
+
+                this.addTerminalLine(`root@ethicalhacker:~$ Initiating mission: ${mission.name}`, 'info');
+                this.showProgress(`Executing ${mission.name}...`, mission.time);
+
+                // Calculate success chance based on difficulty and hacker level
+                let successChance = 70;
+                if (mission.difficulty === 'beginner') successChance = 85;
+                else if (mission.difficulty === 'intermediate') successChance = 75;
+                else if (mission.difficulty === 'advanced') successChance = 60;
+                else if (mission.difficulty === 'expert') successChance = 45;
+
+                // Adjust for hacker level
+                successChance += this.hacker.level * 2;
+                successChance = Math.min(95, successChance);
+
+                setTimeout(() => {
+                    const isSuccess = Math.random() * 100 < successChance;
+                    
+                    if (isSuccess) {
+                        this.handleMissionSuccess(mission);
+                    } else {
+                        this.handleMissionFailure(mission);
+                    }
+                    
+                    this.hacker.missionsCompleted++;
+                    this.updateHUD();
+                }, mission.time);
+            }
+
+            handleMissionSuccess(mission) {
+                const reward = mission.reward[0] + Math.random() * (mission.reward[1] - mission.reward[0]);
+                const earnings = Math.floor(reward);
+                
+                if (earnings > 0) {
+                    this.hacker.totalEarnings += earnings;
+                }
+                
+                const expGain = mission.difficulty === 'beginner' ? 30 : 
+                               mission.difficulty === 'intermediate' ? 50 : 
+                               mission.difficulty === 'advanced' ? 80 : 100;
+                
+                this.gainExperience(expGain);
+                this.hacker.successRate = Math.min(99, this.hacker.successRate + 1);
+
+                this.addTerminalLine(`Mission completed successfully!`, 'success');
+                if (earnings > 0) {
+                    this.addTerminalLine(`Bounty earned: $${earnings}`, 'success');
+                }
+                
+                this.showNotification(`✅ Mission Success! ${earnings > 0 ? `Earned $${earnings}` : 'Gained valuable experience!'}`);
+                this.addActivityLog(`✅ ${mission.name} - SUCCESS! ${earnings > 0 ? `+$${earnings}` : 'Experience gained'}`, 'success');
+
+                // Unlock new missions or certifications
+                if (mission.difficulty === 'intermediate' && !this.missions['red-team'].learned) {
+                    this.missions['red-team'].learned = true;
+                    this.showNotification('🔓 New mission unlocked: Red Team Exercise!');
+                }
+            }
+
+            handleMissionFailure(mission) {
+                this.hacker.successRate = Math.max(30, this.hacker.successRate - 2);
+                
+                this.addTerminalLine(`Mission failed. Analyzing what went wrong...`, 'error');
+                this.addTerminalLine(`Recommendation: Practice more and upgrade tools.`, 'warning');
+                
+                this.showNotification(`❌ Mission Failed: ${mission.name}`);
+                this.addActivityLog(`❌ ${mission.name} - FAILED. Need more preparation.`, 'error');
+                
+                // Still gain some experience from failure
+                this.gainExperience(5);
+            }
+
+            showSecurityTools() {
+                this.addTerminalLine('root@ethicalhacker:~$ ls /usr/share/security-tools/', 'info');
+                
+                this.tools.forEach((tool, index) => {
+                    setTimeout(() => {
+                        this.addTerminalLine(`📦 ${tool}`, 'success');
+                    }, index * 200);
+                });
+                
+                setTimeout(() => {
+                    this.addTerminalLine('All security tools loaded and ready.', 'info');
+                    this.addActivityLog('🛠️ Reviewed available security tools', 'success');
+                }, this.tools.length * 200 + 500);
+            }
+
+            openMissionSelector() {
+                document.getElementById('missionSelector').style.display = 'block';
+                this.updateMissionSelector();
+            }
+
+            closeMissionSelector() {
+                document.getElementById('missionSelector').style.display = 'none';
+            }
+
+            updateMissionSelector() {
+                document.querySelectorAll('.mission-item').forEach(item => {
+                    const missionId = item.dataset.mission;
+                    const mission = this.missions[missionId];
+                    
+                    if (mission && !mission.learned && !this.canLearnMission(mission)) {
+                        item.classList.add('locked');
+                    } else {
+                        item.classList.remove('locked');
+                    }
+                });
+            }
+
+            canLearnMission(mission) {
+                const requirements = {
+                    'beginner': 0,
+                    'intermediate': 500,
+                    'advanced': 1500,
+                    'expert': 3000
+                };
+                return this.hacker.experience >= requirements[mission.difficulty];
+            }
+
+            showProgress(message, duration) {
+                const indicator = document.getElementById('progressIndicator');
+                const fill = document.getElementById('progressFill');
+                
+                indicator.style.display = 'block';
+                indicator.querySelector('div').textContent = message;
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 100 / (duration / 50);
+                    fill.style.width = Math.min(100, progress) + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            indicator.style.display = 'none';
+                            fill.style.width = '0%';
+                        }, 500);
+                    }
+                }, 50);
+            }
+
+            gainExperience(amount) {
+                this.hacker.experience += amount;
+                
+                // Level up check
+                const expNeeded = this.hacker.level * 500;
+                if (this.hacker.experience >= expNeeded) {
+                    this.hacker.level++;
+                    this.showNotification(`🎉 Level Up! You are now Level ${this.hacker.level}!`);
+                    this.addActivityLog(`⬆️ Reached Level ${this.hacker.level}!`, 'success');
+                    
+                    // Unlock new certifications
+                    if (this.hacker.level === 7 && !this.hacker.certifications.includes('OSCP')) {
+                        this.hacker.certifications.push('OSCP');
+                        this.showNotification('🏆 New Certification Earned: OSCP!');
+                    }
+                }
+                
+                this.updateHUD();
+            }
+
+            startMatrixEffect() {
+                const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+                
+                setInterval(() => {
+                    if (document.querySelectorAll('.matrix-char').length < 50) {
+                        const char = document.createElement('div');
+                        char.className = 'matrix-char';
+                        char.textContent = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                        char.style.left = Math.random() * 100 + '%';
+                        char.style.animationDelay = Math.random() * 2 + 's';
+                        char.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                        
+                        document.getElementById('matrixBg').appendChild(char);
+                        
+                        setTimeout(() => char.remove(), 10000);
+                    }
+                }, 200);
+            }
+
+            startRandomEvents() {
+                setInterval(() => {
+                    const events = [
+                        () => this.showNotification('📧 New bug bounty program announced!'),
+                        () => this.showNotification('🚨 Security breach detected in the wild!'),
+                        () => this.showNotification('🎓 New cybersecurity course available!'),
+                        () => this.showNotification('🏆 Your reputation in the community grows!'),
+                        () => this.showNotification('🔍 Zero-day vulnerability discovered!')
+                    ];
+
+                    if (Math.random() < 0.3) {
+                        const randomEvent = events[Math.floor(Math.random() * events.length)];
+                        randomEvent();
+                    }
+                }, 25000);
+            }
+
+            addTerminalLine(text, type = 'info') {
+                const terminal = document.getElementById('terminalOutput');
+                const line = document.createElement('div');
+                line.className = `terminal-line ${type}`;
+                line.textContent = text;
+                
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                // Keep only last 50 lines
+                while (terminal.children.length > 50) {
+                    terminal.removeChild(terminal.firstChild);
+                }
+            }
+
+            addActivityLog(message, type = 'success') {
+                const log = document.getElementById('activityLog');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.textContent = message;
+                
+                log.insertBefore(entry, log.firstChild);
+                
+                // Keep only last 8 entries
+                while (log.children.length > 8) {
+                    log.removeChild(log.lastChild);
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 4000);
+            }
+
+            updateHUD() {
+                document.getElementById('hackerName').textContent = this.hacker.name;
+                document.getElementById('hackerLevel').textContent = this.hacker.level;
+                document.getElementById('experience').textContent = this.hacker.experience.toLocaleString();
+                document.getElementById('successRate').textContent = Math.round(this.hacker.successRate);
+                document.getElementById('missionsCompleted').textContent = this.hacker.missionsCompleted;
+                document.getElementById('specialization').textContent = this.hacker.specialization;
+                document.getElementById('totalEarnings').textContent = this.hacker.totalEarnings.toLocaleString();
+                
+                // Update skill bar
+                const skillPercent = Math.min(100, (this.hacker.experience / 5000) * 100);
+                document.getElementById('skillFill').style.width = skillPercent + '%';
+                
+                // Update reputation
+                let reputation = 'Script Kiddie';
+                if (this.hacker.level >= 15) reputation = 'Elite Hacker';
+                else if (this.hacker.level >= 10) reputation = 'Security Expert';
+                else if (this.hacker.level >= 7) reputation = 'Certified Professional';
+                else if (this.hacker.level >= 5) reputation = 'White Hat';
+                else if (this.hacker.level >= 3) reputation = 'Security Enthusiast';
+                
+                document.getElementById('reputation').textContent = reputation;
+            }
+        }
+
+        // Start the Ethical Hacker Simulator
+        new EthicalHackerSimulator();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb20eb7c1ce70',t:'MTc1NTQ2MDE3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

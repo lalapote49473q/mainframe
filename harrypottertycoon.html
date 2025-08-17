@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Potter Tycoon - Magical Business Empire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #f4f4f4;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .wizarding-world {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 1500px;
+            overflow: hidden;
+        }
+
+        .diagon-alley {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .street-ground {
+            position: absolute;
+            width: 1400px;
+            height: 800px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotateX(90deg) translateZ(-50px);
+            background: 
+                repeating-linear-gradient(0deg, #8B4513 0px, #8B4513 20px, #A0522D 20px, #A0522D 40px),
+                linear-gradient(135deg, #654321, #8B4513);
+            border: 8px solid #2F1B14;
+        }
+
+        .shop {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            border-radius: 8px;
+            border: 4px solid #8B4513;
+        }
+
+        .shop:hover {
+            transform: translateZ(20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .ollivanders {
+            width: 180px;
+            height: 120px;
+            background: linear-gradient(135deg, #8B4513, #654321);
+        }
+
+        .flourish-blotts {
+            width: 160px;
+            height: 110px;
+            background: linear-gradient(135deg, #4B0082, #663399);
+        }
+
+        .gringotts {
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+        }
+
+        .weasley-shop {
+            width: 140px;
+            height: 100px;
+            background: linear-gradient(135deg, #FF6347, #DC143C);
+        }
+
+        .apothecary {
+            width: 130px;
+            height: 95px;
+            background: linear-gradient(135deg, #228B22, #006400);
+        }
+
+        .quidditch-shop {
+            width: 170px;
+            height: 115px;
+            background: linear-gradient(135deg, #FF8C00, #FF4500);
+        }
+
+        .shop-sign {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(139, 69, 19, 0.9);
+            color: #FFD700;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #FFD700;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .shop-content {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .shop-level {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #FFD700;
+        }
+
+        .tycoon-hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.95);
+            color: #FFD700;
+            padding: 25px;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            font-size: 16px;
+            line-height: 2;
+            z-index: 1000;
+            min-width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .business-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(26, 26, 46, 0.95);
+            padding: 20px;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .business-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #4B0082, #663399);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+        }
+
+        .business-btn:hover {
+            background: linear-gradient(135deg, #663399, #4B0082);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        .business-btn.upgrade { background: linear-gradient(135deg, #228B22, #006400); }
+        .business-btn.expand { background: linear-gradient(135deg, #FF8C00, #FF4500); }
+        .business-btn.research { background: linear-gradient(135deg, #4682B4, #1E90FF); }
+
+        .shop-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.95);
+            color: #FFD700;
+            padding: 20px;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            z-index: 1000;
+            max-height: 500px;
+            overflow-y: auto;
+            min-width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(75, 0, 130, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #663399;
+        }
+
+        .shop-item:hover {
+            background: rgba(75, 0, 130, 0.6);
+            transform: translateX(5px);
+        }
+
+        .shop-item.owned {
+            background: rgba(34, 139, 34, 0.3);
+            border-color: #228B22;
+        }
+
+        .camera-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .camera-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            cursor: pointer;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .camera-btn:hover {
+            background: rgba(75, 0, 130, 0.9);
+            transform: scale(1.1);
+        }
+
+        .magical-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #FFD700;
+            border-radius: 50%;
+            animation: sparkleFloat 3s linear infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+
+        .income-popup {
+            position: absolute;
+            color: #32CD32;
+            font-weight: bold;
+            font-size: 18px;
+            pointer-events: none;
+            animation: incomeFloat 2s ease-out forwards;
+            z-index: 500;
+        }
+
+        @keyframes incomeFloat {
+            0% { transform: translateY(0px) scale(1); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1.2); opacity: 0; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(75, 0, 130, 0.95);
+            color: #FFD700;
+            padding: 25px 45px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 2000;
+            animation: notificationPop 3s ease-out forwards;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border: 3px solid #FFD700;
+        }
+
+        @keyframes notificationPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            85% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+
+        .research-tree {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background: rgba(26, 26, 46, 0.95);
+            color: #FFD700;
+            padding: 15px;
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .research-item {
+            display: block;
+            width: 100%;
+            padding: 8px 15px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #4682B4, #1E90FF);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .research-item:hover {
+            background: linear-gradient(135deg, #1E90FF, #4682B4);
+            transform: translateY(-2px);
+        }
+
+        .research-item:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .hogwarts-express {
+            position: absolute;
+            width: 200px;
+            height: 60px;
+            background: linear-gradient(135deg, #8B0000, #DC143C);
+            border: 3px solid #FFD700;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            animation: trainMove 20s linear infinite;
+            z-index: 200;
+        }
+
+        @keyframes trainMove {
+            0% { left: -250px; top: 100px; }
+            50% { left: calc(100% - 200px); top: 100px; }
+            100% { left: -250px; top: 100px; }
+        }
+
+        .customer {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            font-size: 25px;
+            animation: customerWalk 8s linear infinite;
+            z-index: 150;
+        }
+
+        @keyframes customerWalk {
+            0% { left: -50px; top: 300px; }
+            25% { left: 200px; top: 300px; }
+            50% { left: 400px; top: 280px; }
+            75% { left: 600px; top: 300px; }
+            100% { left: calc(100% + 50px); top: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wizarding-world" id="wizardingWorld">
+        <div class="diagon-alley" id="diagonAlley">
+            <div class="street-ground"></div>
+            
+            <!-- Magical Effects -->
+            <div class="magical-effects" id="magicalEffects"></div>
+            
+            <!-- Hogwarts Express -->
+            <div class="hogwarts-express">🚂</div>
+            
+            <!-- Customers -->
+            <div class="customer" style="animation-delay: 0s;">🧙‍♂️</div>
+            <div class="customer" style="animation-delay: 2s;">🧙‍♀️</div>
+            <div class="customer" style="animation-delay: 4s;">👨‍🎓</div>
+            <div class="customer" style="animation-delay: 6s;">👩‍🎓</div>
+
+            <!-- Shops -->
+            <div class="shop gringotts" id="gringotts" style="left: 100px; top: 150px; transform: translateZ(50px);">
+                <div class="shop-sign">🏛️ GRINGOTTS BANK</div>
+                <div class="shop-content">
+                    <div>💰 BANK</div>
+                    <div class="shop-level">Level <span id="gringottsLevel">1</span></div>
+                </div>
+            </div>
+
+            <div class="shop ollivanders" id="ollivanders" style="left: 350px; top: 180px; transform: translateZ(40px);">
+                <div class="shop-sign">🪄 OLLIVANDERS</div>
+                <div class="shop-content">
+                    <div>🪄 WANDS</div>
+                    <div class="shop-level">Level <span id="ollivandersLevel">0</span></div>
+                </div>
+            </div>
+
+            <div class="shop flourish-blotts" id="flourishBlotts" style="left: 580px; top: 160px; transform: translateZ(45px);">
+                <div class="shop-sign">📚 FLOURISH & BLOTTS</div>
+                <div class="shop-content">
+                    <div>📚 BOOKS</div>
+                    <div class="shop-level">Level <span id="flourishBlottsLevel">0</span></div>
+                </div>
+            </div>
+
+            <div class="shop weasley-shop" id="weasleyShop" style="left: 800px; top: 200px; transform: translateZ(35px);">
+                <div class="shop-sign">🎆 WEASLEY'S SHOP</div>
+                <div class="shop-content">
+                    <div>🎆 JOKES</div>
+                    <div class="shop-level">Level <span id="weasleyShopLevel">0</span></div>
+                </div>
+            </div>
+
+            <div class="shop apothecary" id="apothecary" style="left: 200px; top: 350px; transform: translateZ(30px);">
+                <div class="shop-sign">🧪 APOTHECARY</div>
+                <div class="shop-content">
+                    <div>🧪 POTIONS</div>
+                    <div class="shop-level">Level <span id="apothecaryLevel">0</span></div>
+                </div>
+            </div>
+
+            <div class="shop quidditch-shop" id="quidditchShop" style="left: 500px; top: 380px; transform: translateZ(38px);">
+                <div class="shop-sign">🏆 QUIDDITCH SUPPLIES</div>
+                <div class="shop-content">
+                    <div>🏆 SPORTS</div>
+                    <div class="shop-level">Level <span id="quidditchShopLevel">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div class="tycoon-hud">
+            <div><strong>🏰 WIZARDING TYCOON</strong></div>
+            <div>💰 Galleons: <span id="galleons">1000</span></div>
+            <div>💎 Reputation: <span id="reputation">50</span></div>
+            <div>🏪 Shops Owned: <span id="shopsOwned">1</span></div>
+            <div>📈 Daily Income: <span id="dailyIncome">100</span>G</div>
+            <div>🧙‍♂️ Customers: <span id="customerCount">25</span></div>
+            <div>🔬 Research Points: <span id="researchPoints">0</span></div>
+        </div>
+
+        <!-- Business Panel -->
+        <div class="business-panel">
+            <button class="business-btn upgrade" id="upgradeBtn">
+                <span>⬆️</span>
+                <span>Upgrade</span>
+            </button>
+            <button class="business-btn expand" id="expandBtn">
+                <span>🏗️</span>
+                <span>Expand</span>
+            </button>
+            <button class="business-btn research" id="researchBtn">
+                <span>🔬</span>
+                <span>Research</span>
+            </button>
+            <button class="business-btn" id="marketingBtn">
+                <span>📢</span>
+                <span>Marketing</span>
+            </button>
+            <button class="business-btn" id="staffBtn">
+                <span>👥</span>
+                <span>Hire Staff</span>
+            </button>
+        </div>
+
+        <!-- Shop Menu -->
+        <div class="shop-menu">
+            <h3 style="margin-bottom: 15px; color: #FFD700;">🛒 MAGICAL BUSINESSES</h3>
+            <div class="shop-item owned" data-shop="gringotts" data-price="0">
+                <span>🏛️ Gringotts Bank</span>
+                <span>OWNED</span>
+            </div>
+            <div class="shop-item" data-shop="ollivanders" data-price="2500">
+                <span>🪄 Ollivanders</span>
+                <span>2,500G</span>
+            </div>
+            <div class="shop-item" data-shop="flourishBlotts" data-price="3000">
+                <span>📚 Flourish & Blotts</span>
+                <span>3,000G</span>
+            </div>
+            <div class="shop-item" data-shop="weasleyShop" data-price="4000">
+                <span>🎆 Weasley's Shop</span>
+                <span>4,000G</span>
+            </div>
+            <div class="shop-item" data-shop="apothecary" data-price="3500">
+                <span>🧪 Apothecary</span>
+                <span>3,500G</span>
+            </div>
+            <div class="shop-item" data-shop="quidditchShop" data-price="5000">
+                <span>🏆 Quidditch Supplies</span>
+                <span>5,000G</span>
+            </div>
+        </div>
+
+        <!-- Research Tree -->
+        <div class="research-tree">
+            <h4 style="margin-bottom: 10px; color: #FFD700;">🔬 Research:</h4>
+            <button class="research-item" id="magicalMarketing" data-cost="50">
+                📢 Magical Marketing (+20% income)
+            </button>
+            <button class="research-item" id="efficientStaff" data-cost="75">
+                👥 Efficient Staff (+15% speed)
+            </button>
+            <button class="research-item" id="premiumProducts" data-cost="100">
+                ⭐ Premium Products (+25% profit)
+            </button>
+            <button class="research-item" id="customerLoyalty" data-cost="125">
+                💝 Customer Loyalty (+30% retention)
+            </button>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="camera-controls">
+            <div class="camera-btn" id="resetView">🏠</div>
+            <div class="camera-btn" id="zoomIn">➕</div>
+            <div class="camera-btn" id="zoomOut">➖</div>
+            <div class="camera-btn" id="topView">⬆️</div>
+        </div>
+    </div>
+
+    <script>
+        class HarryPotterTycoon {
+            constructor() {
+                this.galleons = 1000;
+                this.reputation = 50;
+                this.shopsOwned = 1;
+                this.dailyIncome = 100;
+                this.customerCount = 25;
+                this.researchPoints = 0;
+                
+                this.shops = {
+                    gringotts: { owned: true, level: 1, income: 100, upgradeMultiplier: 1.5 },
+                    ollivanders: { owned: false, level: 0, income: 150, upgradeMultiplier: 1.6 },
+                    flourishBlotts: { owned: false, level: 0, income: 120, upgradeMultiplier: 1.4 },
+                    weasleyShop: { owned: false, level: 0, income: 200, upgradeMultiplier: 1.7 },
+                    apothecary: { owned: false, level: 0, income: 180, upgradeMultiplier: 1.5 },
+                    quidditchShop: { owned: false, level: 0, income: 250, upgradeMultiplier: 1.8 }
+                };
+
+                this.research = {
+                    magicalMarketing: { unlocked: false, cost: 50, effect: 1.2 },
+                    efficientStaff: { unlocked: false, cost: 75, effect: 1.15 },
+                    premiumProducts: { unlocked: false, cost: 100, effect: 1.25 },
+                    customerLoyalty: { unlocked: false, cost: 125, effect: 1.3 }
+                };
+
+                this.selectedShop = null;
+                
+                this.camera = {
+                    rotX: -45,
+                    rotY: 0,
+                    zoom: 1
+                };
+
+                this.world = document.getElementById('diagonAlley');
+                this.isDragging = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.startIncomeGeneration();
+                this.startMagicalEffects();
+                this.updateCamera();
+                this.updateHUD();
+                this.calculateDailyIncome();
+            }
+
+            setupControls() {
+                // Camera controls
+                this.world.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDragging) {
+                        const deltaX = e.clientX - this.lastMouseX;
+                        const deltaY = e.clientY - this.lastMouseY;
+                        
+                        this.camera.rotY += deltaX * 0.5;
+                        this.camera.rotX += deltaY * 0.5;
+                        
+                        this.camera.rotX = Math.max(-80, Math.min(10, this.camera.rotX));
+                        
+                        this.updateCamera();
+                        
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                });
+
+                // Shop interactions
+                Object.keys(this.shops).forEach(shopId => {
+                    const shopElement = document.getElementById(shopId);
+                    if (shopElement) {
+                        shopElement.addEventListener('click', () => this.selectShop(shopId));
+                    }
+                });
+
+                // Business buttons
+                document.getElementById('upgradeBtn').addEventListener('click', () => this.upgradeShop());
+                document.getElementById('expandBtn').addEventListener('click', () => this.expandBusiness());
+                document.getElementById('researchBtn').addEventListener('click', () => this.conductResearch());
+                document.getElementById('marketingBtn').addEventListener('click', () => this.launchMarketing());
+                document.getElementById('staffBtn').addEventListener('click', () => this.hireStaff());
+
+                // Shop purchase
+                document.querySelectorAll('.shop-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const shopId = item.dataset.shop;
+                        const price = parseInt(item.dataset.price);
+                        this.buyShop(shopId, price);
+                    });
+                });
+
+                // Research items
+                Object.keys(this.research).forEach(researchId => {
+                    const researchElement = document.getElementById(researchId);
+                    if (researchElement) {
+                        researchElement.addEventListener('click', () => this.unlockResearch(researchId));
+                    }
+                });
+
+                // Camera buttons
+                document.getElementById('resetView').addEventListener('click', () => {
+                    this.camera = { rotX: -45, rotY: 0, zoom: 1 };
+                    this.updateCamera();
+                });
+
+                document.getElementById('zoomIn').addEventListener('click', () => {
+                    this.camera.zoom = Math.min(2, this.camera.zoom + 0.1);
+                    this.updateCamera();
+                });
+
+                document.getElementById('zoomOut').addEventListener('click', () => {
+                    this.camera.zoom = Math.max(0.3, this.camera.zoom - 0.1);
+                    this.updateCamera();
+                });
+
+                document.getElementById('topView').addEventListener('click', () => {
+                    this.camera.rotX = -90;
+                    this.camera.rotY = 0;
+                    this.updateCamera();
+                });
+            }
+
+            updateCamera() {
+                const transform = `
+                    rotateX(${this.camera.rotX}deg)
+                    rotateY(${this.camera.rotY}deg)
+                    scale(${this.camera.zoom})
+                `;
+                this.world.style.transform = transform;
+            }
+
+            selectShop(shopId) {
+                // Remove previous selection
+                document.querySelectorAll('.shop').forEach(shop => {
+                    shop.style.border = '4px solid #8B4513';
+                });
+
+                // Highlight selected shop
+                const shopElement = document.getElementById(shopId);
+                shopElement.style.border = '4px solid #FFD700';
+                
+                this.selectedShop = shopId;
+                
+                if (this.shops[shopId].owned) {
+                    this.showNotification(`Selected ${this.getShopName(shopId)} - Level ${this.shops[shopId].level}`);
+                } else {
+                    this.showNotification(`${this.getShopName(shopId)} - Not owned yet!`);
+                }
+            }
+
+            buyShop(shopId, price) {
+                if (this.shops[shopId].owned) {
+                    this.showNotification('You already own this shop!');
+                    return;
+                }
+
+                if (this.galleons < price) {
+                    this.showNotification('Not enough Galleons!');
+                    return;
+                }
+
+                this.galleons -= price;
+                this.shops[shopId].owned = true;
+                this.shops[shopId].level = 1;
+                this.shopsOwned++;
+                this.reputation += 10;
+
+                // Update shop appearance
+                const shopElement = document.getElementById(shopId);
+                shopElement.style.opacity = '1';
+                shopElement.style.filter = 'brightness(1)';
+
+                // Update shop menu
+                const menuItem = document.querySelector(`[data-shop="${shopId}"]`);
+                menuItem.classList.add('owned');
+                menuItem.innerHTML = `<span>${menuItem.querySelector('span').textContent}</span><span>OWNED</span>`;
+
+                // Update level display
+                document.getElementById(shopId + 'Level').textContent = '1';
+
+                this.calculateDailyIncome();
+                this.showNotification(`🎉 Purchased ${this.getShopName(shopId)}!`);
+                this.updateHUD();
+            }
+
+            upgradeShop() {
+                if (!this.selectedShop || !this.shops[this.selectedShop].owned) {
+                    this.showNotification('Select an owned shop first!');
+                    return;
+                }
+
+                const shop = this.shops[this.selectedShop];
+                const upgradeCost = Math.floor(1000 * Math.pow(shop.upgradeMultiplier, shop.level));
+
+                if (this.galleons < upgradeCost) {
+                    this.showNotification(`Need ${upgradeCost} Galleons to upgrade!`);
+                    return;
+                }
+
+                this.galleons -= upgradeCost;
+                shop.level++;
+                this.reputation += 5;
+
+                // Update level display
+                document.getElementById(this.selectedShop + 'Level').textContent = shop.level;
+
+                // Visual upgrade effect
+                const shopElement = document.getElementById(this.selectedShop);
+                shopElement.style.transform += ' scale(1.1)';
+                setTimeout(() => {
+                    shopElement.style.transform = shopElement.style.transform.replace(' scale(1.1)', '');
+                }, 500);
+
+                this.calculateDailyIncome();
+                this.showNotification(`⬆️ Upgraded ${this.getShopName(this.selectedShop)} to Level ${shop.level}!`);
+                this.updateHUD();
+            }
+
+            expandBusiness() {
+                const expansionCost = 5000;
+                
+                if (this.galleons < expansionCost) {
+                    this.showNotification('Need 5,000 Galleons to expand!');
+                    return;
+                }
+
+                this.galleons -= expansionCost;
+                this.customerCount += 15;
+                this.reputation += 15;
+
+                // Add new customers visually
+                for (let i = 0; i < 2; i++) {
+                    setTimeout(() => {
+                        const customer = document.createElement('div');
+                        customer.className = 'customer';
+                        customer.style.fontSize = '25px';
+                        customer.style.animationDelay = Math.random() * 8 + 's';
+                        customer.textContent = ['🧙‍♂️', '🧙‍♀️', '👨‍🎓', '👩‍🎓', '🧝‍♂️', '🧝‍♀️'][Math.floor(Math.random() * 6)];
+                        this.world.appendChild(customer);
+                    }, i * 1000);
+                }
+
+                this.calculateDailyIncome();
+                this.showNotification('🏗️ Business expanded! More customers incoming!');
+                this.updateHUD();
+            }
+
+            conductResearch() {
+                this.researchPoints += 10;
+                this.showNotification('🔬 Research conducted! +10 Research Points');
+                this.updateHUD();
+            }
+
+            unlockResearch(researchId) {
+                const research = this.research[researchId];
+                
+                if (research.unlocked) {
+                    this.showNotification('Research already unlocked!');
+                    return;
+                }
+
+                if (this.researchPoints < research.cost) {
+                    this.showNotification(`Need ${research.cost} Research Points!`);
+                    return;
+                }
+
+                this.researchPoints -= research.cost;
+                research.unlocked = true;
+
+                // Disable button
+                const researchElement = document.getElementById(researchId);
+                researchElement.disabled = true;
+                researchElement.style.background = '#228B22';
+                researchElement.textContent += ' ✓ UNLOCKED';
+
+                this.calculateDailyIncome();
+                this.showNotification(`🔬 Unlocked ${researchId.replace(/([A-Z])/g, ' $1')}!`);
+                this.updateHUD();
+            }
+
+            launchMarketing() {
+                const marketingCost = 800;
+                
+                if (this.galleons < marketingCost) {
+                    this.showNotification('Need 800 Galleons for marketing!');
+                    return;
+                }
+
+                this.galleons -= marketingCost;
+                this.customerCount += 10;
+                this.reputation += 8;
+
+                this.calculateDailyIncome();
+                this.showNotification('📢 Marketing campaign launched! +10 customers!');
+                this.updateHUD();
+            }
+
+            hireStaff() {
+                const staffCost = 1200;
+                
+                if (this.galleons < staffCost) {
+                    this.showNotification('Need 1,200 Galleons to hire staff!');
+                    return;
+                }
+
+                this.galleons -= staffCost;
+                this.reputation += 5;
+
+                // Increase income generation speed
+                this.calculateDailyIncome();
+                this.showNotification('👥 New staff hired! Increased efficiency!');
+                this.updateHUD();
+            }
+
+            calculateDailyIncome() {
+                let totalIncome = 0;
+                
+                Object.keys(this.shops).forEach(shopId => {
+                    const shop = this.shops[shopId];
+                    if (shop.owned) {
+                        let shopIncome = shop.income * shop.level;
+                        
+                        // Apply research bonuses
+                        if (this.research.magicalMarketing.unlocked) {
+                            shopIncome *= this.research.magicalMarketing.effect;
+                        }
+                        if (this.research.premiumProducts.unlocked) {
+                            shopIncome *= this.research.premiumProducts.effect;
+                        }
+                        
+                        totalIncome += shopIncome;
+                    }
+                });
+
+                // Customer multiplier
+                totalIncome *= (this.customerCount / 25);
+                
+                // Reputation bonus
+                totalIncome *= (1 + this.reputation / 1000);
+
+                this.dailyIncome = Math.floor(totalIncome);
+            }
+
+            startIncomeGeneration() {
+                setInterval(() => {
+                    // Generate income from owned shops
+                    Object.keys(this.shops).forEach(shopId => {
+                        const shop = this.shops[shopId];
+                        if (shop.owned) {
+                            let income = Math.floor(shop.income * shop.level / 10);
+                            
+                            // Apply research bonuses
+                            if (this.research.magicalMarketing.unlocked) {
+                                income *= this.research.magicalMarketing.effect;
+                            }
+                            if (this.research.premiumProducts.unlocked) {
+                                income *= this.research.premiumProducts.effect;
+                            }
+                            
+                            this.galleons += income;
+                            this.showIncomePopup(shopId, income);
+                        }
+                    });
+                    
+                    this.updateHUD();
+                }, 3000); // Income every 3 seconds
+            }
+
+            showIncomePopup(shopId, amount) {
+                const shopElement = document.getElementById(shopId);
+                const popup = document.createElement('div');
+                popup.className = 'income-popup';
+                popup.textContent = `+${amount}G`;
+                popup.style.left = shopElement.style.left;
+                popup.style.top = (parseInt(shopElement.style.top) - 30) + 'px';
+                popup.style.transform = 'translateZ(100px)';
+                
+                this.world.appendChild(popup);
+                
+                setTimeout(() => popup.remove(), 2000);
+            }
+
+            startMagicalEffects() {
+                setInterval(() => {
+                    // Create sparkles
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            const sparkle = document.createElement('div');
+                            sparkle.className = 'sparkle';
+                            sparkle.style.left = Math.random() * 100 + 'vw';
+                            sparkle.style.animationDelay = Math.random() * 3 + 's';
+                            document.getElementById('magicalEffects').appendChild(sparkle);
+                            
+                            setTimeout(() => sparkle.remove(), 3000);
+                        }, i * 500);
+                    }
+                }, 2000);
+            }
+
+            getShopName(shopId) {
+                const names = {
+                    gringotts: 'Gringotts Bank',
+                    ollivanders: 'Ollivanders',
+                    flourishBlotts: 'Flourish & Blotts',
+                    weasleyShop: "Weasley's Wizard Wheezes",
+                    apothecary: 'Apothecary',
+                    quidditchShop: 'Quidditch Supplies'
+                };
+                return names[shopId] || shopId;
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            updateHUD() {
+                document.getElementById('galleons').textContent = this.galleons.toLocaleString();
+                document.getElementById('reputation').textContent = this.reputation;
+                document.getElementById('shopsOwned').textContent = this.shopsOwned;
+                document.getElementById('dailyIncome').textContent = this.dailyIncome.toLocaleString();
+                document.getElementById('customerCount').textContent = this.customerCount;
+                document.getElementById('researchPoints').textContent = this.researchPoints;
+            }
+        }
+
+        // Start the Harry Potter Tycoon
+        new HarryPotterTycoon();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb0a391c1ce70',t:'MTc1NTQ2MDExNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

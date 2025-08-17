@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Virtual Pet Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #FFB6C1 0%, #87CEEB 50%, #98FB98 100%);
+            color: #2c3e50;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .pet-home-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 1200px;
+            overflow: hidden;
+        }
+
+        .pet-world {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .room-floor {
+            position: absolute;
+            width: 800px;
+            height: 600px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotateX(90deg) translateZ(-50px);
+            background: 
+                repeating-linear-gradient(45deg, #DEB887 0px, #DEB887 40px, #D2B48C 40px, #D2B48C 80px),
+                linear-gradient(135deg, #F5DEB3, #DEB887);
+            border: 8px solid #8B4513;
+        }
+
+        .room-wall {
+            position: absolute;
+            background: linear-gradient(135deg, #FFE4E1, #FFF8DC);
+            border: 4px solid #D2691E;
+        }
+
+        .wall-back {
+            width: 800px;
+            height: 400px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translateZ(-300px) translateY(-100px);
+        }
+
+        .wall-left {
+            width: 600px;
+            height: 400px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotateY(90deg) translateZ(-400px) translateY(-100px);
+        }
+
+        .wall-right {
+            width: 600px;
+            height: 400px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotateY(-90deg) translateZ(-400px) translateY(-100px);
+        }
+
+        .pet {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            font-size: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+            animation: petIdle 3s ease-in-out infinite;
+        }
+
+        @keyframes petIdle {
+            0%, 100% { transform: translateZ(10px) scale(1); }
+            50% { transform: translateZ(20px) scale(1.05); }
+        }
+
+        .pet.happy {
+            animation: petHappy 1s ease-in-out;
+        }
+
+        @keyframes petHappy {
+            0%, 100% { transform: translateZ(10px) scale(1) rotate(0deg); }
+            25% { transform: translateZ(30px) scale(1.2) rotate(-10deg); }
+            75% { transform: translateZ(30px) scale(1.2) rotate(10deg); }
+        }
+
+        .pet.sleeping {
+            animation: petSleep 2s ease-in-out infinite;
+            filter: brightness(0.7);
+        }
+
+        @keyframes petSleep {
+            0%, 100% { transform: translateZ(5px) scale(0.9); }
+            50% { transform: translateZ(8px) scale(0.95); }
+        }
+
+        .furniture {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .furniture:hover {
+            transform: translateZ(15px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .pet-bed {
+            width: 100px;
+            height: 80px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border: 4px solid #DC143C;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .food-bowl {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #32CD32, #228B22);
+            border: 3px solid #006400;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .toy-box {
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: 3px solid #FF8C00;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .water-bowl {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #87CEEB, #4682B4);
+            border: 3px solid #4169E1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .pet-tree {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(135deg, #228B22, #32CD32);
+            border: 3px solid #006400;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .pet-hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border: 3px solid #FF69B4;
+            border-radius: 20px;
+            font-size: 16px;
+            line-height: 1.8;
+            z-index: 1000;
+            min-width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .pet-stats {
+            margin: 10px 0;
+        }
+
+        .stat-bar {
+            width: 200px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+            border: 2px solid #999;
+        }
+
+        .stat-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 8px;
+        }
+
+        .happiness-bar { background: linear-gradient(90deg, #FF69B4, #FF1493); }
+        .hunger-bar { background: linear-gradient(90deg, #32CD32, #228B22); }
+        .energy-bar { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .health-bar { background: linear-gradient(90deg, #FF6347, #DC143C); }
+
+        .care-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border: 3px solid #FF69B4;
+            border-radius: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .care-btn {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border: 2px solid #DC143C;
+            color: white;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 80px;
+        }
+
+        .care-btn:hover {
+            background: linear-gradient(135deg, #FF1493, #FF69B4);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .care-btn.feed { background: linear-gradient(135deg, #32CD32, #228B22); border-color: #006400; }
+        .care-btn.play { background: linear-gradient(135deg, #FFD700, #FFA500); border-color: #FF8C00; }
+        .care-btn.sleep { background: linear-gradient(135deg, #9370DB, #8A2BE2); border-color: #4B0082; }
+        .care-btn.clean { background: linear-gradient(135deg, #87CEEB, #4682B4); border-color: #4169E1; }
+
+        .pet-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border: 3px solid #FF69B4;
+            border-radius: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .pet-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 182, 193, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pet-option:hover {
+            background: rgba(255, 182, 193, 0.6);
+            transform: translateX(5px);
+        }
+
+        .pet-option.active {
+            background: rgba(255, 105, 180, 0.8);
+            color: white;
+        }
+
+        .camera-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .camera-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #FF69B4;
+            color: #FF69B4;
+            cursor: pointer;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .camera-btn:hover {
+            background: #FF69B4;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .room-customizer {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border: 3px solid #FF69B4;
+            border-radius: 15px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .room-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 15px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            border: 2px solid #FF1493;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .room-btn:hover {
+            background: linear-gradient(135deg, #FF69B4, #FFB6C1);
+            transform: translateY(-2px);
+        }
+
+        .particle-effect {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            font-size: 16px;
+            pointer-events: none;
+            animation: particleFloat 2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateZ(0px) scale(1); opacity: 1; }
+            100% { transform: translateZ(100px) translateY(-100px) scale(0); opacity: 0; }
+        }
+
+        .mood-indicator {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            animation: moodBounce 1s ease-in-out;
+        }
+
+        @keyframes moodBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 105, 180, 0.95);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 2000;
+            animation: notificationPop 3s ease-out forwards;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        @keyframes notificationPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            85% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="pet-home-container" id="petContainer">
+        <div class="pet-world" id="petWorld">
+            <!-- Room Structure -->
+            <div class="room-floor"></div>
+            <div class="room-wall wall-back"></div>
+            <div class="room-wall wall-left"></div>
+            <div class="room-wall wall-right"></div>
+
+            <!-- Pet -->
+            <div class="pet" id="virtualPet" style="left: 400px; top: 300px; transform: translateZ(10px);">
+                🐱
+            </div>
+
+            <!-- Furniture -->
+            <div class="furniture pet-bed" id="petBed" style="left: 150px; top: 200px; transform: translateZ(20px);">
+                🛏️
+            </div>
+
+            <div class="furniture food-bowl" id="foodBowl" style="left: 300px; top: 450px; transform: translateZ(15px);">
+                🍽️
+            </div>
+
+            <div class="furniture water-bowl" id="waterBowl" style="left: 400px; top: 450px; transform: translateZ(15px);">
+                💧
+            </div>
+
+            <div class="furniture toy-box" id="toyBox" style="left: 600px; top: 200px; transform: translateZ(20px);">
+                🧸
+            </div>
+
+            <div class="furniture pet-tree" id="petTree" style="left: 650px; top: 350px; transform: translateZ(25px);">
+                🌳
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div class="pet-hud">
+            <div><strong>🏠 PET HOME</strong></div>
+            <div>Pet: <span id="petName">Fluffy</span> <span id="petEmoji">🐱</span></div>
+            <div class="pet-stats">
+                <div>😊 Happiness</div>
+                <div class="stat-bar">
+                    <div class="stat-fill happiness-bar" id="happinessBar" style="width: 80%;"></div>
+                </div>
+                <div>🍖 Hunger</div>
+                <div class="stat-bar">
+                    <div class="stat-fill hunger-bar" id="hungerBar" style="width: 60%;"></div>
+                </div>
+                <div>⚡ Energy</div>
+                <div class="stat-bar">
+                    <div class="stat-fill energy-bar" id="energyBar" style="width: 70%;"></div>
+                </div>
+                <div>❤️ Health</div>
+                <div class="stat-bar">
+                    <div class="stat-fill health-bar" id="healthBar" style="width: 90%;"></div>
+                </div>
+            </div>
+            <div>🎂 Age: <span id="petAge">5</span> days</div>
+            <div>💝 Love Level: <span id="loveLevel">3</span></div>
+        </div>
+
+        <!-- Care Panel -->
+        <div class="care-panel">
+            <button class="care-btn feed" id="feedBtn">
+                <span>🍖</span>
+                <span>Feed</span>
+            </button>
+            <button class="care-btn play" id="playBtn">
+                <span>🎾</span>
+                <span>Play</span>
+            </button>
+            <button class="care-btn sleep" id="sleepBtn">
+                <span>😴</span>
+                <span>Sleep</span>
+            </button>
+            <button class="care-btn clean" id="cleanBtn">
+                <span>🛁</span>
+                <span>Clean</span>
+            </button>
+            <button class="care-btn" id="petBtn">
+                <span>🤗</span>
+                <span>Pet</span>
+            </button>
+        </div>
+
+        <!-- Pet Selector -->
+        <div class="pet-selector">
+            <h3 style="margin-bottom: 10px; color: #FF69B4;">Choose Pet:</h3>
+            <div class="pet-option active" data-pet="cat">
+                <span style="font-size: 24px;">🐱</span>
+                <span>Cat</span>
+            </div>
+            <div class="pet-option" data-pet="dog">
+                <span style="font-size: 24px;">🐶</span>
+                <span>Dog</span>
+            </div>
+            <div class="pet-option" data-pet="rabbit">
+                <span style="font-size: 24px;">🐰</span>
+                <span>Rabbit</span>
+            </div>
+            <div class="pet-option" data-pet="hamster">
+                <span style="font-size: 24px;">🐹</span>
+                <span>Hamster</span>
+            </div>
+            <div class="pet-option" data-pet="bird">
+                <span style="font-size: 24px;">🐦</span>
+                <span>Bird</span>
+            </div>
+        </div>
+
+        <!-- Room Customizer -->
+        <div class="room-customizer">
+            <h4 style="margin-bottom: 10px; color: #FF69B4;">Room:</h4>
+            <button class="room-btn" id="addToy">Add Toy</button>
+            <button class="room-btn" id="changeWallpaper">Wallpaper</button>
+            <button class="room-btn" id="addPlant">Add Plant</button>
+            <button class="room-btn" id="cleanRoom">Clean Room</button>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="camera-controls">
+            <div class="camera-btn" id="resetView">🏠</div>
+            <div class="camera-btn" id="zoomIn">➕</div>
+            <div class="camera-btn" id="zoomOut">➖</div>
+            <div class="camera-btn" id="topView">⬆️</div>
+        </div>
+    </div>
+
+    <script>
+        class VirtualPetSimulator {
+            constructor() {
+                this.petStats = {
+                    happiness: 80,
+                    hunger: 60,
+                    energy: 70,
+                    health: 90,
+                    age: 5,
+                    loveLevel: 3
+                };
+
+                this.petTypes = {
+                    cat: { emoji: '🐱', name: 'Fluffy', sounds: ['😸', '😺', '😻'] },
+                    dog: { emoji: '🐶', name: 'Buddy', sounds: ['🐕', '🦴', '🎾'] },
+                    rabbit: { emoji: '🐰', name: 'Hoppy', sounds: ['🥕', '🌿', '🐇'] },
+                    hamster: { emoji: '🐹', name: 'Squeaky', sounds: ['🌰', '🏃', '🎡'] },
+                    bird: { emoji: '🐦', name: 'Chirpy', sounds: ['🎵', '🪶', '🌤️'] }
+                };
+
+                this.currentPet = 'cat';
+                this.petElement = document.getElementById('virtualPet');
+                this.isPlaying = false;
+                this.isSleeping = false;
+                
+                this.camera = {
+                    rotX: -30,
+                    rotY: 0,
+                    zoom: 1
+                };
+
+                this.world = document.getElementById('petWorld');
+                this.isDragging = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.startStatDecay();
+                this.startAging();
+                this.updateCamera();
+                this.updateHUD();
+                this.startRandomBehavior();
+            }
+
+            setupControls() {
+                // Camera controls
+                this.world.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDragging) {
+                        const deltaX = e.clientX - this.lastMouseX;
+                        const deltaY = e.clientY - this.lastMouseY;
+                        
+                        this.camera.rotY += deltaX * 0.5;
+                        this.camera.rotX += deltaY * 0.5;
+                        
+                        this.camera.rotX = Math.max(-80, Math.min(10, this.camera.rotX));
+                        
+                        this.updateCamera();
+                        
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                });
+
+                // Care buttons
+                document.getElementById('feedBtn').addEventListener('click', () => this.feedPet());
+                document.getElementById('playBtn').addEventListener('click', () => this.playWithPet());
+                document.getElementById('sleepBtn').addEventListener('click', () => this.putPetToSleep());
+                document.getElementById('cleanBtn').addEventListener('click', () => this.cleanPet());
+                document.getElementById('petBtn').addEventListener('click', () => this.petPet());
+
+                // Pet selection
+                document.querySelectorAll('.pet-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        document.querySelectorAll('.pet-option').forEach(o => o.classList.remove('active'));
+                        option.classList.add('active');
+                        this.changePet(option.dataset.pet);
+                    });
+                });
+
+                // Room customization
+                document.getElementById('addToy').addEventListener('click', () => this.addToy());
+                document.getElementById('changeWallpaper').addEventListener('click', () => this.changeWallpaper());
+                document.getElementById('addPlant').addEventListener('click', () => this.addPlant());
+                document.getElementById('cleanRoom').addEventListener('click', () => this.cleanRoom());
+
+                // Camera buttons
+                document.getElementById('resetView').addEventListener('click', () => {
+                    this.camera = { rotX: -30, rotY: 0, zoom: 1 };
+                    this.updateCamera();
+                });
+
+                document.getElementById('zoomIn').addEventListener('click', () => {
+                    this.camera.zoom = Math.min(2, this.camera.zoom + 0.1);
+                    this.updateCamera();
+                });
+
+                document.getElementById('zoomOut').addEventListener('click', () => {
+                    this.camera.zoom = Math.max(0.5, this.camera.zoom - 0.1);
+                    this.updateCamera();
+                });
+
+                document.getElementById('topView').addEventListener('click', () => {
+                    this.camera.rotX = -90;
+                    this.camera.rotY = 0;
+                    this.updateCamera();
+                });
+
+                // Pet interaction
+                this.petElement.addEventListener('click', () => this.interactWithPet());
+
+                // Furniture interactions
+                document.getElementById('petBed').addEventListener('click', () => this.useBed());
+                document.getElementById('foodBowl').addEventListener('click', () => this.useFoodBowl());
+                document.getElementById('waterBowl').addEventListener('click', () => this.useWaterBowl());
+                document.getElementById('toyBox').addEventListener('click', () => this.useToyBox());
+            }
+
+            updateCamera() {
+                const transform = `
+                    rotateX(${this.camera.rotX}deg)
+                    rotateY(${this.camera.rotY}deg)
+                    scale(${this.camera.zoom})
+                `;
+                this.world.style.transform = transform;
+            }
+
+            feedPet() {
+                if (this.petStats.hunger >= 90) {
+                    this.showNotification("I'm already full! 😋");
+                    return;
+                }
+
+                this.petStats.hunger = Math.min(100, this.petStats.hunger + 30);
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 15);
+                this.petStats.health = Math.min(100, this.petStats.health + 5);
+                
+                this.showMoodIndicator('😋');
+                this.createParticleEffect('🍖');
+                this.showNotification('Yummy! Thank you for feeding me!');
+                this.updateHUD();
+            }
+
+            playWithPet() {
+                if (this.petStats.energy < 20) {
+                    this.showNotification("I'm too tired to play! 😴");
+                    return;
+                }
+
+                this.isPlaying = true;
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 25);
+                this.petStats.energy = Math.max(0, this.petStats.energy - 15);
+                this.petStats.loveLevel = Math.min(10, this.petStats.loveLevel + 0.5);
+                
+                this.petElement.classList.add('happy');
+                this.showMoodIndicator('🎾');
+                this.createParticleEffect('⭐');
+                this.showNotification('This is so much fun! 🎉');
+                
+                setTimeout(() => {
+                    this.petElement.classList.remove('happy');
+                    this.isPlaying = false;
+                }, 2000);
+                
+                this.updateHUD();
+            }
+
+            putPetToSleep() {
+                if (this.petStats.energy >= 90) {
+                    this.showNotification("I'm not sleepy right now! 😊");
+                    return;
+                }
+
+                this.isSleeping = true;
+                this.petElement.classList.add('sleeping');
+                this.showMoodIndicator('😴');
+                this.showNotification('Zzz... Good night! 🌙');
+                
+                // Restore energy over time while sleeping
+                const sleepInterval = setInterval(() => {
+                    this.petStats.energy = Math.min(100, this.petStats.energy + 5);
+                    this.updateHUD();
+                    
+                    if (this.petStats.energy >= 100) {
+                        this.petElement.classList.remove('sleeping');
+                        this.isSleeping = false;
+                        this.showNotification('I feel refreshed! ☀️');
+                        clearInterval(sleepInterval);
+                    }
+                }, 1000);
+            }
+
+            cleanPet() {
+                this.petStats.health = Math.min(100, this.petStats.health + 20);
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 10);
+                
+                this.showMoodIndicator('✨');
+                this.createParticleEffect('🛁');
+                this.showNotification('I feel so clean and fresh! ✨');
+                this.updateHUD();
+            }
+
+            petPet() {
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 20);
+                this.petStats.loveLevel = Math.min(10, this.petStats.loveLevel + 0.3);
+                
+                this.petElement.classList.add('happy');
+                this.showMoodIndicator('💕');
+                this.createParticleEffect('❤️');
+                this.showNotification('I love you so much! 💕');
+                
+                setTimeout(() => {
+                    this.petElement.classList.remove('happy');
+                }, 1500);
+                
+                this.updateHUD();
+            }
+
+            changePet(petType) {
+                this.currentPet = petType;
+                const pet = this.petTypes[petType];
+                this.petElement.textContent = pet.emoji;
+                document.getElementById('petName').textContent = pet.name;
+                document.getElementById('petEmoji').textContent = pet.emoji;
+                
+                // Reset some stats for new pet
+                this.petStats.happiness = 80;
+                this.petStats.loveLevel = 1;
+                
+                this.showNotification(`Meet your new pet: ${pet.name}! 🎉`);
+                this.updateHUD();
+            }
+
+            interactWithPet() {
+                const pet = this.petTypes[this.currentPet];
+                const sound = pet.sounds[Math.floor(Math.random() * pet.sounds.length)];
+                
+                this.showMoodIndicator(sound);
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 5);
+                this.updateHUD();
+            }
+
+            useBed() {
+                this.movePetTo(150, 200);
+                setTimeout(() => this.putPetToSleep(), 1000);
+            }
+
+            useFoodBowl() {
+                this.movePetTo(300, 450);
+                setTimeout(() => this.feedPet(), 1000);
+            }
+
+            useWaterBowl() {
+                this.movePetTo(400, 450);
+                setTimeout(() => {
+                    this.petStats.health = Math.min(100, this.petStats.health + 10);
+                    this.showNotification('Refreshing water! 💧');
+                    this.updateHUD();
+                }, 1000);
+            }
+
+            useToyBox() {
+                this.movePetTo(600, 200);
+                setTimeout(() => this.playWithPet(), 1000);
+            }
+
+            movePetTo(x, y) {
+                this.petElement.style.left = x + 'px';
+                this.petElement.style.top = y + 'px';
+            }
+
+            addToy() {
+                const toys = ['🎾', '🧸', '🪀', '🎯', '🎪'];
+                const toy = toys[Math.floor(Math.random() * toys.length)];
+                
+                const toyElement = document.createElement('div');
+                toyElement.className = 'furniture';
+                toyElement.style.width = '50px';
+                toyElement.style.height = '50px';
+                toyElement.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+                toyElement.style.border = '3px solid #FF8C00';
+                toyElement.style.borderRadius = '10px';
+                toyElement.style.display = 'flex';
+                toyElement.style.alignItems = 'center';
+                toyElement.style.justifyContent = 'center';
+                toyElement.style.fontSize = '30px';
+                toyElement.style.left = (Math.random() * 600 + 100) + 'px';
+                toyElement.style.top = (Math.random() * 300 + 200) + 'px';
+                toyElement.style.transform = 'translateZ(15px)';
+                toyElement.textContent = toy;
+                
+                toyElement.addEventListener('click', () => {
+                    this.playWithPet();
+                    toyElement.remove();
+                });
+                
+                this.world.appendChild(toyElement);
+                this.showNotification(`Added new toy: ${toy}!`);
+            }
+
+            changeWallpaper() {
+                const wallpapers = [
+                    'linear-gradient(135deg, #FFE4E1, #FFF8DC)',
+                    'linear-gradient(135deg, #E6E6FA, #F0F8FF)',
+                    'linear-gradient(135deg, #F0FFF0, #F5FFFA)',
+                    'linear-gradient(135deg, #FFF0F5, #FFFACD)'
+                ];
+                
+                const walls = document.querySelectorAll('.room-wall');
+                const newWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+                
+                walls.forEach(wall => {
+                    wall.style.background = newWallpaper;
+                });
+                
+                this.showNotification('Room redecorated! ✨');
+            }
+
+            addPlant() {
+                const plants = ['🌱', '🌿', '🌺', '🌻', '🌷'];
+                const plant = plants[Math.floor(Math.random() * plants.length)];
+                
+                const plantElement = document.createElement('div');
+                plantElement.className = 'furniture';
+                plantElement.style.width = '60px';
+                plantElement.style.height = '80px';
+                plantElement.style.background = 'linear-gradient(135deg, #228B22, #32CD32)';
+                plantElement.style.border = '3px solid #006400';
+                plantElement.style.borderRadius = '30px';
+                plantElement.style.display = 'flex';
+                plantElement.style.alignItems = 'center';
+                plantElement.style.justifyContent = 'center';
+                plantElement.style.fontSize = '40px';
+                plantElement.style.left = (Math.random() * 600 + 100) + 'px';
+                plantElement.style.top = (Math.random() * 300 + 200) + 'px';
+                plantElement.style.transform = 'translateZ(20px)';
+                plantElement.textContent = plant;
+                
+                this.world.appendChild(plantElement);
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 5);
+                this.showNotification(`Added beautiful plant: ${plant}!`);
+                this.updateHUD();
+            }
+
+            cleanRoom() {
+                // Remove some random furniture (cleaning effect)
+                const furniture = this.world.querySelectorAll('.furniture');
+                let cleaned = 0;
+                
+                furniture.forEach(item => {
+                    if (Math.random() < 0.3 && !['petBed', 'foodBowl', 'waterBowl', 'toyBox', 'petTree'].includes(item.id)) {
+                        item.remove();
+                        cleaned++;
+                    }
+                });
+                
+                this.petStats.health = Math.min(100, this.petStats.health + 15);
+                this.petStats.happiness = Math.min(100, this.petStats.happiness + 10);
+                
+                this.showNotification(`Room cleaned! Removed ${cleaned} items ✨`);
+                this.updateHUD();
+            }
+
+            startStatDecay() {
+                setInterval(() => {
+                    if (!this.isSleeping) {
+                        this.petStats.hunger = Math.max(0, this.petStats.hunger - 1);
+                        this.petStats.energy = Math.max(0, this.petStats.energy - 0.5);
+                        
+                        if (this.petStats.hunger < 20) {
+                            this.petStats.happiness = Math.max(0, this.petStats.happiness - 2);
+                            this.petStats.health = Math.max(0, this.petStats.health - 1);
+                        }
+                        
+                        if (this.petStats.energy < 20) {
+                            this.petStats.happiness = Math.max(0, this.petStats.happiness - 1);
+                        }
+                        
+                        this.updateHUD();
+                        this.checkPetNeeds();
+                    }
+                }, 3000);
+            }
+
+            startAging() {
+                setInterval(() => {
+                    this.petStats.age++;
+                    if (this.petStats.age % 10 === 0) {
+                        this.showNotification(`🎂 Happy ${this.petStats.age}th day birthday!`);
+                    }
+                    this.updateHUD();
+                }, 30000); // Age every 30 seconds
+            }
+
+            startRandomBehavior() {
+                setInterval(() => {
+                    if (!this.isPlaying && !this.isSleeping && Math.random() < 0.3) {
+                        const behaviors = ['walk', 'sound', 'mood'];
+                        const behavior = behaviors[Math.floor(Math.random() * behaviors.length)];
+                        
+                        switch(behavior) {
+                            case 'walk':
+                                this.randomWalk();
+                                break;
+                            case 'sound':
+                                this.randomSound();
+                                break;
+                            case 'mood':
+                                this.randomMood();
+                                break;
+                        }
+                    }
+                }, 8000);
+            }
+
+            randomWalk() {
+                const newX = Math.random() * 600 + 100;
+                const newY = Math.random() * 300 + 200;
+                this.movePetTo(newX, newY);
+            }
+
+            randomSound() {
+                const pet = this.petTypes[this.currentPet];
+                const sound = pet.sounds[Math.floor(Math.random() * pet.sounds.length)];
+                this.showMoodIndicator(sound);
+            }
+
+            randomMood() {
+                const moods = ['😊', '😴', '🤔', '😋', '🥰'];
+                const mood = moods[Math.floor(Math.random() * moods.length)];
+                this.showMoodIndicator(mood);
+            }
+
+            checkPetNeeds() {
+                if (this.petStats.hunger < 30 && Math.random() < 0.1) {
+                    this.showNotification("I'm getting hungry! 🍖");
+                }
+                
+                if (this.petStats.energy < 30 && Math.random() < 0.1) {
+                    this.showNotification("I'm feeling sleepy... 😴");
+                }
+                
+                if (this.petStats.happiness < 30 && Math.random() < 0.1) {
+                    this.showNotification("I need some attention! 🥺");
+                }
+            }
+
+            showMoodIndicator(emoji) {
+                const existing = this.petElement.querySelector('.mood-indicator');
+                if (existing) existing.remove();
+                
+                const indicator = document.createElement('div');
+                indicator.className = 'mood-indicator';
+                indicator.textContent = emoji;
+                this.petElement.appendChild(indicator);
+                
+                setTimeout(() => indicator.remove(), 2000);
+            }
+
+            createParticleEffect(emoji) {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle-effect';
+                        particle.textContent = emoji;
+                        particle.style.left = (parseInt(this.petElement.style.left) + Math.random() * 60) + 'px';
+                        particle.style.top = (parseInt(this.petElement.style.top) + Math.random() * 60) + 'px';
+                        particle.style.transform = 'translateZ(' + (Math.random() * 50 + 10) + 'px)';
+                        
+                        this.world.appendChild(particle);
+                        
+                        setTimeout(() => particle.remove(), 2000);
+                    }, i * 200);
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            updateHUD() {
+                document.getElementById('happinessBar').style.width = this.petStats.happiness + '%';
+                document.getElementById('hungerBar').style.width = this.petStats.hunger + '%';
+                document.getElementById('energyBar').style.width = this.petStats.energy + '%';
+                document.getElementById('healthBar').style.width = this.petStats.health + '%';
+                document.getElementById('petAge').textContent = this.petStats.age;
+                document.getElementById('loveLevel').textContent = Math.floor(this.petStats.loveLevel);
+            }
+        }
+
+        // Start the Virtual Pet Simulator
+        new VirtualPetSimulator();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb50e713fce70',t:'MTc1NTQ2MDI5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

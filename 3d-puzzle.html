@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Puzzle World</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 1200px;
+            overflow: hidden;
+        }
+
+        .world-3d {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .puzzle-room {
+            position: absolute;
+            width: 800px;
+            height: 600px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translateZ(0px);
+            transform-style: preserve-3d;
+        }
+
+        .room-floor {
+            position: absolute;
+            width: 800px;
+            height: 600px;
+            background: 
+                repeating-linear-gradient(45deg, #34495e 0px, #34495e 40px, #2c3e50 40px, #2c3e50 80px),
+                linear-gradient(135deg, #3498db, #2980b9);
+            transform: rotateX(90deg) translateZ(-100px);
+            border: 4px solid #2c3e50;
+        }
+
+        .room-wall {
+            position: absolute;
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            border: 4px solid #2c3e50;
+        }
+
+        .wall-back {
+            width: 800px;
+            height: 400px;
+            transform: translateZ(-300px);
+            top: 100px;
+        }
+
+        .wall-left {
+            width: 600px;
+            height: 400px;
+            transform: rotateY(90deg) translateZ(-400px);
+            top: 100px;
+            left: 0px;
+        }
+
+        .wall-right {
+            width: 600px;
+            height: 400px;
+            transform: rotateY(-90deg) translateZ(-400px);
+            top: 100px;
+            right: 0px;
+        }
+
+        /* Jigsaw Puzzle Pieces */
+        .jigsaw-area {
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            left: 50px;
+            top: 150px;
+            transform: translateZ(50px);
+            background: rgba(52, 73, 94, 0.8);
+            border: 3px solid #3498db;
+            border-radius: 10px;
+        }
+
+        .puzzle-piece {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border: 2px solid #a93226;
+            cursor: grab;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            transform-style: preserve-3d;
+        }
+
+        .puzzle-piece:hover {
+            transform: translateZ(20px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .puzzle-piece.placed {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .puzzle-slot {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px dashed #3498db;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 8px;
+        }
+
+        /* 3D Maze */
+        .maze-area {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            right: 50px;
+            top: 100px;
+            transform: translateZ(30px);
+            background: rgba(44, 62, 80, 0.9);
+            border: 4px solid #2ecc71;
+            border-radius: 10px;
+        }
+
+        .maze-wall {
+            position: absolute;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 1px solid #1a252f;
+        }
+
+        .maze-player {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #f1c40f, #f39c12);
+            border: 2px solid #e67e22;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            transform: translateZ(5px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .maze-goal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #2ecc71, #27ae60);
+            border: 2px solid #229954;
+            border-radius: 50%;
+            transform: translateZ(5px);
+            animation: goalPulse 2s infinite;
+        }
+
+        @keyframes goalPulse {
+            0%, 100% { transform: translateZ(5px) scale(1); }
+            50% { transform: translateZ(15px) scale(1.2); }
+        }
+
+        /* Rotating Objects */
+        .rotation-area {
+            position: absolute;
+            width: 200px;
+            height: 150px;
+            left: 50px;
+            bottom: 50px;
+            transform: translateZ(40px);
+            background: rgba(142, 68, 173, 0.8);
+            border: 3px solid #9b59b6;
+            border-radius: 10px;
+        }
+
+        .rotating-cube {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translateZ(25px);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #8e44ad;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .cube-front { background: #e74c3c; transform: translateZ(25px); }
+        .cube-back { background: #3498db; transform: rotateY(180deg) translateZ(25px); }
+        .cube-right { background: #2ecc71; transform: rotateY(90deg) translateZ(25px); }
+        .cube-left { background: #f39c12; transform: rotateY(-90deg) translateZ(25px); }
+        .cube-top { background: #9b59b6; transform: rotateX(90deg) translateZ(25px); }
+        .cube-bottom { background: #34495e; transform: rotateX(-90deg) translateZ(25px); }
+
+        /* Moving Blocks */
+        .blocks-area {
+            position: absolute;
+            width: 200px;
+            height: 150px;
+            right: 50px;
+            bottom: 50px;
+            transform: translateZ(40px);
+            background: rgba(230, 126, 34, 0.8);
+            border: 3px solid #e67e22;
+            border-radius: 10px;
+        }
+
+        .moving-block {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            border: 2px solid #a04000;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border-radius: 5px;
+            transform-style: preserve-3d;
+        }
+
+        .moving-block:hover {
+            transform: translateZ(15px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .block-target {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px dashed #e67e22;
+            background: rgba(230, 126, 34, 0.3);
+            border-radius: 5px;
+        }
+
+        /* UI Elements */
+        .game-hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(44, 62, 80, 0.95);
+            padding: 20px;
+            border: 3px solid #3498db;
+            border-radius: 10px;
+            font-size: 16px;
+            line-height: 1.6;
+            z-index: 1000;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.95);
+            padding: 15px;
+            border: 3px solid #3498db;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .puzzle-selector {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(44, 62, 80, 0.95);
+            padding: 15px;
+            border: 3px solid #3498db;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        .puzzle-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: 2px solid #2980b9;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .puzzle-btn:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+        }
+
+        .puzzle-btn.active {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-color: #c0392b;
+        }
+
+        .completion-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f1c40f, #e67e22, transparent);
+            border: 4px solid #f39c12;
+            animation: celebrate 1s ease-out forwards;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(3) rotate(360deg); opacity: 0; }
+        }
+
+        .camera-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .camera-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(52, 73, 94, 0.9);
+            border: 2px solid #3498db;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .camera-btn:hover {
+            background: rgba(52, 152, 219, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <div class="world-3d" id="world3d">
+            <div class="puzzle-room">
+                <div class="room-floor"></div>
+                <div class="room-wall wall-back"></div>
+                <div class="room-wall wall-left"></div>
+                <div class="room-wall wall-right"></div>
+
+                <!-- Jigsaw Puzzle Area -->
+                <div class="jigsaw-area" id="jigsawArea">
+                    <h3 style="text-align: center; margin: 10px 0; color: #3498db;">Jigsaw Puzzle</h3>
+                </div>
+
+                <!-- 3D Maze Area -->
+                <div class="maze-area" id="mazeArea">
+                    <h3 style="text-align: center; margin: 5px 0; color: #2ecc71; font-size: 14px;">3D Maze</h3>
+                </div>
+
+                <!-- Rotating Objects Area -->
+                <div class="rotation-area" id="rotationArea">
+                    <h3 style="text-align: center; margin: 10px 0; color: #9b59b6; font-size: 14px;">Rotating Cube</h3>
+                    <div class="rotating-cube" id="rotatingCube">
+                        <div class="cube-face cube-front">1</div>
+                        <div class="cube-face cube-back">2</div>
+                        <div class="cube-face cube-right">3</div>
+                        <div class="cube-face cube-left">4</div>
+                        <div class="cube-face cube-top">5</div>
+                        <div class="cube-face cube-bottom">6</div>
+                    </div>
+                </div>
+
+                <!-- Moving Blocks Area -->
+                <div class="blocks-area" id="blocksArea">
+                    <h3 style="text-align: center; margin: 10px 0; color: #e67e22; font-size: 14px;">Moving Blocks</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-hud">
+            <div>🧩 PUZZLES SOLVED: <span id="puzzlesSolved">0</span></div>
+            <div>⭐ TOTAL SCORE: <span id="totalScore">0</span></div>
+            <div>🎯 CURRENT PUZZLE: <span id="currentPuzzle">Jigsaw</span></div>
+            <div>⏱️ TIME: <span id="gameTime">00:00</span></div>
+        </div>
+
+        <div class="controls">
+            <div><strong>Controls:</strong></div>
+            <div>🖱️ Drag to rotate view</div>
+            <div>🧩 Click pieces to move</div>
+            <div>⌨️ WASD for maze</div>
+            <div>🔄 Click cube to rotate</div>
+        </div>
+
+        <div class="puzzle-selector">
+            <button class="puzzle-btn active" data-puzzle="jigsaw">🧩 Jigsaw</button>
+            <button class="puzzle-btn" data-puzzle="maze">🌀 Maze</button>
+            <button class="puzzle-btn" data-puzzle="rotation">🔄 Rotation</button>
+            <button class="puzzle-btn" data-puzzle="blocks">📦 Blocks</button>
+        </div>
+
+        <div class="camera-controls">
+            <div class="camera-btn" id="resetView">🏠</div>
+            <div class="camera-btn" id="zoomIn">➕</div>
+            <div class="camera-btn" id="zoomOut">➖</div>
+        </div>
+    </div>
+
+    <script>
+        class Puzzle3DWorld {
+            constructor() {
+                this.puzzlesSolved = 0;
+                this.totalScore = 0;
+                this.currentPuzzle = 'jigsaw';
+                this.startTime = Date.now();
+                
+                this.camera = {
+                    rotX: -20,
+                    rotY: 0,
+                    zoom: 1
+                };
+
+                this.puzzles = {
+                    jigsaw: { completed: false, pieces: [] },
+                    maze: { completed: false, playerPos: { x: 1, y: 1 } },
+                    rotation: { completed: false, targetFace: 1, currentFace: 1 },
+                    blocks: { completed: false, blocks: [] }
+                };
+
+                this.world = document.getElementById('world3d');
+                this.isDragging = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.initializeJigsaw();
+                this.initializeMaze();
+                this.initializeRotation();
+                this.initializeBlocks();
+                this.startGameTimer();
+                this.updateCamera();
+            }
+
+            setupControls() {
+                // Camera controls
+                this.world.addEventListener('mousedown', (e) => {
+                    this.isDragging = true;
+                    this.lastMouseX = e.clientX;
+                    this.lastMouseY = e.clientY;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDragging) {
+                        const deltaX = e.clientX - this.lastMouseX;
+                        const deltaY = e.clientY - this.lastMouseY;
+                        
+                        this.camera.rotY += deltaX * 0.5;
+                        this.camera.rotX += deltaY * 0.5;
+                        
+                        this.camera.rotX = Math.max(-60, Math.min(60, this.camera.rotX));
+                        
+                        this.updateCamera();
+                        
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                });
+
+                // Puzzle selector
+                document.querySelectorAll('.puzzle-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.puzzle-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentPuzzle = btn.dataset.puzzle;
+                        this.updateHUD();
+                    });
+                });
+
+                // Camera buttons
+                document.getElementById('resetView').addEventListener('click', () => {
+                    this.camera = { rotX: -20, rotY: 0, zoom: 1 };
+                    this.updateCamera();
+                });
+
+                document.getElementById('zoomIn').addEventListener('click', () => {
+                    this.camera.zoom = Math.min(2, this.camera.zoom + 0.1);
+                    this.updateCamera();
+                });
+
+                document.getElementById('zoomOut').addEventListener('click', () => {
+                    this.camera.zoom = Math.max(0.5, this.camera.zoom - 0.1);
+                    this.updateCamera();
+                });
+
+                // Maze controls
+                document.addEventListener('keydown', (e) => {
+                    if (this.currentPuzzle === 'maze') {
+                        this.handleMazeMovement(e.key.toLowerCase());
+                    }
+                });
+            }
+
+            updateCamera() {
+                const transform = `
+                    rotateX(${this.camera.rotX}deg)
+                    rotateY(${this.camera.rotY}deg)
+                    scale(${this.camera.zoom})
+                `;
+                this.world.style.transform = transform;
+            }
+
+            // Jigsaw Puzzle Implementation
+            initializeJigsaw() {
+                const jigsawArea = document.getElementById('jigsawArea');
+                
+                // Random color sets for variety
+                const colorSets = [
+                    ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e67e22'],
+                    ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#fd79a8'],
+                    ['#ff7675', '#74b9ff', '#00b894', '#fdcb6e', '#a29bfe', '#fd79a8'],
+                    ['#e17055', '#0984e3', '#00cec9', '#ffeaa7', '#6c5ce7', '#e84393']
+                ];
+                
+                const colors = colorSets[Math.floor(Math.random() * colorSets.length)];
+                
+                // Create puzzle slots
+                for (let i = 0; i < 6; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'puzzle-slot';
+                    slot.style.left = (20 + (i % 3) * 80) + 'px';
+                    slot.style.top = (40 + Math.floor(i / 3) * 80) + 'px';
+                    slot.dataset.slotId = i;
+                    jigsawArea.appendChild(slot);
+                }
+
+                // Create puzzle pieces (scrambled)
+                for (let i = 0; i < 6; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    piece.style.background = `linear-gradient(135deg, ${colors[i]}, ${colors[i]}dd)`;
+                    piece.style.left = (20 + Math.random() * 200) + 'px';
+                    piece.style.top = (120 + Math.random() * 60) + 'px';
+                    piece.textContent = i + 1;
+                    piece.style.color = 'white';
+                    piece.style.display = 'flex';
+                    piece.style.alignItems = 'center';
+                    piece.style.justifyContent = 'center';
+                    piece.style.fontWeight = 'bold';
+                    piece.dataset.pieceId = i;
+                    
+                    piece.addEventListener('click', () => this.handleJigsawPiece(piece));
+                    jigsawArea.appendChild(piece);
+                    
+                    this.puzzles.jigsaw.pieces.push(piece);
+                }
+            }
+
+            handleJigsawPiece(piece) {
+                if (piece.classList.contains('placed')) return;
+
+                const pieceId = parseInt(piece.dataset.pieceId);
+                const targetSlot = document.querySelector(`[data-slot-id="${pieceId}"]`);
+                
+                if (targetSlot) {
+                    const rect = targetSlot.getBoundingClientRect();
+                    const containerRect = document.getElementById('jigsawArea').getBoundingClientRect();
+                    
+                    piece.style.left = (rect.left - containerRect.left) + 'px';
+                    piece.style.top = (rect.top - containerRect.top) + 'px';
+                    piece.classList.add('placed');
+                    
+                    this.createCompletionEffect(piece);
+                    this.totalScore += 100;
+                    
+                    // Check if jigsaw is complete
+                    const placedPieces = document.querySelectorAll('.puzzle-piece.placed').length;
+                    if (placedPieces === 6 && !this.puzzles.jigsaw.completed) {
+                        this.puzzles.jigsaw.completed = true;
+                        this.puzzlesSolved++;
+                        this.totalScore += 500;
+                        this.showPuzzleComplete('Jigsaw Puzzle Complete!');
+                        
+                        // Regenerate jigsaw after completion
+                        setTimeout(() => {
+                            this.regenerateJigsaw();
+                        }, 2000);
+                    }
+                }
+                
+                this.updateHUD();
+            }
+
+            regenerateJigsaw() {
+                // Clear existing pieces and slots
+                const jigsawArea = document.getElementById('jigsawArea');
+                const existingPieces = jigsawArea.querySelectorAll('.puzzle-piece');
+                const existingSlots = jigsawArea.querySelectorAll('.puzzle-slot');
+                
+                existingPieces.forEach(piece => piece.remove());
+                existingSlots.forEach(slot => slot.remove());
+                
+                // Reset jigsaw state
+                this.puzzles.jigsaw.completed = false;
+                this.puzzles.jigsaw.pieces = [];
+                
+                // Reinitialize with new layout
+                this.initializeJigsaw();
+            }
+
+            // 3D Maze Implementation
+            initializeMaze() {
+                const mazeArea = document.getElementById('mazeArea');
+                const mazeLayout = [
+                    [1,1,1,1,1,1,1,1,1,1],
+                    [1,0,0,0,1,0,0,0,0,1],
+                    [1,0,1,0,1,0,1,1,0,1],
+                    [1,0,1,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,2,1],
+                    [1,1,1,1,1,1,1,1,1,1]
+                ];
+
+                // Create maze walls
+                for (let y = 0; y < mazeLayout.length; y++) {
+                    for (let x = 0; x < mazeLayout[y].length; x++) {
+                        if (mazeLayout[y][x] === 1) {
+                            const wall = document.createElement('div');
+                            wall.className = 'maze-wall';
+                            wall.style.width = '22px';
+                            wall.style.height = '22px';
+                            wall.style.left = (x * 22 + 10) + 'px';
+                            wall.style.top = (y * 22 + 30) + 'px';
+                            mazeArea.appendChild(wall);
+                        }
+                    }
+                }
+
+                // Create player
+                const player = document.createElement('div');
+                player.className = 'maze-player';
+                player.id = 'mazePlayer';
+                player.style.left = (1 * 22 + 11) + 'px';
+                player.style.top = (1 * 22 + 31) + 'px';
+                mazeArea.appendChild(player);
+
+                // Create goal
+                const goal = document.createElement('div');
+                goal.className = 'maze-goal';
+                goal.style.left = (8 * 22 + 11) + 'px';
+                goal.style.top = (8 * 22 + 31) + 'px';
+                mazeArea.appendChild(goal);
+
+                this.mazeLayout = mazeLayout;
+            }
+
+            handleMazeMovement(key) {
+                const player = document.getElementById('mazePlayer');
+                const currentPos = this.puzzles.maze.playerPos;
+                let newX = currentPos.x;
+                let newY = currentPos.y;
+
+                switch(key) {
+                    case 'w': newY--; break;
+                    case 's': newY++; break;
+                    case 'a': newX--; break;
+                    case 'd': newX++; break;
+                }
+
+                // Check if move is valid
+                if (this.mazeLayout[newY] && this.mazeLayout[newY][newX] !== 1) {
+                    this.puzzles.maze.playerPos = { x: newX, y: newY };
+                    player.style.left = (newX * 22 + 11) + 'px';
+                    player.style.top = (newY * 22 + 31) + 'px';
+
+                    // Check if reached goal
+                    if (this.mazeLayout[newY][newX] === 2 && !this.puzzles.maze.completed) {
+                        this.puzzles.maze.completed = true;
+                        this.puzzlesSolved++;
+                        this.totalScore += 750;
+                        this.createCompletionEffect(player);
+                        this.showPuzzleComplete('Maze Complete!');
+                        this.updateHUD();
+                        
+                        // Regenerate maze after completion
+                        setTimeout(() => {
+                            this.regenerateMaze();
+                        }, 2000);
+                    }
+                }
+            }
+
+            regenerateMaze() {
+                // Clear existing maze elements
+                const mazeArea = document.getElementById('mazeArea');
+                const existingWalls = mazeArea.querySelectorAll('.maze-wall');
+                const existingPlayer = mazeArea.querySelector('.maze-player');
+                const existingGoal = mazeArea.querySelector('.maze-goal');
+                
+                existingWalls.forEach(wall => wall.remove());
+                if (existingPlayer) existingPlayer.remove();
+                if (existingGoal) existingGoal.remove();
+                
+                // Generate new random maze layout
+                this.generateRandomMaze();
+                
+                // Reset maze state
+                this.puzzles.maze.completed = false;
+                this.puzzles.maze.playerPos = { x: 1, y: 1 };
+                
+                // Reinitialize maze with new layout
+                this.initializeMaze();
+            }
+
+            generateRandomMaze() {
+                // Create a new random maze layout
+                const mazeLayouts = [
+                    [
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,0,0,0,1,0,0,0,0,1],
+                        [1,0,1,0,1,0,1,1,0,1],
+                        [1,0,1,0,0,0,0,1,0,1],
+                        [1,0,1,1,1,1,0,1,0,1],
+                        [1,0,0,0,0,0,0,1,0,1],
+                        [1,1,1,0,1,1,1,1,0,1],
+                        [1,0,0,0,0,0,0,0,0,1],
+                        [1,0,1,1,1,1,1,1,2,1],
+                        [1,1,1,1,1,1,1,1,1,1]
+                    ],
+                    [
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,0,0,0,0,0,1,0,0,1],
+                        [1,0,1,1,1,0,1,0,1,1],
+                        [1,0,0,0,1,0,0,0,0,1],
+                        [1,1,1,0,1,1,1,1,0,1],
+                        [1,0,0,0,0,0,0,1,0,1],
+                        [1,0,1,1,1,1,0,1,0,1],
+                        [1,0,0,0,0,0,0,0,0,1],
+                        [1,1,1,0,1,1,1,1,2,1],
+                        [1,1,1,1,1,1,1,1,1,1]
+                    ],
+                    [
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,0,1,0,0,0,0,0,0,1],
+                        [1,0,1,0,1,1,1,1,0,1],
+                        [1,0,0,0,0,0,0,1,0,1],
+                        [1,1,1,1,1,1,0,1,0,1],
+                        [1,0,0,0,0,0,0,1,0,1],
+                        [1,0,1,0,1,1,1,1,0,1],
+                        [1,0,1,0,0,0,0,0,0,1],
+                        [1,0,1,1,1,1,1,1,2,1],
+                        [1,1,1,1,1,1,1,1,1,1]
+                    ]
+                ];
+                
+                this.mazeLayout = mazeLayouts[Math.floor(Math.random() * mazeLayouts.length)];
+            }
+
+            // Rotating Objects Implementation
+            initializeRotation() {
+                const cube = document.getElementById('rotatingCube');
+                let rotationX = 0;
+                let rotationY = 0;
+                
+                cube.addEventListener('click', () => {
+                    rotationY += 90;
+                    cube.style.transform = `translate(-50%, -50%) translateZ(25px) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+                    
+                    // Determine which face is showing
+                    const faceIndex = Math.floor((rotationY % 360) / 90);
+                    this.puzzles.rotation.currentFace = faceIndex + 1;
+                    
+                    this.totalScore += 50;
+                    
+                    // Check if target face is showing
+                    if (this.puzzles.rotation.currentFace === this.puzzles.rotation.targetFace && !this.puzzles.rotation.completed) {
+                        this.puzzles.rotation.completed = true;
+                        this.puzzlesSolved++;
+                        this.totalScore += 300;
+                        this.createCompletionEffect(cube);
+                        this.showPuzzleComplete('Rotation Puzzle Complete!');
+                        
+                        // Regenerate rotation puzzle after completion
+                        setTimeout(() => {
+                            this.regenerateRotation();
+                        }, 2000);
+                    }
+                    
+                    this.updateHUD();
+                });
+
+                // Set random target face
+                this.puzzles.rotation.targetFace = Math.floor(Math.random() * 6) + 1;
+            }
+
+            regenerateRotation() {
+                // Reset rotation state
+                this.puzzles.rotation.completed = false;
+                this.puzzles.rotation.currentFace = 1;
+                
+                // Set new random target face
+                this.puzzles.rotation.targetFace = Math.floor(Math.random() * 6) + 1;
+                
+                // Reset cube rotation
+                const cube = document.getElementById('rotatingCube');
+                cube.style.transform = 'translate(-50%, -50%) translateZ(25px) rotateX(0deg) rotateY(0deg)';
+                
+                // Change cube face colors for variety
+                const faces = cube.querySelectorAll('.cube-face');
+                const colorSets = [
+                    ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#34495e'],
+                    ['#e67e22', '#1abc9c', '#e91e63', '#ff9800', '#607d8b', '#795548'],
+                    ['#f44336', '#2196f3', '#4caf50', '#ffeb3b', '#673ab7', '#424242']
+                ];
+                
+                const selectedColors = colorSets[Math.floor(Math.random() * colorSets.length)];
+                faces.forEach((face, index) => {
+                    face.style.background = selectedColors[index];
+                });
+            }
+
+            // Moving Blocks Implementation
+            initializeBlocks() {
+                const blocksArea = document.getElementById('blocksArea');
+                
+                // Create target positions
+                const targets = [
+                    { x: 30, y: 40 },
+                    { x: 100, y: 40 },
+                    { x: 30, y: 90 },
+                    { x: 100, y: 90 }
+                ];
+
+                targets.forEach((target, i) => {
+                    const targetDiv = document.createElement('div');
+                    targetDiv.className = 'block-target';
+                    targetDiv.style.left = target.x + 'px';
+                    targetDiv.style.top = target.y + 'px';
+                    targetDiv.dataset.targetId = i;
+                    blocksArea.appendChild(targetDiv);
+                });
+
+                // Create movable blocks (scrambled positions)
+                const blockPositions = [
+                    { x: 140, y: 40 },
+                    { x: 140, y: 90 },
+                    { x: 60, y: 110 },
+                    { x: 140, y: 110 }
+                ];
+
+                // Random block colors for variety
+                const blockColorSets = [
+                    ['#e67e22', '#d35400', '#f39c12', '#e74c3c'],
+                    ['#3498db', '#2980b9', '#9b59b6', '#8e44ad'],
+                    ['#2ecc71', '#27ae60', '#1abc9c', '#16a085'],
+                    ['#f1c40f', '#f39c12', '#e67e22', '#d35400']
+                ];
+                
+                const selectedBlockColors = blockColorSets[Math.floor(Math.random() * blockColorSets.length)];
+
+                blockPositions.forEach((pos, i) => {
+                    const block = document.createElement('div');
+                    block.className = 'moving-block';
+                    block.style.left = pos.x + 'px';
+                    block.style.top = pos.y + 'px';
+                    block.style.background = `linear-gradient(135deg, ${selectedBlockColors[i]}, ${selectedBlockColors[i]}dd)`;
+                    block.textContent = i + 1;
+                    block.style.color = 'white';
+                    block.style.display = 'flex';
+                    block.style.alignItems = 'center';
+                    block.style.justifyContent = 'center';
+                    block.style.fontWeight = 'bold';
+                    block.dataset.blockId = i;
+                    
+                    block.addEventListener('click', () => this.handleBlockMove(block));
+                    blocksArea.appendChild(block);
+                    
+                    this.puzzles.blocks.blocks.push(block);
+                });
+            }
+
+            handleBlockMove(block) {
+                const blockId = parseInt(block.dataset.blockId);
+                const targetElement = document.querySelector(`[data-target-id="${blockId}"]`);
+                
+                if (targetElement) {
+                    const rect = targetElement.getBoundingClientRect();
+                    const containerRect = document.getElementById('blocksArea').getBoundingClientRect();
+                    
+                    block.style.left = (rect.left - containerRect.left) + 'px';
+                    block.style.top = (rect.top - containerRect.top) + 'px';
+                    block.classList.add('placed');
+                    
+                    this.createCompletionEffect(block);
+                    this.totalScore += 125;
+                    
+                    // Check if all blocks are placed
+                    const placedBlocks = document.querySelectorAll('.moving-block.placed').length;
+                    if (placedBlocks === 4 && !this.puzzles.blocks.completed) {
+                        this.puzzles.blocks.completed = true;
+                        this.puzzlesSolved++;
+                        this.totalScore += 600;
+                        this.showPuzzleComplete('Moving Blocks Complete!');
+                        
+                        // Regenerate blocks puzzle after completion
+                        setTimeout(() => {
+                            this.regenerateBlocks();
+                        }, 2000);
+                    }
+                }
+                
+                this.updateHUD();
+            }
+
+            regenerateBlocks() {
+                // Clear existing blocks and targets
+                const blocksArea = document.getElementById('blocksArea');
+                const existingBlocks = blocksArea.querySelectorAll('.moving-block');
+                const existingTargets = blocksArea.querySelectorAll('.block-target');
+                
+                existingBlocks.forEach(block => block.remove());
+                existingTargets.forEach(target => target.remove());
+                
+                // Reset blocks state
+                this.puzzles.blocks.completed = false;
+                this.puzzles.blocks.blocks = [];
+                
+                // Reinitialize with new scrambled positions
+                this.initializeBlocks();
+            }
+
+            createCompletionEffect(element) {
+                const effect = document.createElement('div');
+                effect.className = 'completion-effect';
+                effect.style.left = element.offsetLeft + 'px';
+                effect.style.top = element.offsetTop + 'px';
+                element.parentElement.appendChild(effect);
+                
+                setTimeout(() => effect.remove(), 1000);
+            }
+
+            showPuzzleComplete(message) {
+                setTimeout(() => {
+                    alert(message + `\nScore: +${this.totalScore}\nPuzzles Solved: ${this.puzzlesSolved}/4`);
+                    
+                    if (this.puzzlesSolved === 4) {
+                        alert('🎉 Congratulations! All puzzles completed!\nFinal Score: ' + this.totalScore);
+                    }
+                }, 500);
+            }
+
+            startGameTimer() {
+                setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('gameTime').textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            }
+
+            updateHUD() {
+                document.getElementById('puzzlesSolved').textContent = this.puzzlesSolved;
+                document.getElementById('totalScore').textContent = this.totalScore;
+                document.getElementById('currentPuzzle').textContent = 
+                    this.currentPuzzle.charAt(0).toUpperCase() + this.currentPuzzle.slice(1);
+            }
+        }
+
+        // Start the 3D Puzzle World
+        new Puzzle3DWorld();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb5d8019c6804',t:'MTc1NTQ2MDMzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

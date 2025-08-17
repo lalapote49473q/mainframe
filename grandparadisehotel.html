@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Manager Tycoon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .hotel-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .hotel-view {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .floor {
+            display: flex;
+            margin-bottom: 10px;
+            min-height: 60px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+        
+        .floor-number {
+            background: #4a5568;
+            color: white;
+            width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 6px 0 0 6px;
+        }
+        
+        .rooms {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 5px;
+            gap: 5px;
+        }
+        
+        .room {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .room.empty {
+            background: #e2e8f0;
+            color: #718096;
+            border: 2px dashed #cbd5e0;
+        }
+        
+        .room.basic {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .room.deluxe {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .room.suite {
+            background: #9f7aea;
+            color: white;
+        }
+        
+        .room.occupied {
+            box-shadow: 0 0 10px rgba(72, 187, 120, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+        }
+        
+        .control-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+        
+        .room-type {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .room-type-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .room-type-stats {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .build-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .build-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .build-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .upgrade-section {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .upgrade-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+        
+        .notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .notification {
+            background: #48bb78;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .hotel-name {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ← Back to Main
+    </a>
+    
+    <div class="game-container">
+        <div class="header">
+            <div class="hotel-name">🏨 Grand Paradise Hotel</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="money">$10,000</div>
+                    <div class="stat-label">Cash</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="income">$0</div>
+                    <div class="stat-label">Daily Income</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="guests">0</div>
+                    <div class="stat-label">Guests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="satisfaction">100%</div>
+                    <div class="stat-label">Satisfaction</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="reputation">⭐⭐⭐</div>
+                    <div class="stat-label">Reputation</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="hotel-view">
+                <div id="hotel-floors"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-section">
+                    <div class="control-title">🏗️ Build Rooms</div>
+                    
+                    <div class="room-type">
+                        <div class="room-type-name">Basic Room</div>
+                        <div class="room-type-stats">Cost: $1,000 | Income: $50/day</div>
+                        <button class="build-btn" onclick="buildRoom('basic')">Build Basic Room</button>
+                    </div>
+                    
+                    <div class="room-type">
+                        <div class="room-type-name">Deluxe Room</div>
+                        <div class="room-type-stats">Cost: $2,500 | Income: $120/day</div>
+                        <button class="build-btn" onclick="buildRoom('deluxe')">Build Deluxe Room</button>
+                    </div>
+                    
+                    <div class="room-type">
+                        <div class="room-type-name">Luxury Suite</div>
+                        <div class="room-type-stats">Cost: $5,000 | Income: $250/day</div>
+                        <button class="build-btn" onclick="buildRoom('suite')">Build Luxury Suite</button>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <div class="control-title">🏢 Hotel Management</div>
+                    
+                    <div class="upgrade-section">
+                        <div class="room-type-name">Add New Floor</div>
+                        <div class="room-type-stats">Cost: $10,000 | +10 room slots</div>
+                        <button class="upgrade-btn" onclick="addFloor()">Add Floor</button>
+                    </div>
+                    
+                    <div class="upgrade-section">
+                        <div class="room-type-name">Marketing Campaign</div>
+                        <div class="room-type-stats">Cost: $3,000 | Boost reputation</div>
+                        <button class="upgrade-btn" onclick="marketingCampaign()">Launch Campaign</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notifications" id="notifications"></div>
+    
+    <script>
+        // Game state
+        let gameState = {
+            money: 10000,
+            dailyIncome: 0,
+            guests: 0,
+            satisfaction: 100,
+            reputation: 3,
+            floors: [
+                { number: 1, rooms: Array(10).fill('empty') }
+            ]
+        };
+        
+        const roomTypes = {
+            basic: { cost: 1000, income: 50, name: 'Basic' },
+            deluxe: { cost: 2500, income: 120, name: 'Deluxe' },
+            suite: { cost: 5000, income: 250, name: 'Suite' }
+        };
+        
+        // Initialize game
+        function initGame() {
+            updateDisplay();
+            renderHotel();
+            startGameLoop();
+        }
+        
+        // Game loop
+        function startGameLoop() {
+            setInterval(() => {
+                // Daily income and guest simulation
+                let totalIncome = 0;
+                let occupiedRooms = 0;
+                
+                gameState.floors.forEach(floor => {
+                    floor.rooms.forEach((room, index) => {
+                        if (room !== 'empty') {
+                            // Random occupancy based on reputation
+                            const occupancyChance = Math.min(0.7 + (gameState.reputation * 0.1), 0.95);
+                            if (Math.random() < occupancyChance) {
+                                totalIncome += roomTypes[room].income;
+                                occupiedRooms++;
+                                // Add visual indicator for occupied rooms
+                                const roomElement = document.querySelector(`[data-floor="${floor.number}"][data-room="${index}"]`);
+                                if (roomElement) {
+                                    roomElement.classList.add('occupied');
+                                }
+                            } else {
+                                const roomElement = document.querySelector(`[data-floor="${floor.number}"][data-room="${index}"]`);
+                                if (roomElement) {
+                                    roomElement.classList.remove('occupied');
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                gameState.money += totalIncome;
+                gameState.dailyIncome = totalIncome;
+                gameState.guests = occupiedRooms;
+                
+                // Random events
+                if (Math.random() < 0.1) {
+                    randomEvent();
+                }
+                
+                updateDisplay();
+            }, 3000); // Every 3 seconds represents a day
+        }
+        
+        // Build room function
+        function buildRoom(type) {
+            const cost = roomTypes[type].cost;
+            
+            if (gameState.money < cost) {
+                showNotification('Not enough money!', 'error');
+                return;
+            }
+            
+            // Find empty room slot
+            let built = false;
+            for (let floor of gameState.floors) {
+                for (let i = 0; i < floor.rooms.length; i++) {
+                    if (floor.rooms[i] === 'empty') {
+                        floor.rooms[i] = type;
+                        gameState.money -= cost;
+                        built = true;
+                        showNotification(`Built ${roomTypes[type].name} Room!`);
+                        break;
+                    }
+                }
+                if (built) break;
+            }
+            
+            if (!built) {
+                showNotification('No empty room slots! Add a new floor.', 'error');
+            }
+            
+            updateDisplay();
+            renderHotel();
+        }
+        
+        // Add floor function
+        function addFloor() {
+            if (gameState.money < 10000) {
+                showNotification('Not enough money for a new floor!', 'error');
+                return;
+            }
+            
+            gameState.money -= 10000;
+            gameState.floors.push({
+                number: gameState.floors.length + 1,
+                rooms: Array(10).fill('empty')
+            });
+            
+            showNotification('New floor added!');
+            updateDisplay();
+            renderHotel();
+        }
+        
+        // Marketing campaign
+        function marketingCampaign() {
+            if (gameState.money < 3000) {
+                showNotification('Not enough money for marketing!', 'error');
+                return;
+            }
+            
+            gameState.money -= 3000;
+            gameState.reputation = Math.min(gameState.reputation + 1, 5);
+            showNotification('Marketing campaign launched! Reputation increased!');
+            updateDisplay();
+        }
+        
+        // Random events
+        function randomEvent() {
+            const events = [
+                { text: 'Celebrity guest visited! +$2000 bonus!', effect: () => gameState.money += 2000 },
+                { text: 'Food critic gave great review! Reputation +1!', effect: () => gameState.reputation = Math.min(gameState.reputation + 1, 5) },
+                { text: 'Maintenance issue! -$500', effect: () => gameState.money -= 500 },
+                { text: 'Happy guests left great reviews!', effect: () => gameState.satisfaction = Math.min(gameState.satisfaction + 5, 100) }
+            ];
+            
+            const event = events[Math.floor(Math.random() * events.length)];
+            event.effect();
+            showNotification(event.text);
+        }
+        
+        // Update display
+        function updateDisplay() {
+            document.getElementById('money').textContent = `$${gameState.money.toLocaleString()}`;
+            document.getElementById('income').textContent = `$${gameState.dailyIncome.toLocaleString()}`;
+            document.getElementById('guests').textContent = gameState.guests;
+            document.getElementById('satisfaction').textContent = `${gameState.satisfaction}%`;
+            document.getElementById('reputation').textContent = '⭐'.repeat(gameState.reputation);
+            
+            // Update button states
+            document.querySelectorAll('.build-btn').forEach((btn, index) => {
+                const types = ['basic', 'deluxe', 'suite'];
+                const cost = roomTypes[types[index]].cost;
+                btn.disabled = gameState.money < cost;
+            });
+            
+            document.querySelector('.upgrade-btn').disabled = gameState.money < 10000;
+            document.querySelectorAll('.upgrade-btn')[1].disabled = gameState.money < 3000;
+        }
+        
+        // Render hotel
+        function renderHotel() {
+            const container = document.getElementById('hotel-floors');
+            container.innerHTML = '';
+            
+            // Render floors from top to bottom
+            for (let i = gameState.floors.length - 1; i >= 0; i--) {
+                const floor = gameState.floors[i];
+                const floorDiv = document.createElement('div');
+                floorDiv.className = 'floor';
+                
+                const floorNumber = document.createElement('div');
+                floorNumber.className = 'floor-number';
+                floorNumber.textContent = floor.number;
+                
+                const roomsDiv = document.createElement('div');
+                roomsDiv.className = 'rooms';
+                
+                floor.rooms.forEach((room, index) => {
+                    const roomDiv = document.createElement('div');
+                    roomDiv.className = `room ${room}`;
+                    roomDiv.dataset.floor = floor.number;
+                    roomDiv.dataset.room = index;
+                    
+                    if (room === 'empty') {
+                        roomDiv.textContent = '+';
+                        roomDiv.title = 'Empty room slot';
+                    } else {
+                        roomDiv.textContent = roomTypes[room].name[0];
+                        roomDiv.title = `${roomTypes[room].name} Room - $${roomTypes[room].income}/day`;
+                    }
+                    
+                    roomsDiv.appendChild(roomDiv);
+                });
+                
+                floorDiv.appendChild(floorNumber);
+                floorDiv.appendChild(roomsDiv);
+                container.appendChild(floorDiv);
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            
+            if (type === 'error') {
+                notification.style.background = '#e53e3e';
+            }
+            
+            document.getElementById('notifications').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970c01f6702acce4',t:'MTc1NTQ2MzQ0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

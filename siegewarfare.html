@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siege Warfare Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            background: linear-gradient(45deg, #e74c3c, #f39c12, #e67e22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .battlefield {
+            background: linear-gradient(180deg, #87ceeb 0%, #98fb98 30%, #8fbc8f 100%);
+            border-radius: 15px;
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+            border: 3px solid #8b4513;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .castle {
+            position: absolute;
+            right: 50px;
+            bottom: 50px;
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+            border-radius: 10px 10px 0 0;
+            border: 3px solid #34495e;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .castle::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+            border: 2px solid #34495e;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .castle::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: 10px;
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+            border: 2px solid #34495e;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .castle-gate {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: #8b4513;
+            border-radius: 20px 20px 0 0;
+            border: 2px solid #654321;
+        }
+
+        .castle-flag {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 30px;
+            background: #e74c3c;
+            border-radius: 0 5px 5px 0;
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(5deg); }
+        }
+
+        .unit {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .unit:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .attacker {
+            background: radial-gradient(circle at 30% 30%, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .defender {
+            background: radial-gradient(circle at 30% 30%, #3498db, #2980b9);
+            color: white;
+        }
+
+        .siege-engine {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #8b4513, #654321);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .siege-engine::before {
+            content: '🏹';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+        }
+
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #f39c12, #e67e22);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.8);
+            z-index: 100;
+        }
+
+        .explosion {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #ff6b6b, #e74c3c, transparent);
+            border-radius: 50%;
+            animation: explode 0.5s ease-out forwards;
+            z-index: 99;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .control-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #f39c12;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 0.5rem;
+        }
+
+        .unit-button {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .unit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .unit-button.defender {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .unit-button.siege {
+            background: linear-gradient(45deg, #8b4513, #654321);
+        }
+
+        .unit-cost {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .stats-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .resource-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .resource-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .battle-log {
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border-left: 3px solid #f39c12;
+            padding-left: 0.8rem;
+            font-size: 0.9rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .log-entry.attacker {
+            border-left-color: #e74c3c;
+        }
+
+        .log-entry.defender {
+            border-left-color: #3498db;
+        }
+
+        .health-bar {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2px;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .castle-health {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .castle-health-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .victory-content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .victory-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            animation: celebrate 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        .restart-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .battlefield {
+                height: 400px;
+            }
+        }
+
+        .weather-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .rain {
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.1));
+            width: 2px;
+            height: 20px;
+            position: absolute;
+            animation: rainfall 1s linear infinite;
+        }
+
+        @keyframes rainfall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(620px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">⚔️ Siege Warfare Simulator</h1>
+            <p class="subtitle">Command your forces and conquer the castle!</p>
+        </div>
+
+        <div class="game-area">
+            <!-- Attacker Controls -->
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3 class="section-title">🔴 Attacker Forces</h3>
+                    <button class="unit-button" onclick="spawnUnit('soldier', 'attacker')">
+                        ⚔️ Soldier <span class="unit-cost">10 Gold</span>
+                    </button>
+                    <button class="unit-button" onclick="spawnUnit('archer', 'attacker')">
+                        🏹 Archer <span class="unit-cost">15 Gold</span>
+                    </button>
+                    <button class="unit-button" onclick="spawnUnit('knight', 'attacker')">
+                        🛡️ Knight <span class="unit-cost">25 Gold</span>
+                    </button>
+                    <button class="unit-button siege" onclick="spawnSiegeEngine('catapult')">
+                        🏹 Catapult <span class="unit-cost">50 Gold</span>
+                    </button>
+                    <button class="unit-button siege" onclick="spawnSiegeEngine('trebuchet')">
+                        🎯 Trebuchet <span class="unit-cost">100 Gold</span>
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">💰 Resources</h3>
+                    <div class="stat-item">
+                        <span>Gold:</span>
+                        <span class="stat-value" id="attackerGold">200</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-fill" id="attackerGoldBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="startBattle()">⚡ Start Battle</button>
+                    <button class="action-btn" onclick="pauseBattle()">⏸️ Pause</button>
+                    <button class="action-btn" onclick="resetBattle()">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- Battlefield -->
+            <div class="battlefield" id="battlefield">
+                <div class="weather-effects" id="weatherEffects"></div>
+                <div class="castle" id="castle">
+                    <div class="castle-gate"></div>
+                    <div class="castle-flag"></div>
+                    <div class="castle-health">
+                        <div class="castle-health-fill" id="castleHealthFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Defender Controls & Stats -->
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3 class="section-title">🔵 Defender Forces</h3>
+                    <button class="unit-button defender" onclick="spawnUnit('guard', 'defender')">
+                        🛡️ Guard <span class="unit-cost">12 Gold</span>
+                    </button>
+                    <button class="unit-button defender" onclick="spawnUnit('crossbow', 'defender')">
+                        🎯 Crossbow <span class="unit-cost">18 Gold</span>
+                    </button>
+                    <button class="unit-button defender" onclick="spawnUnit('captain', 'defender')">
+                        👑 Captain <span class="unit-cost">30 Gold</span>
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">🏰 Castle Status</h3>
+                    <div class="stat-item">
+                        <span>Health:</span>
+                        <span class="stat-value" id="castleHealth">1000/1000</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Defenders:</span>
+                        <span class="stat-value" id="defenderCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Attackers:</span>
+                        <span class="stat-value" id="attackerCount">0</span>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">💰 Resources</h3>
+                    <div class="stat-item">
+                        <span>Gold:</span>
+                        <span class="stat-value" id="defenderGold">150</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-fill" id="defenderGoldBar" style="width: 75%"></div>
+                    </div>
+                </div>
+
+                <div class="battle-log" id="battleLog">
+                    <div class="log-entry">⚔️ Prepare for siege warfare!</div>
+                    <div class="log-entry">🏰 Castle defenses are ready</div>
+                    <div class="log-entry">💰 Resources allocated to both sides</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div class="victory-screen" id="victoryScreen">
+        <div class="victory-content">
+            <div class="victory-title" id="victoryTitle">Victory!</div>
+            <div id="victoryMessage">The siege has ended!</div>
+            <button class="restart-btn" onclick="resetBattle()">🔄 New Battle</button>
+        </div>
+    </div>
+
+    <script>
+        class SiegeWarfareSimulator {
+            constructor() {
+                this.battlefield = document.getElementById('battlefield');
+                this.units = [];
+                this.siegeEngines = [];
+                this.projectiles = [];
+                this.isRunning = false;
+                this.gameLoop = null;
+                
+                // Game state
+                this.attackerGold = 200;
+                this.defenderGold = 150;
+                this.castleHealth = 1000;
+                this.maxCastleHealth = 1000;
+                
+                // Unit stats
+                this.unitStats = {
+                    soldier: { health: 100, damage: 20, speed: 2, cost: 10, icon: '⚔️' },
+                    archer: { health: 80, damage: 30, speed: 1.5, cost: 15, icon: '🏹' },
+                    knight: { health: 150, damage: 35, speed: 1.8, cost: 25, icon: '🛡️' },
+                    guard: { health: 120, damage: 25, speed: 1.5, cost: 12, icon: '🛡️' },
+                    crossbow: { health: 90, damage: 35, speed: 1.2, cost: 18, icon: '🎯' },
+                    captain: { health: 180, damage: 40, speed: 2, cost: 30, icon: '👑' }
+                };
+                
+                this.siegeStats = {
+                    catapult: { health: 200, damage: 80, range: 300, cost: 50, icon: '🏹' },
+                    trebuchet: { health: 250, damage: 120, range: 400, cost: 100, icon: '🎯' }
+                };
+                
+                this.updateUI();
+                this.startWeatherEffects();
+            }
+
+            spawnUnit(type, side) {
+                const cost = this.unitStats[type].cost;
+                
+                if (side === 'attacker' && this.attackerGold < cost) {
+                    this.addLogEntry('❌ Not enough gold for attacker unit!', 'attacker');
+                    return;
+                }
+                
+                if (side === 'defender' && this.defenderGold < cost) {
+                    this.addLogEntry('❌ Not enough gold for defender unit!', 'defender');
+                    return;
+                }
+                
+                // Deduct cost
+                if (side === 'attacker') {
+                    this.attackerGold -= cost;
+                } else {
+                    this.defenderGold -= cost;
+                }
+                
+                // Create unit
+                const unit = {
+                    id: Date.now() + Math.random(),
+                    type: type,
+                    side: side,
+                    health: this.unitStats[type].health,
+                    maxHealth: this.unitStats[type].health,
+                    damage: this.unitStats[type].damage,
+                    speed: this.unitStats[type].speed,
+                    x: side === 'attacker' ? 50 : 350,
+                    y: 300 + Math.random() * 200,
+                    target: null,
+                    lastAttack: 0
+                };
+                
+                this.units.push(unit);
+                this.createUnitElement(unit);
+                this.updateUI();
+                
+                this.addLogEntry(`${this.unitStats[type].icon} ${type} deployed for ${side}!`, side);
+            }
+
+            spawnSiegeEngine(type) {
+                const cost = this.siegeStats[type].cost;
+                
+                if (this.attackerGold < cost) {
+                    this.addLogEntry('❌ Not enough gold for siege engine!', 'attacker');
+                    return;
+                }
+                
+                this.attackerGold -= cost;
+                
+                const engine = {
+                    id: Date.now() + Math.random(),
+                    type: type,
+                    health: this.siegeStats[type].health,
+                    maxHealth: this.siegeStats[type].health,
+                    damage: this.siegeStats[type].damage,
+                    range: this.siegeStats[type].range,
+                    x: 80,
+                    y: 200 + Math.random() * 100,
+                    lastFire: 0,
+                    cooldown: 3000 // 3 seconds
+                };
+                
+                this.siegeEngines.push(engine);
+                this.createSiegeElement(engine);
+                this.updateUI();
+                
+                this.addLogEntry(`${this.siegeStats[type].icon} ${type} deployed!`, 'attacker');
+            }
+
+            createUnitElement(unit) {
+                const element = document.createElement('div');
+                element.className = `unit ${unit.side}`;
+                element.id = `unit-${unit.id}`;
+                element.style.left = unit.x + 'px';
+                element.style.top = unit.y + 'px';
+                element.textContent = this.unitStats[unit.type].icon;
+                
+                // Add health bar
+                const healthBar = document.createElement('div');
+                healthBar.className = 'health-bar';
+                const healthFill = document.createElement('div');
+                healthFill.className = 'health-fill';
+                healthFill.style.width = '100%';
+                healthBar.appendChild(healthFill);
+                element.appendChild(healthBar);
+                
+                // Add click event for unit info
+                element.addEventListener('click', () => {
+                    this.addLogEntry(`${this.unitStats[unit.type].icon} ${unit.type}: ${unit.health}/${unit.maxHealth} HP`, unit.side);
+                });
+                
+                this.battlefield.appendChild(element);
+            }
+
+            createSiegeElement(engine) {
+                const element = document.createElement('div');
+                element.className = 'unit siege-engine';
+                element.id = `siege-${engine.id}`;
+                element.style.left = engine.x + 'px';
+                element.style.top = engine.y + 'px';
+                
+                // Add health bar
+                const healthBar = document.createElement('div');
+                healthBar.className = 'health-bar';
+                const healthFill = document.createElement('div');
+                healthFill.className = 'health-fill';
+                healthFill.style.width = '100%';
+                healthBar.appendChild(healthFill);
+                element.appendChild(healthBar);
+                
+                this.battlefield.appendChild(element);
+            }
+
+            startBattle() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.addLogEntry('⚡ Battle has begun!', '');
+                
+                this.gameLoop = setInterval(() => {
+                    this.updateUnits();
+                    this.updateSiegeEngines();
+                    this.updateProjectiles();
+                    this.checkVictoryConditions();
+                }, 50);
+            }
+
+            pauseBattle() {
+                this.isRunning = false;
+                if (this.gameLoop) {
+                    clearInterval(this.gameLoop);
+                    this.gameLoop = null;
+                }
+                this.addLogEntry('⏸️ Battle paused', '');
+            }
+
+            updateUnits() {
+                this.units.forEach(unit => {
+                    const element = document.getElementById(`unit-${unit.id}`);
+                    if (!element) return;
+                    
+                    // Find target
+                    if (!unit.target || unit.target.health <= 0) {
+                        unit.target = this.findNearestEnemy(unit);
+                    }
+                    
+                    if (unit.target) {
+                        // Move towards target
+                        const dx = unit.target.x - unit.x;
+                        const dy = unit.target.y - unit.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance > 30) {
+                            // Move closer
+                            unit.x += (dx / distance) * unit.speed;
+                            unit.y += (dy / distance) * unit.speed;
+                            
+                            element.style.left = unit.x + 'px';
+                            element.style.top = unit.y + 'px';
+                        } else {
+                            // Attack
+                            const now = Date.now();
+                            if (now - unit.lastAttack > 1000) { // 1 second cooldown
+                                this.attackTarget(unit, unit.target);
+                                unit.lastAttack = now;
+                            }
+                        }
+                    } else if (unit.side === 'attacker') {
+                        // Move towards castle
+                        const castle = { x: 350, y: 400 };
+                        const dx = castle.x - unit.x;
+                        const dy = castle.y - unit.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance > 50) {
+                            unit.x += (dx / distance) * unit.speed;
+                            unit.y += (dy / distance) * unit.speed;
+                            
+                            element.style.left = unit.x + 'px';
+                            element.style.top = unit.y + 'px';
+                        } else {
+                            // Attack castle
+                            const now = Date.now();
+                            if (now - unit.lastAttack > 1500) {
+                                this.attackCastle(unit);
+                                unit.lastAttack = now;
+                            }
+                        }
+                    }
+                    
+                    // Update health bar
+                    const healthFill = element.querySelector('.health-fill');
+                    if (healthFill) {
+                        const healthPercent = (unit.health / unit.maxHealth) * 100;
+                        healthFill.style.width = healthPercent + '%';
+                        
+                        if (healthPercent < 30) {
+                            healthFill.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+                        }
+                    }
+                });
+                
+                // Remove dead units
+                this.units = this.units.filter(unit => {
+                    if (unit.health <= 0) {
+                        const element = document.getElementById(`unit-${unit.id}`);
+                        if (element) {
+                            this.createExplosion(unit.x, unit.y);
+                            element.remove();
+                        }
+                        this.addLogEntry(`💀 ${this.unitStats[unit.type].icon} ${unit.type} eliminated!`, unit.side);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            updateSiegeEngines() {
+                this.siegeEngines.forEach(engine => {
+                    const now = Date.now();
+                    if (now - engine.lastFire > engine.cooldown) {
+                        this.fireSiegeEngine(engine);
+                        engine.lastFire = now;
+                    }
+                    
+                    // Update health bar
+                    const element = document.getElementById(`siege-${engine.id}`);
+                    if (element) {
+                        const healthFill = element.querySelector('.health-fill');
+                        if (healthFill) {
+                            const healthPercent = (engine.health / engine.maxHealth) * 100;
+                            healthFill.style.width = healthPercent + '%';
+                        }
+                    }
+                });
+                
+                // Remove destroyed engines
+                this.siegeEngines = this.siegeEngines.filter(engine => {
+                    if (engine.health <= 0) {
+                        const element = document.getElementById(`siege-${engine.id}`);
+                        if (element) {
+                            this.createExplosion(engine.x, engine.y);
+                            element.remove();
+                        }
+                        this.addLogEntry(`💥 ${engine.type} destroyed!`, 'attacker');
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            fireSiegeEngine(engine) {
+                const targetX = 350 + Math.random() * 100 - 50; // Castle area
+                const targetY = 400 + Math.random() * 100 - 50;
+                
+                const projectile = {
+                    id: Date.now() + Math.random(),
+                    x: engine.x,
+                    y: engine.y,
+                    targetX: targetX,
+                    targetY: targetY,
+                    damage: engine.damage,
+                    speed: 5,
+                    type: 'siege'
+                };
+                
+                this.projectiles.push(projectile);
+                this.createProjectileElement(projectile);
+                
+                this.addLogEntry(`🎯 ${engine.type} fires at castle!`, 'attacker');
+            }
+
+            createProjectileElement(projectile) {
+                const element = document.createElement('div');
+                element.className = 'projectile';
+                element.id = `projectile-${projectile.id}`;
+                element.style.left = projectile.x + 'px';
+                element.style.top = projectile.y + 'px';
+                
+                this.battlefield.appendChild(element);
+            }
+
+            updateProjectiles() {
+                this.projectiles.forEach(projectile => {
+                    const dx = projectile.targetX - projectile.x;
+                    const dy = projectile.targetY - projectile.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 10) {
+                        projectile.x += (dx / distance) * projectile.speed;
+                        projectile.y += (dy / distance) * projectile.speed;
+                        
+                        const element = document.getElementById(`projectile-${projectile.id}`);
+                        if (element) {
+                            element.style.left = projectile.x + 'px';
+                            element.style.top = projectile.y + 'px';
+                        }
+                    } else {
+                        // Hit target
+                        this.handleProjectileHit(projectile);
+                    }
+                });
+                
+                // Remove hit projectiles
+                this.projectiles = this.projectiles.filter(projectile => {
+                    const dx = projectile.targetX - projectile.x;
+                    const dy = projectile.targetY - projectile.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance <= 10) {
+                        const element = document.getElementById(`projectile-${projectile.id}`);
+                        if (element) element.remove();
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            handleProjectileHit(projectile) {
+                this.createExplosion(projectile.targetX, projectile.targetY);
+                
+                if (projectile.type === 'siege') {
+                    // Damage castle
+                    this.castleHealth -= projectile.damage;
+                    this.addLogEntry(`💥 Castle takes ${projectile.damage} damage!`, 'attacker');
+                    
+                    // Damage nearby defenders
+                    this.units.forEach(unit => {
+                        if (unit.side === 'defender') {
+                            const dx = unit.x - projectile.targetX;
+                            const dy = unit.y - projectile.targetY;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < 50) {
+                                const damage = Math.floor(projectile.damage * 0.3);
+                                unit.health -= damage;
+                                this.addLogEntry(`💥 ${this.unitStats[unit.type].icon} takes ${damage} splash damage!`, 'defender');
+                            }
+                        }
+                    });
+                }
+                
+                this.updateUI();
+            }
+
+            findNearestEnemy(unit) {
+                let nearest = null;
+                let minDistance = Infinity;
+                
+                this.units.forEach(other => {
+                    if (other.side !== unit.side && other.health > 0) {
+                        const dx = other.x - unit.x;
+                        const dy = other.y - unit.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearest = other;
+                        }
+                    }
+                });
+                
+                return nearest;
+            }
+
+            attackTarget(attacker, target) {
+                const damage = attacker.damage + Math.floor(Math.random() * 10) - 5; // ±5 damage variance
+                target.health -= Math.max(1, damage);
+                
+                this.addLogEntry(`⚔️ ${this.unitStats[attacker.type].icon} attacks ${this.unitStats[target.type].icon} for ${damage} damage!`, attacker.side);
+                
+                // Create small explosion effect
+                this.createExplosion(target.x, target.y, 20);
+            }
+
+            attackCastle(unit) {
+                const damage = unit.damage;
+                this.castleHealth -= damage;
+                
+                this.addLogEntry(`🏰 ${this.unitStats[unit.type].icon} attacks castle for ${damage} damage!`, 'attacker');
+                this.createExplosion(350, 400, 30);
+                this.updateUI();
+            }
+
+            createExplosion(x, y, size = 40) {
+                const explosion = document.createElement('div');
+                explosion.className = 'explosion';
+                explosion.style.left = (x - size/2) + 'px';
+                explosion.style.top = (y - size/2) + 'px';
+                explosion.style.width = size + 'px';
+                explosion.style.height = size + 'px';
+                
+                this.battlefield.appendChild(explosion);
+                
+                setTimeout(() => {
+                    explosion.remove();
+                }, 500);
+            }
+
+            checkVictoryConditions() {
+                if (this.castleHealth <= 0) {
+                    this.endGame('Attackers Win!', 'The castle has fallen to the siege!');
+                } else if (this.units.filter(u => u.side === 'attacker').length === 0 && 
+                          this.siegeEngines.length === 0 && 
+                          this.attackerGold < 10) {
+                    this.endGame('Defenders Win!', 'The siege has been repelled!');
+                }
+            }
+
+            endGame(title, message) {
+                this.pauseBattle();
+                
+                document.getElementById('victoryTitle').textContent = title;
+                document.getElementById('victoryMessage').textContent = message;
+                document.getElementById('victoryScreen').style.display = 'flex';
+                
+                this.addLogEntry(`🏆 ${title}`, '');
+            }
+
+            resetBattle() {
+                this.pauseBattle();
+                
+                // Clear battlefield
+                this.units = [];
+                this.siegeEngines = [];
+                this.projectiles = [];
+                
+                document.querySelectorAll('.unit, .projectile, .explosion').forEach(el => el.remove());
+                
+                // Reset resources
+                this.attackerGold = 200;
+                this.defenderGold = 150;
+                this.castleHealth = this.maxCastleHealth;
+                
+                // Clear log
+                document.getElementById('battleLog').innerHTML = `
+                    <div class="log-entry">⚔️ New battle prepared!</div>
+                    <div class="log-entry">🏰 Castle defenses restored</div>
+                    <div class="log-entry">💰 Resources replenished</div>
+                `;
+                
+                // Hide victory screen
+                document.getElementById('victoryScreen').style.display = 'none';
+                
+                this.updateUI();
+            }
+
+            updateUI() {
+                document.getElementById('attackerGold').textContent = this.attackerGold;
+                document.getElementById('defenderGold').textContent = this.defenderGold;
+                document.getElementById('castleHealth').textContent = `${Math.max(0, this.castleHealth)}/${this.maxCastleHealth}`;
+                
+                document.getElementById('attackerCount').textContent = this.units.filter(u => u.side === 'attacker').length + this.siegeEngines.length;
+                document.getElementById('defenderCount').textContent = this.units.filter(u => u.side === 'defender').length;
+                
+                // Update resource bars
+                document.getElementById('attackerGoldBar').style.width = (this.attackerGold / 200) * 100 + '%';
+                document.getElementById('defenderGoldBar').style.width = (this.defenderGold / 150) * 100 + '%';
+                
+                // Update castle health bar
+                const castleHealthPercent = Math.max(0, (this.castleHealth / this.maxCastleHealth) * 100);
+                document.getElementById('castleHealthFill').style.width = castleHealthPercent + '%';
+            }
+
+            addLogEntry(message, side) {
+                const log = document.getElementById('battleLog');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${side}`;
+                entry.textContent = message;
+                
+                log.appendChild(entry);
+                log.scrollTop = log.scrollHeight;
+                
+                // Remove old entries if too many
+                const entries = log.querySelectorAll('.log-entry');
+                if (entries.length > 20) {
+                    entries[0].remove();
+                }
+            }
+
+            startWeatherEffects() {
+                // Add some rain effects occasionally
+                setInterval(() => {
+                    if (Math.random() < 0.1) { // 10% chance every interval
+                        this.createRainDrop();
+                    }
+                }, 200);
+            }
+
+            createRainDrop() {
+                const rain = document.createElement('div');
+                rain.className = 'rain';
+                rain.style.left = Math.random() * 100 + '%';
+                rain.style.animationDelay = Math.random() * 1 + 's';
+                
+                document.getElementById('weatherEffects').appendChild(rain);
+                
+                setTimeout(() => {
+                    rain.remove();
+                }, 1000);
+            }
+        }
+
+        // Global game instance
+        let game;
+
+        // Global functions for buttons
+        function spawnUnit(type, side) {
+            game.spawnUnit(type, side);
+        }
+
+        function spawnSiegeEngine(type) {
+            game.spawnSiegeEngine(type);
+        }
+
+        function startBattle() {
+            game.startBattle();
+        }
+
+        function pauseBattle() {
+            game.pauseBattle();
+        }
+
+        function resetBattle() {
+            game.resetBattle();
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            game = new SiegeWarfareSimulator();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb7f1d3bd6804',t:'MTc1NTQ2MDQxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

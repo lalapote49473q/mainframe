@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conway's Game of Life</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn.play {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .control-btn.pause {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .control-btn.clear {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .control-btn.random {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .speed-slider {
+            width: 100px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .patterns-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pattern-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .pattern-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .grid-container {
+            position: relative;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            background: #2c3e50;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1px;
+            background: #34495e;
+            padding: 2px;
+        }
+
+        .cell {
+            width: 8px;
+            height: 8px;
+            background: #2c3e50;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            border-radius: 1px;
+        }
+
+        .cell.alive {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            box-shadow: 0 0 4px rgba(0, 255, 136, 0.6);
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        .cell.dying {
+            background: linear-gradient(45deg, #ff6b6b, #e74c3c);
+            animation: fadeOut 0.3s ease-out;
+        }
+
+        .cell.born {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 4px rgba(0, 255, 136, 0.6); }
+            100% { box-shadow: 0 0 8px rgba(0, 255, 136, 0.9); }
+        }
+
+        @keyframes fadeIn {
+            0% { 
+                background: #2c3e50;
+                transform: scale(0.5);
+            }
+            100% { 
+                background: linear-gradient(45deg, #00ff88, #00cc6a);
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeOut {
+            0% { 
+                background: linear-gradient(45deg, #00ff88, #00cc6a);
+                transform: scale(1);
+            }
+            100% { 
+                background: #2c3e50;
+                transform: scale(0.8);
+            }
+        }
+
+        .stats-panel {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .rules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .rule-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .rule-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .drawing-mode {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
+
+        .mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: blink 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .controls-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cell {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .stats-panel {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        .generation-history {
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .zoom-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .zoom-btn {
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">🧬 Conway's Game of Life</h1>
+            <p class="subtitle">Watch cellular automata evolve according to simple rules</p>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <button class="control-btn play" id="playBtn" onclick="toggleSimulation()">▶️ Play</button>
+                <span>Simulation</span>
+            </div>
+            
+            <div class="control-group">
+                <button class="control-btn" onclick="stepGeneration()">⏭️ Step</button>
+                <span>Next Generation</span>
+            </div>
+            
+            <div class="control-group">
+                <button class="control-btn clear" onclick="clearGrid()">🗑️ Clear</button>
+                <span>Clear Grid</span>
+            </div>
+            
+            <div class="control-group">
+                <button class="control-btn random" onclick="randomizeGrid()">🎲 Random</button>
+                <span>Random Fill</span>
+            </div>
+            
+            <div class="control-group">
+                <div class="speed-control">
+                    <span>🐌</span>
+                    <input type="range" class="speed-slider" id="speedSlider" min="1" max="20" value="5" onchange="updateSpeed()">
+                    <span>🐰</span>
+                </div>
+                <span>Speed</span>
+            </div>
+
+            <div class="control-group">
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomOut()">-</button>
+                    <span id="zoomLevel">100%</span>
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                </div>
+                <span>Zoom</span>
+            </div>
+        </div>
+
+        <div class="patterns-panel">
+            <button class="pattern-btn" onclick="loadPattern('glider')">🛸 Glider</button>
+            <button class="pattern-btn" onclick="loadPattern('blinker')">💫 Blinker</button>
+            <button class="pattern-btn" onclick="loadPattern('toad')">🐸 Toad</button>
+            <button class="pattern-btn" onclick="loadPattern('beacon')">🔦 Beacon</button>
+            <button class="pattern-btn" onclick="loadPattern('pulsar')">⭐ Pulsar</button>
+            <button class="pattern-btn" onclick="loadPattern('gosperGun')">🔫 Gosper Gun</button>
+            <button class="pattern-btn" onclick="loadPattern('pentadecathlon')">🌟 Pentadecathlon</button>
+            <button class="pattern-btn" onclick="loadPattern('lwss')">🚀 LWSS</button>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-item">
+                <div class="stat-value" id="generation">0</div>
+                <div class="stat-label">Generation</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="population">0</div>
+                <div class="stat-label">Population</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="births">0</div>
+                <div class="stat-label">Births</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="deaths">0</div>
+                <div class="stat-label">Deaths</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="grid-container">
+                <div class="grid" id="gameGrid"></div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>📋 Rules of Conway's Game of Life</h3>
+            <div class="rules">
+                <div class="rule-item">
+                    <div class="rule-icon">💀</div>
+                    <div><strong>Underpopulation:</strong> Live cell with fewer than 2 neighbors dies</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon">🌱</div>
+                    <div><strong>Survival:</strong> Live cell with 2-3 neighbors survives</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon">💥</div>
+                    <div><strong>Overpopulation:</strong> Live cell with more than 3 neighbors dies</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon">✨</div>
+                    <div><strong>Reproduction:</strong> Dead cell with exactly 3 neighbors becomes alive</div>
+                </div>
+            </div>
+            
+            <div class="generation-history" id="generationHistory">
+                <strong>Generation History:</strong>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawing-mode" id="drawingMode" style="display: none;">
+        <div class="mode-indicator">
+            <div class="mode-dot"></div>
+            <span>Drawing Mode</span>
+        </div>
+        <div>Click cells to toggle</div>
+        <div>Press ESC to exit</div>
+    </div>
+
+    <script>
+        class GameOfLife {
+            constructor() {
+                this.gridWidth = 120;
+                this.gridHeight = 80;
+                this.cellSize = 8;
+                this.grid = [];
+                this.nextGrid = [];
+                this.isRunning = false;
+                this.generation = 0;
+                this.speed = 200; // milliseconds between generations
+                this.intervalId = null;
+                this.isDrawing = false;
+                this.drawingValue = true;
+                this.zoom = 1;
+                this.history = [];
+                
+                this.initializeGrid();
+                this.createGridElements();
+                this.updateStats();
+                this.setupEventListeners();
+            }
+
+            initializeGrid() {
+                this.grid = Array(this.gridHeight).fill().map(() => Array(this.gridWidth).fill(false));
+                this.nextGrid = Array(this.gridHeight).fill().map(() => Array(this.gridWidth).fill(false));
+            }
+
+            createGridElements() {
+                const gridElement = document.getElementById('gameGrid');
+                gridElement.innerHTML = '';
+                gridElement.style.gridTemplateColumns = `repeat(${this.gridWidth}, ${this.cellSize * this.zoom}px)`;
+                gridElement.style.gridTemplateRows = `repeat(${this.gridHeight}, ${this.cellSize * this.zoom}px)`;
+
+                for (let y = 0; y < this.gridHeight; y++) {
+                    for (let x = 0; x < this.gridWidth; x++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.x = x;
+                        cell.dataset.y = y;
+                        cell.style.width = `${this.cellSize * this.zoom}px`;
+                        cell.style.height = `${this.cellSize * this.zoom}px`;
+                        
+                        cell.addEventListener('click', () => this.toggleCell(x, y));
+                        cell.addEventListener('mousedown', (e) => this.startDrawing(e, x, y));
+                        cell.addEventListener('mouseenter', (e) => this.continuDrawing(e, x, y));
+                        cell.addEventListener('mouseup', () => this.stopDrawing());
+                        
+                        gridElement.appendChild(cell);
+                    }
+                }
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        this.toggleSimulation();
+                    } else if (e.key === 'Escape') {
+                        this.stopDrawing();
+                    } else if (e.key === 'c' || e.key === 'C') {
+                        this.clearGrid();
+                    } else if (e.key === 'r' || e.key === 'R') {
+                        this.randomizeGrid();
+                    }
+                });
+
+                document.addEventListener('mouseup', () => this.stopDrawing());
+            }
+
+            toggleCell(x, y) {
+                if (this.isRunning) return;
+                
+                this.grid[y][x] = !this.grid[y][x];
+                this.updateCellDisplay(x, y);
+                this.updateStats();
+            }
+
+            startDrawing(e, x, y) {
+                if (this.isRunning) return;
+                
+                e.preventDefault();
+                this.isDrawing = true;
+                this.drawingValue = !this.grid[y][x];
+                this.grid[y][x] = this.drawingValue;
+                this.updateCellDisplay(x, y);
+                this.updateStats();
+                
+                document.getElementById('drawingMode').style.display = 'block';
+            }
+
+            continuDrawing(e, x, y) {
+                if (!this.isDrawing || this.isRunning) return;
+                
+                this.grid[y][x] = this.drawingValue;
+                this.updateCellDisplay(x, y);
+                this.updateStats();
+            }
+
+            stopDrawing() {
+                this.isDrawing = false;
+                document.getElementById('drawingMode').style.display = 'none';
+            }
+
+            updateCellDisplay(x, y) {
+                const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                if (cell) {
+                    cell.classList.remove('alive', 'dying', 'born');
+                    if (this.grid[y][x]) {
+                        cell.classList.add('alive');
+                    }
+                }
+            }
+
+            countNeighbors(x, y) {
+                let count = 0;
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        if (dx === 0 && dy === 0) continue;
+                        
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        
+                        if (nx >= 0 && nx < this.gridWidth && ny >= 0 && ny < this.gridHeight) {
+                            if (this.grid[ny][nx]) count++;
+                        }
+                    }
+                }
+                return count;
+            }
+
+            stepGeneration() {
+                let births = 0;
+                let deaths = 0;
+                const changedCells = [];
+
+                // Calculate next generation
+                for (let y = 0; y < this.gridHeight; y++) {
+                    for (let x = 0; x < this.gridWidth; x++) {
+                        const neighbors = this.countNeighbors(x, y);
+                        const isAlive = this.grid[y][x];
+                        let willBeAlive = false;
+
+                        if (isAlive) {
+                            // Live cell rules
+                            if (neighbors === 2 || neighbors === 3) {
+                                willBeAlive = true; // Survival
+                            } else {
+                                deaths++; // Death by underpopulation or overpopulation
+                            }
+                        } else {
+                            // Dead cell rules
+                            if (neighbors === 3) {
+                                willBeAlive = true; // Birth
+                                births++;
+                            }
+                        }
+
+                        this.nextGrid[y][x] = willBeAlive;
+                        
+                        if (isAlive !== willBeAlive) {
+                            changedCells.push({x, y, born: willBeAlive});
+                        }
+                    }
+                }
+
+                // Apply changes with animations
+                changedCells.forEach(({x, y, born}) => {
+                    const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                    if (cell) {
+                        cell.classList.remove('alive', 'dying', 'born');
+                        if (born) {
+                            cell.classList.add('born');
+                            setTimeout(() => {
+                                cell.classList.remove('born');
+                                cell.classList.add('alive');
+                            }, 300);
+                        } else {
+                            cell.classList.add('dying');
+                            setTimeout(() => {
+                                cell.classList.remove('dying');
+                            }, 300);
+                        }
+                    }
+                });
+
+                // Swap grids
+                [this.grid, this.nextGrid] = [this.nextGrid, this.grid];
+                
+                this.generation++;
+                this.updateStats();
+                this.addToHistory(births, deaths);
+            }
+
+            addToHistory(births, deaths) {
+                const population = this.getPopulation();
+                this.history.push({
+                    generation: this.generation,
+                    population,
+                    births,
+                    deaths
+                });
+
+                // Keep only last 20 generations
+                if (this.history.length > 20) {
+                    this.history.shift();
+                }
+
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = this.history.map(entry => 
+                    `<div class="history-item">
+                        <span>Gen ${entry.generation}</span>
+                        <span>Pop: ${entry.population}</span>
+                        <span>+${entry.births}/-${entry.deaths}</span>
+                    </div>`
+                ).join('');
+                
+                historyList.scrollTop = historyList.scrollHeight;
+            }
+
+            getPopulation() {
+                let count = 0;
+                for (let y = 0; y < this.gridHeight; y++) {
+                    for (let x = 0; x < this.gridWidth; x++) {
+                        if (this.grid[y][x]) count++;
+                    }
+                }
+                return count;
+            }
+
+            updateStats() {
+                const population = this.getPopulation();
+                document.getElementById('generation').textContent = this.generation;
+                document.getElementById('population').textContent = population;
+                
+                if (this.history.length > 0) {
+                    const lastEntry = this.history[this.history.length - 1];
+                    document.getElementById('births').textContent = lastEntry.births;
+                    document.getElementById('deaths').textContent = lastEntry.deaths;
+                }
+            }
+
+            toggleSimulation() {
+                if (this.isRunning) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+
+            play() {
+                this.isRunning = true;
+                document.getElementById('playBtn').innerHTML = '⏸️ Pause';
+                document.getElementById('playBtn').className = 'control-btn pause';
+                
+                this.intervalId = setInterval(() => {
+                    this.stepGeneration();
+                }, this.speed);
+            }
+
+            pause() {
+                this.isRunning = false;
+                document.getElementById('playBtn').innerHTML = '▶️ Play';
+                document.getElementById('playBtn').className = 'control-btn play';
+                
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                }
+            }
+
+            clearGrid() {
+                this.pause();
+                this.initializeGrid();
+                this.generation = 0;
+                this.history = [];
+                
+                document.querySelectorAll('.cell').forEach(cell => {
+                    cell.classList.remove('alive', 'dying', 'born');
+                });
+                
+                this.updateStats();
+                document.getElementById('historyList').innerHTML = '';
+            }
+
+            randomizeGrid() {
+                this.pause();
+                this.clearGrid();
+                
+                for (let y = 0; y < this.gridHeight; y++) {
+                    for (let x = 0; x < this.gridWidth; x++) {
+                        if (Math.random() < 0.3) { // 30% chance of life
+                            this.grid[y][x] = true;
+                            this.updateCellDisplay(x, y);
+                        }
+                    }
+                }
+                
+                this.updateStats();
+            }
+
+            updateSpeed() {
+                const slider = document.getElementById('speedSlider');
+                this.speed = 1000 / parseInt(slider.value); // Convert to milliseconds
+                
+                if (this.isRunning) {
+                    this.pause();
+                    this.play();
+                }
+            }
+
+            zoomIn() {
+                if (this.zoom < 2) {
+                    this.zoom += 0.2;
+                    this.updateZoom();
+                }
+            }
+
+            zoomOut() {
+                if (this.zoom > 0.4) {
+                    this.zoom -= 0.2;
+                    this.updateZoom();
+                }
+            }
+
+            updateZoom() {
+                document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
+                
+                const gridElement = document.getElementById('gameGrid');
+                const cells = gridElement.querySelectorAll('.cell');
+                
+                gridElement.style.gridTemplateColumns = `repeat(${this.gridWidth}, ${this.cellSize * this.zoom}px)`;
+                gridElement.style.gridTemplateRows = `repeat(${this.gridHeight}, ${this.cellSize * this.zoom}px)`;
+                
+                cells.forEach(cell => {
+                    cell.style.width = `${this.cellSize * this.zoom}px`;
+                    cell.style.height = `${this.cellSize * this.zoom}px`;
+                });
+            }
+
+            loadPattern(patternName) {
+                this.pause();
+                this.clearGrid();
+                
+                const centerX = Math.floor(this.gridWidth / 2);
+                const centerY = Math.floor(this.gridHeight / 2);
+                
+                const patterns = {
+                    glider: [
+                        [0, 1], [1, 2], [2, 0], [2, 1], [2, 2]
+                    ],
+                    blinker: [
+                        [0, 0], [0, 1], [0, 2]
+                    ],
+                    toad: [
+                        [1, 0], [1, 1], [1, 2], [2, 1], [2, 2], [2, 3]
+                    ],
+                    beacon: [
+                        [0, 0], [0, 1], [1, 0], [2, 3], [3, 2], [3, 3]
+                    ],
+                    pulsar: [
+                        // Pulsar pattern (simplified)
+                        [2, 0], [3, 0], [4, 0], [8, 0], [9, 0], [10, 0],
+                        [0, 2], [5, 2], [7, 2], [12, 2],
+                        [0, 3], [5, 3], [7, 3], [12, 3],
+                        [0, 4], [5, 4], [7, 4], [12, 4],
+                        [2, 5], [3, 5], [4, 5], [8, 5], [9, 5], [10, 5]
+                    ],
+                    gosperGun: [
+                        // Gosper Glider Gun (partial)
+                        [24, 0], [22, 1], [24, 1], [12, 2], [13, 2], [20, 2], [21, 2], [34, 2], [35, 2],
+                        [11, 3], [15, 3], [20, 3], [21, 3], [34, 3], [35, 3], [0, 4], [1, 4], [10, 4],
+                        [16, 4], [20, 4], [21, 4], [0, 5], [1, 5], [10, 5], [14, 5], [16, 5], [17, 5],
+                        [22, 5], [24, 5], [10, 6], [16, 6], [24, 6], [11, 7], [15, 7], [12, 8], [13, 8]
+                    ],
+                    pentadecathlon: [
+                        [2, 0], [7, 0], [0, 1], [1, 1], [3, 1], [4, 1], [5, 1], [6, 1], [8, 1], [9, 1],
+                        [2, 2], [7, 2]
+                    ],
+                    lwss: [
+                        [0, 0], [3, 0], [4, 1], [0, 2], [4, 2], [1, 3], [2, 3], [3, 3], [4, 3]
+                    ]
+                };
+                
+                const pattern = patterns[patternName];
+                if (pattern) {
+                    pattern.forEach(([dx, dy]) => {
+                        const x = centerX + dx - Math.floor(pattern.length / 4);
+                        const y = centerY + dy - Math.floor(pattern.length / 4);
+                        
+                        if (x >= 0 && x < this.gridWidth && y >= 0 && y < this.gridHeight) {
+                            this.grid[y][x] = true;
+                            this.updateCellDisplay(x, y);
+                        }
+                    });
+                }
+                
+                this.updateStats();
+            }
+        }
+
+        // Global functions for buttons
+        let game;
+
+        function toggleSimulation() {
+            game.toggleSimulation();
+        }
+
+        function stepGeneration() {
+            game.stepGeneration();
+        }
+
+        function clearGrid() {
+            game.clearGrid();
+        }
+
+        function randomizeGrid() {
+            game.randomizeGrid();
+        }
+
+        function updateSpeed() {
+            game.updateSpeed();
+        }
+
+        function zoomIn() {
+            game.zoomIn();
+        }
+
+        function zoomOut() {
+            game.zoomOut();
+        }
+
+        function loadPattern(pattern) {
+            game.loadPattern(pattern);
+        }
+
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            game = new GameOfLife();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970bb712921a6804',t:'MTc1NTQ2MDM4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
