@@ -308,7 +308,39 @@
                         </div>
                     </div>
 
-                    
+                    <!-- Magician Game App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                         onclick="navigateToMagician()">
+                        <div class="text-center">
+                            <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                                🧙‍♂️
+                            </div>
+                            <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                                MAGICIAN TYCOON
+                            </h5>
+                            <div class="flex items-center justify-center space-x-1">
+                                <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- Magician 2 Game App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                         onclick="navigateToHarry()">
+                        <div class="text-center">
+                            <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                                🧙‍♂️
+                            </div>
+                            <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                                MAGICIAN 2
+                            </h5>
+                            <div class="flex items-center justify-center space-x-1">
+                                <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Shooter Game App -->
                     <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
@@ -454,6 +486,70 @@
                        </div>
                    </div>
                 </div>
+                <!-- Hacker Sim App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                        onclick="navigateToHacker()">
+                        <div class="text-center">
+                       <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                        🧑‍💻
+                       </div>
+                       <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                           HACKER SIM
+                       </h5>
+                       <div class="flex items-center justify-center space-x-1">
+                           <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                           <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                       </div>
+                   </div>
+                </div>
+                <!-- Food Tycoon Game App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                        onclick="navigateToFood()">
+                        <div class="text-center">
+                       <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                        🍔
+                       </div>
+                       <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                           FOOD TYCOON
+                       </h5>
+                       <div class="flex items-center justify-center space-x-1">
+                           <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                           <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                       </div>
+                   </div>
+                </div>
+                <!-- Pet Tycoon App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                        onclick="navigateToPet()">
+                        <div class="text-center">
+                       <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                        🐾
+                       </div>
+                       <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                           PET TYCOON
+                       </h5>
+                       <div class="flex items-center justify-center space-x-1">
+                           <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                           <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                       </div>
+                   </div>
+                </div>
+                <!-- Conway Game Of Life App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                        onclick="navigateToConway()">
+                        <div class="text-center">
+                       <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                        🧬
+                       </div>
+                       <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                           CONWAY GAME OF LIFE
+                       </h5>
+                       <div class="flex items-center justify-center space-x-1">
+                           <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                           <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                       </div>
+                   </div>
+                </div>
                    <!-- Development Test App -->
                    <div class="cyber-border bg-gray-900 bg-opacity-50 rounded-lg p-4 opacity-50">
                     <div class="text-center">
@@ -590,6 +686,83 @@
         
             setTimeout(() => {
             window.location.href = 'pantheon2.html';
+            }, 200);
+        }
+        function navigateToFood() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'foodtruckTycoon.html';
+            }, 200);
+        }
+        function navigateToPet() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'pettycoon.html';
+            }, 200);
+        }
+        function navigateToSiegeWarfare() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'siegewarfare.html';
+            }, 200);
+        }
+        function navigateToConway() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'conway0.html';
+            }, 200);
+        }
+        function navigateToHacker() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'hackerSin.html';
+            }, 200);
+        }
+        function navigateToMagician() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'magiciantycoon.html';
+            }, 200);
+        }
+        function navigateToHarry() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'harrypottertycoon.html';
             }, 200);
         }
         function navigateToTankSimulator() {
