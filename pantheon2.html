@@ -21,6 +21,33 @@
             overflow: hidden;
             height: 100vh;
         }
+
+        .back-to-main-btn {
+            position: fixed;
+            bottom: 18px;
+            left: 18px;
+            z-index: 5000;
+            background: linear-gradient(145deg, #222, #444);
+            color: #0f0fc9;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 1.1rem;
+            font-family: 'Cinzel', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: all 0.2s;
+        }
+        .back-to-main-btn:hover {
+            opacity: 1;
+            background: linear-gradient(145deg, #ffd700, #f59e0b);
+            color: #222;
+        }
+        
         
         .mode-selection {
             position: fixed;
@@ -488,39 +515,11 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.4);
         }
-        
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 65%;
-            transform: translateX(-50%);
-            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
-            border: 2px solid rgba(255,215,0,0.5);
-            color: #ffd700;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            z-index: 4000;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .back-btn:hover {
-            transform: translateX(-50%) translateY(-2px);
-            border-color: #ffd700;
-            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
-            background: linear-gradient(145deg, rgba(255,215,0,0.3), rgba(255,215,0,0.15));
-        }
     </style>
 </head>
 <body>
-    <!-- Back Button -->
-    <a href="main.html" class="back-btn">← Back to Main</a>
-    
+    <!-- Back to Main Button -->
+    <button class="back-to-main-btn" onclick="restartGame()" title="Back to Main Menu">&#8592;</button>
     <!-- Mode Selection Screen -->
     <div class="mode-selection" id="modeSelection">
         <h1 class="mode-title">⚡ PANTHEON WARS ⚡</h1>
@@ -533,6 +532,46 @@
             <div class="mode-btn" onclick="selectMode('playerVsPlayer')">
                 <div class="mode-btn-title">👥 God vs God Duel</div>
                 <div class="mode-btn-desc">Local multiplayer divine combat</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Difficulty Selection Screen -->
+    <div class="god-selection" id="difficultySelection" style="display: none;">
+        <h1 class="selection-title">Choose AI Difficulty</h1>
+        <p class="selection-subtitle">Select the challenge level for your divine opponent</p>
+        <div class="mode-buttons" style="margin-bottom: 40px;">
+            <div class="mode-btn" onclick="selectDifficulty('easy')" style="background: linear-gradient(145deg, rgba(34,197,94,0.2), rgba(34,197,94,0.1)); border-color: rgba(34,197,94,0.5);">
+                <div class="mode-btn-title" style="color: #22c55e;">🟢 Easy</div>
+                <div class="mode-btn-desc">Slow attacks, predictable movement</div>
+            </div>
+            <div class="mode-btn" onclick="selectDifficulty('medium')" style="background: linear-gradient(145deg, rgba(251,191,36,0.2), rgba(251,191,36,0.1)); border-color: rgba(251,191,36,0.5);">
+                <div class="mode-btn-title" style="color: #fbbf24;">🟡 Medium</div>
+                <div class="mode-btn-desc">Balanced AI with smart tactics</div>
+            </div>
+            <div class="mode-btn" onclick="selectDifficulty('hard')" style="background: linear-gradient(145deg, rgba(220,38,38,0.2), rgba(220,38,38,0.1)); border-color: rgba(220,38,38,0.5);">
+                <div class="mode-btn-title" style="color: #dc2626;">🔴 Hard</div>
+                <div class="mode-btn-desc">Aggressive, fast, and relentless</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Difficulty Selection Screen -->
+    <div class="god-selection" id="difficultySelection" style="display: none;">
+        <h1 class="selection-title">Choose AI Difficulty</h1>
+        <p class="selection-subtitle">Select the challenge level for your divine opponent</p>
+        <div class="mode-buttons" style="margin-bottom: 40px;">
+            <div class="mode-btn" onclick="selectDifficulty('easy')" style="background: linear-gradient(145deg, rgba(34,197,94,0.2), rgba(34,197,94,0.1)); border-color: rgba(34,197,94,0.5);">
+                <div class="mode-btn-title" style="color: #22c55e;">🟢 Easy</div>
+                <div class="mode-btn-desc">Slow attacks, predictable movement</div>
+            </div>
+            <div class="mode-btn" onclick="selectDifficulty('medium')" style="background: linear-gradient(145deg, rgba(251,191,36,0.2), rgba(251,191,36,0.1)); border-color: rgba(251,191,36,0.5);">
+                <div class="mode-btn-title" style="color: #fbbf24;">🟡 Medium</div>
+                <div class="mode-btn-desc">Balanced AI with smart tactics</div>
+            </div>
+            <div class="mode-btn" onclick="selectDifficulty('hard')" style="background: linear-gradient(145deg, rgba(220,38,38,0.2), rgba(220,38,38,0.1)); border-color: rgba(220,38,38,0.5);">
+                <div class="mode-btn-title" style="color: #dc2626;">🔴 Hard</div>
+                <div class="mode-btn-desc">Aggressive, fast, and relentless</div>
             </div>
         </div>
     </div>
@@ -555,6 +594,26 @@
                         <div class="god-option-name">Poseidon</div>
                         <div class="god-option-power">Tsunami Waves</div>
                     </div>
+                    <div class="god-option" onclick="selectGod('athena')">
+                        <div class="god-option-icon">🦉</div>
+                        <div class="god-option-name">Athena</div>
+                        <div class="god-option-power">Wisdom Strike</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('ares')">
+                        <div class="god-option-icon">⚔️</div>
+                        <div class="god-option-name">Ares</div>
+                        <div class="god-option-power">War Fury</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('apollo')">
+                        <div class="god-option-icon">🏹</div>
+                        <div class="god-option-name">Apollo</div>
+                        <div class="god-option-power">Solar Arrows</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('artemis')">
+                        <div class="god-option-icon">🌙</div>
+                        <div class="god-option-name">Artemis</div>
+                        <div class="god-option-power">Moon Hunt</div>
+                    </div>
                 </div>
             </div>
             
@@ -570,6 +629,26 @@
                         <div class="god-option-icon">🐦‍⬛</div>
                         <div class="god-option-name">Odin</div>
                         <div class="god-option-power">Raven Storm</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('loki')">
+                        <div class="god-option-icon">🔥</div>
+                        <div class="god-option-name">Loki</div>
+                        <div class="god-option-power">Chaos Magic</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('freya')">
+                        <div class="god-option-icon">💎</div>
+                        <div class="god-option-name">Freya</div>
+                        <div class="god-option-power">Love Charm</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('tyr')">
+                        <div class="god-option-icon">🛡️</div>
+                        <div class="god-option-name">Tyr</div>
+                        <div class="god-option-power">Justice Blade</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('heimdall')">
+                        <div class="god-option-icon">👁️</div>
+                        <div class="god-option-name">Heimdall</div>
+                        <div class="god-option-power">All-Sight</div>
                     </div>
                 </div>
             </div>
@@ -587,6 +666,26 @@
                         <div class="god-option-name">Anubis</div>
                         <div class="god-option-power">Death Magic</div>
                     </div>
+                    <div class="god-option" onclick="selectGod('isis')">
+                        <div class="god-option-icon">🪶</div>
+                        <div class="god-option-name">Isis</div>
+                        <div class="god-option-power">Life Force</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('horus')">
+                        <div class="god-option-icon">🦅</div>
+                        <div class="god-option-name">Horus</div>
+                        <div class="god-option-power">Sky Strike</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('thoth')">
+                        <div class="god-option-icon">📜</div>
+                        <div class="god-option-name">Thoth</div>
+                        <div class="god-option-power">Sacred Words</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('bastet')">
+                        <div class="god-option-icon">🐱</div>
+                        <div class="god-option-name">Bastet</div>
+                        <div class="god-option-power">Cat Claws</div>
+                    </div>
                 </div>
             </div>
             
@@ -602,6 +701,78 @@
                         <div class="god-option-icon">⚡</div>
                         <div class="god-option-name">Indra</div>
                         <div class="god-option-power">Storm Bolts</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('vishnu')">
+                        <div class="god-option-icon">🌀</div>
+                        <div class="god-option-name">Vishnu</div>
+                        <div class="god-option-power">Chakra Disc</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('brahma')">
+                        <div class="god-option-icon">🪷</div>
+                        <div class="god-option-name">Brahma</div>
+                        <div class="god-option-power">Creation</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('kali')">
+                        <div class="god-option-icon">🗡️</div>
+                        <div class="god-option-name">Kali</div>
+                        <div class="god-option-power">Destruction</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('hanuman')">
+                        <div class="god-option-icon">🐒</div>
+                        <div class="god-option-name">Hanuman</div>
+                        <div class="god-option-power">Divine Strength</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mythology-section">
+                <h3 class="mythology-title">🌸 Japanese Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" onclick="selectGod('amaterasu')">
+                        <div class="god-option-icon">🌅</div>
+                        <div class="god-option-name">Amaterasu</div>
+                        <div class="god-option-power">Sun Goddess</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('susanoo')">
+                        <div class="god-option-icon">🌪️</div>
+                        <div class="god-option-name">Susanoo</div>
+                        <div class="god-option-power">Storm God</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('tsukuyomi')">
+                        <div class="god-option-icon">🌕</div>
+                        <div class="god-option-name">Tsukuyomi</div>
+                        <div class="god-option-power">Moon Power</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('inari')">
+                        <div class="god-option-icon">🦊</div>
+                        <div class="god-option-name">Inari</div>
+                        <div class="god-option-power">Fox Fire</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mythology-section">
+                <h3 class="mythology-title">🐉 Chinese Pantheon</h3>
+                <div class="god-grid">
+                    <div class="god-option" onclick="selectGod('jade_emperor')">
+                        <div class="god-option-icon">👑</div>
+                        <div class="god-option-name">Jade Emperor</div>
+                        <div class="god-option-power">Celestial Rule</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('dragon_king')">
+                        <div class="god-option-icon">🐲</div>
+                        <div class="god-option-name">Dragon King</div>
+                        <div class="god-option-power">Water Control</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('guanyin')">
+                        <div class="god-option-icon">🙏</div>
+                        <div class="god-option-name">Guanyin</div>
+                        <div class="god-option-power">Compassion</div>
+                    </div>
+                    <div class="god-option" onclick="selectGod('nezha')">
+                        <div class="god-option-icon">🔱</div>
+                        <div class="god-option-name">Nezha</div>
+                        <div class="god-option-power">Lotus Power</div>
                     </div>
                 </div>
             </div>
@@ -679,6 +850,7 @@
         // Game state
         let gameState = {
             mode: null,
+            difficulty: null,
             player1: {
                 god: null,
                 x: 400,
@@ -700,7 +872,10 @@
                 lastAttack: 0,
                 isAI: false,
                 aiStrategy: 'aggressive',
-                aiLastMove: 0
+                aiLastMove: 0,
+                aiSpeed: 3,
+                aiAttackChance: 0.03,
+                aiReactionTime: 50
             },
             camera: { x: 0, y: 0 },
             keys: {},
@@ -715,6 +890,7 @@
 
         // God configurations
         const gods = {
+            // Greek Pantheon
             zeus: { 
                 icon: '⚡', name: 'Zeus', 
                 damage: 45, cost: 20, cooldown: 400,
@@ -725,6 +901,28 @@
                 damage: 50, cost: 25, cooldown: 500,
                 projectileCount: 3, spread: 0.2, speed: 10
             },
+            athena: {
+                icon: '🦉', name: 'Athena',
+                damage: 48, cost: 22, cooldown: 450,
+                projectileCount: 4, spread: 0.15, speed: 9
+            },
+            ares: {
+                icon: '⚔️', name: 'Ares',
+                damage: 65, cost: 35, cooldown: 700,
+                projectileCount: 1, spread: 0, speed: 14
+            },
+            apollo: {
+                icon: '🏹', name: 'Apollo',
+                damage: 52, cost: 24, cooldown: 350,
+                projectileCount: 3, spread: 0.1, speed: 13
+            },
+            artemis: {
+                icon: '🌙', name: 'Artemis',
+                damage: 44, cost: 18, cooldown: 320,
+                projectileCount: 6, spread: 0.4, speed: 11
+            },
+            
+            // Norse Pantheon
             thor: { 
                 icon: '🔨', name: 'Thor', 
                 damage: 60, cost: 30, cooldown: 600,
@@ -735,6 +933,28 @@
                 damage: 35, cost: 15, cooldown: 300,
                 projectileCount: 8, spread: 0.5, speed: 7
             },
+            loki: {
+                icon: '🔥', name: 'Loki',
+                damage: 38, cost: 16, cooldown: 250,
+                projectileCount: 12, spread: 0.8, speed: 6
+            },
+            freya: {
+                icon: '💎', name: 'Freya',
+                damage: 46, cost: 21, cooldown: 400,
+                projectileCount: 5, spread: 0.25, speed: 8
+            },
+            tyr: {
+                icon: '🛡️', name: 'Tyr',
+                damage: 58, cost: 28, cooldown: 550,
+                projectileCount: 2, spread: 0.05, speed: 10
+            },
+            heimdall: {
+                icon: '👁️', name: 'Heimdall',
+                damage: 40, cost: 17, cooldown: 330,
+                projectileCount: 7, spread: 0.35, speed: 9
+            },
+            
+            // Egyptian Pantheon
             ra: { 
                 icon: '☀️', name: 'Ra', 
                 damage: 40, cost: 18, cooldown: 350,
@@ -745,6 +965,28 @@
                 damage: 55, cost: 28, cooldown: 550,
                 projectileCount: 2, spread: 0.1, speed: 11
             },
+            isis: {
+                icon: '🪶', name: 'Isis',
+                damage: 43, cost: 19, cooldown: 380,
+                projectileCount: 5, spread: 0.3, speed: 8
+            },
+            horus: {
+                icon: '🦅', name: 'Horus',
+                damage: 49, cost: 23, cooldown: 420,
+                projectileCount: 4, spread: 0.2, speed: 12
+            },
+            thoth: {
+                icon: '📜', name: 'Thoth',
+                damage: 41, cost: 17, cooldown: 310,
+                projectileCount: 8, spread: 0.45, speed: 7
+            },
+            bastet: {
+                icon: '🐱', name: 'Bastet',
+                damage: 47, cost: 20, cooldown: 290,
+                projectileCount: 6, spread: 0.35, speed: 10
+            },
+            
+            // Hindu Pantheon
             shiva: { 
                 icon: '💃', name: 'Shiva', 
                 damage: 38, cost: 16, cooldown: 280,
@@ -754,22 +996,146 @@
                 icon: '⚡', name: 'Indra', 
                 damage: 42, cost: 19, cooldown: 380,
                 projectileCount: 4, spread: 0.25, speed: 8
+            },
+            vishnu: {
+                icon: '🌀', name: 'Vishnu',
+                damage: 51, cost: 25, cooldown: 480,
+                projectileCount: 3, spread: 0.15, speed: 11
+            },
+            brahma: {
+                icon: '🪷', name: 'Brahma',
+                damage: 39, cost: 16, cooldown: 320,
+                projectileCount: 10, spread: 0.7, speed: 6
+            },
+            kali: {
+                icon: '🗡️', name: 'Kali',
+                damage: 62, cost: 32, cooldown: 650,
+                projectileCount: 2, spread: 0.08, speed: 13
+            },
+            hanuman: {
+                icon: '🐒', name: 'Hanuman',
+                damage: 54, cost: 26, cooldown: 520,
+                projectileCount: 3, spread: 0.12, speed: 12
+            },
+            
+            // Japanese Pantheon
+            amaterasu: {
+                icon: '🌅', name: 'Amaterasu',
+                damage: 45, cost: 20, cooldown: 390,
+                projectileCount: 6, spread: 0.3, speed: 9
+            },
+            susanoo: {
+                icon: '🌪️', name: 'Susanoo',
+                damage: 53, cost: 27, cooldown: 500,
+                projectileCount: 4, spread: 0.2, speed: 11
+            },
+            tsukuyomi: {
+                icon: '🌕', name: 'Tsukuyomi',
+                damage: 41, cost: 18, cooldown: 360,
+                projectileCount: 7, spread: 0.4, speed: 8
+            },
+            inari: {
+                icon: '🦊', name: 'Inari',
+                damage: 44, cost: 19, cooldown: 340,
+                projectileCount: 8, spread: 0.5, speed: 7
+            },
+            
+            // Chinese Pantheon
+            jade_emperor: {
+                icon: '👑', name: 'Jade Emperor',
+                damage: 56, cost: 29, cooldown: 580,
+                projectileCount: 5, spread: 0.2, speed: 10
+            },
+            dragon_king: {
+                icon: '🐲', name: 'Dragon King',
+                damage: 48, cost: 24, cooldown: 460,
+                projectileCount: 4, spread: 0.18, speed: 12
+            },
+            guanyin: {
+                icon: '🙏', name: 'Guanyin',
+                damage: 40, cost: 17, cooldown: 330,
+                projectileCount: 9, spread: 0.55, speed: 7
+            },
+            nezha: {
+                icon: '🔱', name: 'Nezha',
+                damage: 50, cost: 23, cooldown: 430,
+                projectileCount: 6, spread: 0.28, speed: 9
             }
         };
 
         // Mode selection
         function selectMode(mode) {
             gameState.mode = mode;
-            gameState.selectionPhase = 1;
             
             document.getElementById('modeSelection').style.display = 'none';
-            document.getElementById('godSelection').style.display = 'flex';
             
             if (mode === 'aiVsPlayer') {
-                document.getElementById('selectionSubtitle').textContent = 'Choose your god to battle the AI';
+                // Show difficulty selection for AI mode
+                document.getElementById('difficultySelection').style.display = 'flex';
             } else {
+                // Go directly to god selection for PvP
+                gameState.selectionPhase = 1;
+                document.getElementById('godSelection').style.display = 'flex';
                 document.getElementById('selectionSubtitle').textContent = 'Player 1: Choose your god';
             }
+        }
+
+        // Difficulty selection
+        function selectDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+            gameState.selectionPhase = 1;
+            
+            // Set AI parameters based on difficulty
+            switch(difficulty) {
+                case 'easy':
+                    gameState.player2.aiSpeed = 2;
+                    gameState.player2.aiAttackChance = 0.015;
+                    gameState.player2.aiReactionTime = 100;
+                    break;
+                case 'medium':
+                    gameState.player2.aiSpeed = 3;
+                    gameState.player2.aiAttackChance = 0.03;
+                    gameState.player2.aiReactionTime = 50;
+                    break;
+                case 'hard':
+                    gameState.player2.aiSpeed = 4.5;
+                    gameState.player2.aiAttackChance = 0.05;
+                    gameState.player2.aiReactionTime = 25;
+                    break;
+            }
+            
+            document.getElementById('difficultySelection').style.display = 'none';
+            document.getElementById('godSelection').style.display = 'flex';
+            document.getElementById('selectionSubtitle').textContent = `Choose your god to battle the ${difficulty.toUpperCase()} AI`;
+        }
+
+        // Difficulty selection
+        function selectDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+            gameState.selectionPhase = 1;
+            
+            // Set AI parameters based on difficulty
+            switch(difficulty) {
+                case 'easy':
+                    gameState.player2.aiSpeed = 2;
+                    gameState.player2.aiAttackChance = 0.015;
+                    gameState.player2.aiReactionTime = 100;
+                    break;
+                case 'medium':
+                    gameState.player2.aiSpeed = 3;
+                    gameState.player2.aiAttackChance = 0.03;
+                    gameState.player2.aiReactionTime = 50;
+                    break;
+                case 'hard':
+                    gameState.player2.aiSpeed = 4.5;
+                    gameState.player2.aiAttackChance = 0.05;
+                    gameState.player2.aiReactionTime = 25;
+                    break;
+            }
+            
+            document.getElementById('difficultySelection').style.display = 'none';
+            document.getElementById('godSelection').style.display = 'flex';
+            document.getElementById('selectionSubtitle').textContent = `Choose your god to battle the ${difficulty.toUpperCase()} AI`;
         }
 
         // God selection
@@ -1106,7 +1472,7 @@
         // Update AI
         function updateAI() {
             const now = Date.now();
-            if (now - gameState.player2.aiLastMove < 50) return; // Throttle AI updates
+            if (now - gameState.player2.aiLastMove < gameState.player2.aiReactionTime) return;
             
             gameState.player2.aiLastMove = now;
             
@@ -1114,19 +1480,58 @@
             const dy = gameState.player1.y - gameState.player2.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            const speed = 3;
+            const speed = gameState.player2.aiSpeed;
             
-            if (gameState.player2.aiStrategy === 'aggressive') {
-                // Move towards player
-                if (distance > 200) {
-                    const angle = Math.atan2(dy, dx);
+            // Enhanced AI behavior based on difficulty
+            if (gameState.difficulty === 'hard') {
+                // Hard AI: Aggressive with dodging
+                if (distance > 180) {
+                    // Move towards player with slight randomness
+                    const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.2;
                     gameState.player2.x += Math.cos(angle) * speed;
                     gameState.player2.y += Math.sin(angle) * speed;
+                } else {
+                    // Circle strafe when close
+                    const angle = Math.atan2(dy, dx) + Math.PI / 2;
+                    gameState.player2.x += Math.cos(angle) * speed * 0.8;
+                    gameState.player2.y += Math.sin(angle) * speed * 0.8;
+                }
+                
+                // Dodge incoming projectiles
+                for (let projectile of gameState.projectiles) {
+                    if (projectile.type === 'divine') {
+                        const projDx = projectile.x - gameState.player2.x;
+                        const projDy = projectile.y - gameState.player2.y;
+                        const projDistance = Math.sqrt(projDx * projDx + projDy * projDy);
+                        
+                        if (projDistance < 120) {
+                            // Dodge perpendicular to projectile direction
+                            const dodgeAngle = Math.atan2(-projDx, projDy);
+                            gameState.player2.x += Math.cos(dodgeAngle) * speed * 1.5;
+                            gameState.player2.y += Math.sin(dodgeAngle) * speed * 1.5;
+                        }
+                    }
+                }
+            } else if (gameState.difficulty === 'medium') {
+                // Medium AI: Balanced approach
+                if (gameState.player2.aiStrategy === 'aggressive') {
+                    if (distance > 220) {
+                        const angle = Math.atan2(dy, dx);
+                        gameState.player2.x += Math.cos(angle) * speed;
+                        gameState.player2.y += Math.sin(angle) * speed;
+                    }
+                } else {
+                    // Keep distance and circle
+                    if (distance < 280) {
+                        const angle = Math.atan2(-dy, -dx);
+                        gameState.player2.x += Math.cos(angle) * speed;
+                        gameState.player2.y += Math.sin(angle) * speed;
+                    }
                 }
             } else {
-                // Keep distance and circle
-                if (distance < 300) {
-                    const angle = Math.atan2(-dy, -dx);
+                // Easy AI: Simple movement
+                if (distance > 300) {
+                    const angle = Math.atan2(dy, dx);
                     gameState.player2.x += Math.cos(angle) * speed;
                     gameState.player2.y += Math.sin(angle) * speed;
                 }
@@ -1140,19 +1545,25 @@
             document.getElementById('player2').style.left = gameState.player2.x + 'px';
             document.getElementById('player2').style.top = gameState.player2.y + 'px';
             
-            // AI attack
-            if (distance < 400 && Math.random() < 0.03) {
+            // AI attack based on difficulty
+            const attackRange = gameState.difficulty === 'hard' ? 500 : 
+                               gameState.difficulty === 'medium' ? 400 : 350;
+            
+            if (distance < attackRange && Math.random() < gameState.player2.aiAttackChance) {
                 attack(gameState.player2, 'enemy');
             }
             
-            // Change strategy occasionally
-            if (Math.random() < 0.001) {
+            // Change strategy occasionally (less frequent on easy)
+            const strategyChangeChance = gameState.difficulty === 'easy' ? 0.0005 : 0.001;
+            if (Math.random() < strategyChangeChance) {
                 gameState.player2.aiStrategy = gameState.player2.aiStrategy === 'aggressive' ? 'defensive' : 'aggressive';
             }
             
-            // Mana regeneration
+            // Mana regeneration (faster on harder difficulties)
+            const manaRegen = gameState.difficulty === 'hard' ? 0.5 : 
+                             gameState.difficulty === 'medium' ? 0.4 : 0.3;
             if (gameState.player2.mana < gameState.player2.maxMana) {
-                gameState.player2.mana = Math.min(gameState.player2.maxMana, gameState.player2.mana + 0.4);
+                gameState.player2.mana = Math.min(gameState.player2.maxMana, gameState.player2.mana + manaRegen);
             }
         }
 
@@ -1386,9 +1797,16 @@
 
         // Restart game
         function restartGame() {
+            if (gameState.mode == null) {
+                window.location.href = "main.html";
+                return;
+            }
+                
+            
             // Reset game state
             gameState = {
                 mode: null,
+                difficulty: null,
                 player1: {
                     god: null,
                     x: 400,
@@ -1410,7 +1828,10 @@
                     lastAttack: 0,
                     isAI: false,
                     aiStrategy: 'aggressive',
-                    aiLastMove: 0
+                    aiLastMove: 0,
+                    aiSpeed: 3,
+                    aiAttackChance: 0.03,
+                    aiReactionTime: 50
                 },
                 camera: { x: 0, y: 0 },
                 keys: {},
@@ -1430,8 +1851,9 @@
             document.getElementById('victoryScreen').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('godSelection').style.display = 'none';
+            document.getElementById('difficultySelection').style.display = 'none';
             document.getElementById('modeSelection').style.display = 'flex';
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970371e897f99444',t:'MTc1NTM3MzY2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970575be1624f9fd',t:'MTc1NTM5NDc5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
