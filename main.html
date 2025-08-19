@@ -615,6 +615,22 @@
                        </div>
                    </div>
                 </div>
+                <!-- Pong Game App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                        onclick="navigateToPongGame()">
+                        <div class="text-center">
+                       <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                        🏓
+                       </div>
+                       <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                           PONG
+                       </h5>
+                       <div class="flex items-center justify-center space-x-1">
+                           <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                           <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                       </div>
+                   </div>
+                </div>
                 <!-- Conway Game Of Life App -->
                     <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
                         onclick="navigateToConway()">
@@ -879,6 +895,17 @@
         
             setTimeout(() => {
             window.location.href = 'conway0.html';
+            }, 200);
+        }
+        function navigateToPongGame() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7';
+            
+        
+            setTimeout(() => {
+            window.location.href = 'pong.html';
             }, 200);
         }
         function navigateToHacker() {
