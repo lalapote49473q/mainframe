@@ -1011,7 +1011,13 @@
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-4">
+                    <!-- Back Button -->
+                    <button onclick="goBack()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center space-x-2">
+                        <span>←</span>
+                        <span>Back to Main</span>
+                    </button>
+                    
                     <div class="flex items-center" id="collaborators">
                         <div class="collaboration-avatar">JD</div>
                         <div class="collaboration-avatar">SM</div>
@@ -3036,6 +3042,11 @@
             addHistoryItem('Sent collaboration invite');
         }
 
+        // Navigation functions
+        function goBack() {
+            window.location.href = 'main.html';
+        }
+
         // Utility functions
         function showNotification(message, type) {
             const notification = document.createElement('div');
@@ -3054,5 +3065,5 @@
             }, 4000);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9715704465741736',t:'MTc1NTU2MjMzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97159b8d62df15ae',t:'MTc1NTU2NDExMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
