@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu {
+            margin-bottom: 2rem;
+        }
+
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .toggle-btn.active:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .game-info {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .current-player {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* Normal Tic Tac Toe */
+        .normal-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            justify-content: center;
+            margin: 2rem auto;
+        }
+
+        .normal-cell {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 10px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .normal-cell:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .normal-cell:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Ultimate Tic Tac Toe */
+        .ultimate-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .mini-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .mini-board.active {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .mini-board.won {
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .ultimate-cell {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+        }
+
+        .ultimate-cell:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .ultimate-cell:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .mini-board-winner {
+            position: absolute;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .mini-board {
+            position: relative;
+        }
+
+        .controls {
+            margin-top: 2rem;
+        }
+
+        .reset-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 25px;
+            background: #ff6b6b;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        .winner-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .normal-board {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+            }
+
+            .normal-cell {
+                font-size: 1.5rem;
+            }
+
+            .ultimate-board {
+                max-width: 400px;
+            }
+
+            .ultimate-cell {
+                min-height: 35px;
+                font-size: 0.8rem;
+            }
+
+            .mini-board-winner {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Tic Tac Toe</h1>
+        
+        <div class="menu">
+            <div class="mode-toggle">
+                <button class="toggle-btn active" onclick="setGameMode('normal')">Normal</button>
+                <button class="toggle-btn" onclick="setGameMode('ultimate')">Ultimate</button>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="winner-message hidden" id="winnerMessage"></div>
+            <div id="currentPlayerDisplay">Current Player: <span class="current-player">X</span></div>
+            <div id="ultimateInfo" class="hidden">Play in any board to start!</div>
+        </div>
+
+        <!-- Normal Tic Tac Toe Board -->
+        <div id="normalGame">
+            <div class="normal-board" id="normalBoard"></div>
+        </div>
+
+        <!-- Ultimate Tic Tac Toe Board -->
+        <div id="ultimateGame" class="hidden">
+            <div class="ultimate-board" id="ultimateBoard"></div>
+        </div>
+
+        <div class="controls">
+            <button class="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+            <button class="reset-btn" onclick="window.location.href='main.html'" style="background: #4CAF50; margin-left: 1rem;">🏠 Back to Main</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPlayer = 'X';
+        let gameMode = 'normal';
+        let normalBoard = Array(9).fill('');
+        let ultimateBoard = Array(9).fill(null).map(() => Array(9).fill(''));
+        let ultimateBoardWinners = Array(9).fill('');
+        let activeBoard = -1; // -1 means any board, 0-8 means specific board
+        let gameWon = false;
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            
+            // Update toggle buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide appropriate game boards
+            if (mode === 'normal') {
+                document.getElementById('normalGame').classList.remove('hidden');
+                document.getElementById('ultimateGame').classList.add('hidden');
+                document.getElementById('ultimateInfo').classList.add('hidden');
+            } else {
+                document.getElementById('normalGame').classList.add('hidden');
+                document.getElementById('ultimateGame').classList.remove('hidden');
+                document.getElementById('ultimateInfo').classList.remove('hidden');
+            }
+            
+            resetGame();
+        }
+
+        function initializeNormalBoard() {
+            const board = document.getElementById('normalBoard');
+            board.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('button');
+                cell.className = 'normal-cell';
+                cell.onclick = () => makeNormalMove(i);
+                board.appendChild(cell);
+            }
+        }
+
+        function initializeUltimateBoard() {
+            const board = document.getElementById('ultimateBoard');
+            board.innerHTML = '';
+            
+            for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                const miniBoard = document.createElement('div');
+                miniBoard.className = 'mini-board';
+                miniBoard.id = `board-${boardIndex}`;
+                
+                for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+                    const cell = document.createElement('button');
+                    cell.className = 'ultimate-cell';
+                    cell.onclick = () => makeUltimateMove(boardIndex, cellIndex);
+                    miniBoard.appendChild(cell);
+                }
+                
+                board.appendChild(miniBoard);
+            }
+        }
+
+        function makeNormalMove(index) {
+            if (normalBoard[index] || gameWon) return;
+            
+            normalBoard[index] = currentPlayer;
+            updateNormalDisplay();
+            
+            if (checkNormalWin()) {
+                showWinner(`Player ${currentPlayer} wins! 🎉`);
+                gameWon = true;
+                return;
+            }
+            
+            if (normalBoard.every(cell => cell)) {
+                showWinner("It's a tie! 🤝");
+                gameWon = true;
+                return;
+            }
+            
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateCurrentPlayerDisplay();
+        }
+
+        function makeUltimateMove(boardIndex, cellIndex) {
+            if (ultimateBoard[boardIndex][cellIndex] || ultimateBoardWinners[boardIndex] || gameWon) return;
+            if (activeBoard !== -1 && activeBoard !== boardIndex) return;
+            
+            ultimateBoard[boardIndex][cellIndex] = currentPlayer;
+            updateUltimateDisplay();
+            
+            // Check if this mini-board is won
+            if (checkMiniBoardWin(boardIndex)) {
+                ultimateBoardWinners[boardIndex] = currentPlayer;
+                showMiniBoardWinner(boardIndex, currentPlayer);
+                
+                // Check if the ultimate game is won
+                if (checkUltimateWin()) {
+                    showWinner(`Player ${currentPlayer} wins the Ultimate Game! 🏆`);
+                    gameWon = true;
+                    return;
+                }
+            }
+            
+            // Set next active board
+            if (ultimateBoardWinners[cellIndex] || ultimateBoard[cellIndex].every(cell => cell)) {
+                activeBoard = -1; // Any board
+                document.getElementById('ultimateInfo').textContent = 'Play in any available board!';
+            } else {
+                activeBoard = cellIndex;
+                document.getElementById('ultimateInfo').textContent = `Play in board ${cellIndex + 1}`;
+            }
+            
+            updateActiveBoardHighlight();
+            
+            // Check for tie
+            if (ultimateBoardWinners.every((winner, index) => winner || ultimateBoard[index].every(cell => cell))) {
+                showWinner("Ultimate Tie! 🤝");
+                gameWon = true;
+                return;
+            }
+            
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateCurrentPlayerDisplay();
+        }
+
+        function checkNormalWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6] // diagonals
+            ];
+            
+            return winPatterns.some(pattern => 
+                pattern.every(index => normalBoard[index] === currentPlayer)
+            );
+        }
+
+        function checkMiniBoardWin(boardIndex) {
+            const board = ultimateBoard[boardIndex];
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6] // diagonals
+            ];
+            
+            return winPatterns.some(pattern => 
+                pattern.every(index => board[index] === currentPlayer)
+            );
+        }
+
+        function checkUltimateWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6] // diagonals
+            ];
+            
+            return winPatterns.some(pattern => 
+                pattern.every(index => ultimateBoardWinners[index] === currentPlayer)
+            );
+        }
+
+        function updateNormalDisplay() {
+            const cells = document.querySelectorAll('.normal-cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = normalBoard[index];
+                cell.disabled = normalBoard[index] !== '';
+            });
+        }
+
+        function updateUltimateDisplay() {
+            for (let boardIndex = 0; boardIndex < 9; boardIndex++) {
+                const miniBoard = document.getElementById(`board-${boardIndex}`);
+                const cells = miniBoard.querySelectorAll('.ultimate-cell');
+                
+                cells.forEach((cell, cellIndex) => {
+                    cell.textContent = ultimateBoard[boardIndex][cellIndex];
+                    cell.disabled = ultimateBoard[boardIndex][cellIndex] !== '' || ultimateBoardWinners[boardIndex] !== '';
+                });
+            }
+        }
+
+        function updateActiveBoardHighlight() {
+            document.querySelectorAll('.mini-board').forEach((board, index) => {
+                board.classList.remove('active');
+                if (activeBoard === -1 && !ultimateBoardWinners[index]) {
+                    board.classList.add('active');
+                } else if (activeBoard === index) {
+                    board.classList.add('active');
+                }
+            });
+        }
+
+        function showMiniBoardWinner(boardIndex, winner) {
+            const miniBoard = document.getElementById(`board-${boardIndex}`);
+            miniBoard.classList.add('won');
+            
+            const winnerDiv = document.createElement('div');
+            winnerDiv.className = 'mini-board-winner';
+            winnerDiv.textContent = winner;
+            miniBoard.appendChild(winnerDiv);
+        }
+
+        function showWinner(message) {
+            document.getElementById('winnerMessage').textContent = message;
+            document.getElementById('winnerMessage').classList.remove('hidden');
+            document.getElementById('currentPlayerDisplay').classList.add('hidden');
+        }
+
+        function updateCurrentPlayerDisplay() {
+            document.querySelector('.current-player').textContent = currentPlayer;
+        }
+
+        function resetGame() {
+            currentPlayer = 'X';
+            gameWon = false;
+            activeBoard = -1;
+            
+            // Reset normal game
+            normalBoard = Array(9).fill('');
+            
+            // Reset ultimate game
+            ultimateBoard = Array(9).fill(null).map(() => Array(9).fill(''));
+            ultimateBoardWinners = Array(9).fill('');
+            
+            // Reset UI
+            document.getElementById('winnerMessage').classList.add('hidden');
+            document.getElementById('currentPlayerDisplay').classList.remove('hidden');
+            document.getElementById('ultimateInfo').textContent = 'Play in any board to start!';
+            
+            updateCurrentPlayerDisplay();
+            
+            if (gameMode === 'normal') {
+                initializeNormalBoard();
+            } else {
+                initializeUltimateBoard();
+                updateActiveBoardHighlight();
+            }
+        }
+
+        // Initialize the game
+        initializeNormalBoard();
+        initializeUltimateBoard();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'971627e7576ccf27',t:'MTc1NTU2OTg1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
