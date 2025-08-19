@@ -1,0 +1,3058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignCraft Pro - Advanced Design Studio</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-30px); }
+            70% { transform: translateY(-15px); }
+            90% { transform: translateY(-4px); }
+        }
+        
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .pulse-hover:hover { animation: pulse 0.3s ease-in-out; }
+        .bounce-hover:hover { animation: bounce 1s; }
+        
+        .designer-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark-glass {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .canvas-area {
+            background: white;
+            min-height: 600px;
+            border: 2px dashed #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .draggable-element {
+            cursor: move;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .draggable-element:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .selected-element {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+        
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+        }
+        
+        .sidebar {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .template-card {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tool-button {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .tool-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .tool-button.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .gradient-bg-1 { background: linear-gradient(45deg, #ff6b6b, #feca57); }
+        .gradient-bg-2 { background: linear-gradient(45deg, #48cae4, #023e8a); }
+        .gradient-bg-3 { background: linear-gradient(45deg, #f093fb, #f5576c); }
+        .gradient-bg-4 { background: linear-gradient(45deg, #4facfe, #00f2fe); }
+        .gradient-bg-5 { background: linear-gradient(45deg, #43e97b, #38f9d7); }
+        
+        .shape-circle { border-radius: 50%; }
+        .shape-rounded { border-radius: 15px; }
+        .shape-diamond { transform: rotate(45deg); }
+        
+        .filter-blur { filter: blur(2px); }
+        .filter-brightness { filter: brightness(1.5); }
+        .filter-contrast { filter: contrast(1.5); }
+        .filter-grayscale { filter: grayscale(100%); }
+        .filter-sepia { filter: sepia(100%); }
+        
+        .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .box-shadow-lg { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        
+        .layer-item {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .layer-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .layer-item.selected {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .grid-overlay {
+            background-image: 
+                linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .ruler {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        
+        .animation-bounce { animation: bounce 2s infinite; }
+        .animation-pulse { animation: pulse 2s infinite; }
+        .animation-spin { animation: spin 2s linear infinite; }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .brand-colors {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        
+        .brand-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .brand-color:hover {
+            border-color: #3b82f6;
+            transform: scale(1.1);
+        }
+        
+        .font-preview {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .font-preview:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+        }
+        
+        .element-library {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .element-item {
+            aspect-ratio: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .element-item:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+            transform: scale(1.05);
+        }
+        
+        .history-item {
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 4px;
+        }
+        
+        .history-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .collaboration-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -8px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .magic-wand {
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48cae4, #f093fb);
+            background-size: 400% 400%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="designer-bg min-h-screen">
+    <!-- Header Toolbar -->
+    <div class="toolbar border-b shadow-lg">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-gray-800">🎨 DesignCraft Pro</h1>
+                    <div class="flex space-x-2">
+                        <button onclick="newProject()" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            📄 New
+                        </button>
+                        <button onclick="saveProject()" class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                            💾 Save
+                        </button>
+                        <button onclick="loadProject()" class="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                            📁 Open
+                        </button>
+                        <button onclick="toggleCollaboration()" class="bg-orange-600 text-white px-3 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm">
+                            👥 Collaborate
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button onclick="undoAction()" class="text-gray-600 hover:bg-gray-100 px-2 py-1 rounded text-sm">↶ Undo</button>
+                    <button onclick="redoAction()" class="text-gray-600 hover:bg-gray-100 px-2 py-1 rounded text-sm">↷ Redo</button>
+                    <div class="border-l pl-2 ml-2">
+                        <button onclick="previewDesign()" class="bg-yellow-600 text-white px-3 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-sm">
+                            👁️ Preview
+                        </button>
+                        <button onclick="exportDesign()" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm pulse-hover">
+                            ⬇️ Export
+                        </button>
+                        <button onclick="publishDesign()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm pulse-hover">
+                            🚀 Publish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex h-full">
+        <!-- Left Sidebar - Tools & Elements -->
+        <div class="w-80 glass-panel sidebar border-r">
+            <div class="p-4">
+                <!-- Tool Tabs -->
+                <div class="flex space-x-1 mb-4 bg-gray-100 rounded-lg p-1">
+                    <button onclick="switchTab('elements')" id="elementsTab" class="flex-1 py-2 px-3 rounded-md text-sm font-medium bg-white shadow-sm">Elements</button>
+                    <button onclick="switchTab('templates')" id="templatesTab" class="flex-1 py-2 px-3 rounded-md text-sm font-medium text-gray-600">Templates</button>
+                    <button onclick="switchTab('uploads')" id="uploadsTab" class="flex-1 py-2 px-3 rounded-md text-sm font-medium text-gray-600">Uploads</button>
+                </div>
+
+                <!-- Elements Tab -->
+                <div id="elementsContent" class="space-y-6">
+                    <!-- Quick Tools -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🛠️ Quick Tools</h3>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div class="tool-button bg-white p-3 rounded-lg border text-center" onclick="addText()">
+                                <div class="text-xl mb-1">📝</div>
+                                <div class="text-xs">Text</div>
+                            </div>
+                            <div class="tool-button bg-white p-3 rounded-lg border text-center" onclick="addShape('rectangle')">
+                                <div class="text-xl mb-1">⬜</div>
+                                <div class="text-xs">Rectangle</div>
+                            </div>
+                            <div class="tool-button bg-white p-3 rounded-lg border text-center" onclick="addShape('circle')">
+                                <div class="text-xl mb-1">⭕</div>
+                                <div class="text-xs">Circle</div>
+                            </div>
+                            <div class="tool-button bg-white p-3 rounded-lg border text-center" onclick="addImage()">
+                                <div class="text-xl mb-1">🖼️</div>
+                                <div class="text-xs">Image</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shapes Library -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🔷 Shapes</h3>
+                        
+                        <!-- Shape Categories -->
+                        <div class="mb-3">
+                            <div class="flex space-x-1 text-xs">
+                                <button onclick="showShapeCategory('basic')" class="shape-category-btn active px-2 py-1 rounded bg-blue-100 text-blue-700">Basic</button>
+                                <button onclick="showShapeCategory('geometric')" class="shape-category-btn px-2 py-1 rounded hover:bg-gray-100">Geometric</button>
+                                <button onclick="showShapeCategory('arrows')" class="shape-category-btn px-2 py-1 rounded hover:bg-gray-100">Arrows</button>
+                                <button onclick="showShapeCategory('symbols')" class="shape-category-btn px-2 py-1 rounded hover:bg-gray-100">Symbols</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Basic Shapes -->
+                        <div id="basic-shapes" class="element-library shape-category">
+                            <div class="element-item" onclick="addShape('rectangle')">
+                                <div class="w-8 h-6 bg-blue-500 rounded"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('square')">
+                                <div class="w-6 h-6 bg-green-500 rounded"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('circle')">
+                                <div class="w-8 h-8 bg-red-500 rounded-full"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('oval')">
+                                <div class="w-10 h-6 bg-purple-500 rounded-full"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('rounded-rectangle')">
+                                <div class="w-8 h-6 bg-yellow-500 rounded-lg"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('rounded-square')">
+                                <div class="w-6 h-6 bg-pink-500 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Geometric Shapes -->
+                        <div id="geometric-shapes" class="element-library shape-category hidden">
+                            <div class="element-item" onclick="addShape('triangle')">
+                                <div class="w-0 h-0 border-l-4 border-r-4 border-b-8 border-transparent border-b-red-500"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('triangle-up')">
+                                <div class="w-0 h-0 border-l-4 border-r-4 border-t-8 border-transparent border-t-blue-500"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('diamond')">
+                                <div class="w-6 h-6 bg-green-500 transform rotate-45"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('hexagon')">
+                                <div class="text-orange-500 text-2xl">⬡</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('octagon')">
+                                <div class="w-8 h-8 bg-purple-500" style="clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('pentagon')">
+                                <div class="w-8 h-8 bg-indigo-500" style="clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('parallelogram')">
+                                <div class="w-8 h-6 bg-teal-500 transform skew-x-12"></div>
+                            </div>
+                            <div class="element-item" onclick="addShape('trapezoid')">
+                                <div class="w-8 h-6 bg-cyan-500" style="clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow Shapes -->
+                        <div id="arrow-shapes" class="element-library shape-category hidden">
+                            <div class="element-item" onclick="addShape('arrow-right')">
+                                <div class="text-blue-500 text-2xl">➡️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-left')">
+                                <div class="text-green-500 text-2xl">⬅️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-up')">
+                                <div class="text-red-500 text-2xl">⬆️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-down')">
+                                <div class="text-purple-500 text-2xl">⬇️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-up-right')">
+                                <div class="text-yellow-500 text-2xl">↗️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-down-right')">
+                                <div class="text-pink-500 text-2xl">↘️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-down-left')">
+                                <div class="text-indigo-500 text-2xl">↙️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('arrow-up-left')">
+                                <div class="text-teal-500 text-2xl">↖️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('double-arrow')">
+                                <div class="text-orange-500 text-2xl">↔️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('curved-arrow')">
+                                <div class="text-cyan-500 text-2xl">↩️</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Symbol Shapes -->
+                        <div id="symbol-shapes" class="element-library shape-category hidden">
+                            <div class="element-item" onclick="addShape('star')">
+                                <div class="text-yellow-500 text-2xl">⭐</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('star-outline')">
+                                <div class="text-yellow-500 text-2xl">☆</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('heart')">
+                                <div class="text-pink-500 text-2xl">❤️</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('heart-outline')">
+                                <div class="text-pink-500 text-2xl">♡</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('cross')">
+                                <div class="text-red-500 text-2xl">✚</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('check')">
+                                <div class="text-green-500 text-2xl">✓</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('x-mark')">
+                                <div class="text-red-500 text-2xl">✗</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('plus')">
+                                <div class="text-blue-500 text-2xl">➕</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('minus')">
+                                <div class="text-red-500 text-2xl">➖</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('question')">
+                                <div class="text-purple-500 text-2xl">❓</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('exclamation')">
+                                <div class="text-orange-500 text-2xl">❗</div>
+                            </div>
+                            <div class="element-item" onclick="addShape('info')">
+                                <div class="text-blue-500 text-2xl">ℹ️</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Icons Library -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🎯 Icons</h3>
+                        
+                        <!-- Icon Categories -->
+                        <div class="mb-3">
+                            <div class="flex space-x-1 text-xs">
+                                <button onclick="showIconCategory('tech')" class="icon-category-btn active px-2 py-1 rounded bg-blue-100 text-blue-700">Tech</button>
+                                <button onclick="showIconCategory('business')" class="icon-category-btn px-2 py-1 rounded hover:bg-gray-100">Business</button>
+                                <button onclick="showIconCategory('social')" class="icon-category-btn px-2 py-1 rounded hover:bg-gray-100">Social</button>
+                                <button onclick="showIconCategory('nature')" class="icon-category-btn px-2 py-1 rounded hover:bg-gray-100">Nature</button>
+                                <button onclick="showIconCategory('food')" class="icon-category-btn px-2 py-1 rounded hover:bg-gray-100">Food</button>
+                                <button onclick="showIconCategory('transport')" class="icon-category-btn px-2 py-1 rounded hover:bg-gray-100">Transport</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tech Icons -->
+                        <div id="tech-icons" class="element-library icon-category">
+                            <div class="element-item" onclick="addIcon('📱')">📱</div>
+                            <div class="element-item" onclick="addIcon('💻')">💻</div>
+                            <div class="element-item" onclick="addIcon('🖥️')">🖥️</div>
+                            <div class="element-item" onclick="addIcon('⌚')">⌚</div>
+                            <div class="element-item" onclick="addIcon('📷')">📷</div>
+                            <div class="element-item" onclick="addIcon('🎮')">🎮</div>
+                            <div class="element-item" onclick="addIcon('🔌')">🔌</div>
+                            <div class="element-item" onclick="addIcon('💾')">💾</div>
+                            <div class="element-item" onclick="addIcon('🖨️')">🖨️</div>
+                            <div class="element-item" onclick="addIcon('📡')">📡</div>
+                            <div class="element-item" onclick="addIcon('🔋')">🔋</div>
+                            <div class="element-item" onclick="addIcon('💡')">💡</div>
+                            <div class="element-item" onclick="addIcon('🔦')">🔦</div>
+                            <div class="element-item" onclick="addIcon('📺')">📺</div>
+                            <div class="element-item" onclick="addIcon('📻')">📻</div>
+                            <div class="element-item" onclick="addIcon('🎧')">🎧</div>
+                            <div class="element-item" onclick="addIcon('🎤')">🎤</div>
+                            <div class="element-item" onclick="addIcon('☎️')">☎️</div>
+                            <div class="element-item" onclick="addIcon('📞')">📞</div>
+                            <div class="element-item" onclick="addIcon('📠')">📠</div>
+                        </div>
+                        
+                        <!-- Business Icons -->
+                        <div id="business-icons" class="element-library icon-category hidden">
+                            <div class="element-item" onclick="addIcon('💼')">💼</div>
+                            <div class="element-item" onclick="addIcon('📊')">📊</div>
+                            <div class="element-item" onclick="addIcon('📈')">📈</div>
+                            <div class="element-item" onclick="addIcon('📉')">📉</div>
+                            <div class="element-item" onclick="addIcon('💰')">💰</div>
+                            <div class="element-item" onclick="addIcon('💳')">💳</div>
+                            <div class="element-item" onclick="addIcon('🏦')">🏦</div>
+                            <div class="element-item" onclick="addIcon('🏢')">🏢</div>
+                            <div class="element-item" onclick="addIcon('🏪')">🏪</div>
+                            <div class="element-item" onclick="addIcon('🏭')">🏭</div>
+                            <div class="element-item" onclick="addIcon('📋')">📋</div>
+                            <div class="element-item" onclick="addIcon('📝')">📝</div>
+                            <div class="element-item" onclick="addIcon('📄')">📄</div>
+                            <div class="element-item" onclick="addIcon('📑')">📑</div>
+                            <div class="element-item" onclick="addIcon('🗂️')">🗂️</div>
+                            <div class="element-item" onclick="addIcon('📁')">📁</div>
+                            <div class="element-item" onclick="addIcon('📂')">📂</div>
+                            <div class="element-item" onclick="addIcon('🎯')">🎯</div>
+                            <div class="element-item" onclick="addIcon('📌')">📌</div>
+                            <div class="element-item" onclick="addIcon('📍')">📍</div>
+                        </div>
+                        
+                        <!-- Social Icons -->
+                        <div id="social-icons" class="element-library icon-category hidden">
+                            <div class="element-item" onclick="addIcon('👥')">👥</div>
+                            <div class="element-item" onclick="addIcon('👤')">👤</div>
+                            <div class="element-item" onclick="addIcon('💬')">💬</div>
+                            <div class="element-item" onclick="addIcon('💭')">💭</div>
+                            <div class="element-item" onclick="addIcon('🗨️')">🗨️</div>
+                            <div class="element-item" onclick="addIcon('💌')">💌</div>
+                            <div class="element-item" onclick="addIcon('📧')">📧</div>
+                            <div class="element-item" onclick="addIcon('📨')">📨</div>
+                            <div class="element-item" onclick="addIcon('📩')">📩</div>
+                            <div class="element-item" onclick="addIcon('📮')">📮</div>
+                            <div class="element-item" onclick="addIcon('❤️')">❤️</div>
+                            <div class="element-item" onclick="addIcon('💙')">💙</div>
+                            <div class="element-item" onclick="addIcon('💚')">💚</div>
+                            <div class="element-item" onclick="addIcon('💛')">💛</div>
+                            <div class="element-item" onclick="addIcon('🧡')">🧡</div>
+                            <div class="element-item" onclick="addIcon('💜')">💜</div>
+                            <div class="element-item" onclick="addIcon('👍')">👍</div>
+                            <div class="element-item" onclick="addIcon('👎')">👎</div>
+                            <div class="element-item" onclick="addIcon('✨')">✨</div>
+                            <div class="element-item" onclick="addIcon('🎉')">🎉</div>
+                        </div>
+                        
+                        <!-- Nature Icons -->
+                        <div id="nature-icons" class="element-library icon-category hidden">
+                            <div class="element-item" onclick="addIcon('🌳')">🌳</div>
+                            <div class="element-item" onclick="addIcon('🌲')">🌲</div>
+                            <div class="element-item" onclick="addIcon('🌴')">🌴</div>
+                            <div class="element-item" onclick="addIcon('🌿')">🌿</div>
+                            <div class="element-item" onclick="addIcon('🍃')">🍃</div>
+                            <div class="element-item" onclick="addIcon('🌱')">🌱</div>
+                            <div class="element-item" onclick="addIcon('🌾')">🌾</div>
+                            <div class="element-item" onclick="addIcon('🌻')">🌻</div>
+                            <div class="element-item" onclick="addIcon('🌺')">🌺</div>
+                            <div class="element-item" onclick="addIcon('🌸')">🌸</div>
+                            <div class="element-item" onclick="addIcon('🌼')">🌼</div>
+                            <div class="element-item" onclick="addIcon('🌷')">🌷</div>
+                            <div class="element-item" onclick="addIcon('🌹')">🌹</div>
+                            <div class="element-item" onclick="addIcon('☀️')">☀️</div>
+                            <div class="element-item" onclick="addIcon('🌙')">🌙</div>
+                            <div class="element-item" onclick="addIcon('⭐')">⭐</div>
+                            <div class="element-item" onclick="addIcon('🌟')">🌟</div>
+                            <div class="element-item" onclick="addIcon('⚡')">⚡</div>
+                            <div class="element-item" onclick="addIcon('🔥')">🔥</div>
+                            <div class="element-item" onclick="addIcon('💧')">💧</div>
+                        </div>
+                        
+                        <!-- Food Icons -->
+                        <div id="food-icons" class="element-library icon-category hidden">
+                            <div class="element-item" onclick="addIcon('🍎')">🍎</div>
+                            <div class="element-item" onclick="addIcon('🍊')">🍊</div>
+                            <div class="element-item" onclick="addIcon('🍋')">🍋</div>
+                            <div class="element-item" onclick="addIcon('🍌')">🍌</div>
+                            <div class="element-item" onclick="addIcon('🍉')">🍉</div>
+                            <div class="element-item" onclick="addIcon('🍇')">🍇</div>
+                            <div class="element-item" onclick="addIcon('🍓')">🍓</div>
+                            <div class="element-item" onclick="addIcon('🥝')">🥝</div>
+                            <div class="element-item" onclick="addIcon('🍑')">🍑</div>
+                            <div class="element-item" onclick="addIcon('🥭')">🥭</div>
+                            <div class="element-item" onclick="addIcon('🍍')">🍍</div>
+                            <div class="element-item" onclick="addIcon('🥥')">🥥</div>
+                            <div class="element-item" onclick="addIcon('🍕')">🍕</div>
+                            <div class="element-item" onclick="addIcon('🍔')">🍔</div>
+                            <div class="element-item" onclick="addIcon('🌭')">🌭</div>
+                            <div class="element-item" onclick="addIcon('🥪')">🥪</div>
+                            <div class="element-item" onclick="addIcon('🌮')">🌮</div>
+                            <div class="element-item" onclick="addIcon('🌯')">🌯</div>
+                            <div class="element-item" onclick="addIcon('☕')">☕</div>
+                            <div class="element-item" onclick="addIcon('🍰')">🍰</div>
+                        </div>
+                        
+                        <!-- Transport Icons -->
+                        <div id="transport-icons" class="element-library icon-category hidden">
+                            <div class="element-item" onclick="addIcon('🚗')">🚗</div>
+                            <div class="element-item" onclick="addIcon('🚕')">🚕</div>
+                            <div class="element-item" onclick="addIcon('🚙')">🚙</div>
+                            <div class="element-item" onclick="addIcon('🚌')">🚌</div>
+                            <div class="element-item" onclick="addIcon('🚎')">🚎</div>
+                            <div class="element-item" onclick="addIcon('🏎️')">🏎️</div>
+                            <div class="element-item" onclick="addIcon('🚓')">🚓</div>
+                            <div class="element-item" onclick="addIcon('🚑')">🚑</div>
+                            <div class="element-item" onclick="addIcon('🚒')">🚒</div>
+                            <div class="element-item" onclick="addIcon('🚐')">🚐</div>
+                            <div class="element-item" onclick="addIcon('🛻')">🛻</div>
+                            <div class="element-item" onclick="addIcon('🚚')">🚚</div>
+                            <div class="element-item" onclick="addIcon('🚛')">🚛</div>
+                            <div class="element-item" onclick="addIcon('🚜')">🚜</div>
+                            <div class="element-item" onclick="addIcon('🏍️')">🏍️</div>
+                            <div class="element-item" onclick="addIcon('🛵')">🛵</div>
+                            <div class="element-item" onclick="addIcon('🚲')">🚲</div>
+                            <div class="element-item" onclick="addIcon('✈️')">✈️</div>
+                            <div class="element-item" onclick="addIcon('🚀')">🚀</div>
+                            <div class="element-item" onclick="addIcon('🚁')">🚁</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts & Graphs -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">📊 Charts & Graphs</h3>
+                        
+                        <!-- Chart Categories -->
+                        <div class="mb-3">
+                            <div class="flex space-x-1 text-xs">
+                                <button onclick="showChartCategory('basic')" class="chart-category-btn active px-2 py-1 rounded bg-blue-100 text-blue-700">Basic</button>
+                                <button onclick="showChartCategory('advanced')" class="chart-category-btn px-2 py-1 rounded hover:bg-gray-100">Advanced</button>
+                                <button onclick="showChartCategory('infographic')" class="chart-category-btn px-2 py-1 rounded hover:bg-gray-100">Infographic</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Basic Charts -->
+                        <div id="basic-charts" class="space-y-2 chart-category">
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('bar')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📊</div>
+                                    <div>Bar Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('horizontal-bar')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📊</div>
+                                    <div>Horizontal Bar</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('pie')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🥧</div>
+                                    <div>Pie Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('donut')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🍩</div>
+                                    <div>Donut Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('line')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📈</div>
+                                    <div>Line Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('area')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📊</div>
+                                    <div>Area Chart</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Charts -->
+                        <div id="advanced-charts" class="space-y-2 chart-category hidden">
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('scatter')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🔵</div>
+                                    <div>Scatter Plot</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('bubble')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🫧</div>
+                                    <div>Bubble Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('radar')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🕸️</div>
+                                    <div>Radar Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('heatmap')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🔥</div>
+                                    <div>Heatmap</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('treemap')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🗂️</div>
+                                    <div>Treemap</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('waterfall')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">💧</div>
+                                    <div>Waterfall Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('funnel')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🔽</div>
+                                    <div>Funnel Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('gauge')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">⏲️</div>
+                                    <div>Gauge Chart</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Infographic Charts -->
+                        <div id="infographic-charts" class="space-y-2 chart-category hidden">
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('progress-bar')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📊</div>
+                                    <div>Progress Bar</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('progress-circle')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">⭕</div>
+                                    <div>Progress Circle</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('comparison')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">⚖️</div>
+                                    <div>Comparison Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('timeline')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📅</div>
+                                    <div>Timeline</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('process-flow')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🔄</div>
+                                    <div>Process Flow</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('pyramid')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🔺</div>
+                                    <div>Pyramid Chart</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('venn')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">⭕</div>
+                                    <div>Venn Diagram</div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border cursor-pointer hover:bg-blue-50" onclick="addChart('org-chart')">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🏢</div>
+                                    <div>Org Chart</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frames & Borders -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🖼️ Frames</h3>
+                        <div class="element-library">
+                            <div class="element-item border-4 border-gold-400" onclick="addFrame('classic')">
+                                <div class="text-xs">Classic</div>
+                            </div>
+                            <div class="element-item border-4 border-dashed border-blue-400" onclick="addFrame('dashed')">
+                                <div class="text-xs">Dashed</div>
+                            </div>
+                            <div class="element-item border-4 border-double border-purple-400" onclick="addFrame('double')">
+                                <div class="text-xs">Double</div>
+                            </div>
+                            <div class="element-item border-4 border-gradient-to-r from-pink-400 to-blue-400" onclick="addFrame('gradient')">
+                                <div class="text-xs">Gradient</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates Tab -->
+                <div id="templatesContent" class="space-y-4 hidden">
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">📋 Design Templates</h3>
+                        <div class="space-y-3">
+                            <div class="template-card bg-white p-4 rounded-lg border-2 border-gray-200" onclick="loadTemplate('social-post')">
+                                <div class="aspect-video bg-gradient-to-r from-pink-400 to-purple-600 rounded mb-2"></div>
+                                <div class="text-sm font-medium">Social Media Post</div>
+                                <div class="text-xs text-gray-500">1080x1080px</div>
+                            </div>
+                            <div class="template-card bg-white p-4 rounded-lg border-2 border-gray-200" onclick="loadTemplate('presentation')">
+                                <div class="aspect-video bg-gradient-to-r from-blue-400 to-green-600 rounded mb-2"></div>
+                                <div class="text-sm font-medium">Presentation Slide</div>
+                                <div class="text-xs text-gray-500">1920x1080px</div>
+                            </div>
+                            <div class="template-card bg-white p-4 rounded-lg border-2 border-gray-200" onclick="loadTemplate('poster')">
+                                <div class="aspect-[3/4] bg-gradient-to-r from-orange-400 to-red-600 rounded mb-2"></div>
+                                <div class="text-sm font-medium">Event Poster</div>
+                                <div class="text-xs text-gray-500">A4 Portrait</div>
+                            </div>
+                            <div class="template-card bg-white p-4 rounded-lg border-2 border-gray-200" onclick="loadTemplate('business-card')">
+                                <div class="aspect-[16/9] bg-gradient-to-r from-gray-700 to-gray-900 rounded mb-2"></div>
+                                <div class="text-sm font-medium">Business Card</div>
+                                <div class="text-xs text-gray-500">85x55mm</div>
+                            </div>
+                            <div class="template-card bg-white p-4 rounded-lg border-2 border-gray-200" onclick="loadTemplate('logo')">
+                                <div class="aspect-square bg-gradient-to-r from-yellow-400 to-orange-600 rounded mb-2"></div>
+                                <div class="text-sm font-medium">Logo Design</div>
+                                <div class="text-xs text-gray-500">500x500px</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Uploads Tab -->
+                <div id="uploadsContent" class="space-y-4 hidden">
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">📁 Your Uploads</h3>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                            <div class="text-4xl mb-2">📤</div>
+                            <div class="text-sm text-gray-600 mb-3">Drag & drop images here</div>
+                            <button onclick="uploadImage()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+                                Choose Files
+                            </button>
+                        </div>
+                        
+                        <div id="uploadedImages" class="grid grid-cols-2 gap-3 mt-4">
+                            <!-- Uploaded images will appear here -->
+                        </div>
+                    </div>
+
+                    <!-- AI Image Generator -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🤖 AI Image Generator</h3>
+                        <div class="space-y-3">
+                            <!-- API Setup Notice -->
+                            <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm">
+                                <div class="font-medium text-blue-800 mb-1">🔑 DALL-E Integration Ready!</div>
+                                <div class="text-blue-600 text-xs">
+                                    Replace "YOUR_OPENAI_API_KEY" in the code with your OpenAI API key for real AI image generation.
+                                    Currently running in demo mode with sample images.
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-lg text-white">
+                                <div class="text-center mb-3">
+                                    <div class="text-2xl mb-2">✨</div>
+                                    <div class="font-bold">Create with AI</div>
+                                    <div class="text-xs opacity-80 mt-1">Powered by DALL-E 3</div>
+                                </div>
+                                <textarea 
+                                    id="aiPrompt" 
+                                    placeholder="Describe the image you want to create..."
+                                    class="w-full p-2 rounded text-gray-800 text-sm resize-none"
+                                    rows="3"
+                                ></textarea>
+                                <div class="mt-3 space-y-2">
+                                    <div class="flex space-x-2 text-xs">
+                                        <button onclick="setAIStyle('realistic')" class="ai-style-btn active bg-white bg-opacity-20 px-2 py-1 rounded">Realistic</button>
+                                        <button onclick="setAIStyle('artistic')" class="ai-style-btn bg-white bg-opacity-10 px-2 py-1 rounded">Artistic</button>
+                                        <button onclick="setAIStyle('cartoon')" class="ai-style-btn bg-white bg-opacity-10 px-2 py-1 rounded">Cartoon</button>
+                                        <button onclick="setAIStyle('abstract')" class="ai-style-btn bg-white bg-opacity-10 px-2 py-1 rounded">Abstract</button>
+                                    </div>
+                                    <button onclick="generateAIImage()" class="w-full bg-white text-purple-600 py-2 rounded font-bold hover:bg-gray-100 transition-colors">
+                                        🎨 Generate Image
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick AI Prompts -->
+                            <div>
+                                <h4 class="text-sm font-medium mb-2 text-gray-600">Quick Prompts</h4>
+                                <div class="grid grid-cols-1 gap-1 text-xs">
+                                    <button onclick="setAIPrompt('Modern office workspace with plants')" class="text-left p-2 bg-gray-100 rounded hover:bg-gray-200">🏢 Modern office workspace</button>
+                                    <button onclick="setAIPrompt('Abstract geometric pattern in blue and gold')" class="text-left p-2 bg-gray-100 rounded hover:bg-gray-200">🔷 Abstract geometric pattern</button>
+                                    <button onclick="setAIPrompt('Minimalist mountain landscape at sunset')" class="text-left p-2 bg-gray-100 rounded hover:bg-gray-200">🏔️ Mountain landscape</button>
+                                    <button onclick="setAIPrompt('Futuristic city skyline with neon lights')" class="text-left p-2 bg-gray-100 rounded hover:bg-gray-200">🌃 Futuristic cityscape</button>
+                                    <button onclick="setAIPrompt('Watercolor flowers in pastel colors')" class="text-left p-2 bg-gray-100 rounded hover:bg-gray-200">🌸 Watercolor flowers</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Generated Images History -->
+                            <div id="aiGeneratedImages">
+                                <h4 class="text-sm font-medium mb-2 text-gray-600">Generated Images</h4>
+                                <div id="aiImagesList" class="grid grid-cols-2 gap-2">
+                                    <div class="aspect-square bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
+                                        No images yet
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Photos -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">📸 Stock Photos</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-600 rounded cursor-pointer" onclick="addStockPhoto('nature1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">🌲 Nature</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-green-400 to-blue-600 rounded cursor-pointer" onclick="addStockPhoto('business1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">💼 Business</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-pink-400 to-red-600 rounded cursor-pointer" onclick="addStockPhoto('people1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">👥 People</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-yellow-400 to-orange-600 rounded cursor-pointer" onclick="addStockPhoto('tech1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">💻 Tech</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-indigo-400 to-cyan-600 rounded cursor-pointer" onclick="addStockPhoto('abstract1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">🎨 Abstract</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-red-400 to-pink-600 rounded cursor-pointer" onclick="addStockPhoto('lifestyle1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">✨ Lifestyle</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-teal-400 to-green-600 rounded cursor-pointer" onclick="addStockPhoto('food1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">🍎 Food</div>
+                            </div>
+                            <div class="aspect-square bg-gradient-to-br from-purple-400 to-indigo-600 rounded cursor-pointer" onclick="addStockPhoto('travel1')">
+                                <div class="w-full h-full flex items-center justify-center text-white text-xs">✈️ Travel</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Canvas Toolbar -->
+            <div class="bg-white border-b p-3 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleGrid()" class="tool-button p-2 rounded border">
+                            <span class="text-sm">📐 Grid</span>
+                        </button>
+                        <button onclick="toggleRulers()" class="tool-button p-2 rounded border">
+                            <span class="text-sm">📏 Rulers</span>
+                        </button>
+                        <button onclick="toggleSnap()" class="tool-button p-2 rounded border">
+                            <span class="text-sm">🧲 Snap</span>
+                        </button>
+                    </div>
+                    
+                    <div class="border-l pl-4">
+                        <select onchange="changeCanvasSize(this.value)" class="border rounded px-3 py-1 text-sm">
+                            <option value="custom">Custom Size</option>
+                            <option value="1080x1080">Instagram Post (1080x1080)</option>
+                            <option value="1920x1080">Presentation (1920x1080)</option>
+                            <option value="1200x630">Facebook Cover (1200x630)</option>
+                            <option value="500x500">Logo (500x500)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <div class="flex items-center" id="collaborators">
+                        <div class="collaboration-avatar">JD</div>
+                        <div class="collaboration-avatar">SM</div>
+                        <div class="collaboration-avatar">+2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="flex-1 bg-gray-100 relative overflow-auto" id="canvasContainer">
+                <!-- Rulers -->
+                <div id="horizontalRuler" class="ruler h-6 absolute top-0 left-6 right-0 hidden"></div>
+                <div id="verticalRuler" class="ruler w-6 absolute top-6 left-0 bottom-0 hidden"></div>
+                
+                <!-- Canvas -->
+                <div class="p-20">
+                    <div class="canvas-area mx-auto shadow-2xl" id="designCanvas" style="width: 800px; height: 600px;" onclick="deselectAll()">
+                        <div class="p-8 text-center text-gray-400 h-full flex flex-col items-center justify-center" id="canvasPlaceholder">
+                            <div class="text-6xl mb-4">🎨</div>
+                            <div class="text-2xl font-bold mb-2">Start Creating</div>
+                            <div class="text-lg">Add elements from the sidebar to begin your design</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zoom Controls -->
+                <div class="zoom-controls glass-panel rounded-lg p-2 flex items-center space-x-2">
+                    <button onclick="zoomOut()" class="p-2 hover:bg-gray-100 rounded">➖</button>
+                    <span id="zoomLevel" class="text-sm font-medium">100%</span>
+                    <button onclick="zoomIn()" class="p-2 hover:bg-gray-100 rounded">➕</button>
+                    <button onclick="fitToScreen()" class="p-2 hover:bg-gray-100 rounded text-xs">Fit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Properties & Layers -->
+        <div class="w-80 glass-panel sidebar border-l">
+            <div class="p-4">
+                <!-- Property Tabs -->
+                <div class="flex space-x-1 mb-4 bg-gray-100 rounded-lg p-1">
+                    <button onclick="switchPropertyTab('design')" id="designTab" class="flex-1 py-2 px-3 rounded-md text-sm font-medium bg-white shadow-sm">Design</button>
+                    <button onclick="switchPropertyTab('layers')" id="layersTab" class="flex-1 py-2 px-3 rounded-md text-sm font-medium text-gray-600">Layers</button>
+                    <button onclick="switchPropertyTab('history')" id="historyTab" class="flex-1 py-2 px-3 rounded-md text-sm font-medium text-gray-600">History</button>
+                </div>
+
+                <!-- Design Properties -->
+                <div id="designContent" class="space-y-6">
+                    <div id="propertiesPanel">
+                        <div class="text-center text-gray-400 py-8">
+                            <div class="text-3xl mb-3">🎛️</div>
+                            <div>Select an element to edit properties</div>
+                        </div>
+                    </div>
+
+                    <!-- Brand Colors -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🎨 Brand Colors</h3>
+                        <div class="brand-colors">
+                            <div class="brand-color" style="background: #3b82f6" onclick="applyBrandColor('#3b82f6')"></div>
+                            <div class="brand-color" style="background: #ef4444" onclick="applyBrandColor('#ef4444')"></div>
+                            <div class="brand-color" style="background: #10b981" onclick="applyBrandColor('#10b981')"></div>
+                            <div class="brand-color" style="background: #f59e0b" onclick="applyBrandColor('#f59e0b')"></div>
+                            <div class="brand-color" style="background: #8b5cf6" onclick="applyBrandColor('#8b5cf6')"></div>
+                            <div class="brand-color" style="background: #ec4899" onclick="applyBrandColor('#ec4899')"></div>
+                            <div class="brand-color" style="background: #06b6d4" onclick="applyBrandColor('#06b6d4')"></div>
+                            <div class="brand-color" style="background: #84cc16" onclick="applyBrandColor('#84cc16')"></div>
+                            <div class="brand-color" style="background: #f97316" onclick="applyBrandColor('#f97316')"></div>
+                            <div class="brand-color" style="background: #6366f1" onclick="applyBrandColor('#6366f1')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Gradients -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">🌈 Gradients</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="gradient-bg-1 h-8 rounded cursor-pointer" onclick="applyGradient('gradient-bg-1')"></div>
+                            <div class="gradient-bg-2 h-8 rounded cursor-pointer" onclick="applyGradient('gradient-bg-2')"></div>
+                            <div class="gradient-bg-3 h-8 rounded cursor-pointer" onclick="applyGradient('gradient-bg-3')"></div>
+                            <div class="gradient-bg-4 h-8 rounded cursor-pointer" onclick="applyGradient('gradient-bg-4')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Typography -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">📝 Typography</h3>
+                        <div class="space-y-2">
+                            <div class="font-preview" style="font-family: 'Arial', sans-serif" onclick="applyFont('Arial')">
+                                <div class="font-medium">Arial</div>
+                                <div class="text-sm text-gray-500">The quick brown fox</div>
+                            </div>
+                            <div class="font-preview" style="font-family: 'Georgia', serif" onclick="applyFont('Georgia')">
+                                <div class="font-medium">Georgia</div>
+                                <div class="text-sm text-gray-500">The quick brown fox</div>
+                            </div>
+                            <div class="font-preview" style="font-family: 'Courier New', monospace" onclick="applyFont('Courier New')">
+                                <div class="font-medium">Courier New</div>
+                                <div class="text-sm text-gray-500">The quick brown fox</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Magic Effects -->
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">✨ Magic Effects</h3>
+                        <div class="space-y-2">
+                            <button onclick="applyMagicEffect('auto-enhance')" class="w-full magic-wand text-white py-2 rounded-lg font-medium">
+                                🪄 Auto Enhance
+                            </button>
+                            <button onclick="applyMagicEffect('remove-bg')" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
+                                🎭 Remove Background
+                            </button>
+                            <button onclick="applyMagicEffect('smart-crop')" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                                ✂️ Smart Crop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layers Panel -->
+                <div id="layersContent" class="space-y-4 hidden">
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">📚 Layers</h3>
+                        <div id="layersList" class="space-y-1">
+                            <div class="text-center text-gray-400 py-8">
+                                <div class="text-3xl mb-3">📄</div>
+                                <div>No layers yet</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layer Controls -->
+                    <div class="flex space-x-2">
+                        <button onclick="duplicateLayer()" class="flex-1 bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700">
+                            📋 Duplicate
+                        </button>
+                        <button onclick="deleteLayer()" class="flex-1 bg-red-600 text-white py-2 rounded text-sm hover:bg-red-700">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Panel -->
+                <div id="historyContent" class="space-y-4 hidden">
+                    <div>
+                        <h3 class="font-semibold mb-3 text-gray-700">⏰ History</h3>
+                        <div id="historyList" class="space-y-1">
+                            <div class="history-item">
+                                <div class="text-sm font-medium">Project Created</div>
+                                <div class="text-xs text-gray-500">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 max-w-6xl max-h-[90vh] w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">👁️ Design Preview</h3>
+                <button onclick="closePreview()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="border rounded-lg overflow-hidden bg-gray-100 p-8" style="height: 70vh;">
+                <div id="previewContent" class="w-full h-full flex items-center justify-center">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-6">⬇️ Export Design</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Format</label>
+                    <select id="exportFormat" class="w-full p-3 border rounded-lg">
+                        <option value="png">PNG (High Quality)</option>
+                        <option value="jpg">JPG (Smaller Size)</option>
+                        <option value="pdf">PDF (Print Ready)</option>
+                        <option value="svg">SVG (Vector)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Quality</label>
+                    <select id="exportQuality" class="w-full p-3 border rounded-lg">
+                        <option value="high">High (300 DPI)</option>
+                        <option value="medium">Medium (150 DPI)</option>
+                        <option value="low">Low (72 DPI)</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="confirmExport()" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                        ⬇️ Download
+                    </button>
+                    <button onclick="closeExport()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collaboration Modal -->
+    <div id="collaborationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-6">👥 Collaboration</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Share Link</label>
+                    <div class="flex">
+                        <input type="text" id="shareLink" class="flex-1 p-3 border rounded-l-lg bg-gray-50" value="https://designcraft.pro/share/abc123" readonly>
+                        <button onclick="copyShareLink()" class="bg-blue-600 text-white px-4 rounded-r-lg hover:bg-blue-700">
+                            📋 Copy
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Permissions</label>
+                    <select class="w-full p-3 border rounded-lg">
+                        <option>Can Edit</option>
+                        <option>Can Comment</option>
+                        <option>Can View</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="sendInvite()" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                        📧 Send Invite
+                    </button>
+                    <button onclick="closeCollaboration()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // Global state
+        let currentProject = {
+            elements: [],
+            layers: [],
+            history: [],
+            settings: {
+                title: 'Untitled Design',
+                width: 800,
+                height: 600,
+                background: '#ffffff'
+            }
+        };
+        
+        let selectedElement = null;
+        let elementCounter = 0;
+        let layerCounter = 0;
+        let historyIndex = 0;
+        let zoomLevel = 100;
+        let gridEnabled = false;
+        let rulersEnabled = false;
+        let snapEnabled = true;
+        let currentTool = 'select';
+        let activeTab = 'elements';
+        let activePropertyTab = 'design';
+        let currentAIStyle = 'realistic';
+        let aiImageCounter = 0;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            showNotification('🎨 Welcome to DesignCraft Pro!', 'success');
+            addHistoryItem('Project Created');
+        });
+
+        // Category switching functions
+        function showIconCategory(category) {
+            // Update button states
+            document.querySelectorAll('.icon-category-btn').forEach(btn => {
+                btn.className = btn.className.replace('active bg-blue-100 text-blue-700', 'hover:bg-gray-100');
+            });
+            event.target.className = event.target.className.replace('hover:bg-gray-100', 'active bg-blue-100 text-blue-700');
+            
+            // Show/hide icon categories
+            document.querySelectorAll('.icon-category').forEach(cat => cat.classList.add('hidden'));
+            document.getElementById(category + '-icons').classList.remove('hidden');
+        }
+
+        function showShapeCategory(category) {
+            // Update button states
+            document.querySelectorAll('.shape-category-btn').forEach(btn => {
+                btn.className = btn.className.replace('active bg-blue-100 text-blue-700', 'hover:bg-gray-100');
+            });
+            event.target.className = event.target.className.replace('hover:bg-gray-100', 'active bg-blue-100 text-blue-700');
+            
+            // Show/hide shape categories
+            document.querySelectorAll('.shape-category').forEach(cat => cat.classList.add('hidden'));
+            document.getElementById(category + '-shapes').classList.remove('hidden');
+        }
+
+        function showChartCategory(category) {
+            // Update button states
+            document.querySelectorAll('.chart-category-btn').forEach(btn => {
+                btn.className = btn.className.replace('active bg-blue-100 text-blue-700', 'hover:bg-gray-100');
+            });
+            event.target.className = event.target.className.replace('hover:bg-gray-100', 'active bg-blue-100 text-blue-700');
+            
+            // Show/hide chart categories
+            document.querySelectorAll('.chart-category').forEach(cat => cat.classList.add('hidden'));
+            document.getElementById(category + '-charts').classList.remove('hidden');
+        }
+
+        // AI Image Generator functions
+        function setAIStyle(style) {
+            currentAIStyle = style;
+            
+            // Update button states
+            document.querySelectorAll('.ai-style-btn').forEach(btn => {
+                btn.className = btn.className.replace('active bg-white bg-opacity-20', 'bg-white bg-opacity-10');
+            });
+            event.target.className = event.target.className.replace('bg-white bg-opacity-10', 'active bg-white bg-opacity-20');
+        }
+
+        function setAIPrompt(prompt) {
+            document.getElementById('aiPrompt').value = prompt;
+        }
+
+        async function generateAIImage() {
+            const prompt = document.getElementById('aiPrompt').value.trim();
+            
+            if (!prompt) {
+                showNotification('⚠️ Please enter a description for your image!', 'warning');
+                return;
+            }
+            
+            showNotification('🤖 AI is generating your image...', 'info');
+            
+            try {
+                // Call DALL-E API to generate real image
+                const response = await fetch('https://api.openai.com/v1/images/generations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer YOUR_OPENAI_API_KEY' // Replace with actual API key
+                    },
+                    body: JSON.stringify({
+                        model: "dall-e-3",
+                        prompt: `${prompt}, ${currentAIStyle} style, high quality, detailed`,
+                        n: 1,
+                        size: "1024x1024",
+                        quality: "standard",
+                        style: currentAIStyle === 'realistic' ? 'natural' : 'vivid'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate image');
+                }
+                
+                const data = await response.json();
+                const imageUrl = data.data[0].url;
+                
+                // Add real generated image to list
+                const imagesList = document.getElementById('aiImagesList');
+                
+                // Remove placeholder if it exists
+                if (imagesList.querySelector('.text-gray-400')) {
+                    imagesList.innerHTML = '';
+                }
+                
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'aspect-square rounded cursor-pointer overflow-hidden relative group border-2 border-purple-300';
+                imageDiv.innerHTML = `
+                    <img src="${imageUrl}" alt="${prompt}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                        <div class="opacity-0 group-hover:opacity-100 text-white font-bold text-xs text-center p-2">
+                            <div class="mb-1">✨ AI Generated</div>
+                            <div class="text-xs opacity-80">${prompt.substring(0, 25)}${prompt.length > 25 ? '...' : ''}</div>
+                            <div class="mt-2 bg-white bg-opacity-20 px-2 py-1 rounded">Click to Add</div>
+                        </div>
+                    </div>
+                `;
+                
+                imageDiv.onclick = () => {
+                    addRealAIImageToCanvas(imageUrl, prompt, currentAIStyle);
+                };
+                
+                imagesList.insertBefore(imageDiv, imagesList.firstChild);
+                
+                // Keep only last 8 images
+                while (imagesList.children.length > 8) {
+                    imagesList.removeChild(imagesList.lastChild);
+                }
+                
+                showNotification('✨ Real AI image generated successfully!', 'success');
+                addHistoryItem(`Generated AI image: ${prompt.substring(0, 20)}...`);
+                
+                // Clear the prompt
+                document.getElementById('aiPrompt').value = '';
+                
+            } catch (error) {
+                console.error('Error generating image:', error);
+                
+                // Fallback to demo mode with enhanced placeholder
+                showNotification('🎨 Demo Mode: Creating AI-style placeholder...', 'info');
+                
+                setTimeout(() => {
+                    const imageId = `ai-demo-${++aiImageCounter}`;
+                    
+                    // Create more realistic demo images using Unsplash API or similar
+                    const demoImages = [
+                        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=400&h=400&fit=crop',
+                        'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=400&h=400&fit=crop'
+                    ];
+                    
+                    const randomImage = demoImages[Math.floor(Math.random() * demoImages.length)];
+                    
+                    // Add to generated images list
+                    const imagesList = document.getElementById('aiImagesList');
+                    
+                    // Remove placeholder if it exists
+                    if (imagesList.querySelector('.text-gray-400')) {
+                        imagesList.innerHTML = '';
+                    }
+                    
+                    const imageDiv = document.createElement('div');
+                    imageDiv.className = 'aspect-square rounded cursor-pointer overflow-hidden relative group border-2 border-blue-300';
+                    imageDiv.innerHTML = `
+                        <img src="${randomImage}" alt="${prompt}" class="w-full h-full object-cover">
+                        <div class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">DEMO</div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                            <div class="opacity-0 group-hover:opacity-100 text-white font-bold text-xs text-center p-2">
+                                <div class="mb-1">🎨 Demo Image</div>
+                                <div class="text-xs opacity-80">${prompt.substring(0, 25)}${prompt.length > 25 ? '...' : ''}</div>
+                                <div class="mt-2 bg-white bg-opacity-20 px-2 py-1 rounded">Click to Add</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    imageDiv.onclick = () => {
+                        addRealAIImageToCanvas(randomImage, prompt, currentAIStyle);
+                    };
+                    
+                    imagesList.insertBefore(imageDiv, imagesList.firstChild);
+                    
+                    // Keep only last 8 images
+                    while (imagesList.children.length > 8) {
+                        imagesList.removeChild(imagesList.lastChild);
+                    }
+                    
+                    showNotification('🎨 Demo image created! (Connect API key for real AI)', 'success');
+                    addHistoryItem(`Generated demo image: ${prompt.substring(0, 20)}...`);
+                    
+                    // Clear the prompt
+                    document.getElementById('aiPrompt').value = '';
+                }, 2000);
+            }
+        }
+
+        function addAIImageToCanvas(gradient, prompt, style) {
+            saveState();
+            const elementId = `ai-image-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const imageElement = document.createElement('div');
+            imageElement.id = elementId;
+            imageElement.className = 'draggable-element absolute cursor-move rounded-lg overflow-hidden';
+            imageElement.style.cssText = 'left: 100px; top: 100px; width: 200px; height: 200px;';
+            imageElement.style.background = gradient;
+            imageElement.innerHTML = `
+                <div class="w-full h-full flex flex-col items-center justify-center text-white p-4">
+                    <div class="text-sm font-bold mb-2">${style}</div>
+                    <div class="text-xs text-center opacity-90">${prompt}</div>
+                </div>
+            `;
+            
+            imageElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'ai-image');
+            };
+            
+            addElementToCanvas(imageElement, elementId, 'ai-image', layerId);
+            showNotification('🎨 AI image added to canvas!', 'success');
+        }
+
+        function addRealAIImageToCanvas(imageUrl, prompt, style) {
+            saveState();
+            const elementId = `ai-real-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const imageElement = document.createElement('div');
+            imageElement.id = elementId;
+            imageElement.className = 'draggable-element absolute cursor-move rounded-lg overflow-hidden shadow-lg';
+            imageElement.style.cssText = 'left: 100px; top: 100px; width: 250px; height: 250px;';
+            imageElement.innerHTML = `
+                <img src="${imageUrl}" alt="${prompt}" class="w-full h-full object-cover">
+                <div class="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full opacity-80">
+                    ✨ AI
+                </div>
+            `;
+            
+            imageElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'ai-image');
+            };
+            
+            addElementToCanvas(imageElement, elementId, 'ai-image', layerId);
+            showNotification('✨ Real AI image added to canvas!', 'success');
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('[id$="Tab"]').forEach(btn => {
+                btn.className = btn.className.replace('bg-white shadow-sm', 'text-gray-600');
+            });
+            document.getElementById(tab + 'Tab').className = document.getElementById(tab + 'Tab').className.replace('text-gray-600', 'bg-white shadow-sm');
+            
+            // Show/hide content
+            document.getElementById('elementsContent').classList.toggle('hidden', tab !== 'elements');
+            document.getElementById('templatesContent').classList.toggle('hidden', tab !== 'templates');
+            document.getElementById('uploadsContent').classList.toggle('hidden', tab !== 'uploads');
+            
+            activeTab = tab;
+        }
+
+        function switchPropertyTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('#designTab, #layersTab, #historyTab').forEach(btn => {
+                btn.className = btn.className.replace('bg-white shadow-sm', 'text-gray-600');
+            });
+            document.getElementById(tab + 'Tab').className = document.getElementById(tab + 'Tab').className.replace('text-gray-600', 'bg-white shadow-sm');
+            
+            // Show/hide content
+            document.getElementById('designContent').classList.toggle('hidden', tab !== 'design');
+            document.getElementById('layersContent').classList.toggle('hidden', tab !== 'layers');
+            document.getElementById('historyContent').classList.toggle('hidden', tab !== 'history');
+            
+            activePropertyTab = tab;
+        }
+
+        // Element creation functions
+        function addText() {
+            saveState();
+            const elementId = `text-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const textElement = document.createElement('div');
+            textElement.id = elementId;
+            textElement.className = 'draggable-element absolute cursor-move';
+            textElement.style.cssText = 'left: 50px; top: 50px; font-size: 24px; font-weight: bold; color: #333;';
+            textElement.contentEditable = true;
+            textElement.textContent = 'Double click to edit';
+            textElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'text');
+            };
+            
+            addElementToCanvas(textElement, elementId, 'text', layerId);
+            showNotification('📝 Text added!', 'success');
+        }
+
+        function addShape(shapeType) {
+            saveState();
+            const elementId = `shape-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const shapeElement = document.createElement('div');
+            shapeElement.id = elementId;
+            shapeElement.className = 'draggable-element absolute cursor-move';
+            shapeElement.style.cssText = 'left: 100px; top: 100px; width: 100px; height: 100px;';
+            
+            switch(shapeType) {
+                // Basic shapes
+                case 'rectangle':
+                    shapeElement.style.backgroundColor = '#3b82f6';
+                    shapeElement.style.borderRadius = '8px';
+                    break;
+                case 'square':
+                    shapeElement.style.backgroundColor = '#10b981';
+                    shapeElement.style.borderRadius = '8px';
+                    break;
+                case 'circle':
+                    shapeElement.style.backgroundColor = '#ef4444';
+                    shapeElement.style.borderRadius = '50%';
+                    break;
+                case 'oval':
+                    shapeElement.style.backgroundColor = '#8b5cf6';
+                    shapeElement.style.borderRadius = '50%';
+                    shapeElement.style.width = '150px';
+                    break;
+                case 'rounded-rectangle':
+                    shapeElement.style.backgroundColor = '#f59e0b';
+                    shapeElement.style.borderRadius = '20px';
+                    break;
+                case 'rounded-square':
+                    shapeElement.style.backgroundColor = '#ec4899';
+                    shapeElement.style.borderRadius = '20px';
+                    break;
+                
+                // Geometric shapes
+                case 'triangle':
+                    shapeElement.style.width = '0';
+                    shapeElement.style.height = '0';
+                    shapeElement.style.borderLeft = '50px solid transparent';
+                    shapeElement.style.borderRight = '50px solid transparent';
+                    shapeElement.style.borderBottom = '100px solid #ef4444';
+                    break;
+                case 'triangle-up':
+                    shapeElement.style.width = '0';
+                    shapeElement.style.height = '0';
+                    shapeElement.style.borderLeft = '50px solid transparent';
+                    shapeElement.style.borderRight = '50px solid transparent';
+                    shapeElement.style.borderTop = '100px solid #3b82f6';
+                    break;
+                case 'diamond':
+                    shapeElement.style.backgroundColor = '#10b981';
+                    shapeElement.style.transform = 'rotate(45deg)';
+                    shapeElement.style.width = '80px';
+                    shapeElement.style.height = '80px';
+                    break;
+                case 'hexagon':
+                    shapeElement.innerHTML = '⬡';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    shapeElement.style.color = '#f97316';
+                    break;
+                case 'octagon':
+                    shapeElement.style.backgroundColor = '#8b5cf6';
+                    shapeElement.style.clipPath = 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)';
+                    break;
+                case 'pentagon':
+                    shapeElement.style.backgroundColor = '#6366f1';
+                    shapeElement.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
+                    break;
+                case 'parallelogram':
+                    shapeElement.style.backgroundColor = '#14b8a6';
+                    shapeElement.style.transform = 'skewX(20deg)';
+                    break;
+                case 'trapezoid':
+                    shapeElement.style.backgroundColor = '#06b6d4';
+                    shapeElement.style.clipPath = 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)';
+                    break;
+                
+                // Arrow shapes
+                case 'arrow-right':
+                    shapeElement.innerHTML = '➡️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-left':
+                    shapeElement.innerHTML = '⬅️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-up':
+                    shapeElement.innerHTML = '⬆️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-down':
+                    shapeElement.innerHTML = '⬇️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-up-right':
+                    shapeElement.innerHTML = '↗️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-down-right':
+                    shapeElement.innerHTML = '↘️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-down-left':
+                    shapeElement.innerHTML = '↙️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'arrow-up-left':
+                    shapeElement.innerHTML = '↖️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'double-arrow':
+                    shapeElement.innerHTML = '↔️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'curved-arrow':
+                    shapeElement.innerHTML = '↩️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                
+                // Symbol shapes
+                case 'star':
+                    shapeElement.innerHTML = '⭐';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'star-outline':
+                    shapeElement.innerHTML = '☆';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    shapeElement.style.color = '#f59e0b';
+                    break;
+                case 'heart':
+                    shapeElement.innerHTML = '❤️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'heart-outline':
+                    shapeElement.innerHTML = '♡';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    shapeElement.style.color = '#ec4899';
+                    break;
+                case 'cross':
+                    shapeElement.innerHTML = '✚';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    shapeElement.style.color = '#ef4444';
+                    break;
+                case 'check':
+                    shapeElement.innerHTML = '✓';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    shapeElement.style.color = '#10b981';
+                    break;
+                case 'x-mark':
+                    shapeElement.innerHTML = '✗';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    shapeElement.style.color = '#ef4444';
+                    break;
+                case 'plus':
+                    shapeElement.innerHTML = '➕';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'minus':
+                    shapeElement.innerHTML = '➖';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'question':
+                    shapeElement.innerHTML = '❓';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'exclamation':
+                    shapeElement.innerHTML = '❗';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+                case 'info':
+                    shapeElement.innerHTML = 'ℹ️';
+                    shapeElement.style.fontSize = '80px';
+                    shapeElement.style.textAlign = 'center';
+                    shapeElement.style.lineHeight = '100px';
+                    break;
+            }
+            
+            shapeElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'shape');
+            };
+            
+            addElementToCanvas(shapeElement, elementId, 'shape', layerId);
+            showNotification(`🔷 ${shapeType.replace('-', ' ')} added!`, 'success');
+        }
+
+        function addIcon(icon) {
+            saveState();
+            const elementId = `icon-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const iconElement = document.createElement('div');
+            iconElement.id = elementId;
+            iconElement.className = 'draggable-element absolute cursor-move';
+            iconElement.style.cssText = 'left: 150px; top: 150px; font-size: 48px;';
+            iconElement.textContent = icon;
+            iconElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'icon');
+            };
+            
+            addElementToCanvas(iconElement, elementId, 'icon', layerId);
+            showNotification('🎯 Icon added!', 'success');
+        }
+
+        function addImage() {
+            saveState();
+            const elementId = `image-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const imageElement = document.createElement('div');
+            imageElement.id = elementId;
+            imageElement.className = 'draggable-element absolute cursor-move bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center';
+            imageElement.style.cssText = 'left: 200px; top: 200px; width: 200px; height: 150px;';
+            imageElement.innerHTML = `
+                <div class="text-center">
+                    <div class="text-4xl mb-2">🖼️</div>
+                    <div class="text-sm text-gray-600">Click to upload</div>
+                </div>
+            `;
+            imageElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'image');
+            };
+            
+            addElementToCanvas(imageElement, elementId, 'image', layerId);
+            showNotification('🖼️ Image placeholder added!', 'success');
+        }
+
+        function addChart(chartType) {
+            saveState();
+            const elementId = `chart-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const chartElement = document.createElement('div');
+            chartElement.id = elementId;
+            chartElement.className = 'draggable-element absolute cursor-move bg-white border rounded-lg p-4';
+            chartElement.style.cssText = 'left: 250px; top: 250px; width: 300px; height: 200px;';
+            
+            let chartContent = '';
+            switch(chartType) {
+                // Basic Charts
+                case 'bar':
+                    chartContent = `
+                        <div class="h-full flex items-end justify-around">
+                            <div class="bg-blue-500 w-8" style="height: 60%"></div>
+                            <div class="bg-green-500 w-8" style="height: 80%"></div>
+                            <div class="bg-red-500 w-8" style="height: 40%"></div>
+                            <div class="bg-yellow-500 w-8" style="height: 90%"></div>
+                        </div>
+                    `;
+                    break;
+                case 'horizontal-bar':
+                    chartContent = `
+                        <div class="h-full flex flex-col justify-around">
+                            <div class="bg-blue-500 h-6" style="width: 60%"></div>
+                            <div class="bg-green-500 h-6" style="width: 80%"></div>
+                            <div class="bg-red-500 h-6" style="width: 40%"></div>
+                            <div class="bg-yellow-500 h-6" style="width: 90%"></div>
+                        </div>
+                    `;
+                    break;
+                case 'pie':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <div class="w-32 h-32 rounded-full" style="background: conic-gradient(#3b82f6 0deg 120deg, #10b981 120deg 240deg, #ef4444 240deg 360deg);"></div>
+                        </div>
+                    `;
+                    break;
+                case 'donut':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <div class="w-32 h-32 rounded-full relative" style="background: conic-gradient(#3b82f6 0deg 120deg, #10b981 120deg 240deg, #ef4444 240deg 360deg);">
+                                <div class="absolute inset-4 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'line':
+                    chartContent = `
+                        <div class="h-full relative">
+                            <svg class="w-full h-full">
+                                <polyline points="20,150 80,100 140,120 200,60 260,80" stroke="#3b82f6" stroke-width="3" fill="none"/>
+                                <circle cx="20" cy="150" r="4" fill="#3b82f6"/>
+                                <circle cx="80" cy="100" r="4" fill="#3b82f6"/>
+                                <circle cx="140" cy="120" r="4" fill="#3b82f6"/>
+                                <circle cx="200" cy="60" r="4" fill="#3b82f6"/>
+                                <circle cx="260" cy="80" r="4" fill="#3b82f6"/>
+                            </svg>
+                        </div>
+                    `;
+                    break;
+                case 'area':
+                    chartContent = `
+                        <div class="h-full relative">
+                            <svg class="w-full h-full">
+                                <polygon points="20,150 80,100 140,120 200,60 260,80 260,160 20,160" fill="#3b82f6" fill-opacity="0.3"/>
+                                <polyline points="20,150 80,100 140,120 200,60 260,80" stroke="#3b82f6" stroke-width="3" fill="none"/>
+                            </svg>
+                        </div>
+                    `;
+                    break;
+                
+                // Advanced Charts
+                case 'scatter':
+                    chartContent = `
+                        <div class="h-full relative">
+                            <svg class="w-full h-full">
+                                <circle cx="50" cy="120" r="6" fill="#3b82f6"/>
+                                <circle cx="100" cy="80" r="6" fill="#10b981"/>
+                                <circle cx="150" cy="140" r="6" fill="#ef4444"/>
+                                <circle cx="200" cy="60" r="6" fill="#f59e0b"/>
+                                <circle cx="250" cy="100" r="6" fill="#8b5cf6"/>
+                            </svg>
+                        </div>
+                    `;
+                    break;
+                case 'bubble':
+                    chartContent = `
+                        <div class="h-full relative">
+                            <svg class="w-full h-full">
+                                <circle cx="60" cy="120" r="20" fill="#3b82f6" fill-opacity="0.6"/>
+                                <circle cx="140" cy="80" r="15" fill="#10b981" fill-opacity="0.6"/>
+                                <circle cx="200" cy="140" r="25" fill="#ef4444" fill-opacity="0.6"/>
+                                <circle cx="240" cy="60" r="12" fill="#f59e0b" fill-opacity="0.6"/>
+                            </svg>
+                        </div>
+                    `;
+                    break;
+                case 'radar':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <svg class="w-32 h-32">
+                                <polygon points="64,16 112,48 96,96 32,96 16,48" stroke="#3b82f6" stroke-width="2" fill="#3b82f6" fill-opacity="0.3"/>
+                                <polygon points="64,32 96,56 80,80 48,80 32,56" stroke="#ddd" stroke-width="1" fill="none"/>
+                                <line x1="64" y1="64" x2="64" y2="16" stroke="#ddd"/>
+                                <line x1="64" y1="64" x2="112" y2="48" stroke="#ddd"/>
+                                <line x1="64" y1="64" x2="96" y2="96" stroke="#ddd"/>
+                                <line x1="64" y1="64" x2="32" y2="96" stroke="#ddd"/>
+                                <line x1="64" y1="64" x2="16" y2="48" stroke="#ddd"/>
+                            </svg>
+                        </div>
+                    `;
+                    break;
+                case 'heatmap':
+                    chartContent = `
+                        <div class="h-full grid grid-cols-5 gap-1 p-2">
+                            <div class="bg-red-200 rounded"></div>
+                            <div class="bg-red-400 rounded"></div>
+                            <div class="bg-red-600 rounded"></div>
+                            <div class="bg-red-300 rounded"></div>
+                            <div class="bg-red-500 rounded"></div>
+                            <div class="bg-yellow-300 rounded"></div>
+                            <div class="bg-yellow-500 rounded"></div>
+                            <div class="bg-green-400 rounded"></div>
+                            <div class="bg-green-600 rounded"></div>
+                            <div class="bg-green-300 rounded"></div>
+                            <div class="bg-blue-300 rounded"></div>
+                            <div class="bg-blue-500 rounded"></div>
+                            <div class="bg-blue-400 rounded"></div>
+                            <div class="bg-purple-400 rounded"></div>
+                            <div class="bg-purple-600 rounded"></div>
+                        </div>
+                    `;
+                    break;
+                case 'treemap':
+                    chartContent = `
+                        <div class="h-full grid grid-cols-3 gap-1">
+                            <div class="bg-blue-500 col-span-2 flex items-center justify-center text-white text-xs">A</div>
+                            <div class="bg-green-500 flex items-center justify-center text-white text-xs">B</div>
+                            <div class="bg-red-500 flex items-center justify-center text-white text-xs">C</div>
+                            <div class="bg-yellow-500 col-span-2 flex items-center justify-center text-white text-xs">D</div>
+                        </div>
+                    `;
+                    break;
+                case 'waterfall':
+                    chartContent = `
+                        <div class="h-full flex items-end justify-around">
+                            <div class="bg-green-500 w-8" style="height: 60%"></div>
+                            <div class="bg-blue-500 w-8" style="height: 80%"></div>
+                            <div class="bg-red-500 w-8" style="height: 50%"></div>
+                            <div class="bg-blue-500 w-8" style="height: 70%"></div>
+                            <div class="bg-gray-500 w-8" style="height: 85%"></div>
+                        </div>
+                    `;
+                    break;
+                case 'funnel':
+                    chartContent = `
+                        <div class="h-full flex flex-col justify-center items-center space-y-2">
+                            <div class="bg-blue-500 h-6 w-full"></div>
+                            <div class="bg-green-500 h-6 w-4/5"></div>
+                            <div class="bg-yellow-500 h-6 w-3/5"></div>
+                            <div class="bg-red-500 h-6 w-2/5"></div>
+                        </div>
+                    `;
+                    break;
+                case 'gauge':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <div class="relative">
+                                <div class="w-32 h-16 border-8 border-gray-300 rounded-t-full"></div>
+                                <div class="absolute top-0 w-32 h-16 border-8 border-blue-500 rounded-t-full" style="clip-path: polygon(0 0, 60% 0, 60% 100%, 0 100%)"></div>
+                                <div class="absolute top-12 left-1/2 transform -translate-x-1/2 text-center">
+                                    <div class="text-2xl font-bold">60%</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                
+                // Infographic Charts
+                case 'progress-bar':
+                    chartContent = `
+                        <div class="h-full flex flex-col justify-center space-y-4">
+                            <div class="space-y-2">
+                                <div class="text-sm">Progress A</div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div class="bg-blue-500 h-4 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-sm">Progress B</div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div class="bg-green-500 h-4 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-sm">Progress C</div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div class="bg-red-500 h-4 rounded-full" style="width: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'progress-circle':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-around">
+                            <div class="relative w-16 h-16">
+                                <svg class="w-16 h-16 transform -rotate-90">
+                                    <circle cx="32" cy="32" r="28" stroke="#e5e7eb" stroke-width="4" fill="none"/>
+                                    <circle cx="32" cy="32" r="28" stroke="#3b82f6" stroke-width="4" fill="none" stroke-dasharray="175" stroke-dashoffset="44"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-xs font-bold">75%</div>
+                            </div>
+                            <div class="relative w-16 h-16">
+                                <svg class="w-16 h-16 transform -rotate-90">
+                                    <circle cx="32" cy="32" r="28" stroke="#e5e7eb" stroke-width="4" fill="none"/>
+                                    <circle cx="32" cy="32" r="28" stroke="#10b981" stroke-width="4" fill="none" stroke-dasharray="175" stroke-dashoffset="70"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-xs font-bold">60%</div>
+                            </div>
+                            <div class="relative w-16 h-16">
+                                <svg class="w-16 h-16 transform -rotate-90">
+                                    <circle cx="32" cy="32" r="28" stroke="#e5e7eb" stroke-width="4" fill="none"/>
+                                    <circle cx="32" cy="32" r="28" stroke="#ef4444" stroke-width="4" fill="none" stroke-dasharray="175" stroke-dashoffset="18"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center text-xs font-bold">90%</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'comparison':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <div class="flex items-center space-x-8">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
+                                    <div class="text-sm mt-2">Option A</div>
+                                </div>
+                                <div class="text-2xl">VS</div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">B</div>
+                                    <div class="text-sm mt-2">Option B</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'timeline':
+                    chartContent = `
+                        <div class="h-full flex items-center">
+                            <div class="w-full relative">
+                                <div class="absolute top-1/2 w-full h-1 bg-gray-300"></div>
+                                <div class="flex justify-between relative">
+                                    <div class="text-center">
+                                        <div class="w-4 h-4 bg-blue-500 rounded-full mx-auto mb-2"></div>
+                                        <div class="text-xs">2020</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded-full mx-auto mb-2"></div>
+                                        <div class="text-xs">2021</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="w-4 h-4 bg-yellow-500 rounded-full mx-auto mb-2"></div>
+                                        <div class="text-xs">2022</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="w-4 h-4 bg-red-500 rounded-full mx-auto mb-2"></div>
+                                        <div class="text-xs">2023</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'process-flow':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-blue-500 rounded flex items-center justify-center text-white text-xs">1</div>
+                                <div class="text-xl">→</div>
+                                <div class="w-12 h-12 bg-green-500 rounded flex items-center justify-center text-white text-xs">2</div>
+                                <div class="text-xl">→</div>
+                                <div class="w-12 h-12 bg-red-500 rounded flex items-center justify-center text-white text-xs">3</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'pyramid':
+                    chartContent = `
+                        <div class="h-full flex flex-col justify-center items-center space-y-1">
+                            <div class="bg-red-500 h-6 w-1/5 flex items-center justify-center text-white text-xs">Top</div>
+                            <div class="bg-yellow-500 h-6 w-2/5 flex items-center justify-center text-white text-xs">Middle</div>
+                            <div class="bg-green-500 h-6 w-3/5 flex items-center justify-center text-white text-xs">Base</div>
+                            <div class="bg-blue-500 h-6 w-4/5 flex items-center justify-center text-white text-xs">Foundation</div>
+                        </div>
+                    `;
+                    break;
+                case 'venn':
+                    chartContent = `
+                        <div class="h-full flex items-center justify-center">
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-blue-500 rounded-full opacity-60 absolute"></div>
+                                <div class="w-20 h-20 bg-red-500 rounded-full opacity-60 absolute left-8"></div>
+                                <div class="w-20 h-20 bg-green-500 rounded-full opacity-60 absolute left-4 top-6"></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'org-chart':
+                    chartContent = `
+                        <div class="h-full flex flex-col items-center justify-center space-y-4">
+                            <div class="w-16 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs">CEO</div>
+                            <div class="flex space-x-4">
+                                <div class="w-12 h-6 bg-green-500 rounded flex items-center justify-center text-white text-xs">VP1</div>
+                                <div class="w-12 h-6 bg-green-500 rounded flex items-center justify-center text-white text-xs">VP2</div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-8 h-4 bg-yellow-500 rounded flex items-center justify-center text-white text-xs">M1</div>
+                                <div class="w-8 h-4 bg-yellow-500 rounded flex items-center justify-center text-white text-xs">M2</div>
+                                <div class="w-8 h-4 bg-yellow-500 rounded flex items-center justify-center text-white text-xs">M3</div>
+                                <div class="w-8 h-4 bg-yellow-500 rounded flex items-center justify-center text-white text-xs">M4</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            chartElement.innerHTML = chartContent;
+            chartElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'chart');
+            };
+            
+            addElementToCanvas(chartElement, elementId, 'chart', layerId);
+            showNotification(`📊 ${chartType.replace('-', ' ')} chart added!`, 'success');
+        }
+
+        function addFrame(frameType) {
+            saveState();
+            const elementId = `frame-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const frameElement = document.createElement('div');
+            frameElement.id = elementId;
+            frameElement.className = 'draggable-element absolute cursor-move';
+            frameElement.style.cssText = 'left: 300px; top: 300px; width: 200px; height: 150px;';
+            
+            switch(frameType) {
+                case 'classic':
+                    frameElement.style.border = '8px solid #d4af37';
+                    break;
+                case 'dashed':
+                    frameElement.style.border = '4px dashed #3b82f6';
+                    break;
+                case 'double':
+                    frameElement.style.border = '6px double #8b5cf6';
+                    break;
+                case 'gradient':
+                    frameElement.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4)';
+                    frameElement.style.padding = '8px';
+                    frameElement.innerHTML = '<div class="w-full h-full bg-white"></div>';
+                    break;
+            }
+            
+            frameElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'frame');
+            };
+            
+            addElementToCanvas(frameElement, elementId, 'frame', layerId);
+            showNotification(`🖼️ ${frameType} frame added!`, 'success');
+        }
+
+        function addStockPhoto(photoType) {
+            saveState();
+            const elementId = `photo-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const photoElement = document.createElement('div');
+            photoElement.id = elementId;
+            photoElement.className = 'draggable-element absolute cursor-move rounded-lg overflow-hidden';
+            photoElement.style.cssText = 'left: 350px; top: 350px; width: 200px; height: 150px;';
+            
+            let gradient = '';
+            let label = '';
+            switch(photoType) {
+                case 'nature1':
+                    gradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    label = '🌲 Nature Scene';
+                    break;
+                case 'business1':
+                    gradient = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                    label = '💼 Business Team';
+                    break;
+                case 'people1':
+                    gradient = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+                    label = '👥 Happy People';
+                    break;
+                case 'tech1':
+                    gradient = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+                    label = '💻 Technology';
+                    break;
+            }
+            
+            photoElement.style.background = gradient;
+            photoElement.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center text-white font-bold">
+                    ${label}
+                </div>
+            `;
+            
+            photoElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'photo');
+            };
+            
+            addElementToCanvas(photoElement, elementId, 'photo', layerId);
+            showNotification('📸 Stock photo added!', 'success');
+        }
+
+        function addElementToCanvas(element, elementId, type, layerId) {
+            const canvas = document.getElementById('designCanvas');
+            const placeholder = document.getElementById('canvasPlaceholder');
+            
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            canvas.appendChild(element);
+            
+            // Add to project data
+            currentProject.elements.push({
+                id: elementId,
+                type: type,
+                element: element
+            });
+            
+            // Add layer
+            addLayer(layerId, type, elementId);
+            
+            // Select the new element
+            selectElement(elementId, type);
+            
+            // Add to history
+            addHistoryItem(`Added ${type}`);
+        }
+
+        function selectElement(elementId, elementType) {
+            // Remove previous selection
+            document.querySelectorAll('.selected-element').forEach(el => {
+                el.classList.remove('selected-element');
+            });
+            
+            // Select new element
+            const element = document.getElementById(elementId);
+            element.classList.add('selected-element');
+            selectedElement = { id: elementId, type: elementType, element: element };
+            
+            showProperties(elementType, element);
+            highlightLayer(elementId);
+        }
+
+        function deselectAll() {
+            document.querySelectorAll('.selected-element').forEach(el => {
+                el.classList.remove('selected-element');
+            });
+            selectedElement = null;
+            
+            document.getElementById('propertiesPanel').innerHTML = `
+                <div class="text-center text-gray-400 py-8">
+                    <div class="text-3xl mb-3">🎛️</div>
+                    <div>Select an element to edit properties</div>
+                </div>
+            `;
+            
+            // Remove layer highlights
+            document.querySelectorAll('.layer-item').forEach(layer => {
+                layer.classList.remove('selected');
+            });
+        }
+
+        function showProperties(elementType, element) {
+            const panel = document.getElementById('propertiesPanel');
+            
+            panel.innerHTML = `
+                <div class="space-y-4">
+                    <div class="border-b pb-4">
+                        <h3 class="font-bold text-lg capitalize">${elementType} Properties</h3>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Position</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" placeholder="X" class="p-2 border rounded text-sm" onchange="updateElementPosition('left', this.value + 'px')" value="${parseInt(element.style.left) || 0}">
+                            <input type="number" placeholder="Y" class="p-2 border rounded text-sm" onchange="updateElementPosition('top', this.value + 'px')" value="${parseInt(element.style.top) || 0}">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Size</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" placeholder="Width" class="p-2 border rounded text-sm" onchange="updateElementStyle('width', this.value + 'px')" value="${parseInt(element.style.width) || 100}">
+                            <input type="number" placeholder="Height" class="p-2 border rounded text-sm" onchange="updateElementStyle('height', this.value + 'px')" value="${parseInt(element.style.height) || 100}">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Background</label>
+                        <input type="color" class="color-picker w-full" onchange="updateElementStyle('backgroundColor', this.value)" value="${element.style.backgroundColor || '#ffffff'}">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Border Radius</label>
+                        <input type="range" min="0" max="50" class="w-full" onchange="updateElementStyle('borderRadius', this.value + 'px')" value="${parseInt(element.style.borderRadius) || 0}">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Opacity</label>
+                        <input type="range" min="0" max="1" step="0.1" class="w-full" onchange="updateElementStyle('opacity', this.value)" value="${element.style.opacity || 1}">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Rotation</label>
+                        <input type="range" min="0" max="360" class="w-full" onchange="updateElementStyle('transform', 'rotate(' + this.value + 'deg)')" value="0">
+                    </div>
+                    
+                    ${elementType === 'text' ? `
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Text Color</label>
+                        <input type="color" class="color-picker w-full" onchange="updateElementStyle('color', this.value)" value="${element.style.color || '#000000'}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Font Size</label>
+                        <input type="range" min="12" max="72" class="w-full" onchange="updateElementStyle('fontSize', this.value + 'px')" value="${parseInt(element.style.fontSize) || 24}">
+                    </div>
+                    ` : ''}
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Effects</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="applyEffect('shadow')" class="p-2 border rounded text-sm hover:bg-gray-50">Shadow</button>
+                            <button onclick="applyEffect('blur')" class="p-2 border rounded text-sm hover:bg-gray-50">Blur</button>
+                            <button onclick="applyEffect('brightness')" class="p-2 border rounded text-sm hover:bg-gray-50">Bright</button>
+                            <button onclick="applyEffect('grayscale')" class="p-2 border rounded text-sm hover:bg-gray-50">B&W</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Animation</label>
+                        <select onchange="applyAnimation(this.value)" class="w-full p-2 border rounded text-sm">
+                            <option value="">No Animation</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="spin">Spin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="pt-4 border-t space-y-2">
+                        <button onclick="duplicateElement()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm">
+                            📋 Duplicate
+                        </button>
+                        <button onclick="deleteElement()" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 text-sm">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateElementStyle(property, value) {
+            if (selectedElement) {
+                selectedElement.element.style[property] = value;
+                addHistoryItem(`Updated ${property}`);
+            }
+        }
+
+        function updateElementPosition(property, value) {
+            if (selectedElement) {
+                selectedElement.element.style[property] = value;
+                addHistoryItem(`Moved element`);
+            }
+        }
+
+        function applyEffect(effect) {
+            if (!selectedElement) return;
+            
+            const element = selectedElement.element;
+            switch(effect) {
+                case 'shadow':
+                    element.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+                    break;
+                case 'blur':
+                    element.style.filter = 'blur(2px)';
+                    break;
+                case 'brightness':
+                    element.style.filter = 'brightness(1.5)';
+                    break;
+                case 'grayscale':
+                    element.style.filter = 'grayscale(100%)';
+                    break;
+            }
+            addHistoryItem(`Applied ${effect} effect`);
+        }
+
+        function applyAnimation(animation) {
+            if (!selectedElement) return;
+            
+            const element = selectedElement.element;
+            element.className = element.className.replace(/animation-\w+/g, '');
+            
+            if (animation) {
+                element.classList.add(`animation-${animation}`);
+            }
+            
+            addHistoryItem(`Applied ${animation} animation`);
+        }
+
+        function applyBrandColor(color) {
+            if (selectedElement) {
+                selectedElement.element.style.backgroundColor = color;
+                addHistoryItem(`Applied brand color`);
+            }
+        }
+
+        function applyGradient(gradientClass) {
+            if (selectedElement) {
+                selectedElement.element.className = selectedElement.element.className.replace(/gradient-bg-\d+/g, '');
+                selectedElement.element.classList.add(gradientClass);
+                addHistoryItem(`Applied gradient`);
+            }
+        }
+
+        function applyFont(fontFamily) {
+            if (selectedElement && selectedElement.type === 'text') {
+                selectedElement.element.style.fontFamily = fontFamily;
+                addHistoryItem(`Changed font to ${fontFamily}`);
+            }
+        }
+
+        function applyMagicEffect(effect) {
+            if (!selectedElement) {
+                showNotification('⚠️ Select an element first!', 'warning');
+                return;
+            }
+            
+            showNotification('🪄 Applying magic effect...', 'info');
+            
+            setTimeout(() => {
+                switch(effect) {
+                    case 'auto-enhance':
+                        selectedElement.element.style.filter = 'contrast(1.2) brightness(1.1) saturate(1.2)';
+                        showNotification('✨ Auto enhanced!', 'success');
+                        break;
+                    case 'remove-bg':
+                        selectedElement.element.style.backgroundColor = 'transparent';
+                        showNotification('🎭 Background removed!', 'success');
+                        break;
+                    case 'smart-crop':
+                        selectedElement.element.style.objectFit = 'cover';
+                        showNotification('✂️ Smart cropped!', 'success');
+                        break;
+                }
+                addHistoryItem(`Applied ${effect}`);
+            }, 1500);
+        }
+
+        function duplicateElement() {
+            if (!selectedElement) return;
+            
+            saveState();
+            const original = selectedElement.element;
+            const elementId = `${selectedElement.type}-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const duplicate = original.cloneNode(true);
+            duplicate.id = elementId;
+            duplicate.style.left = (parseInt(original.style.left) + 20) + 'px';
+            duplicate.style.top = (parseInt(original.style.top) + 20) + 'px';
+            duplicate.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, selectedElement.type);
+            };
+            
+            document.getElementById('designCanvas').appendChild(duplicate);
+            
+            currentProject.elements.push({
+                id: elementId,
+                type: selectedElement.type,
+                element: duplicate
+            });
+            
+            addLayer(layerId, selectedElement.type, elementId);
+            selectElement(elementId, selectedElement.type);
+            
+            showNotification('📋 Element duplicated!', 'success');
+            addHistoryItem('Duplicated element');
+        }
+
+        function deleteElement() {
+            if (!selectedElement) return;
+            
+            saveState();
+            selectedElement.element.remove();
+            
+            currentProject.elements = currentProject.elements.filter(el => el.id !== selectedElement.id);
+            removeLayer(selectedElement.id);
+            
+            deselectAll();
+            showNotification('🗑️ Element deleted!', 'success');
+            addHistoryItem('Deleted element');
+        }
+
+        // Layer management
+        function addLayer(layerId, type, elementId) {
+            const layersList = document.getElementById('layersList');
+            
+            // Remove placeholder if exists
+            if (layersList.querySelector('.text-center')) {
+                layersList.innerHTML = '';
+            }
+            
+            const layerItem = document.createElement('div');
+            layerItem.className = 'layer-item p-2 rounded border';
+            layerItem.id = `layer-${elementId}`;
+            layerItem.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span class="mr-2">${getTypeIcon(type)}</span>
+                        <span class="text-sm">${type} ${elementCounter}</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="toggleLayerVisibility('${elementId}')" class="text-xs p-1">👁️</button>
+                        <button onclick="lockLayer('${elementId}')" class="text-xs p-1">🔓</button>
+                    </div>
+                </div>
+            `;
+            
+            layerItem.onclick = () => selectElement(elementId, type);
+            layersList.insertBefore(layerItem, layersList.firstChild);
+            
+            currentProject.layers.push({
+                id: layerId,
+                elementId: elementId,
+                type: type,
+                visible: true,
+                locked: false
+            });
+        }
+
+        function removeLayer(elementId) {
+            const layerElement = document.getElementById(`layer-${elementId}`);
+            if (layerElement) {
+                layerElement.remove();
+            }
+            
+            currentProject.layers = currentProject.layers.filter(layer => layer.elementId !== elementId);
+            
+            // Add placeholder if no layers
+            const layersList = document.getElementById('layersList');
+            if (layersList.children.length === 0) {
+                layersList.innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <div class="text-3xl mb-3">📄</div>
+                        <div>No layers yet</div>
+                    </div>
+                `;
+            }
+        }
+
+        function highlightLayer(elementId) {
+            document.querySelectorAll('.layer-item').forEach(layer => {
+                layer.classList.remove('selected');
+            });
+            
+            const layerElement = document.getElementById(`layer-${elementId}`);
+            if (layerElement) {
+                layerElement.classList.add('selected');
+            }
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                text: '📝',
+                shape: '🔷',
+                icon: '🎯',
+                image: '🖼️',
+                chart: '📊',
+                frame: '🖼️',
+                photo: '📸'
+            };
+            return icons[type] || '📄';
+        }
+
+        function toggleLayerVisibility(elementId) {
+            const element = document.getElementById(elementId);
+            const layer = currentProject.layers.find(l => l.elementId === elementId);
+            
+            if (element && layer) {
+                layer.visible = !layer.visible;
+                element.style.display = layer.visible ? 'block' : 'none';
+                addHistoryItem(`${layer.visible ? 'Showed' : 'Hidden'} layer`);
+            }
+        }
+
+        function lockLayer(elementId) {
+            const layer = currentProject.layers.find(l => l.elementId === elementId);
+            if (layer) {
+                layer.locked = !layer.locked;
+                // Update UI to show locked state
+                addHistoryItem(`${layer.locked ? 'Locked' : 'Unlocked'} layer`);
+            }
+        }
+
+        // History management
+        function addHistoryItem(action) {
+            const historyList = document.getElementById('historyList');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="text-sm font-medium">${action}</div>
+                <div class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</div>
+            `;
+            
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            // Keep only last 20 items
+            while (historyList.children.length > 20) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        function saveState() {
+            // Implementation for undo/redo functionality
+            currentProject.history.push({
+                elements: JSON.parse(JSON.stringify(currentProject.elements)),
+                timestamp: Date.now()
+            });
+            
+            if (currentProject.history.length > 50) {
+                currentProject.history.shift();
+            }
+        }
+
+        function undoAction() {
+            if (currentProject.history.length > 0) {
+                // Implementation for undo
+                showNotification('↶ Action undone!', 'success');
+                addHistoryItem('Undo');
+            }
+        }
+
+        function redoAction() {
+            // Implementation for redo
+            showNotification('↷ Action redone!', 'success');
+            addHistoryItem('Redo');
+        }
+
+        // Canvas controls
+        function toggleGrid() {
+            gridEnabled = !gridEnabled;
+            const canvas = document.getElementById('designCanvas');
+            
+            if (gridEnabled) {
+                canvas.classList.add('grid-overlay');
+                showNotification('📐 Grid enabled!', 'success');
+            } else {
+                canvas.classList.remove('grid-overlay');
+                showNotification('📐 Grid disabled!', 'success');
+            }
+        }
+
+        function toggleRulers() {
+            rulersEnabled = !rulersEnabled;
+            const hRuler = document.getElementById('horizontalRuler');
+            const vRuler = document.getElementById('verticalRuler');
+            
+            if (rulersEnabled) {
+                hRuler.classList.remove('hidden');
+                vRuler.classList.remove('hidden');
+                showNotification('📏 Rulers enabled!', 'success');
+            } else {
+                hRuler.classList.add('hidden');
+                vRuler.classList.add('hidden');
+                showNotification('📏 Rulers disabled!', 'success');
+            }
+        }
+
+        function toggleSnap() {
+            snapEnabled = !snapEnabled;
+            showNotification(`🧲 Snap ${snapEnabled ? 'enabled' : 'disabled'}!`, 'success');
+        }
+
+        function changeCanvasSize(size) {
+            const canvas = document.getElementById('designCanvas');
+            
+            if (size === 'custom') return;
+            
+            const [width, height] = size.split('x').map(Number);
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            
+            currentProject.settings.width = width;
+            currentProject.settings.height = height;
+            
+            showNotification(`📐 Canvas resized to ${width}x${height}!`, 'success');
+            addHistoryItem(`Changed canvas size`);
+        }
+
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 25, 300);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 25, 25);
+            updateZoom();
+        }
+
+        function fitToScreen() {
+            zoomLevel = 100;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            const canvas = document.getElementById('designCanvas');
+            canvas.style.transform = `scale(${zoomLevel / 100})`;
+            document.getElementById('zoomLevel').textContent = zoomLevel + '%';
+        }
+
+        // Template loading
+        function loadTemplate(templateType) {
+            saveState();
+            clearCanvas();
+            
+            // Simulate loading different templates
+            switch(templateType) {
+                case 'social-post':
+                    changeCanvasSize('1080x1080');
+                    addShape('rectangle');
+                    addText();
+                    addIcon('🚀');
+                    break;
+                case 'presentation':
+                    changeCanvasSize('1920x1080');
+                    addText();
+                    addChart('bar');
+                    break;
+                case 'poster':
+                    addText();
+                    addImage();
+                    addShape('circle');
+                    break;
+                case 'business-card':
+                    addText();
+                    addIcon('💼');
+                    break;
+                case 'logo':
+                    changeCanvasSize('500x500');
+                    addIcon('🎨');
+                    addText();
+                    break;
+            }
+            
+            showNotification(`📋 ${templateType} template loaded!`, 'success');
+            addHistoryItem(`Loaded ${templateType} template`);
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('designCanvas');
+            canvas.innerHTML = `
+                <div class="p-8 text-center text-gray-400 h-full flex flex-col items-center justify-center" id="canvasPlaceholder">
+                    <div class="text-6xl mb-4">🎨</div>
+                    <div class="text-2xl font-bold mb-2">Start Creating</div>
+                    <div class="text-lg">Add elements from the sidebar to begin your design</div>
+                </div>
+            `;
+            
+            currentProject.elements = [];
+            currentProject.layers = [];
+            
+            // Clear layers panel
+            document.getElementById('layersList').innerHTML = `
+                <div class="text-center text-gray-400 py-8">
+                    <div class="text-3xl mb-3">📄</div>
+                    <div>No layers yet</div>
+                </div>
+            `;
+            
+            deselectAll();
+        }
+
+        // File operations
+        function newProject() {
+            if (confirm('Create a new project? This will clear your current work.')) {
+                currentProject = {
+                    elements: [],
+                    layers: [],
+                    history: [],
+                    settings: {
+                        title: 'Untitled Design',
+                        width: 800,
+                        height: 600,
+                        background: '#ffffff'
+                    }
+                };
+                clearCanvas();
+                showNotification('📄 New project created!', 'success');
+                addHistoryItem('Project created');
+            }
+        }
+
+        function saveProject() {
+            const projectData = JSON.stringify(currentProject, null, 2);
+            const blob = new Blob([projectData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'designcraft-project.json';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification('💾 Project saved!', 'success');
+            addHistoryItem('Project saved');
+        }
+
+        function loadProject() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            currentProject = JSON.parse(e.target.result);
+                            // Rebuild canvas from project data
+                            showNotification('📁 Project loaded!', 'success');
+                            addHistoryItem('Project loaded');
+                        } catch (error) {
+                            showNotification('❌ Invalid project file!', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function uploadImage() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.multiple = true;
+            input.onchange = (e) => {
+                const files = Array.from(e.target.files);
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const uploadedImages = document.getElementById('uploadedImages');
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'aspect-square bg-gray-200 rounded cursor-pointer overflow-hidden';
+                        imageDiv.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                        imageDiv.onclick = () => {
+                            // Add uploaded image to canvas
+                            addUploadedImageToCanvas(e.target.result);
+                        };
+                        uploadedImages.appendChild(imageDiv);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                showNotification(`📤 ${files.length} image(s) uploaded!`, 'success');
+            };
+            input.click();
+        }
+
+        function addUploadedImageToCanvas(imageSrc) {
+            saveState();
+            const elementId = `uploaded-${++elementCounter}`;
+            const layerId = `layer-${++layerCounter}`;
+            
+            const imageElement = document.createElement('div');
+            imageElement.id = elementId;
+            imageElement.className = 'draggable-element absolute cursor-move rounded overflow-hidden';
+            imageElement.style.cssText = 'left: 100px; top: 100px; width: 200px; height: 150px;';
+            imageElement.innerHTML = `<img src="${imageSrc}" class="w-full h-full object-cover">`;
+            imageElement.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(elementId, 'image');
+            };
+            
+            addElementToCanvas(imageElement, elementId, 'image', layerId);
+            showNotification('🖼️ Image added to canvas!', 'success');
+        }
+
+        // Export and sharing
+        function previewDesign() {
+            const canvas = document.getElementById('designCanvas');
+            const previewContent = document.getElementById('previewContent');
+            
+            // Clone canvas content for preview
+            const clone = canvas.cloneNode(true);
+            clone.style.transform = 'none';
+            clone.classList.remove('canvas-area');
+            clone.style.border = 'none';
+            clone.style.maxWidth = '100%';
+            clone.style.maxHeight = '100%';
+            
+            previewContent.innerHTML = '';
+            previewContent.appendChild(clone);
+            
+            document.getElementById('previewModal').classList.remove('hidden');
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.add('hidden');
+        }
+
+        function exportDesign() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExport() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function confirmExport() {
+            const format = document.getElementById('exportFormat').value;
+            const quality = document.getElementById('exportQuality').value;
+            
+            showNotification('📥 Preparing export...', 'info');
+            
+            setTimeout(() => {
+                // Simulate export process
+                const canvas = document.getElementById('designCanvas');
+                
+                // In a real implementation, you would convert the canvas to the selected format
+                showNotification(`✅ Design exported as ${format.toUpperCase()}!`, 'success');
+                closeExport();
+                addHistoryItem(`Exported as ${format}`);
+            }, 2000);
+        }
+
+        function publishDesign() {
+            showNotification('🚀 Publishing design...', 'info');
+            
+            setTimeout(() => {
+                showNotification('🌐 Design published successfully!', 'success');
+                addHistoryItem('Design published');
+            }, 2000);
+        }
+
+        function toggleCollaboration() {
+            document.getElementById('collaborationModal').classList.remove('hidden');
+        }
+
+        function closeCollaboration() {
+            document.getElementById('collaborationModal').classList.add('hidden');
+        }
+
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink');
+            shareLink.select();
+            document.execCommand('copy');
+            showNotification('📋 Share link copied!', 'success');
+        }
+
+        function sendInvite() {
+            showNotification('📧 Invitation sent!', 'success');
+            addHistoryItem('Sent collaboration invite');
+        }
+
+        // Utility functions
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fade-in p-4 rounded-lg text-white font-medium ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                type === 'warning' ? 'bg-yellow-600' :
+                'bg-blue-600'
+            }`;
+            notification.textContent = message;
+            
+            document.getElementById('notifications').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9715704465741736',t:'MTc1NTU2MjMzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

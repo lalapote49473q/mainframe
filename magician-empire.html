@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magician's Empire Simulator</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #660099 100%);
+            color: #f4f4f4;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .magic-world {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 105, 180, 0.1) 0%, transparent 50%);
+        }
+
+        .stage-area {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            background: linear-gradient(135deg, #2c1810 0%, #4a2c17 50%, #6b3e07 100%);
+            border-bottom: 8px solid #8B4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .stage-curtains {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, #8B0000 0%, transparent 15%, transparent 85%, #8B0000 100%),
+                linear-gradient(180deg, #8B0000 0%, transparent 20%);
+            pointer-events: none;
+        }
+
+        .magician-avatar {
+            position: relative;
+            font-size: 120px;
+            animation: magicianIdle 3s ease-in-out infinite;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        @keyframes magicianIdle {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        .magician-avatar.performing {
+            animation: magicPerform 2s ease-in-out;
+        }
+
+        @keyframes magicPerform {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(10deg); }
+            50% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.3) rotate(15deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .audience {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .audience-member {
+            font-size: 30px;
+            animation: audienceWatch 4s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes audienceWatch {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .audience-member.excited {
+            animation: audienceCheer 1s ease-in-out;
+            font-size: 35px;
+        }
+
+        @keyframes audienceCheer {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.2); }
+        }
+
+        .magician-hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 0, 51, 0.95);
+            color: #FFD700;
+            padding: 25px;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            font-size: 16px;
+            line-height: 1.8;
+            z-index: 1000;
+            min-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .reputation-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .reputation-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF4500, #FFD700, #32CD32);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(26, 0, 51, 0.95);
+            padding: 20px;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .magic-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #4B0082, #8A2BE2);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 120px;
+        }
+
+        .magic-btn:hover {
+            background: linear-gradient(135deg, #8A2BE2, #4B0082);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        .magic-btn.perform { background: linear-gradient(135deg, #DC143C, #8B0000); }
+        .magic-btn.practice { background: linear-gradient(135deg, #228B22, #006400); }
+        .magic-btn.shop { background: linear-gradient(135deg, #FF8C00, #FF4500); }
+        .magic-btn.venue { background: linear-gradient(135deg, #4682B4, #1E90FF); }
+        .magic-btn.city { background: linear-gradient(135deg, #9932CC, #4B0082); }
+
+        .trick-selector {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 0, 51, 0.98);
+            color: #FFD700;
+            padding: 30px;
+            border: 4px solid #FFD700;
+            border-radius: 20px;
+            z-index: 2000;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .trick-selector h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #FFD700;
+            font-size: 24px;
+        }
+
+        .trick-category {
+            margin: 20px 0;
+        }
+
+        .trick-category h3 {
+            color: #FF69B4;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #FF69B4;
+            padding-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .trick-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(75, 0, 130, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #663399;
+        }
+
+        .trick-item:hover {
+            background: rgba(75, 0, 130, 0.6);
+            transform: translateX(5px);
+            border-color: #FFD700;
+        }
+
+        .trick-item.locked {
+            background: rgba(139, 69, 19, 0.3);
+            border-color: #8B4513;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .trick-info {
+            flex: 1;
+        }
+
+        .trick-name {
+            font-weight: bold;
+            color: #FFD700;
+            font-size: 16px;
+        }
+
+        .trick-description {
+            font-size: 13px;
+            color: #DDD;
+            margin: 5px 0;
+        }
+
+        .trick-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        .trick-stat {
+            background: rgba(0,0,0,0.4);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .difficulty-easy { color: #32CD32; }
+        .difficulty-medium { color: #FFD700; }
+        .difficulty-hard { color: #FF4500; }
+        .difficulty-expert { color: #DC143C; }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #8B0000;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .performance-log {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 0, 51, 0.95);
+            color: #FFD700;
+            padding: 20px;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            min-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .log-entry {
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(75, 0, 130, 0.2);
+            border-radius: 10px;
+            font-size: 14px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .log-entry.success {
+            border-left-color: #32CD32;
+            background: rgba(50, 205, 50, 0.1);
+        }
+
+        .log-entry.failure {
+            border-left-color: #DC143C;
+            background: rgba(220, 20, 60, 0.1);
+        }
+
+        .magic-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 500;
+        }
+
+        .sparkle {
+            position: absolute;
+            font-size: 20px;
+            animation: sparkleEffect 2s ease-out forwards;
+        }
+
+        @keyframes sparkleEffect {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            20% { transform: scale(1) rotate(180deg); opacity: 1; }
+            80% { transform: scale(1.2) rotate(360deg); opacity: 1; }
+            100% { transform: scale(0) rotate(540deg); opacity: 0; }
+        }
+
+        .floating-card {
+            position: absolute;
+            font-size: 30px;
+            animation: cardFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-30px) rotate(90deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            75% { transform: translateY(-40px) rotate(270deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(75, 0, 130, 0.95);
+            color: #FFD700;
+            padding: 25px 45px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 2500;
+            animation: notificationPop 4s ease-out forwards;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border: 3px solid #FFD700;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        @keyframes notificationPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            85% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+
+        .venue-info {
+            position: fixed;
+            bottom: 200px;
+            left: 20px;
+            background: rgba(26, 0, 51, 0.9);
+            color: #FFD700;
+            padding: 15px;
+            border: 2px solid #FFD700;
+            border-radius: 15px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        .earnings-display {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 0, 51, 0.9);
+            color: #32CD32;
+            padding: 15px 30px;
+            border: 2px solid #32CD32;
+            border-radius: 15px;
+            z-index: 1000;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .shop-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 0, 51, 0.98);
+            color: #FFD700;
+            padding: 30px;
+            border: 4px solid #FFD700;
+            border-radius: 20px;
+            z-index: 2000;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .shop-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .shop-category-btn {
+            padding: 10px 20px;
+            background: rgba(75, 0, 130, 0.5);
+            border: 2px solid #663399;
+            color: #FFD700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shop-category-btn.active {
+            background: rgba(75, 0, 130, 0.8);
+            border-color: #FFD700;
+        }
+
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(75, 0, 130, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #663399;
+        }
+
+        .shop-item:hover {
+            background: rgba(75, 0, 130, 0.6);
+            border-color: #FFD700;
+        }
+
+        .shop-item.owned {
+            background: rgba(34, 139, 34, 0.3);
+            border-color: #228B22;
+        }
+
+        .price {
+            background: #8B0000;
+            color: #FFD700;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* City View Styles */
+        .city-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #001122 0%, #003366 50%, #004488 100%);
+            z-index: 3000;
+            display: none;
+            overflow: auto;
+        }
+
+        .city-skyline {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #2F4F4F 100%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .building {
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(135deg, #696969, #2F2F2F);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #FFD700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .building:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .building.owned {
+            background: linear-gradient(135deg, #228B22, #006400);
+            border-color: #32CD32;
+            color: #32CD32;
+        }
+
+        .building.available {
+            background: linear-gradient(135deg, #4B0082, #8A2BE2);
+            border-color: #FFD700;
+        }
+
+        .building-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .building-name {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .building-price {
+            font-size: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 3px 6px;
+            border-radius: 5px;
+        }
+
+        .city-hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #FFD700;
+            padding: 20px;
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            z-index: 3100;
+            min-width: 300px;
+        }
+
+        .city-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 3100;
+        }
+
+        .business-income {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #32CD32;
+            padding: 20px;
+            border: 3px solid #32CD32;
+            border-radius: 15px;
+            z-index: 3100;
+            min-width: 250px;
+        }
+
+        .income-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(50, 205, 50, 0.1);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="magic-world">
+        <!-- Stage Area -->
+        <div class="stage-area" id="stageArea">
+            <div class="stage-curtains"></div>
+            
+            <!-- Magician Avatar -->
+            <div class="magician-avatar" id="magicianAvatar">🎩</div>
+            
+            <!-- Audience -->
+            <div class="audience" id="audience">
+                <div class="audience-member">👤</div>
+                <div class="audience-member">👤</div>
+                <div class="audience-member">👤</div>
+                <div class="audience-member">👤</div>
+                <div class="audience-member">👤</div>
+                <div class="audience-member">👤</div>
+                <div class="audience-member">👤</div>
+            </div>
+        </div>
+
+        <!-- Magic Effects -->
+        <div class="magic-effects" id="magicEffects">
+            <div class="floating-card" style="left: 100px; top: 200px; animation-delay: 0s;">🃏</div>
+            <div class="floating-card" style="right: 100px; top: 250px; animation-delay: 2s;">🎴</div>
+        </div>
+
+        <!-- Magician HUD -->
+        <div class="magician-hud">
+            <div><strong>🎭 THE GREAT MYSTERIO</strong></div>
+            <div>Stage Name: <span id="magicianName">The Amazing Alex</span></div>
+            <div>Reputation: <span id="reputation">Novice</span></div>
+            <div class="reputation-bar">
+                <div class="reputation-fill" id="reputationFill" style="width: 15%;"></div>
+            </div>
+            <div>Level: <span id="magicianLevel">1</span></div>
+            <div>Experience: <span id="experience">150</span> XP</div>
+            <div>Success Rate: <span id="successRate">75</span>%</div>
+            <div>Shows Performed: <span id="showsPerformed">12</span></div>
+            <div>Signature Trick: <span id="signatureTrick">Card Vanish</span></div>
+        </div>
+
+        <!-- Earnings Display -->
+        <div class="earnings-display">
+            💰 Total Money: $<span id="totalEarnings">2,450</span>
+        </div>
+
+        <!-- Venue Info -->
+        <div class="venue-info">
+            <div><strong>📍 Current Venue</strong></div>
+            <div id="currentVenue">Street Corner</div>
+            <div>Audience Size: <span id="audienceSize">Small</span></div>
+            <div>Base Pay: $<span id="basePay">25</span></div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;">
+            <button class="magic-btn" onclick="window.location.href='main.html'">
+                <span>🏠</span>
+                <span>Main Menu</span>
+            </button>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="magic-btn perform" id="performBtn">
+                <span>🎭</span>
+                <span>Perform Trick</span>
+            </button>
+            <button class="magic-btn practice" id="practiceBtn">
+                <span>🎯</span>
+                <span>Practice</span>
+            </button>
+            <button class="magic-btn shop" id="shopBtn">
+                <span>🛒</span>
+                <span>Magic Shop</span>
+            </button>
+            <button class="magic-btn venue" id="venueBtn">
+                <span>🏛️</span>
+                <span>Change Venue</span>
+            </button>
+            <button class="magic-btn city" id="cityBtn">
+                <span>🏙️</span>
+                <span>Magic City</span>
+            </button>
+            <button class="magic-btn" id="tricksBtn">
+                <span>📚</span>
+                <span>Trick Book</span>
+            </button>
+        </div>
+
+        <!-- Trick Selector -->
+        <div class="trick-selector" id="trickSelector">
+            <button class="close-btn" id="closeTrickSelector">×</button>
+            <h2>🎪 MAGIC TRICK REPERTOIRE</h2>
+            
+            <div class="trick-category">
+                <h3>🃏 Card Magic</h3>
+                <div class="trick-item" data-trick="card-vanish" data-difficulty="easy">
+                    <div class="trick-info">
+                        <div class="trick-name">Card Vanish</div>
+                        <div class="trick-description">Make a selected card disappear from the deck</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-easy">Easy</div>
+                            <div class="trick-stat">Success: 85%</div>
+                            <div class="trick-stat">Pay: $25-50</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trick-item" data-trick="four-aces" data-difficulty="medium">
+                    <div class="trick-info">
+                        <div class="trick-name">Four Aces Production</div>
+                        <div class="trick-description">Magically produce all four aces from a shuffled deck</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-medium">Medium</div>
+                            <div class="trick-stat">Success: 70%</div>
+                            <div class="trick-stat">Pay: $50-100</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trick-item" data-trick="ambitious-card" data-difficulty="hard">
+                    <div class="trick-info">
+                        <div class="trick-name">Ambitious Card Routine</div>
+                        <div class="trick-description">A signed card repeatedly rises to the top of the deck</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-hard">Hard</div>
+                            <div class="trick-stat">Success: 60%</div>
+                            <div class="trick-stat">Pay: $100-200</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trick-category">
+                <h3>🎭 Stage Illusions</h3>
+                <div class="trick-item" data-trick="coin-vanish" data-difficulty="easy">
+                    <div class="trick-info">
+                        <div class="trick-name">Coin Vanish</div>
+                        <div class="trick-description">Make a coin disappear from your hand</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-easy">Easy</div>
+                            <div class="trick-stat">Success: 80%</div>
+                            <div class="trick-stat">Pay: $20-40</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trick-item" data-trick="levitation" data-difficulty="hard">
+                    <div class="trick-info">
+                        <div class="trick-name">Assistant Levitation</div>
+                        <div class="trick-description">Make your assistant float in mid-air</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-hard">Hard</div>
+                            <div class="trick-stat">Success: 55%</div>
+                            <div class="trick-stat">Pay: $200-400</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trick-item locked" data-trick="sawing" data-difficulty="expert">
+                    <div class="trick-info">
+                        <div class="trick-name">Sawing Assistant in Half</div>
+                        <div class="trick-description">The classic illusion of cutting someone in half</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-expert">Expert</div>
+                            <div class="trick-stat">Success: 45%</div>
+                            <div class="trick-stat">Pay: $500-1000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trick-category">
+                <h3>🧠 Mentalism</h3>
+                <div class="trick-item" data-trick="mind-reading" data-difficulty="medium">
+                    <div class="trick-info">
+                        <div class="trick-name">Mind Reading</div>
+                        <div class="trick-description">Reveal what a spectator is thinking</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-medium">Medium</div>
+                            <div class="trick-stat">Success: 65%</div>
+                            <div class="trick-stat">Pay: $75-150</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trick-item" data-trick="prediction" data-difficulty="hard">
+                    <div class="trick-info">
+                        <div class="trick-name">Future Prediction</div>
+                        <div class="trick-description">Predict choices before they're made</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-hard">Hard</div>
+                            <div class="trick-stat">Success: 50%</div>
+                            <div class="trick-stat">Pay: $150-300</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trick-category">
+                <h3>🔓 Escape Acts</h3>
+                <div class="trick-item" data-trick="handcuffs" data-difficulty="medium">
+                    <div class="trick-info">
+                        <div class="trick-name">Handcuff Escape</div>
+                        <div class="trick-description">Escape from locked handcuffs</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-medium">Medium</div>
+                            <div class="trick-stat">Success: 70%</div>
+                            <div class="trick-stat">Pay: $100-200</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trick-item locked" data-trick="straitjacket" data-difficulty="expert">
+                    <div class="trick-info">
+                        <div class="trick-name">Straitjacket Escape</div>
+                        <div class="trick-description">Escape from a straitjacket while suspended</div>
+                        <div class="trick-stats">
+                            <div class="trick-stat difficulty-expert">Expert</div>
+                            <div class="trick-stat">Success: 40%</div>
+                            <div class="trick-stat">Pay: $400-800</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Magic Shop -->
+        <div class="shop-panel" id="shopPanel">
+            <button class="close-btn" id="closeShop">×</button>
+            <h2>🛒 INFINITE MAGIC SHOP</h2>
+            
+            <div class="shop-controls">
+                <button class="shop-category-btn active" data-category="props">🎭 Props</button>
+                <button class="shop-category-btn" data-category="costumes">👔 Costumes</button>
+                <button class="shop-category-btn" data-category="equipment">⚙️ Equipment</button>
+                <button class="shop-category-btn" data-category="rare">💎 Rare Items</button>
+            </div>
+            
+            <div id="shopItems">
+                <!-- Items will be generated dynamically -->
+            </div>
+        </div>
+
+        <!-- City View -->
+        <div class="city-view" id="cityView">
+            <div class="city-skyline">
+                <div class="building available" data-building="magic-shop" data-price="5000">
+                    <div class="building-icon">🏪</div>
+                    <div class="building-name">Magic Shop</div>
+                    <div class="building-price">$5,000</div>
+                </div>
+                <div class="building available" data-building="theater" data-price="25000">
+                    <div class="building-icon">🎭</div>
+                    <div class="building-name">Magic Theater</div>
+                    <div class="building-price">$25,000</div>
+                </div>
+                <div class="building available" data-building="academy" data-price="50000">
+                    <div class="building-icon">🎓</div>
+                    <div class="building-name">Magic Academy</div>
+                    <div class="building-price">$50,000</div>
+                </div>
+                <div class="building available" data-building="casino" data-price="100000">
+                    <div class="building-icon">🎰</div>
+                    <div class="building-name">Magic Casino</div>
+                    <div class="building-price">$100,000</div>
+                </div>
+                <div class="building available" data-building="resort" data-price="250000">
+                    <div class="building-icon">🏖️</div>
+                    <div class="building-name">Magic Resort</div>
+                    <div class="building-price">$250,000</div>
+                </div>
+                <div class="building available" data-building="empire" data-price="1000000">
+                    <div class="building-icon">🏰</div>
+                    <div class="building-name">Magic Empire HQ</div>
+                    <div class="building-price">$1,000,000</div>
+                </div>
+            </div>
+
+            <div class="city-hud">
+                <h3>🏙️ MAGIC CITY EMPIRE</h3>
+                <div>Total Businesses: <span id="totalBusinesses">0</span></div>
+                <div>Daily Income: $<span id="dailyIncome">0</span></div>
+                <div>Empire Value: $<span id="empireValue">0</span></div>
+                <div>City Reputation: <span id="cityReputation">Unknown</span></div>
+            </div>
+
+            <div class="business-income">
+                <h3>💰 BUSINESS INCOME</h3>
+                <div id="incomeList">
+                    <div style="text-align: center; color: #666;">No businesses owned yet</div>
+                </div>
+            </div>
+
+            <div class="city-controls">
+                <button class="magic-btn" id="backToStageBtn">
+                    <span>🎭</span>
+                    <span>Back to Stage</span>
+                </button>
+                <button class="magic-btn" id="collectIncomeBtn">
+                    <span>💰</span>
+                    <span>Collect Income</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Log -->
+        <div class="performance-log">
+            <h3 style="margin-bottom: 15px; color: #FFD700;">🎭 Performance History</h3>
+            <div id="performanceLog">
+                <div class="log-entry success">✨ Card Vanish - PERFECT! Audience amazed! +$45</div>
+                <div class="log-entry success">🎯 Coin Vanish - Great performance! +$35</div>
+                <div class="log-entry failure">💥 Four Aces - Trick failed, audience noticed! -$10</div>
+                <div class="log-entry success">🧠 Mind Reading - Incredible! Standing ovation! +$125</div>
+                <div class="log-entry success">🔓 Handcuff Escape - Thrilling performance! +$180</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MagicianEmpireSimulator {
+            constructor() {
+                this.magician = {
+                    name: 'The Amazing Alex',
+                    level: 1,
+                    experience: 150,
+                    reputation: 15,
+                    successRate: 75,
+                    totalEarnings: 2450,
+                    showsPerformed: 12,
+                    signatureTrick: 'Card Vanish'
+                };
+
+                this.currentVenue = {
+                    name: 'Street Corner',
+                    audienceSize: 'Small',
+                    basePay: 25,
+                    multiplier: 1.0
+                };
+
+                this.venues = [
+                    { name: 'Street Corner', audienceSize: 'Small', basePay: 25, multiplier: 1.0, unlocked: true },
+                    { name: 'Local Bar', audienceSize: 'Medium', basePay: 50, multiplier: 1.2, unlocked: false },
+                    { name: 'Birthday Party', audienceSize: 'Medium', basePay: 75, multiplier: 1.3, unlocked: false },
+                    { name: 'Corporate Event', audienceSize: 'Large', basePay: 150, multiplier: 1.5, unlocked: false },
+                    { name: 'Theater Show', audienceSize: 'Large', basePay: 300, multiplier: 2.0, unlocked: false },
+                    { name: 'Las Vegas Casino', audienceSize: 'Huge', basePay: 500, multiplier: 3.0, unlocked: false }
+                ];
+
+                this.tricks = {
+                    'card-vanish': { name: 'Card Vanish', difficulty: 'easy', baseSuccess: 85, basePay: [25, 50], learned: true },
+                    'coin-vanish': { name: 'Coin Vanish', difficulty: 'easy', baseSuccess: 80, basePay: [20, 40], learned: true },
+                    'four-aces': { name: 'Four Aces Production', difficulty: 'medium', baseSuccess: 70, basePay: [50, 100], learned: true },
+                    'mind-reading': { name: 'Mind Reading', difficulty: 'medium', baseSuccess: 65, basePay: [75, 150], learned: true },
+                    'handcuffs': { name: 'Handcuff Escape', difficulty: 'medium', baseSuccess: 70, basePay: [100, 200], learned: true },
+                    'ambitious-card': { name: 'Ambitious Card Routine', difficulty: 'hard', baseSuccess: 60, basePay: [100, 200], learned: false },
+                    'levitation': { name: 'Assistant Levitation', difficulty: 'hard', baseSuccess: 55, basePay: [200, 400], learned: false },
+                    'prediction': { name: 'Future Prediction', difficulty: 'hard', baseSuccess: 50, basePay: [150, 300], learned: false },
+                    'sawing': { name: 'Sawing Assistant in Half', difficulty: 'expert', baseSuccess: 45, basePay: [500, 1000], learned: false },
+                    'straitjacket': { name: 'Straitjacket Escape', difficulty: 'expert', baseSuccess: 40, basePay: [400, 800], learned: false }
+                };
+
+                this.equipment = {};
+                this.businesses = {};
+                this.selectedTrick = 'card-vanish';
+                this.currentShopCategory = 'props';
+                this.lastIncomeCollection = Date.now();
+
+                this.shopCategories = {
+                    props: {
+                        name: 'Magic Props',
+                        items: [
+                            { name: 'Silk Scarves', bonus: 2, basePrice: 150 },
+                            { name: 'Magic Wand', bonus: 5, basePrice: 300 },
+                            { name: 'Top Hat', bonus: 3, basePrice: 200 },
+                            { name: 'Crystal Ball', bonus: 8, basePrice: 800 },
+                            { name: 'Magic Rings', bonus: 4, basePrice: 400 },
+                            { name: 'Vanishing Box', bonus: 10, basePrice: 1200 },
+                            { name: 'Floating Table', bonus: 15, basePrice: 2500 }
+                        ]
+                    },
+                    costumes: {
+                        name: 'Magic Costumes',
+                        items: [
+                            { name: 'Classic Tuxedo', bonus: 3, basePrice: 500 },
+                            { name: 'Mystical Robe', bonus: 6, basePrice: 800 },
+                            { name: 'Victorian Suit', bonus: 4, basePrice: 600 },
+                            { name: 'Enchanted Cape', bonus: 8, basePrice: 1000 },
+                            { name: 'Golden Vest', bonus: 5, basePrice: 750 },
+                            { name: 'Wizard Outfit', bonus: 12, basePrice: 1800 },
+                            { name: 'Royal Regalia', bonus: 20, basePrice: 5000 }
+                        ]
+                    },
+                    equipment: {
+                        name: 'Stage Equipment',
+                        items: [
+                            { name: 'Levitation Rig', bonus: 10, basePrice: 2000 },
+                            { name: 'Sawing Box', bonus: 15, basePrice: 5000 },
+                            { name: 'Escape Chamber', bonus: 12, basePrice: 3500 },
+                            { name: 'Teleportation Device', bonus: 25, basePrice: 10000 },
+                            { name: 'Mind Reading Helmet', bonus: 18, basePrice: 7500 },
+                            { name: 'Illusion Mirror', bonus: 20, basePrice: 8000 },
+                            { name: 'Time Manipulation Clock', bonus: 30, basePrice: 15000 }
+                        ]
+                    },
+                    rare: {
+                        name: 'Rare Artifacts',
+                        items: [
+                            { name: 'Ancient Grimoire', bonus: 25, basePrice: 20000 },
+                            { name: 'Phoenix Feather', bonus: 35, basePrice: 50000 },
+                            { name: 'Dragon Scale', bonus: 40, basePrice: 75000 },
+                            { name: 'Merlin\'s Staff', bonus: 50, basePrice: 100000 },
+                            { name: 'Philosopher\'s Stone', bonus: 60, basePrice: 200000 },
+                            { name: 'Reality Gem', bonus: 75, basePrice: 500000 },
+                            { name: 'Universe Orb', bonus: 100, basePrice: 1000000 }
+                        ]
+                    }
+                };
+
+                this.businessTypes = {
+                    'magic-shop': { name: 'Magic Shop', income: 100, value: 5000 },
+                    'theater': { name: 'Magic Theater', income: 500, value: 25000 },
+                    'academy': { name: 'Magic Academy', income: 1000, value: 50000 },
+                    'casino': { name: 'Magic Casino', income: 2500, value: 100000 },
+                    'resort': { name: 'Magic Resort', income: 5000, value: 250000 },
+                    'empire': { name: 'Magic Empire HQ', income: 15000, value: 1000000 }
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.setupControls();
+                this.updateHUD();
+                this.updateVenueInfo();
+                this.startMagicalEffects();
+                this.startRandomEvents();
+                this.startIncomeGeneration();
+                this.generateShopItems();
+            }
+
+            setupControls() {
+                // Main action buttons
+                document.getElementById('performBtn').addEventListener('click', () => this.performTrick());
+                document.getElementById('practiceBtn').addEventListener('click', () => this.practiceTrick());
+                document.getElementById('shopBtn').addEventListener('click', () => this.openShop());
+                document.getElementById('venueBtn').addEventListener('click', () => this.changeVenue());
+                document.getElementById('tricksBtn').addEventListener('click', () => this.openTrickSelector());
+                document.getElementById('cityBtn').addEventListener('click', () => this.openCityView());
+
+                // City controls
+                document.getElementById('backToStageBtn').addEventListener('click', () => this.closeCityView());
+                document.getElementById('collectIncomeBtn').addEventListener('click', () => this.collectIncome());
+
+                // Trick selector
+                document.getElementById('closeTrickSelector').addEventListener('click', () => this.closeTrickSelector());
+                document.querySelectorAll('.trick-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (!item.classList.contains('locked')) {
+                            this.selectTrick(item.dataset.trick);
+                        }
+                    });
+                });
+
+                // Shop
+                document.getElementById('closeShop').addEventListener('click', () => this.closeShop());
+                document.querySelectorAll('.shop-category-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchShopCategory(btn.dataset.category));
+                });
+
+                // Buildings
+                document.querySelectorAll('.building').forEach(building => {
+                    building.addEventListener('click', () => this.buyBusiness(building.dataset.building));
+                });
+
+                // Magician avatar interaction
+                document.getElementById('magicianAvatar').addEventListener('click', () => this.performTrick());
+            }
+
+            generateShopItems() {
+                const shopItems = document.getElementById('shopItems');
+                shopItems.innerHTML = '';
+
+                const category = this.shopCategories[this.currentShopCategory];
+                
+                // Generate base items
+                category.items.forEach((item, index) => {
+                    const itemId = `${this.currentShopCategory}-${index}`;
+                    const owned = this.equipment[itemId] || false;
+                    const price = this.calculateItemPrice(item.basePrice, index);
+
+                    const itemElement = this.createShopItemElement(item.name, item.bonus, price, itemId, owned);
+                    shopItems.appendChild(itemElement);
+                });
+
+                // Generate infinite random items
+                for (let i = 0; i < 20; i++) {
+                    const randomItem = this.generateRandomItem(category, i + category.items.length);
+                    const itemId = `${this.currentShopCategory}-random-${i}`;
+                    const owned = this.equipment[itemId] || false;
+                    const price = this.calculateItemPrice(randomItem.basePrice, i + category.items.length);
+
+                    const itemElement = this.createShopItemElement(randomItem.name, randomItem.bonus, price, itemId, owned);
+                    shopItems.appendChild(itemElement);
+                }
+            }
+
+            generateRandomItem(category, tier) {
+                const prefixes = ['Enchanted', 'Mystical', 'Ancient', 'Legendary', 'Divine', 'Ethereal', 'Celestial', 'Arcane'];
+                const suffixes = ['of Power', 'of Wonder', 'of Mastery', 'of Excellence', 'of Perfection', 'of the Ancients', 'of Eternity'];
+                
+                const baseItem = category.items[Math.floor(Math.random() * category.items.length)];
+                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+                
+                return {
+                    name: `${prefix} ${baseItem.name} ${suffix}`,
+                    bonus: baseItem.bonus + Math.floor(tier * 1.5) + Math.floor(Math.random() * 10),
+                    basePrice: baseItem.basePrice * (1 + tier * 0.5) + Math.floor(Math.random() * 1000)
+                };
+            }
+
+            calculateItemPrice(basePrice, tier) {
+                return Math.floor(basePrice * Math.pow(1.2, tier));
+            }
+
+            createShopItemElement(name, bonus, price, itemId, owned) {
+                const item = document.createElement('div');
+                item.className = `shop-item ${owned ? 'owned' : ''}`;
+                item.innerHTML = `
+                    <div class="trick-info">
+                        <div class="trick-name">${name}</div>
+                        <div class="trick-description">Success rate bonus: +${bonus}%</div>
+                    </div>
+                    <div class="price">${owned ? 'OWNED' : '$' + price.toLocaleString()}</div>
+                `;
+                
+                if (!owned) {
+                    item.addEventListener('click', () => this.buyEquipment(itemId, name, bonus, price));
+                }
+                
+                return item;
+            }
+
+            switchShopCategory(category) {
+                this.currentShopCategory = category;
+                
+                document.querySelectorAll('.shop-category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-category="${category}"]`).classList.add('active');
+                
+                this.generateShopItems();
+            }
+
+            buyEquipment(itemId, name, bonus, price) {
+                if (this.magician.totalEarnings >= price) {
+                    this.magician.totalEarnings -= price;
+                    this.equipment[itemId] = { name, bonus, price };
+                    this.showNotification(`🛒 Purchased ${name}! Success rate bonus: +${bonus}%`);
+                    this.addPerformanceLog(`🛒 Purchased ${name}`, 'success');
+                    this.generateShopItems();
+                    this.updateHUD();
+                } else {
+                    this.showNotification(`💰 Not enough money! Need $${price.toLocaleString()}`);
+                }
+            }
+
+            openCityView() {
+                document.getElementById('cityView').style.display = 'block';
+                this.updateCityHUD();
+            }
+
+            closeCityView() {
+                document.getElementById('cityView').style.display = 'none';
+            }
+
+            buyBusiness(businessType) {
+                const business = this.businessTypes[businessType];
+                const building = document.querySelector(`[data-building="${businessType}"]`);
+                
+                if (this.businesses[businessType]) {
+                    this.showNotification(`You already own ${business.name}!`);
+                    return;
+                }
+
+                if (this.magician.totalEarnings >= business.value) {
+                    this.magician.totalEarnings -= business.value;
+                    this.businesses[businessType] = {
+                        name: business.name,
+                        income: business.income,
+                        value: business.value,
+                        purchaseDate: Date.now()
+                    };
+                    
+                    building.classList.remove('available');
+                    building.classList.add('owned');
+                    building.querySelector('.building-price').textContent = 'OWNED';
+                    
+                    this.showNotification(`🏢 Purchased ${business.name}! Daily income: +$${business.income}`);
+                    this.addPerformanceLog(`🏢 Opened ${business.name}`, 'success');
+                    this.updateHUD();
+                    this.updateCityHUD();
+                } else {
+                    this.showNotification(`💰 Not enough money! Need $${business.value.toLocaleString()}`);
+                }
+            }
+
+            startIncomeGeneration() {
+                setInterval(() => {
+                    const now = Date.now();
+                    const timeDiff = now - this.lastIncomeCollection;
+                    const hoursElapsed = timeDiff / (1000 * 60 * 60);
+                    
+                    if (hoursElapsed >= 1) { // Collect income every hour
+                        this.generatePassiveIncome();
+                        this.lastIncomeCollection = now;
+                    }
+                }, 60000); // Check every minute
+            }
+
+            generatePassiveIncome() {
+                let totalIncome = 0;
+                Object.values(this.businesses).forEach(business => {
+                    totalIncome += business.income;
+                });
+                
+                if (totalIncome > 0) {
+                    this.magician.totalEarnings += totalIncome;
+                    this.showNotification(`💰 Businesses generated $${totalIncome.toLocaleString()}!`);
+                    this.updateHUD();
+                }
+            }
+
+            collectIncome() {
+                this.generatePassiveIncome();
+                this.showNotification('💰 Income collected from all businesses!');
+            }
+
+            updateCityHUD() {
+                const totalBusinesses = Object.keys(this.businesses).length;
+                const dailyIncome = Object.values(this.businesses).reduce((sum, b) => sum + b.income * 24, 0);
+                const empireValue = Object.values(this.businesses).reduce((sum, b) => sum + b.value, 0);
+                
+                let cityReputation = 'Unknown';
+                if (empireValue >= 1000000) cityReputation = 'Magic Mogul';
+                else if (empireValue >= 500000) cityReputation = 'Entertainment Tycoon';
+                else if (empireValue >= 100000) cityReputation = 'Business Owner';
+                else if (empireValue >= 25000) cityReputation = 'Entrepreneur';
+                else if (empireValue >= 5000) cityReputation = 'Shop Owner';
+
+                document.getElementById('totalBusinesses').textContent = totalBusinesses;
+                document.getElementById('dailyIncome').textContent = dailyIncome.toLocaleString();
+                document.getElementById('empireValue').textContent = empireValue.toLocaleString();
+                document.getElementById('cityReputation').textContent = cityReputation;
+
+                // Update income list
+                const incomeList = document.getElementById('incomeList');
+                incomeList.innerHTML = '';
+                
+                if (totalBusinesses === 0) {
+                    incomeList.innerHTML = '<div style="text-align: center; color: #666;">No businesses owned yet</div>';
+                } else {
+                    Object.values(this.businesses).forEach(business => {
+                        const incomeItem = document.createElement('div');
+                        incomeItem.className = 'income-item';
+                        incomeItem.innerHTML = `
+                            <span>${business.name}</span>
+                            <span>$${business.income}/hour</span>
+                        `;
+                        incomeList.appendChild(incomeItem);
+                    });
+                }
+            }
+
+            performTrick() {
+                const trick = this.tricks[this.selectedTrick];
+                if (!trick || !trick.learned) {
+                    this.showNotification('❌ You need to learn this trick first!');
+                    return;
+                }
+
+                // Calculate success chance
+                let successChance = trick.baseSuccess + this.getEquipmentBonus();
+                successChance = Math.min(95, successChance); // Cap at 95%
+
+                const isSuccess = Math.random() * 100 < successChance;
+                
+                // Animate magician
+                const avatar = document.getElementById('magicianAvatar');
+                avatar.classList.add('performing');
+                setTimeout(() => avatar.classList.remove('performing'), 2000);
+
+                // Create magic effects
+                this.createMagicEffects();
+                this.animateAudience(isSuccess);
+
+                if (isSuccess) {
+                    this.handleSuccessfulTrick(trick);
+                } else {
+                    this.handleFailedTrick(trick);
+                }
+
+                this.magician.showsPerformed++;
+                this.updateHUD();
+            }
+
+            handleSuccessfulTrick(trick) {
+                const basePay = trick.basePay[0] + Math.random() * (trick.basePay[1] - trick.basePay[0]);
+                const earnings = Math.floor(basePay * this.currentVenue.multiplier);
+                
+                this.magician.totalEarnings += earnings;
+                this.gainExperience(trick.difficulty === 'easy' ? 10 : trick.difficulty === 'medium' ? 20 : trick.difficulty === 'hard' ? 35 : 50);
+                this.gainReputation(trick.difficulty === 'easy' ? 1 : trick.difficulty === 'medium' ? 2 : trick.difficulty === 'hard' ? 4 : 6);
+
+                this.showNotification(`✨ ${trick.name} - PERFECT! Audience amazed! +$${earnings}`);
+                this.addPerformanceLog(`✨ ${trick.name} - PERFECT! Audience amazed! +$${earnings}`, 'success');
+
+                // Update success rate
+                this.magician.successRate = Math.min(99, this.magician.successRate + 0.5);
+            }
+
+            handleFailedTrick(trick) {
+                const penalty = Math.floor(this.currentVenue.basePay * 0.4);
+                this.magician.totalEarnings = Math.max(0, this.magician.totalEarnings - penalty);
+                this.magician.reputation = Math.max(0, this.magician.reputation - 1);
+
+                this.showNotification(`💥 ${trick.name} - Trick failed! Audience noticed! -$${penalty}`);
+                this.addPerformanceLog(`💥 ${trick.name} - Trick failed! Audience noticed! -$${penalty}`, 'failure');
+
+                // Update success rate
+                this.magician.successRate = Math.max(30, this.magician.successRate - 1);
+            }
+
+            practiceTrick() {
+                const trick = this.tricks[this.selectedTrick];
+                if (!trick) return;
+
+                if (!trick.learned) {
+                    // Learn new trick
+                    if (this.canLearnTrick(trick)) {
+                        trick.learned = true;
+                        this.showNotification(`📚 Learned ${trick.name}! You can now perform this trick.`);
+                        this.addPerformanceLog(`📚 Learned ${trick.name}!`, 'success');
+                        this.gainExperience(25);
+                    } else {
+                        this.showNotification(`❌ You need more experience to learn ${trick.name}!`);
+                    }
+                } else {
+                    // Practice existing trick
+                    this.showNotification(`🎯 Practiced ${trick.name}! Your technique improves.`);
+                    this.addPerformanceLog(`🎯 Practiced ${trick.name}`, 'success');
+                    this.gainExperience(5);
+                    this.magician.successRate = Math.min(99, this.magician.successRate + 1);
+                }
+
+                this.updateHUD();
+            }
+
+            canLearnTrick(trick) {
+                const requirements = {
+                    'easy': 0,
+                    'medium': 200,
+                    'hard': 500,
+                    'expert': 1000
+                };
+                return this.magician.experience >= requirements[trick.difficulty];
+            }
+
+            selectTrick(trickId) {
+                this.selectedTrick = trickId;
+                this.magician.signatureTrick = this.tricks[trickId].name;
+                this.showNotification(`🎭 Selected: ${this.tricks[trickId].name}`);
+                this.closeTrickSelector();
+                this.updateHUD();
+            }
+
+            changeVenue() {
+                const availableVenues = this.venues.filter(v => v.unlocked || this.canUnlockVenue(v));
+                const nextVenue = availableVenues[Math.floor(Math.random() * availableVenues.length)];
+                
+                if (!nextVenue.unlocked && this.canUnlockVenue(nextVenue)) {
+                    nextVenue.unlocked = true;
+                    this.showNotification(`🎉 New venue unlocked: ${nextVenue.name}!`);
+                }
+
+                this.currentVenue = nextVenue;
+                this.updateVenueInfo();
+                this.showNotification(`📍 Moved to ${nextVenue.name}`);
+                this.addPerformanceLog(`📍 Performing at ${nextVenue.name}`, 'success');
+            }
+
+            canUnlockVenue(venue) {
+                const requirements = {
+                    'Local Bar': 5,
+                    'Birthday Party': 15,
+                    'Corporate Event': 35,
+                    'Theater Show': 60,
+                    'Las Vegas Casino': 100
+                };
+                return this.magician.reputation >= (requirements[venue.name] || 0);
+            }
+
+            openTrickSelector() {
+                document.getElementById('trickSelector').style.display = 'block';
+                this.updateTrickSelector();
+            }
+
+            closeTrickSelector() {
+                document.getElementById('trickSelector').style.display = 'none';
+            }
+
+            updateTrickSelector() {
+                document.querySelectorAll('.trick-item').forEach(item => {
+                    const trickId = item.dataset.trick;
+                    const trick = this.tricks[trickId];
+                    
+                    if (trick && !trick.learned && !this.canLearnTrick(trick)) {
+                        item.classList.add('locked');
+                    } else {
+                        item.classList.remove('locked');
+                    }
+                });
+            }
+
+            openShop() {
+                document.getElementById('shopPanel').style.display = 'block';
+                this.generateShopItems();
+            }
+
+            closeShop() {
+                document.getElementById('shopPanel').style.display = 'none';
+            }
+
+            getEquipmentBonus() {
+                let bonus = 0;
+                Object.values(this.equipment).forEach(item => {
+                    if (item.bonus) bonus += item.bonus;
+                });
+                return bonus;
+            }
+
+            gainExperience(amount) {
+                this.magician.experience += amount;
+                
+                // Level up check
+                const expNeeded = this.magician.level * 300;
+                if (this.magician.experience >= expNeeded) {
+                    this.magician.level++;
+                    this.showNotification(`🎉 Level Up! You are now Level ${this.magician.level}!`);
+                    this.addPerformanceLog(`⬆️ Reached Level ${this.magician.level}!`, 'success');
+                }
+            }
+
+            gainReputation(amount) {
+                this.magician.reputation += amount;
+                this.updateReputationLevel();
+            }
+
+            updateReputationLevel() {
+                let reputationLevel = 'Novice';
+                if (this.magician.reputation >= 100) reputationLevel = 'Master';
+                else if (this.magician.reputation >= 75) reputationLevel = 'Expert';
+                else if (this.magician.reputation >= 50) reputationLevel = 'Professional';
+                else if (this.magician.reputation >= 25) reputationLevel = 'Skilled';
+                else if (this.magician.reputation >= 10) reputationLevel = 'Amateur';
+
+                document.getElementById('reputation').textContent = reputationLevel;
+            }
+
+            createMagicEffects() {
+                const effects = ['✨', '⭐', '🌟', '💫', '🎆', '🎇'];
+                
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'sparkle';
+                        sparkle.textContent = effects[Math.floor(Math.random() * effects.length)];
+                        sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                        sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                        
+                        document.getElementById('magicEffects').appendChild(sparkle);
+                        
+                        setTimeout(() => sparkle.remove(), 2000);
+                    }, i * 200);
+                }
+            }
+
+            animateAudience(success) {
+                const audience = document.querySelectorAll('.audience-member');
+                audience.forEach((member, index) => {
+                    setTimeout(() => {
+                        if (success) {
+                            member.classList.add('excited');
+                            member.textContent = ['👏', '🙌', '😍', '🤩', '😲'][Math.floor(Math.random() * 5)];
+                        } else {
+                            member.textContent = ['😕', '🤔', '😐', '😒'][Math.floor(Math.random() * 4)];
+                        }
+                        
+                        setTimeout(() => {
+                            member.classList.remove('excited');
+                            member.textContent = '👤';
+                        }, 3000);
+                    }, index * 100);
+                });
+            }
+
+            startMagicalEffects() {
+                // Add floating cards periodically
+                setInterval(() => {
+                    if (document.querySelectorAll('.floating-card').length < 6) {
+                        const card = document.createElement('div');
+                        card.className = 'floating-card';
+                        card.textContent = ['🃏', '🎴', '🂠', '🂡'][Math.floor(Math.random() * 4)];
+                        card.style.left = Math.random() * 80 + 10 + '%';
+                        card.style.top = Math.random() * 40 + 20 + '%';
+                        card.style.animationDelay = Math.random() * 4 + 's';
+                        document.getElementById('magicEffects').appendChild(card);
+                        
+                        setTimeout(() => card.remove(), 20000);
+                    }
+                }, 8000);
+            }
+
+            startRandomEvents() {
+                setInterval(() => {
+                    const events = [
+                        () => this.showNotification('🎪 A talent scout is in the audience tonight!'),
+                        () => this.showNotification('📺 Local news wants to interview you!'),
+                        () => this.showNotification('🎭 Another magician challenges you to a magic duel!'),
+                        () => this.showNotification('🎁 A mysterious benefactor sends you new equipment!'),
+                        () => this.showNotification('⭐ Your reputation spreads through word of mouth!'),
+                        () => this.showNotification('🏢 New business opportunity available in the city!'),
+                        () => this.showNotification('💎 Rare magical artifact spotted in the shop!')
+                    ];
+
+                    if (Math.random() < 0.3) {
+                        const randomEvent = events[Math.floor(Math.random() * events.length)];
+                        randomEvent();
+                    }
+                }, 20000);
+            }
+
+            addPerformanceLog(message, type = 'success') {
+                const log = document.getElementById('performanceLog');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.textContent = message;
+                
+                log.insertBefore(entry, log.firstChild);
+                
+                // Keep only last 8 entries
+                while (log.children.length > 8) {
+                    log.removeChild(log.lastChild);
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 4000);
+            }
+
+            updateHUD() {
+                document.getElementById('magicianName').textContent = this.magician.name;
+                document.getElementById('magicianLevel').textContent = this.magician.level;
+                document.getElementById('experience').textContent = this.magician.experience.toLocaleString();
+                document.getElementById('successRate').textContent = Math.round(this.magician.successRate);
+                document.getElementById('showsPerformed').textContent = this.magician.showsPerformed;
+                document.getElementById('signatureTrick').textContent = this.magician.signatureTrick;
+                document.getElementById('totalEarnings').textContent = this.magician.totalEarnings.toLocaleString();
+                
+                // Update reputation bar
+                const reputationPercent = Math.min(100, this.magician.reputation);
+                document.getElementById('reputationFill').style.width = reputationPercent + '%';
+                
+                this.updateReputationLevel();
+            }
+
+            updateVenueInfo() {
+                document.getElementById('currentVenue').textContent = this.currentVenue.name;
+                document.getElementById('audienceSize').textContent = this.currentVenue.audienceSize;
+                document.getElementById('basePay').textContent = this.currentVenue.basePay;
+            }
+        }
+
+        // Start the Magician Empire Simulator
+        new MagicianEmpireSimulator();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'971597c051ab67dd',t:'MTc1NTU2Mzk1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
