@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Processor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #videoList {
+      list-style: none;
+      padding: 0;
+    }
+    #videoList li {
+      margin: 5px 0;
+      cursor: pointer;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    #videoList li:hover {
+      background: #e3e3e3;
+    }
+    video {
+      margin-top: 20px;
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #333;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎥 Video Processor</h1>
+  <input type="file" id="fileInput" accept="video/*" multiple>
+  
+  <h2>Stored Videos</h2>
+  <ul id="videoList"></ul>
+  
+  <video id="videoPlayer" controls></video>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const videoList = document.getElementById("videoList");
+    const videoPlayer = document.getElementById("videoPlayer");
+
+    let videos = [];
+
+    // When user selects files
+    fileInput.addEventListener("change", function(event) {
+      const files = event.target.files;
+      for (let file of files) {
+        const url = URL.createObjectURL(file);
+        videos.push({ name: file.name, url: url });
+      }
+      renderVideoList();
+    });
+
+    // Render stored video list
+    function renderVideoList() {
+      videoList.innerHTML = "";
+      videos.forEach((video, index) => {
+        const li = document.createElement("li");
+        li.textContent = video.name;
+        li.onclick = () => playVideo(index);
+        videoList.appendChild(li);
+      });
+    }
+
+    // Play selected video
+    function playVideo(index) {
+      videoPlayer.src = videos[index].url;
+      videoPlayer.play();
+    }
+  </script>
+
+</body>
+</html>

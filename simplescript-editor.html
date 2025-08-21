@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Language Compiler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .editor-section {
+            background: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            background: #2d3748;
+            padding: 16px 24px;
+            font-weight: 600;
+            border-bottom: 1px solid #4a5568;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor {
+            flex: 1;
+            padding: 0;
+            border: none;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            padding: 24px;
+        }
+
+        .output-section {
+            background: #f7fafc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-section .section-header {
+            background: #edf2f7;
+            color: #2d3748;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .output {
+            flex: 1;
+            padding: 24px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.6;
+            background: #f7fafc;
+            color: #2d3748;
+            overflow-y: auto;
+        }
+
+        .controls {
+            padding: 24px;
+            background: #edf2f7;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .language-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .language-info h3 {
+            color: #234e52;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .language-info code {
+            background: #b2f5ea;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #234e52;
+        }
+
+        .error {
+            color: #e53e3e;
+            background: #fed7d7;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success {
+            color: #38a169;
+            background: #c6f6d5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border-left: 4px solid #38a169;
+        }
+
+        .token {
+            display: inline-block;
+            margin: 2px 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .token-keyword { background: #fbb6ce; color: #97266d; }
+        .token-identifier { background: #bee3f8; color: #2c5282; }
+        .token-number { background: #c6f6d5; color: #276749; }
+        .token-string { background: #fbd38d; color: #975a16; }
+        .token-operator { background: #e9d8fd; color: #553c9a; }
+        .token-type { background: #fed7e2; color: #b83280; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Custom Language Compiler</h1>
+            <p>Write, compile, and execute code in our custom "SimpleScript" language</p>
+        </div>
+
+        <div class="main-content">
+            <div class="editor-section">
+                <div class="section-header">
+                    <span>📝 Code Editor</span>
+                    <span id="line-count">Lines: 1</span>
+                </div>
+                <textarea id="code-editor" class="editor" placeholder="Write your SimpleScript code here...">// Welcome to SimpleScript with Enhanced Type System!
+// Now supports int, float, string, boolean, list, dict, tuple, and any
+
+let(int) x = 10; let(float) y = 20.5; let(int) result = x + y;
+
+print("The sum is: " + result);
+
+// Working with lists and dictionaries
+let(list) numbers = [1, 2, 3, 4, 5]; let(dict) person = {"name": "Alice", "age": 25};
+
+print("Numbers: " + numbers); print("Person: " + person);
+
+// Boolean and null values
+let(boolean) isActive = true; let(any) nullValue = null;
+
+function greet(name).string {
+    return "Hello, " + name + "!";
+}
+
+let(string) message = greet("World"); print(message);
+
+function processData(data).list {
+    return [data, data * 2, data * 3];
+}
+
+let(list) processed = processData(5); print("Processed data: " + processed);
+
+if (result > 25) {
+    print("Result is greater than 25");
+} else {
+    print("Result is 25 or less");
+}</textarea>
+            </div>
+
+            <div class="output-section">
+                <div class="section-header">
+                    <span>📊 Compiler Output</span>
+                    <span id="status">Ready</span>
+                </div>
+                <div class="output" id="output">
+                    <div class="language-info">
+                        <h3>SimpleScript Language Reference:</h3>
+                        <p><strong>Typed Variables:</strong> <code>let(type) name = value</code></p>
+                        <p><strong>Typed Functions:</strong> <code>function name(params).returnType { return value }</code></p>
+                        <p><strong>Data Types:</strong> <code>int, float, string, boolean, list, dict, tuple, any</code></p>
+                        <p><strong>Literals:</strong> <code>[1, 2, 3]</code> (list), <code>{"key": "value"}</code> (dict), <code>true/false</code> (boolean)</p>
+                        <p><strong>Conditionals:</strong> <code>if (condition) { } else { }</code></p>
+                        <p><strong>Output:</strong> <code>print(value)</code></p>
+                        <p><strong>Operators:</strong> <code>+ - * / == != > < >= <=</code></p>
+                        <p><strong>Comments:</strong> <code>// This is a comment</code></p>
+                        <p><strong>Statement Separator:</strong> <code>;</code> (semicolon separates statements on same line)</p>
+                    </div>
+                    <div class="success">Ready to compile! Click "Compile & Run" to execute your code.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="compile-btn">▶️ Compile & Run</button>
+            <button class="btn btn-secondary" id="tokenize-btn">🔍 Tokenize</button>
+            <button class="btn btn-secondary" id="parse-btn">🌳 Parse AST</button>
+            <button class="btn btn-secondary" id="clear-btn">🗑️ Clear Output</button>
+            <button class="btn btn-secondary" id="example-btn">📄 Load Example</button>
+            <button class="btn btn-secondary" id="back-btn">🏠 Back to Main</button>
+        </div>
+    </div>
+
+    <script>
+        class SimpleScriptCompiler {
+            constructor() {
+                this.tokens = [];
+                this.ast = null;
+                this.variables = {};
+                this.functions = {};
+                this.output = [];
+            }
+
+            // Lexical Analysis - Convert source code into tokens
+            tokenize(source) {
+                const tokens = [];
+                const keywords = ['let', 'function', 'return', 'if', 'else', 'print', 'true', 'false', 'null'];
+                const types = ['int', 'float', 'string', 'boolean', 'list', 'dict', 'tuple', 'any'];
+                const operators = ['+', '-', '*', '/', '=', '==', '!=', '>', '<', '>=', '<='];
+                
+                let i = 0;
+                while (i < source.length) {
+                    const char = source[i];
+                    
+                    // Skip whitespace
+                    if (/\s/.test(char)) {
+                        i++;
+                        continue;
+                    }
+                    
+                    // Skip comments
+                    if (char === '/' && source[i + 1] === '/') {
+                        while (i < source.length && source[i] !== '\n') i++;
+                        continue;
+                    }
+                    
+                    // String literals
+                    if (char === '"') {
+                        let str = '';
+                        i++; // Skip opening quote
+                        while (i < source.length && source[i] !== '"') {
+                            str += source[i];
+                            i++;
+                        }
+                        i++; // Skip closing quote
+                        tokens.push({ type: 'STRING', value: str });
+                        continue;
+                    }
+                    
+                    // Numbers
+                    if (/\d/.test(char)) {
+                        let num = '';
+                        while (i < source.length && /[\d.]/.test(source[i])) {
+                            num += source[i];
+                            i++;
+                        }
+                        tokens.push({ type: 'NUMBER', value: parseFloat(num) });
+                        continue;
+                    }
+                    
+                    // Identifiers and keywords
+                    if (/[a-zA-Z_]/.test(char)) {
+                        let identifier = '';
+                        while (i < source.length && /[a-zA-Z0-9_]/.test(source[i])) {
+                            identifier += source[i];
+                            i++;
+                        }
+                        
+                        let tokenType = 'IDENTIFIER';
+                        if (keywords.includes(identifier)) tokenType = 'KEYWORD';
+                        else if (types.includes(identifier)) tokenType = 'TYPE';
+                        
+                        tokens.push({ type: tokenType, value: identifier });
+                        continue;
+                    }
+                    
+                    // Two-character operators
+                    if (i < source.length - 1) {
+                        const twoChar = source.substr(i, 2);
+                        if (['==', '!=', '>=', '<='].includes(twoChar)) {
+                            tokens.push({ type: 'OPERATOR', value: twoChar });
+                            i += 2;
+                            continue;
+                        }
+                    }
+                    
+                    // Single-character operators and punctuation
+                    if (operators.includes(char) || '(){}[],.:|;'.includes(char)) {
+                        const type = operators.includes(char) ? 'OPERATOR' : 'PUNCTUATION';
+                        tokens.push({ type, value: char });
+                        i++;
+                        continue;
+                    }
+                    
+                    i++;
+                }
+                
+                return tokens;
+            }
+
+            // Syntax Analysis - Convert tokens into Abstract Syntax Tree
+            parse(tokens) {
+                let current = 0;
+                
+                const peek = () => tokens[current];
+                const consume = () => tokens[current++];
+                const match = (value) => peek() && peek().value === value;
+                
+                const parseExpression = () => {
+                    let left = parseTerm();
+                    
+                    while (peek() && peek().type === 'OPERATOR' && ['+', '-', '==', '!=', '>', '<', '>=', '<='].includes(peek().value)) {
+                        const operator = consume().value;
+                        const right = parseTerm();
+                        left = { type: 'BinaryOp', operator, left, right };
+                    }
+                    
+                    return left;
+                };
+                
+                const parseTerm = () => {
+                    let left = parseFactor();
+                    
+                    while (peek() && peek().type === 'OPERATOR' && ['*', '/'].includes(peek().value)) {
+                        const operator = consume().value;
+                        const right = parseFactor();
+                        left = { type: 'BinaryOp', operator, left, right };
+                    }
+                    
+                    return left;
+                };
+                
+                const parseFactor = () => {
+                    const token = peek();
+                    
+                    if (!token) return null;
+                    
+                    if (token.type === 'NUMBER') {
+                        consume();
+                        return { type: 'Number', value: token.value };
+                    }
+                    
+                    if (token.type === 'STRING') {
+                        consume();
+                        return { type: 'String', value: token.value };
+                    }
+                    
+                    if (token.type === 'KEYWORD' && (token.value === 'true' || token.value === 'false')) {
+                        consume();
+                        return { type: 'Boolean', value: token.value === 'true' };
+                    }
+                    
+                    if (token.type === 'KEYWORD' && token.value === 'null') {
+                        consume();
+                        return { type: 'Null', value: null };
+                    }
+                    
+                    if (token.type === 'IDENTIFIER') {
+                        const name = consume().value;
+                        
+                        // Function call
+                        if (match('(')) {
+                            consume(); // (
+                            const args = [];
+                            
+                            while (!match(')')) {
+                                args.push(parseExpression());
+                                if (match(',')) consume();
+                            }
+                            
+                            consume(); // )
+                            return { type: 'FunctionCall', name, args };
+                        }
+                        
+                        return { type: 'Identifier', name };
+                    }
+                    
+                    if (match('(')) {
+                        consume(); // (
+                        const expr = parseExpression();
+                        consume(); // )
+                        return expr;
+                    }
+                    
+                    // List literal
+                    if (match('[')) {
+                        consume(); // [
+                        const elements = [];
+                        
+                        while (!match(']')) {
+                            elements.push(parseExpression());
+                            if (match(',')) consume();
+                        }
+                        
+                        consume(); // ]
+                        return { type: 'List', elements };
+                    }
+                    
+                    // Dictionary literal
+                    if (match('{')) {
+                        consume(); // {
+                        const pairs = [];
+                        
+                        while (!match('}')) {
+                            const key = parseExpression();
+                            consume(); // :
+                            const value = parseExpression();
+                            pairs.push({ key, value });
+                            if (match(',')) consume();
+                        }
+                        
+                        consume(); // }
+                        return { type: 'Dict', pairs };
+                    }
+                    
+                    return null;
+                };
+                
+                const parseStatement = () => {
+                    const token = peek();
+                    
+                    if (!token) return null;
+                    
+                    // Variable declaration
+                    if (token.value === 'let') {
+                        consume(); // let
+                        
+                        let dataType = null;
+                        if (match('(')) {
+                            consume(); // (
+                            dataType = consume().value; // type
+                            consume(); // )
+                        }
+                        
+                        const name = consume().value; // identifier
+                        consume(); // =
+                        const value = parseExpression();
+                        return { type: 'VariableDeclaration', name, value, dataType };
+                    }
+                    
+                    // Function declaration
+                    if (token.value === 'function') {
+                        consume(); // function
+                        const name = consume().value; // identifier
+                        consume(); // (
+                        
+                        const params = [];
+                        while (!match(')')) {
+                            params.push(consume().value);
+                            if (match(',')) consume();
+                        }
+                        
+                        consume(); // )
+                        
+                        let returnType = null;
+                        if (match('.')) {
+                            consume(); // .
+                            returnType = consume().value; // return type
+                        }
+                        
+                        consume(); // {
+                        
+                        const body = [];
+                        while (!match('}')) {
+                            body.push(parseStatement());
+                        }
+                        
+                        consume(); // }
+                        return { type: 'FunctionDeclaration', name, params, body, returnType };
+                    }
+                    
+                    // Return statement
+                    if (token.value === 'return') {
+                        consume(); // return
+                        const value = parseExpression();
+                        return { type: 'Return', value };
+                    }
+                    
+                    // If statement
+                    if (token.value === 'if') {
+                        consume(); // if
+                        consume(); // (
+                        const condition = parseExpression();
+                        consume(); // )
+                        consume(); // {
+                        
+                        const thenBranch = [];
+                        while (!match('}')) {
+                            thenBranch.push(parseStatement());
+                        }
+                        
+                        consume(); // }
+                        
+                        let elseBranch = null;
+                        if (match('else')) {
+                            consume(); // else
+                            consume(); // {
+                            
+                            elseBranch = [];
+                            while (!match('}')) {
+                                elseBranch.push(parseStatement());
+                            }
+                            
+                            consume(); // }
+                        }
+                        
+                        return { type: 'If', condition, thenBranch, elseBranch };
+                    }
+                    
+                    // Print statement
+                    if (token.value === 'print') {
+                        consume(); // print
+                        consume(); // (
+                        const value = parseExpression();
+                        consume(); // )
+                        return { type: 'Print', value };
+                    }
+                    
+                    // Assignment
+                    if (token.type === 'IDENTIFIER') {
+                        const name = consume().value;
+                        if (match('=')) {
+                            consume(); // =
+                            const value = parseExpression();
+                            return { type: 'Assignment', name, value };
+                        }
+                    }
+                    
+                    return null;
+                };
+                
+                const statements = [];
+                while (current < tokens.length) {
+                    const stmt = parseStatement();
+                    if (stmt) {
+                        statements.push(stmt);
+                        // Consume optional semicolon
+                        if (match(';')) consume();
+                    }
+                }
+                
+                return { type: 'Program', statements };
+            }
+
+            // Helper method to determine type
+            getType(value) {
+                if (value === null) return 'null';
+                if (typeof value === 'boolean') return 'boolean';
+                if (typeof value === 'string') return 'string';
+                if (typeof value === 'number') {
+                    return Number.isInteger(value) ? 'int' : 'float';
+                }
+                if (Array.isArray(value)) return 'list';
+                if (typeof value === 'object') return 'dict';
+                return 'any';
+            }
+
+            // Code Execution - Interpret the AST
+            execute(ast) {
+                this.variables = {};
+                this.functions = {};
+                this.output = [];
+                
+                const evaluate = (node) => {
+                    if (!node) return null;
+                    
+                    switch (node.type) {
+                        case 'Number':
+                            return node.value;
+                            
+                        case 'String':
+                            return node.value;
+                            
+                        case 'Boolean':
+                            return node.value;
+                            
+                        case 'Null':
+                            return null;
+                            
+                        case 'List':
+                            return node.elements.map(evaluate);
+                            
+                        case 'Dict':
+                            const dict = {};
+                            node.pairs.forEach(pair => {
+                                const key = evaluate(pair.key);
+                                const value = evaluate(pair.value);
+                                dict[key] = value;
+                            });
+                            return dict;
+                            
+                        case 'Identifier':
+                            if (!(node.name in this.variables)) {
+                                throw new Error(`Undefined variable: ${node.name}`);
+                            }
+                            return this.variables[node.name];
+                            
+                        case 'BinaryOp':
+                            const left = evaluate(node.left);
+                            const right = evaluate(node.right);
+                            
+                            switch (node.operator) {
+                                case '+': return left + right;
+                                case '-': return left - right;
+                                case '*': return left * right;
+                                case '/': return left / right;
+                                case '==': return left === right;
+                                case '!=': return left !== right;
+                                case '>': return left > right;
+                                case '<': return left < right;
+                                case '>=': return left >= right;
+                                case '<=': return left <= right;
+                                default: throw new Error(`Unknown operator: ${node.operator}`);
+                            }
+                            
+                        case 'FunctionCall':
+                            if (!(node.name in this.functions)) {
+                                throw new Error(`Undefined function: ${node.name}`);
+                            }
+                            
+                            const func = this.functions[node.name];
+                            const args = node.args.map(evaluate);
+                            
+                            // Create new scope for function
+                            const oldVars = { ...this.variables };
+                            
+                            // Bind parameters
+                            func.params.forEach((param, i) => {
+                                this.variables[param] = args[i];
+                            });
+                            
+                            let result = null;
+                            try {
+                                for (const stmt of func.body) {
+                                    const res = executeStatement(stmt);
+                                    if (res && res.type === 'return') {
+                                        result = res.value;
+                                        break;
+                                    }
+                                }
+                                
+                                // Check return type
+                                if (func.returnType && result !== null && func.returnType !== 'any') {
+                                    const actualType = this.getType(result);
+                                    
+                                    if (actualType !== func.returnType) {
+                                        throw new Error(`Function '${node.name}' return type mismatch: Expected ${func.returnType}, got ${actualType}`);
+                                    }
+                                }
+                            } finally {
+                                // Restore scope
+                                this.variables = oldVars;
+                            }
+                            
+                            return result;
+                            
+                        default:
+                            throw new Error(`Unknown expression type: ${node.type}`);
+                    }
+                };
+                
+                const executeStatement = (stmt) => {
+                    switch (stmt.type) {
+                        case 'VariableDeclaration':
+                            const value = evaluate(stmt.value);
+                            
+                            // Type checking
+                            if (stmt.dataType && stmt.dataType !== 'any') {
+                                const actualType = this.getType(value);
+                                
+                                if (actualType !== stmt.dataType) {
+                                    throw new Error(`Type mismatch: Expected ${stmt.dataType}, got ${actualType} for variable '${stmt.name}'`);
+                                }
+                            }
+                            
+                            this.variables[stmt.name] = value;
+                            break;
+                            
+                        case 'Assignment':
+                            this.variables[stmt.name] = evaluate(stmt.value);
+                            break;
+                            
+                        case 'FunctionDeclaration':
+                            this.functions[stmt.name] = {
+                                params: stmt.params,
+                                body: stmt.body,
+                                returnType: stmt.returnType
+                            };
+                            break;
+                            
+                        case 'Print':
+                            const value = evaluate(stmt.value);
+                            this.output.push(String(value));
+                            break;
+                            
+                        case 'If':
+                            const condition = evaluate(stmt.condition);
+                            if (condition) {
+                                stmt.thenBranch.forEach(executeStatement);
+                            } else if (stmt.elseBranch) {
+                                stmt.elseBranch.forEach(executeStatement);
+                            }
+                            break;
+                            
+                        case 'Return':
+                            return { type: 'return', value: evaluate(stmt.value) };
+                    }
+                };
+                
+                for (const stmt of ast.statements) {
+                    executeStatement(stmt);
+                }
+                
+                return this.output;
+            }
+        }
+
+        const compiler = new SimpleScriptCompiler();
+        const editor = document.getElementById('code-editor');
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        const lineCount = document.getElementById('line-count');
+
+        // Update line count
+        editor.addEventListener('input', () => {
+            const lines = editor.value.split('\n').length;
+            lineCount.textContent = `Lines: ${lines}`;
+        });
+
+        function updateStatus(text, isError = false) {
+            status.textContent = text;
+            status.style.color = isError ? '#e53e3e' : '#38a169';
+        }
+
+        function compileAndRun() {
+            try {
+                updateStatus('Compiling...');
+                
+                const source = editor.value;
+                const tokens = compiler.tokenize(source);
+                const ast = compiler.parse(tokens);
+                const result = compiler.execute(ast);
+                
+                output.innerHTML = `
+                    <div class="success">✅ Compilation successful!</div>
+                    <h3>Program Output:</h3>
+                    <div style="background: #1a202c; color: #e2e8f0; padding: 16px; border-radius: 8px; margin: 12px 0; font-family: monospace;">
+                        ${result.length > 0 ? result.join('<br>') : '<em>No output</em>'}
+                    </div>
+                    <h3>Variables:</h3>
+                    <div style="background: #f7fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                        ${Object.keys(compiler.variables).length > 0 ? 
+                            Object.entries(compiler.variables).map(([k, v]) => `<code>${k} = ${JSON.stringify(v)}</code>`).join('<br>') :
+                            '<em>No variables defined</em>'
+                        }
+                    </div>
+                `;
+                
+                updateStatus('Execution complete');
+            } catch (error) {
+                output.innerHTML = `
+                    <div class="error">❌ Compilation Error: ${error.message}</div>
+                `;
+                updateStatus('Compilation failed', true);
+            }
+        }
+
+        function tokenize() {
+            try {
+                const source = editor.value;
+                const tokens = compiler.tokenize(source);
+                
+                output.innerHTML = `
+                    <div class="success">✅ Tokenization successful!</div>
+                    <h3>Tokens:</h3>
+                    <div style="margin: 12px 0; line-height: 2;">
+                        ${tokens.map(token => 
+                            `<span class="token token-${token.type.toLowerCase()}">${token.type}: ${JSON.stringify(token.value)}</span>`
+                        ).join(' ')}
+                    </div>
+                `;
+                
+                updateStatus('Tokenization complete');
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Tokenization Error: ${error.message}</div>`;
+                updateStatus('Tokenization failed', true);
+            }
+        }
+
+        function parseAST() {
+            try {
+                const source = editor.value;
+                const tokens = compiler.tokenize(source);
+                const ast = compiler.parse(tokens);
+                
+                output.innerHTML = `
+                    <div class="success">✅ Parsing successful!</div>
+                    <h3>Abstract Syntax Tree:</h3>
+                    <pre style="background: #f7fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 12px 0; overflow-x: auto; font-size: 12px;">${JSON.stringify(ast, null, 2)}</pre>
+                `;
+                
+                updateStatus('Parsing complete');
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Parsing Error: ${error.message}</div>`;
+                updateStatus('Parsing failed', true);
+            }
+        }
+
+        function clearOutput() {
+            output.innerHTML = `
+                <div class="language-info">
+                    <h3>SimpleScript Language Reference:</h3>
+                    <p><strong>Typed Variables:</strong> <code>let(type) name = value</code></p>
+                    <p><strong>Typed Functions:</strong> <code>function name(params).returnType { return value }</code></p>
+                    <p><strong>Data Types:</strong> <code>int, float, string, boolean, list, dict, tuple, any</code></p>
+                    <p><strong>Literals:</strong> <code>[1, 2, 3]</code> (list), <code>{"key": "value"}</code> (dict), <code>true/false</code> (boolean)</p>
+                    <p><strong>Conditionals:</strong> <code>if (condition) { } else { }</code></p>
+                    <p><strong>Output:</strong> <code>print(value)</code></p>
+                    <p><strong>Operators:</strong> <code>+ - * / == != > < >= <=</code></p>
+                    <p><strong>Comments:</strong> <code>// This is a comment</code></p>
+                    <p><strong>Statement Separator:</strong> <code>;</code> (semicolon separates statements on same line)</p>
+                </div>
+                <div class="success">Ready to compile! Click "Compile & Run" to execute your code.</div>
+            `;
+            updateStatus('Ready');
+        }
+
+        function loadExample() {
+            editor.value = `// Advanced SimpleScript with Enhanced Type System
+// Working with complex data structures and type safety
+
+// Fibonacci with integer types
+function fibonacci(n).int {
+    if (n <= 1) {
+        return n;
+    } else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+let(int) count = 8; print("Fibonacci F(" + count + ") = " + fibonacci(count));
+
+// Working with lists and data processing
+function createRange(start, end).list {
+    let(list) result = []; // Note: This is a simplified example
+    return [start, start + 1, start + 2, end];
+}
+
+let(list) numbers = createRange(1, 10); print("Range: " + numbers);
+
+// Dictionary operations
+let(dict) student = {"name": "Bob", "age": 20, "grades": [85, 92, 78]};
+
+print("Student info: " + student);
+
+// Boolean logic and mixed types
+let(bool) isPassing = true; let(float) average = 85.5; let(any) metadata = null;
+
+function analyzeGrades(grades).dict {
+    return {"count": 3, "average": 85.0, "passing": true};
+}
+
+let(dict) analysis = analyzeGrades([85, 92, 78]); print("Grade analysis: " + analysis);
+
+// String formatting with type safety
+function formatStudent(info).str {
+    return "Student: " + info + " (processed)";
+}
+
+let(str) report = formatStudent("Alice, Grade A"); print(report);`;
+            
+            const lines = editor.value.split('\n').length;
+            lineCount.textContent = `Lines: ${lines}`;
+            updateStatus('Example loaded');
+        }
+
+        // Initialize when page loads
+        window.onload = function() {
+            console.log('Page loaded, setting up buttons...');
+            
+            updateStatus('Ready');
+            const lines = editor.value.split('\n').length;
+            lineCount.textContent = `Lines: ${lines}`;
+            
+            // Add event listeners to buttons with error checking
+            const compileBtn = document.getElementById('compile-btn');
+            const tokenizeBtn = document.getElementById('tokenize-btn');
+            const parseBtn = document.getElementById('parse-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const exampleBtn = document.getElementById('example-btn');
+            const backBtn = document.getElementById('back-btn');
+            
+            if (compileBtn) {
+                compileBtn.addEventListener('click', function() {
+                    console.log('Compile button clicked');
+                    compileAndRun();
+                });
+            }
+            
+            if (tokenizeBtn) {
+                tokenizeBtn.addEventListener('click', function() {
+                    console.log('Tokenize button clicked');
+                    tokenize();
+                });
+            }
+            
+            if (parseBtn) {
+                parseBtn.addEventListener('click', function() {
+                    console.log('Parse button clicked');
+                    parseAST();
+                });
+            }
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    console.log('Clear button clicked');
+                    clearOutput();
+                });
+            }
+            
+            if (exampleBtn) {
+                exampleBtn.addEventListener('click', function() {
+                    console.log('Example button clicked');
+                    loadExample();
+                });
+            }
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    console.log('Back button clicked');
+                    alert('Back button clicked - main.html navigation disabled for demo');
+                });
+            }
+            
+            console.log('All button listeners attached');
+        };
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97273d18c625ffb8',t:'MTc1NTc0ODk4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
