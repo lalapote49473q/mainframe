@@ -285,6 +285,22 @@
                     </div>
                 </div>
             </div>
+            <!-- Simple Script Editor App -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                    onclick="navigateToSimpleScriptIDE()">
+                <div class="text-center">
+                    <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                        🖥️
+                    </div>
+                    <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                        SIMPLE SCRIPT EDITOR
+                    </h5>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                        <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                    </div>
+                </div>
+            </div>
                 
                
                     <!-- Stocks App -->
@@ -496,6 +512,22 @@
                             </div>
                             <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
                                 3D TANK SIMULATOR
+                            </h5>
+                            <div class="flex items-center justify-center space-x-1">
+                                <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-green-400 text-xs font-semibold">ONLINE</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- PAC MAN GAME -->
+                    <div class="cyber-border bg-gray-900 bg-opacity-80 rounded-lg p-4 cursor-pointer glow-effect group" 
+                         onclick="navigateToPacMan()">
+                        <div class="text-center">
+                            <div class="text-3xl mb-3 text-cyan-400 group-hover:text-purple-400 transition-colors duration-300">
+                                🟡👾
+                            </div>
+                            <h5 class="text-sm font-bold text-cyan-300 mb-2 group-hover:text-purple-300 transition-colors duration-300">
+                                PAC MAN
                             </h5>
                             <div class="flex items-center justify-center space-x-1">
                                 <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
@@ -799,6 +831,26 @@
         
             setTimeout(() => {
             window.location.href = 'grandhotel2.html';
+            }, 200);
+        }
+        function navigateToPacMan() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7'; 
+        
+            setTimeout(() => {
+            window.location.href = 'pacman.html';
+            }, 200);
+        }
+        function navigateToSimpleScriptIDE() {
+            // Add a brief loading effect
+            const monoPoly = event.currentTarget;
+            monoPoly.style.transform = 'scale(0.95)';
+            monoPoly.style.opacity = '0.7'; 
+        
+            setTimeout(() => {
+            window.location.href = 'simplescript-editor.html';
             }, 200);
         }
         function navigateToTodo() {
