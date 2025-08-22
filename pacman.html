@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pac-Man Game</title>
+<style>
+  :root {
+    --bg: #000;
+    --maze: #001f3f;
+    --wall: #0a84ff;
+    --pac: #ffdf00;
+    --ghost1: #ff4040;
+    --ghost2: #00bfff;
+    --ghost3: #ff8c00;
+    --ghost4: #b266ff;
+    --pellet: #ffffff;
+    --power: #ffd700;
+    --ui: #eee;
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--ui);
+    font-family: system-ui, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .game-container {
+    text-align: center;
+    position: relative;
+  }
+
+  canvas {
+    background: var(--maze);
+    display: block;
+    margin: auto;
+    border: 6px solid #071930;
+    border-radius: 8px;
+    image-rendering: pixelated;
+  }
+
+  .hud {
+    margin-top: 8px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  .back-btn {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    padding: 6px 12px;
+    background: #0b3b5a;
+    color: var(--ui);
+    border-radius: 0 0 8px 0;
+    cursor: pointer;
+    font-weight: bold;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .overlay {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(0,0,0,0.7);
+    padding: 20px 40px;
+    border-radius: 12px;
+    text-align: center;
+    display: none;
+  }
+
+  .overlay h2 { margin: 0; font-size: 28px; }
+  .overlay p { margin: 10px 0 0; }
+  .btn {
+    margin-top: 12px;
+    padding: 6px 14px;
+    background: #0b3b5a;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <!-- Back button -->
+  <div class="back-btn" onclick="window.location.href='main.html'">← Back</div>
+
+  <!-- Game Canvas -->
+  <canvas id="game" width="560" height="640"></canvas>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+  </div>
+
+  <!-- Overlay for Game Over / Win -->
+  <div id="overlay" class="overlay">
+    <h2 id="overlay-title"></h2>
+    <p id="overlay-text"></p>
+    <button class="btn" onclick="init()">Restart</button>
+  </div>
+</div>
+
+<script>
+// -------------------------------
+// IMPROVED PAC-MAN GAME
+// -------------------------------
+
+// Canvas + context
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// Tile system
+const TILE = 20;
+const COLS = canvas.width / TILE;
+const ROWS = canvas.height / TILE;
+
+// Game state
+let score = 0;
+let lives = 3;
+let gameOver = false;
+let gameWin = false;
+
+// HUD
+const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const overlay = document.getElementById('overlay');
+const overlayTitle = document.getElementById('overlay-title');
+const overlayText = document.getElementById('overlay-text');
+
+// Map: 0=pellet, 1=wall, 2=power, 3=empty
+// (28x32 classic size reduced for simplicity)
+const level = [
+  "1111111111111111111111111111",
+  "1000000000110000000000000001",
+  "1021111100110111110111112101",
+  "1000000000000000000000000001",
+  "1011110111110111110111111101",
+  "1000000100000000000100000001",
+  "1111110110111111101101111101",
+  "1000000000003000000000000001",
+  "1011110111110111110111111101",
+  "1000000100000000000100000001",
+  "1021111100110111110111112101",
+  "1000000000110000000000000001",
+  "1111111111111111111111111111"
+];
+
+let pellets = new Set();
+let powerPellets = new Set();
+
+function buildPellets() {
+  pellets.clear();
+  powerPellets.clear();
+  for (let y=0;y<level.length;y++) {
+    for (let x=0;x<level[y].length;x++) {
+      const cell = level[y][x];
+      const idx = y*COLS + x;
+      if (cell === "0") pellets.add(idx);
+      if (cell === "2") powerPellets.add(idx);
+    }
+  }
+}
+
+// Convert position
+function posToIndex(px,py) {
+  const cx = Math.floor(px/TILE);
+  const cy = Math.floor(py/TILE);
+  return cy*COLS + cx;
+}
+function getCell(x,y) {
+  if (y<0 || y>=level.length || x<0 || x>=level[0].length) return "1";
+  return level[y][x];
+}
+
+// Pac-Man
+const pac = { x: TILE*1.5, y: TILE*1.5, dir:{x:0,y:0}, next:{x:0,y:0}, speed:2, r:TILE*0.45, mouth:0 };
+
+// Ghosts
+class Ghost {
+  constructor(x,y,color) {
+    this.x=x; this.y=y; this.color=color;
+    this.dir={x:0,y:0}; this.speed=1.6;
+    this.frightened=false; this.frightTimer=0;
+    this.spawnX=x; this.spawnY=y;
+  }
+  reset(){ this.x=this.spawnX; this.y=this.spawnY; this.dir={x:0,y:0}; this.frightened=false; this.frightTimer=0; }
+}
+let ghosts=[];
+
+// Init
+function init() {
+  score=0; lives=3; gameOver=false; gameWin=false;
+  pac.x=TILE*1.5; pac.y=TILE*1.5; pac.dir={x:0,y:0}; pac.next={x:0,y:0};
+  buildPellets();
+  ghosts=[
+    new Ghost(12*TILE,6*TILE,"var(--ghost1)"),
+    new Ghost(14*TILE,6*TILE,"var(--ghost2)"),
+    new Ghost(12*TILE,8*TILE,"var(--ghost3)"),
+    new Ghost(14*TILE,8*TILE,"var(--ghost4)")
+  ];
+  scoreEl.textContent=score; livesEl.textContent=lives;
+  overlay.style.display="none";
+  requestAnimationFrame(loop);
+}
+
+// Input
+const keys={};
+window.addEventListener('keydown',e=>keys[e.key]=true);
+window.addEventListener('keyup',e=>keys[e.key]=false);
+
+// Update
+function update() {
+  // Pac input
+  let nx=0,ny=0;
+  if(keys.ArrowLeft||keys.a) nx=-1;
+  if(keys.ArrowRight||keys.d) nx=1;
+  if(keys.ArrowUp||keys.w) ny=-1;
+  if(keys.ArrowDown||keys.s) ny=1;
+  if(nx||ny) pac.next={x:nx,y:ny};
+
+  // Move Pac-Man
+  const newX=pac.x+pac.dir.x*pac.speed;
+  const newY=pac.y+pac.dir.y*pac.speed;
+  if(canMove(newX,newY,pac.r)) { pac.x=newX; pac.y=newY; }
+  else pac.dir={x:0,y:0};
+
+  // Change dir if possible
+  if(canMove(pac.x+pac.next.x*TILE,pac.y+pac.next.y*TILE,pac.r)) pac.dir={...pac.next};
+
+  // Eat pellets
+  const idx=posToIndex(pac.x,pac.y);
+  if(pellets.has(idx)) { pellets.delete(idx); score+=10; }
+  if(powerPellets.has(idx)) {
+    powerPellets.delete(idx); score+=50;
+    ghosts.forEach(g=>{g.frightened=true; g.frightTimer=0;});
+  }
+  scoreEl.textContent=score;
+
+  // Ghost AI
+  ghosts.forEach(g=>{
+    if(g.frightened) { g.frightTimer++; if(g.frightTimer>400) g.frightened=false; }
+    if(Math.random()<0.05 || !canMove(g.x+g.dir.x*g.speed,g.y+g.dir.y*g.speed,TILE*0.35)) {
+      g.dir = chooseDir(g);
+    }
+    g.x+=g.dir.x*g.speed; g.y+=g.dir.y*g.speed;
+    // collision with Pac-Man
+    if(Math.hypot(g.x-pac.x,g.y-pac.y)<TILE*0.7) {
+      if(g.frightened) { score+=200; g.reset(); }
+      else { lives--; livesEl.textContent=lives; if(lives<=0) endGame(false); else pac.x=TILE*1.5,pac.y=TILE*1.5; }
+    }
+  });
+
+  if(pellets.size===0 && powerPellets.size===0) endGame(true);
+}
+
+// Movement helpers
+function canMove(px,py,r) {
+  const points=[[px+r,py],[px-r,py],[px,py+r],[px,py-r]];
+  for(const [qx,qy] of points) {
+    const tx=Math.floor(qx/TILE),ty=Math.floor(qy/TILE);
+    if(getCell(tx,ty)==="1") return false;
+  }
+  return true;
+}
+function chooseDir(g) {
+  const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+  const valid=dirs.filter(d=>canMove(g.x+d.x*TILE*0.6,g.y+d.y*TILE*0.6,TILE*0.35));
+  if(!valid.length) return {x:0,y:0};
+  if(g.frightened) return valid[Math.floor(Math.random()*valid.length)];
+  // chase Pac-Man roughly
+  valid.sort((a,b)=>dist(g,a)-dist(g,b));
+  return valid[0];
+}
+function dist(g,d){return Math.hypot((g.x+d.x*TILE)-pac.x,(g.y+d.y*TILE)-pac.y);}
+
+// Draw
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Maze
+  for(let y=0;y<level.length;y++) {
+    for(let x=0;x<level[y].length;x++) {
+      if(level[y][x]==="1") {
+        ctx.fillStyle="var(--wall)";
+        ctx.fillRect(x*TILE,y*TILE,TILE,TILE);
+      }
+    }
+  }
+
+  // Pellets
+  ctx.fillStyle="var(--pellet)";
+  pellets.forEach(idx=>{
+    const x=(idx%COLS)*TILE+TILE/2, y=Math.floor(idx/COLS)*TILE+TILE/2;
+    ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle="var(--power)";
+  powerPellets.forEach(idx=>{
+    const x=(idx%COLS)*TILE+TILE/2, y=Math.floor(idx/COLS)*TILE+TILE/2;
+    ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
+  });
+
+  // Ghosts
+  ghosts.forEach(g=>{
+    ctx.fillStyle=g.frightened?"#89c2ff":g.color;
+    ctx.beginPath();
+    ctx.arc(g.x,g.y,TILE*0.4,Math.PI,0);
+    ctx.rect(g.x-TILE*0.4,g.y,g.x+TILE*0.4,g.y+TILE*0.4);
+    ctx.fill();
+  });
+
+  // Pac-Man
+  pac.mouth+=0.15;
+  const open=Math.abs(Math.sin(pac.mouth))*0.5;
+  ctx.fillStyle="var(--pac)";
+  ctx.beginPath();
+  ctx.moveTo(pac.x,pac.y);
+  ctx.arc(pac.x,pac.y,pac.r,open*Math.PI,2*Math.PI-open*Math.PI);
+  ctx.closePath(); ctx.fill();
+}
+
+// Loop
+function loop() {
+  if(!gameOver && !gameWin) update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// End game
+function endGame(win) {
+  gameOver=!win; gameWin=win;
+  overlay.style.display="block";
+  overlayTitle.textContent=win?"YOU WIN!":"GAME OVER";
+  overlayText.textContent="Final Score: "+score;
+}
+
+// Start
+init();
+</script>
+</body>
+</html>

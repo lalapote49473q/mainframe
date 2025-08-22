@@ -45,6 +45,103 @@
             font-size: 1.1rem;
         }
 
+        .tabs-container {
+            background: #2d3748;
+            border-bottom: 1px solid #4a5568;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            background: #4a5568;
+            color: #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .tab-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-name.editing {
+            background: #2d3748;
+            border: 1px solid #63b3ed;
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: white;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .tab.active {
+            background: #1a202c;
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: #718096;
+        }
+
+        .tab-close, .tab-rename {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 3px;
+            font-size: 12px;
+            line-height: 1;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-close:hover {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .tab-rename:hover {
+            background: #3182ce;
+            color: white;
+        }
+
+        .new-tab-btn {
+            background: #38a169;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .new-tab-btn:hover {
+            background: #2f855a;
+        }
+
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -144,6 +241,94 @@
             background: #cbd5e0;
         }
 
+        .libraries-section {
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 24px;
+        }
+
+        .libraries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .libraries-header h3 {
+            color: #2d3748;
+            font-size: 1.2rem;
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .library-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .library-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .library-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .library-description {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .library-functions {
+            font-size: 12px;
+            color: #4a5568;
+            margin-bottom: 12px;
+        }
+
+        .library-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-use {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-use:hover {
+            background: #2f855a;
+        }
+
+        .btn-remove {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-remove:hover {
+            background: #c53030;
+        }
+
         .language-info {
             background: #e6fffa;
             border: 1px solid #81e6d9;
@@ -199,6 +384,7 @@
         .token-string { background: #fbd38d; color: #975a16; }
         .token-operator { background: #e9d8fd; color: #553c9a; }
         .token-type { background: #fed7e2; color: #b83280; }
+        .token-indent { background: #f0f0f0; color: #666; border: 1px dashed #ccc; }
 
         @media (max-width: 768px) {
             .main-content {
@@ -212,6 +398,10 @@
             .controls {
                 flex-direction: column;
             }
+
+            .library-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -222,43 +412,43 @@
             <p>Write, compile, and execute code in our custom "SimpleScript" language</p>
         </div>
 
+        <div class="tabs-container">
+            <div class="tab active" data-tab-id="0">
+                <span>main.ss</span>
+                <button class="tab-close" onclick="closeTab(0)">×</button>
+            </div>
+            <button class="new-tab-btn" onclick="createNewTab()">+ New</button>
+        </div>
+
         <div class="main-content">
             <div class="editor-section">
                 <div class="section-header">
                     <span>📝 Code Editor</span>
                     <span id="line-count">Lines: 1</span>
                 </div>
-                <textarea id="code-editor" class="editor" placeholder="Write your SimpleScript code here...">// Welcome to SimpleScript with Enhanced Type System!
-// Now supports int, float, string, boolean, list, dict, tuple, and any
+                <textarea id="code-editor" class="editor" placeholder="Write your SimpleScript code here...">// Simple test with indentation - should run instantly!
+print(10 + 20);
+print("Hello World!");
 
-let(int) x = 10; let(float) y = 20.5; let(int) result = x + y;
-
-print("The sum is: " + result);
-
-// Working with lists and dictionaries
-let(list) numbers = [1, 2, 3, 4, 5]; let(dict) person = {"name": "Alice", "age": 25};
-
-print("Numbers: " + numbers); print("Person: " + person);
-
-// Boolean and null values
-let(boolean) isActive = true; let(any) nullValue = null;
-
-function greet(name).string {
-    return "Hello, " + name + "!";
+// Void function example - doesn't return anything
+function greetUser(name).void {
+    print("Hello, " + name + "!");
+    print("Welcome to SimpleScript!");
 }
 
-let(string) message = greet("World"); print(message);
+let(int) x = 5;
+let(int) y = 3;
+print("Sum: " + (x + y));
 
-function processData(data).list {
-    return [data, data * 2, data * 3];
-}
+// Call the void function
+greetUser("Alice");
 
-let(list) processed = processData(5); print("Processed data: " + processed);
-
-if (result > 25) {
-    print("Result is greater than 25");
+if (x > 3) {
+    print("x is greater than 3");
+    let(string) message = "Inside if block";
+    print(message);
 } else {
-    print("Result is 25 or less");
+    print("x is not greater than 3");
 }</textarea>
             </div>
 
@@ -271,14 +461,20 @@ if (result > 25) {
                     <div class="language-info">
                         <h3>SimpleScript Language Reference:</h3>
                         <p><strong>Typed Variables:</strong> <code>let(type) name = value</code></p>
-                        <p><strong>Typed Functions:</strong> <code>function name(params).returnType { return value }</code></p>
-                        <p><strong>Data Types:</strong> <code>int, float, string, boolean, list, dict, tuple, any</code></p>
+                        <p><strong>Typed Functions:</strong> <code>function name(params).returnType { return value }</code> or <code>function name(params).void { }</code></p>
+                        <p><strong>Data Types:</strong> <code>int, float, string, boolean, list, dict, tuple, any, void</code></p>
                         <p><strong>Literals:</strong> <code>[1, 2, 3]</code> (list), <code>{"key": "value"}</code> (dict), <code>true/false</code> (boolean)</p>
+                        <p><strong>Classes:</strong> <code>class Name { let(type) prop = value; function method().type { } }</code></p>
+                        <p><strong>Object Creation:</strong> <code>let(any) obj = new ClassName(params)</code> (always use 'any' type for objects)</p>
+                        <p><strong>Constructor:</strong> <code>function constructor(params).void { this.prop = value; }</code></p>
+                        <p><strong>Property Access:</strong> <code>obj.property</code> or <code>obj.method(params)</code></p>
                         <p><strong>Conditionals:</strong> <code>if (condition) { } else { }</code></p>
                         <p><strong>Output:</strong> <code>print(value)</code></p>
                         <p><strong>Operators:</strong> <code>+ - * / == != > < >= <=</code></p>
                         <p><strong>Comments:</strong> <code>// This is a comment</code></p>
                         <p><strong>Statement Separator:</strong> <code>;</code> (semicolon separates statements on same line)</p>
+                        <p><strong>Indentation:</strong> Use 4 spaces or tabs for code blocks (Python-style indentation supported)</p>
+                        <p><strong>Libraries:</strong> <code>using LibraryName;</code> (import library functions)</p>
                     </div>
                     <div class="success">Ready to compile! Click "Compile & Run" to execute your code.</div>
                 </div>
@@ -291,7 +487,24 @@ if (result > 25) {
             <button class="btn btn-secondary" id="parse-btn">🌳 Parse AST</button>
             <button class="btn btn-secondary" id="clear-btn">🗑️ Clear Output</button>
             <button class="btn btn-secondary" id="example-btn">📄 Load Example</button>
+            <button class="btn btn-secondary" id="export-btn">💾 Export (.ss)</button>
+            <button class="btn btn-secondary" id="import-btn">📁 Import (.ss)</button>
+            <button class="btn btn-secondary" id="save-library-btn" style="display: none;">💾 Save Library</button>
+            <input type="file" id="file-input" accept=".ss" style="display: none;">
             <button class="btn btn-secondary" id="back-btn">🏠 Back to Main</button>
+        </div>
+
+        <div class="libraries-section">
+            <div class="libraries-header">
+                <h3>📚 Library Manager</h3>
+                <div>
+                    <button class="btn btn-secondary btn-small" id="add-library-btn">➕ Add Library</button>
+                    <input type="file" id="library-input" accept=".ss" style="display: none;">
+                </div>
+            </div>
+            <div class="library-grid" id="library-grid">
+                <!-- Libraries will be populated here -->
+            </div>
         </div>
     </div>
 
@@ -303,24 +516,56 @@ if (result > 25) {
                 this.variables = {};
                 this.functions = {};
                 this.output = [];
+                this.libraries = {};
+                this.importedLibraries = new Set();
             }
 
-            // Lexical Analysis - Convert source code into tokens
+            // Lexical Analysis - Convert source code into tokens with indentation support
             tokenize(source) {
                 const tokens = [];
-                const keywords = ['let', 'function', 'return', 'if', 'else', 'print', 'true', 'false', 'null'];
-                const types = ['int', 'float', 'string', 'boolean', 'list', 'dict', 'tuple', 'any'];
+                const keywords = ['let', 'function', 'return', 'if', 'else', 'print', 'true', 'false', 'null', 'class', 'new', 'this', 'using'];
+                const types = ['int', 'float', 'string', 'boolean', 'list', 'dict', 'tuple', 'any', 'void'];
                 const operators = ['+', '-', '*', '/', '=', '==', '!=', '>', '<', '>=', '<='];
                 
                 let i = 0;
+                let lineStart = true;
+                let indentLevel = 0;
+                
                 while (i < source.length) {
                     const char = source[i];
                     
-                    // Skip whitespace
+                    // Handle indentation at start of line
+                    if (lineStart && (char === ' ' || char === '\t')) {
+                        let indent = 0;
+                        while (i < source.length && (source[i] === ' ' || source[i] === '\t')) {
+                            if (source[i] === '\t') indent += 4; // Tab = 4 spaces
+                            else indent += 1;
+                            i++;
+                        }
+                        
+                        const newIndentLevel = Math.floor(indent / 4);
+                        if (newIndentLevel !== indentLevel) {
+                            tokens.push({ type: 'INDENT', value: newIndentLevel });
+                            indentLevel = newIndentLevel;
+                        }
+                        lineStart = false;
+                        continue;
+                    }
+                    
+                    // Handle newlines
+                    if (char === '\n') {
+                        lineStart = true;
+                        i++;
+                        continue;
+                    }
+                    
+                    // Skip other whitespace (but not at line start)
                     if (/\s/.test(char)) {
                         i++;
                         continue;
                     }
+                    
+                    lineStart = false;
                     
                     // Skip comments
                     if (char === '/' && source[i + 1] === '/') {
@@ -392,33 +637,34 @@ if (result > 25) {
                 return tokens;
             }
 
-            // Syntax Analysis - Convert tokens into Abstract Syntax Tree
+            // Optimized Syntax Analysis - Non-recursive with strict limits
             parse(tokens) {
                 let current = 0;
+                const MAX_ITERATIONS = 50;
                 
-                const peek = () => tokens[current];
-                const consume = () => tokens[current++];
-                const match = (value) => peek() && peek().value === value;
-                
-                const parseExpression = () => {
-                    let left = parseTerm();
-                    
-                    while (peek() && peek().type === 'OPERATOR' && ['+', '-', '==', '!=', '>', '<', '>=', '<='].includes(peek().value)) {
-                        const operator = consume().value;
-                        const right = parseTerm();
-                        left = { type: 'BinaryOp', operator, left, right };
-                    }
-                    
-                    return left;
+                const peek = () => current < tokens.length ? tokens[current] : null;
+                const consume = () => current < tokens.length ? tokens[current++] : null;
+                const match = (value) => {
+                    const token = peek();
+                    return token && token.value === value;
                 };
                 
-                const parseTerm = () => {
+                // Simple expression parser - handles basic math only
+                const parseExpression = () => {
                     let left = parseFactor();
+                    if (!left) return null;
                     
-                    while (peek() && peek().type === 'OPERATOR' && ['*', '/'].includes(peek().value)) {
-                        const operator = consume().value;
+                    let iterations = 0;
+                    while (peek() && peek().type === 'OPERATOR' && iterations < MAX_ITERATIONS) {
+                        const op = peek().value;
+                        if (!['+', '-', '*', '/', '==', '!=', '>', '<', '>=', '<='].includes(op)) break;
+                        
+                        consume(); // operator
                         const right = parseFactor();
-                        left = { type: 'BinaryOp', operator, left, right };
+                        if (!right) break;
+                        
+                        left = { type: 'BinaryOp', operator: op, left, right };
+                        iterations++;
                     }
                     
                     return left;
@@ -426,7 +672,6 @@ if (result > 25) {
                 
                 const parseFactor = () => {
                     const token = peek();
-                    
                     if (!token) return null;
                     
                     if (token.type === 'NUMBER') {
@@ -439,71 +684,136 @@ if (result > 25) {
                         return { type: 'String', value: token.value };
                     }
                     
-                    if (token.type === 'KEYWORD' && (token.value === 'true' || token.value === 'false')) {
-                        consume();
-                        return { type: 'Boolean', value: token.value === 'true' };
-                    }
-                    
-                    if (token.type === 'KEYWORD' && token.value === 'null') {
-                        consume();
-                        return { type: 'Null', value: null };
+                    if (token.type === 'KEYWORD') {
+                        if (token.value === 'true' || token.value === 'false') {
+                            consume();
+                            return { type: 'Boolean', value: token.value === 'true' };
+                        }
+                        if (token.value === 'null') {
+                            consume();
+                            return { type: 'Null', value: null };
+                        }
                     }
                     
                     if (token.type === 'IDENTIFIER') {
                         const name = consume().value;
                         
-                        // Function call
+                        // Function call or method call
                         if (match('(')) {
                             consume(); // (
                             const args = [];
+                            let argCount = 0;
                             
-                            while (!match(')')) {
-                                args.push(parseExpression());
+                            while (!match(')') && peek() && argCount < 10) {
+                                const expr = parseExpression();
+                                if (expr) args.push(expr);
                                 if (match(',')) consume();
+                                argCount++;
                             }
                             
-                            consume(); // )
+                            if (match(')')) consume(); // )
                             return { type: 'FunctionCall', name, args };
+                        }
+                        
+                        // Property access
+                        if (match('.')) {
+                            consume(); // .
+                            const propToken = peek();
+                            if (propToken && propToken.type === 'IDENTIFIER') {
+                                const propName = consume().value;
+                                
+                                // Method call
+                                if (match('(')) {
+                                    consume(); // (
+                                    const args = [];
+                                    let argCount = 0;
+                                    
+                                    while (!match(')') && peek() && argCount < 10) {
+                                        const expr = parseExpression();
+                                        if (expr) args.push(expr);
+                                        if (match(',')) consume();
+                                        argCount++;
+                                    }
+                                    
+                                    if (match(')')) consume(); // )
+                                    return { type: 'MethodCall', object: { type: 'Identifier', name }, method: propName, args };
+                                }
+                                
+                                // Property access
+                                return { type: 'PropertyAccess', object: { type: 'Identifier', name }, property: propName };
+                            }
                         }
                         
                         return { type: 'Identifier', name };
                     }
                     
+                    // Object creation with 'new'
+                    if (token.type === 'KEYWORD' && token.value === 'new') {
+                        consume(); // new
+                        const classToken = peek();
+                        if (classToken && classToken.type === 'IDENTIFIER') {
+                            const className = consume().value;
+                            
+                            if (match('(')) {
+                                consume(); // (
+                                const args = [];
+                                let argCount = 0;
+                                
+                                while (!match(')') && peek() && argCount < 10) {
+                                    const expr = parseExpression();
+                                    if (expr) args.push(expr);
+                                    if (match(',')) consume();
+                                    argCount++;
+                                }
+                                
+                                if (match(')')) consume(); // )
+                                return { type: 'ObjectCreation', className, args };
+                            }
+                        }
+                    }
+                    
                     if (match('(')) {
                         consume(); // (
                         const expr = parseExpression();
-                        consume(); // )
+                        if (match(')')) consume(); // )
                         return expr;
                     }
                     
-                    // List literal
+                    // Simple list literal
                     if (match('[')) {
                         consume(); // [
                         const elements = [];
+                        let elemCount = 0;
                         
-                        while (!match(']')) {
-                            elements.push(parseExpression());
+                        while (!match(']') && peek() && elemCount < 20) {
+                            const expr = parseExpression();
+                            if (expr) elements.push(expr);
                             if (match(',')) consume();
+                            elemCount++;
                         }
                         
-                        consume(); // ]
+                        if (match(']')) consume(); // ]
                         return { type: 'List', elements };
                     }
                     
-                    // Dictionary literal
+                    // Simple dictionary literal
                     if (match('{')) {
                         consume(); // {
                         const pairs = [];
+                        let pairCount = 0;
                         
-                        while (!match('}')) {
+                        while (!match('}') && peek() && pairCount < 20) {
                             const key = parseExpression();
-                            consume(); // :
-                            const value = parseExpression();
-                            pairs.push({ key, value });
+                            if (match(':')) {
+                                consume(); // :
+                                const value = parseExpression();
+                                if (key && value) pairs.push({ key, value });
+                            }
                             if (match(',')) consume();
+                            pairCount++;
                         }
                         
-                        consume(); // }
+                        if (match('}')) consume(); // }
                         return { type: 'Dict', pairs };
                     }
                     
@@ -512,54 +822,239 @@ if (result > 25) {
                 
                 const parseStatement = () => {
                     const token = peek();
-                    
                     if (!token) return null;
                     
-                    // Variable declaration
+                    // Using statement for library imports
+                    if (token.value === 'using') {
+                        consume(); // using
+                        
+                        const libToken = peek();
+                        if (libToken && libToken.type === 'IDENTIFIER') {
+                            const libraryName = consume().value;
+                            if (match(';')) consume(); // optional semicolon
+                            return { type: 'Using', library: libraryName };
+                        }
+                    }
+                    
+                    // Variable declaration or assignment
                     if (token.value === 'let') {
                         consume(); // let
                         
                         let dataType = null;
                         if (match('(')) {
                             consume(); // (
-                            dataType = consume().value; // type
-                            consume(); // )
+                            const typeToken = peek();
+                            if (typeToken && typeToken.type === 'TYPE') {
+                                dataType = consume().value;
+                            }
+                            if (match(')')) consume(); // )
                         }
                         
-                        const name = consume().value; // identifier
+                        const nameToken = peek();
+                        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
+                            return null;
+                        }
+                        const name = consume().value;
+                        
+                        if (!match('=')) return null;
                         consume(); // =
                         const value = parseExpression();
                         return { type: 'VariableDeclaration', name, value, dataType };
                     }
                     
-                    // Function declaration
+                    // Handle 'this' keyword for property assignments
+                    if (token.value === 'this') {
+                        consume(); // this
+                        if (match('.')) {
+                            consume(); // .
+                            const propToken = peek();
+                            if (propToken && propToken.type === 'IDENTIFIER') {
+                                const propName = consume().value;
+                                if (match('=')) {
+                                    consume(); // =
+                                    const value = parseExpression();
+                                    return { 
+                                        type: 'Assignment', 
+                                        target: { 
+                                            type: 'PropertyAccess', 
+                                            object: { type: 'Identifier', name: 'this' }, 
+                                            property: propName 
+                                        }, 
+                                        value 
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Print statement
+                    if (token.value === 'print') {
+                        consume(); // print
+                        if (match('(')) consume(); // (
+                        const value = parseExpression();
+                        if (match(')')) consume(); // )
+                        return { type: 'Print', value };
+                    }
+                    
+                    // Class declaration
+                    if (token.value === 'class') {
+                        consume(); // class
+                        
+                        const nameToken = peek();
+                        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
+                            return null;
+                        }
+                        const name = consume().value;
+                        
+                        if (!match('{')) return null;
+                        consume(); // {
+                        
+                        const properties = [];
+                        const methods = [];
+                        let itemCount = 0;
+                        
+                        while (!match('}') && peek() && itemCount < 30) {
+                            const itemToken = peek();
+                            
+                            // Property declaration
+                            if (itemToken.value === 'let') {
+                                consume(); // let
+                                
+                                let dataType = null;
+                                if (match('(')) {
+                                    consume(); // (
+                                    const typeToken = peek();
+                                    if (typeToken && typeToken.type === 'TYPE') {
+                                        dataType = consume().value;
+                                    }
+                                    if (match(')')) consume(); // )
+                                }
+                                
+                                const propNameToken = peek();
+                                if (propNameToken && propNameToken.type === 'IDENTIFIER') {
+                                    const propName = consume().value;
+                                    
+                                    let defaultValue = null;
+                                    if (match('=')) {
+                                        consume(); // =
+                                        defaultValue = parseExpression();
+                                    }
+                                    
+                                    properties.push({ name: propName, dataType, defaultValue });
+                                }
+                            }
+                            // Method declaration
+                            else if (itemToken.value === 'function') {
+                                consume(); // function
+                                
+                                const methodNameToken = peek();
+                                if (methodNameToken && methodNameToken.type === 'IDENTIFIER') {
+                                    const methodName = consume().value;
+                                    
+                                    if (match('(')) {
+                                        consume(); // (
+                                        
+                                        const params = [];
+                                        let paramCount = 0;
+                                        while (!match(')') && peek() && paramCount < 10) {
+                                            const paramToken = peek();
+                                            if (paramToken.type === 'IDENTIFIER') {
+                                                params.push(consume().value);
+                                            }
+                                            if (match(',')) consume();
+                                            paramCount++;
+                                        }
+                                        
+                                        if (match(')')) consume(); // )
+                                        
+                                        let returnType = 'void';
+                                        if (match('.')) {
+                                            consume(); // .
+                                            const typeToken = peek();
+                                            if (typeToken && (typeToken.type === 'TYPE' || typeToken.value === 'void')) {
+                                                returnType = consume().value;
+                                            }
+                                        }
+                                        
+                                        if (match('{')) {
+                                            consume(); // {
+                                            
+                                            const body = [];
+                                            let bodyCount = 0;
+                                            while (!match('}') && peek() && bodyCount < 20) {
+                                                const stmt = parseStatement();
+                                                if (stmt) body.push(stmt);
+                                                bodyCount++;
+                                            }
+                                            
+                                            if (match('}')) consume(); // }
+                                            methods.push({ name: methodName, params, body, returnType });
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                // Skip unknown tokens
+                                consume();
+                            }
+                            
+                            itemCount++;
+                        }
+                        
+                        if (match('}')) consume(); // }
+                        return { type: 'ClassDeclaration', name, properties, methods };
+                    }
+                    
+                    // Simple function declaration
                     if (token.value === 'function') {
                         consume(); // function
-                        const name = consume().value; // identifier
+                        
+                        const nameToken = peek();
+                        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
+                            return null;
+                        }
+                        const name = consume().value;
+                        
+                        if (!match('(')) return null;
                         consume(); // (
                         
                         const params = [];
-                        while (!match(')')) {
-                            params.push(consume().value);
+                        let paramCount = 0;
+                        while (!match(')') && peek() && paramCount < 10) {
+                            const paramToken = peek();
+                            if (paramToken.type === 'IDENTIFIER') {
+                                params.push(consume().value);
+                            }
                             if (match(',')) consume();
+                            paramCount++;
                         }
                         
-                        consume(); // )
+                        if (match(')')) consume(); // )
                         
-                        let returnType = null;
+                        let returnType = 'void'; // Default to void
                         if (match('.')) {
                             consume(); // .
-                            returnType = consume().value; // return type
+                            const typeToken = peek();
+                            if (typeToken && typeToken.type === 'TYPE') {
+                                returnType = consume().value;
+                            } else if (typeToken && typeToken.value === 'void') {
+                                consume();
+                                returnType = 'void';
+                            }
                         }
                         
+                        if (!match('{')) return null;
                         consume(); // {
                         
                         const body = [];
-                        while (!match('}')) {
-                            body.push(parseStatement());
+                        let bodyCount = 0;
+                        while (!match('}') && peek() && bodyCount < 20) {
+                            const stmt = parseStatement();
+                            if (stmt) body.push(stmt);
+                            bodyCount++;
                         }
                         
-                        consume(); // }
+                        if (match('}')) consume(); // }
                         return { type: 'FunctionDeclaration', name, params, body, returnType };
                     }
                     
@@ -570,67 +1065,67 @@ if (result > 25) {
                         return { type: 'Return', value };
                     }
                     
-                    // If statement
+                    // Simple if statement
                     if (token.value === 'if') {
                         consume(); // if
+                        if (!match('(')) return null;
                         consume(); // (
                         const condition = parseExpression();
+                        if (!match(')')) return null;
                         consume(); // )
+                        if (!match('{')) return null;
                         consume(); // {
                         
                         const thenBranch = [];
-                        while (!match('}')) {
-                            thenBranch.push(parseStatement());
+                        let thenCount = 0;
+                        while (!match('}') && peek() && thenCount < 10) {
+                            const stmt = parseStatement();
+                            if (stmt) thenBranch.push(stmt);
+                            thenCount++;
                         }
                         
-                        consume(); // }
+                        if (match('}')) consume(); // }
                         
                         let elseBranch = null;
                         if (match('else')) {
                             consume(); // else
-                            consume(); // {
-                            
-                            elseBranch = [];
-                            while (!match('}')) {
-                                elseBranch.push(parseStatement());
+                            if (match('{')) {
+                                consume(); // {
+                                elseBranch = [];
+                                let elseCount = 0;
+                                while (!match('}') && peek() && elseCount < 10) {
+                                    const stmt = parseStatement();
+                                    if (stmt) elseBranch.push(stmt);
+                                    elseCount++;
+                                }
+                                if (match('}')) consume(); // }
                             }
-                            
-                            consume(); // }
                         }
                         
                         return { type: 'If', condition, thenBranch, elseBranch };
-                    }
-                    
-                    // Print statement
-                    if (token.value === 'print') {
-                        consume(); // print
-                        consume(); // (
-                        const value = parseExpression();
-                        consume(); // )
-                        return { type: 'Print', value };
-                    }
-                    
-                    // Assignment
-                    if (token.type === 'IDENTIFIER') {
-                        const name = consume().value;
-                        if (match('=')) {
-                            consume(); // =
-                            const value = parseExpression();
-                            return { type: 'Assignment', name, value };
-                        }
                     }
                     
                     return null;
                 };
                 
                 const statements = [];
-                while (current < tokens.length) {
+                let mainIterations = 0;
+                
+                while (current < tokens.length && mainIterations < 100) {
+                    const oldCurrent = current;
                     const stmt = parseStatement();
+                    
                     if (stmt) {
                         statements.push(stmt);
-                        // Consume optional semicolon
-                        if (match(';')) consume();
+                        if (match(';')) consume(); // Optional semicolon
+                    } else {
+                        // Force advancement to prevent infinite loops
+                        if (current === oldCurrent) {
+                            current++;
+                        }
                     }
+                    
+                    mainIterations++;
                 }
                 
                 return { type: 'Program', statements };
@@ -638,7 +1133,7 @@ if (result > 25) {
 
             // Helper method to determine type
             getType(value) {
-                if (value === null) return 'null';
+                if (value === null || value === undefined) return 'null';
                 if (typeof value === 'boolean') return 'boolean';
                 if (typeof value === 'string') return 'string';
                 if (typeof value === 'number') {
@@ -649,163 +1144,584 @@ if (result > 25) {
                 return 'any';
             }
 
-            // Code Execution - Interpret the AST
+            // Helper method to format values for display
+            formatValue(value) {
+                if (value === null || value === undefined) return 'null';
+                if (typeof value === 'boolean') return value.toString();
+                if (typeof value === 'string') return value;
+                if (typeof value === 'number') return value.toString();
+                if (Array.isArray(value)) {
+                    return '[' + value.map(v => this.formatValue(v)).join(', ') + ']';
+                }
+                if (typeof value === 'object') {
+                    // Handle custom objects with _properties
+                    if (value._properties) {
+                        const pairs = Object.entries(value._properties).map(([k, v]) => `"${k}": ${this.formatValue(v)}`);
+                        return '{' + pairs.join(', ') + '}';
+                    }
+                    const pairs = Object.entries(value).map(([k, v]) => `"${k}": ${this.formatValue(v)}`);
+                    return '{' + pairs.join(', ') + '}';
+                }
+                return String(value);
+            }
+
+            // Safe value retrieval with proper null handling
+            safeGetValue(value) {
+                if (value === null || value === undefined) {
+                    return null;
+                }
+                return value;
+            }
+
+            // Safe property access with proper null handling
+            safeGetProperty(obj, prop) {
+                if (!obj || typeof obj !== 'object') {
+                    return null;
+                }
+                
+                // Check _properties first (for custom objects)
+                if (obj._properties && obj._properties.hasOwnProperty(prop)) {
+                    const value = obj._properties[prop];
+                    return this.safeGetValue(value);
+                }
+                
+                // Check direct properties
+                if (obj.hasOwnProperty(prop)) {
+                    const value = obj[prop];
+                    return this.safeGetValue(value);
+                }
+                
+                return null;
+            }
+
+            // Helper method for isolated statement execution
+            executeStatement(stmt) {
+                const evaluate = (node) => {
+                    if (!node) return null;
+                    
+                    try {
+                        switch (node.type) {
+                            case 'Number': 
+                                return this.safeGetValue(node.value);
+                            case 'String': 
+                                return this.safeGetValue(node.value);
+                            case 'Boolean': 
+                                return this.safeGetValue(node.value);
+                            case 'Null': 
+                                return null;
+                            
+                            case 'Identifier':
+                                if (node.name === 'this') {
+                                    return this.safeGetValue(this.currentThis);
+                                }
+                                const varValue = this.variables[node.name];
+                                return this.safeGetValue(varValue);
+                                
+                            case 'BinaryOp':
+                                const left = evaluate(node.left);
+                                const right = evaluate(node.right);
+                                
+                                switch (node.operator) {
+                                    case '+': 
+                                        if (typeof left === 'string' || typeof right === 'string') {
+                                            const leftStr = left !== null ? String(left) : 'null';
+                                            const rightStr = right !== null ? String(right) : 'null';
+                                            return leftStr + rightStr;
+                                        }
+                                        const leftNum = left !== null ? Number(left) : 0;
+                                        const rightNum = right !== null ? Number(right) : 0;
+                                        return leftNum + rightNum;
+                                    case '-': 
+                                        return (left !== null ? Number(left) : 0) - (right !== null ? Number(right) : 0);
+                                    case '*': 
+                                        return (left !== null ? Number(left) : 0) * (right !== null ? Number(right) : 0);
+                                    case '/': 
+                                        const divisor = right !== null ? Number(right) : 1;
+                                        return divisor !== 0 ? (left !== null ? Number(left) : 0) / divisor : 0;
+                                    case '==': 
+                                        return left === right;
+                                    case '!=': 
+                                        return left !== right;
+                                    case '>': 
+                                        return (left !== null ? Number(left) : 0) > (right !== null ? Number(right) : 0);
+                                    case '<': 
+                                        return (left !== null ? Number(left) : 0) < (right !== null ? Number(right) : 0);
+                                    case '>=': 
+                                        return (left !== null ? Number(left) : 0) >= (right !== null ? Number(right) : 0);
+                                    case '<=': 
+                                        return (left !== null ? Number(left) : 0) <= (right !== null ? Number(right) : 0);
+                                    default: 
+                                        return null;
+                                }
+                                
+                            case 'PropertyAccess':
+                                const obj = evaluate(node.object);
+                                return this.safeGetProperty(obj, node.property);
+                                
+                            default:
+                                return null;
+                        }
+                    } catch (error) {
+                        console.error('Evaluation error:', error);
+                        return null;
+                    }
+                };
+                
+                if (!stmt) return null;
+                
+                try {
+                    switch (stmt.type) {
+                        case 'VariableDeclaration':
+                            const value = evaluate(stmt.value);
+                            this.variables[stmt.name] = this.safeGetValue(value);
+                            break;
+                            
+                        case 'Assignment':
+                            if (stmt.target && stmt.target.type === 'PropertyAccess' && 
+                                stmt.target.object.type === 'Identifier' && stmt.target.object.name === 'this') {
+                                if (this.currentThis && typeof this.currentThis === 'object' && this.currentThis._properties) {
+                                    const assignValue = evaluate(stmt.value);
+                                    this.currentThis._properties[stmt.target.property] = this.safeGetValue(assignValue);
+                                }
+                            } else if (stmt.name) {
+                                const assignValue = evaluate(stmt.value);
+                                this.variables[stmt.name] = this.safeGetValue(assignValue);
+                            }
+                            break;
+                            
+                        case 'Print':
+                            const printValue = evaluate(stmt.value);
+                            const printStr = this.formatValue(printValue);
+                            this.output.push(printStr);
+                            break;
+                            
+                        case 'Return':
+                            const returnValue = evaluate(stmt.value);
+                            return { type: 'return', value: this.safeGetValue(returnValue) };
+                            
+                        default:
+                            break;
+                    }
+                } catch (error) {
+                    console.error('Statement execution error:', error);
+                }
+                
+                return null;
+            }
+
+            // Optimized Code Execution - Fast and simple with proper null handling
             execute(ast) {
                 this.variables = {};
                 this.functions = {};
                 this.output = [];
+                this.importedLibraries.clear();
                 
                 const evaluate = (node) => {
                     if (!node) return null;
                     
-                    switch (node.type) {
-                        case 'Number':
-                            return node.value;
+                    try {
+                        switch (node.type) {
+                            case 'Number': 
+                                return this.safeGetValue(node.value);
+                            case 'String': 
+                                return this.safeGetValue(node.value);
+                            case 'Boolean': 
+                                return this.safeGetValue(node.value);
+                            case 'Null': 
+                                return null;
                             
-                        case 'String':
-                            return node.value;
-                            
-                        case 'Boolean':
-                            return node.value;
-                            
-                        case 'Null':
-                            return null;
-                            
-                        case 'List':
-                            return node.elements.map(evaluate);
-                            
-                        case 'Dict':
-                            const dict = {};
-                            node.pairs.forEach(pair => {
-                                const key = evaluate(pair.key);
-                                const value = evaluate(pair.value);
-                                dict[key] = value;
-                            });
-                            return dict;
-                            
-                        case 'Identifier':
-                            if (!(node.name in this.variables)) {
-                                throw new Error(`Undefined variable: ${node.name}`);
-                            }
-                            return this.variables[node.name];
-                            
-                        case 'BinaryOp':
-                            const left = evaluate(node.left);
-                            const right = evaluate(node.right);
-                            
-                            switch (node.operator) {
-                                case '+': return left + right;
-                                case '-': return left - right;
-                                case '*': return left * right;
-                                case '/': return left / right;
-                                case '==': return left === right;
-                                case '!=': return left !== right;
-                                case '>': return left > right;
-                                case '<': return left < right;
-                                case '>=': return left >= right;
-                                case '<=': return left <= right;
-                                default: throw new Error(`Unknown operator: ${node.operator}`);
-                            }
-                            
-                        case 'FunctionCall':
-                            if (!(node.name in this.functions)) {
-                                throw new Error(`Undefined function: ${node.name}`);
-                            }
-                            
-                            const func = this.functions[node.name];
-                            const args = node.args.map(evaluate);
-                            
-                            // Create new scope for function
-                            const oldVars = { ...this.variables };
-                            
-                            // Bind parameters
-                            func.params.forEach((param, i) => {
-                                this.variables[param] = args[i];
-                            });
-                            
-                            let result = null;
-                            try {
-                                for (const stmt of func.body) {
-                                    const res = executeStatement(stmt);
+                            case 'List':
+                                return node.elements.map(el => this.safeGetValue(evaluate(el)));
+                                
+                            case 'Dict':
+                                const dict = {};
+                                for (let i = 0; i < node.pairs.length && i < 20; i++) {
+                                    const pair = node.pairs[i];
+                                    const key = evaluate(pair.key);
+                                    const value = evaluate(pair.value);
+                                    if (key !== null) {
+                                        dict[key] = this.safeGetValue(value);
+                                    }
+                                }
+                                return dict;
+                                
+                            case 'Identifier':
+                                if (node.name === 'this') {
+                                    return this.safeGetValue(this.currentThis);
+                                }
+                                const varValue = this.variables[node.name];
+                                return this.safeGetValue(varValue);
+                                
+                            case 'BinaryOp':
+                                const left = evaluate(node.left);
+                                const right = evaluate(node.right);
+                                
+                                switch (node.operator) {
+                                    case '+': 
+                                        if (typeof left === 'string' || typeof right === 'string') {
+                                            const leftStr = left !== null ? String(left) : 'null';
+                                            const rightStr = right !== null ? String(right) : 'null';
+                                            return leftStr + rightStr;
+                                        }
+                                        if (Array.isArray(left) && Array.isArray(right)) {
+                                            return left.concat(right);
+                                        }
+                                        if (typeof left === 'object' || typeof right === 'object') {
+                                            const leftStr = left !== null ? this.formatValue(left) : 'null';
+                                            const rightStr = right !== null ? this.formatValue(right) : 'null';
+                                            return leftStr + rightStr;
+                                        }
+                                        const leftNum = left !== null ? Number(left) : 0;
+                                        const rightNum = right !== null ? Number(right) : 0;
+                                        return leftNum + rightNum;
+                                    case '-': 
+                                        return (left !== null ? Number(left) : 0) - (right !== null ? Number(right) : 0);
+                                    case '*': 
+                                        return (left !== null ? Number(left) : 0) * (right !== null ? Number(right) : 0);
+                                    case '/': 
+                                        const divisor = right !== null ? Number(right) : 1;
+                                        return divisor !== 0 ? (left !== null ? Number(left) : 0) / divisor : 0;
+                                    case '==': 
+                                        return left === right;
+                                    case '!=': 
+                                        return left !== right;
+                                    case '>': 
+                                        return (left !== null ? Number(left) : 0) > (right !== null ? Number(right) : 0);
+                                    case '<': 
+                                        return (left !== null ? Number(left) : 0) < (right !== null ? Number(right) : 0);
+                                    case '>=': 
+                                        return (left !== null ? Number(left) : 0) >= (right !== null ? Number(right) : 0);
+                                    case '<=': 
+                                        return (left !== null ? Number(left) : 0) <= (right !== null ? Number(right) : 0);
+                                    default: 
+                                        return null;
+                                }
+                                
+                            case 'FunctionCall':
+                                const func = this.functions[node.name];
+                                if (!func || func.type === 'class') {
+                                    return null;
+                                }
+                                
+                                const args = node.args.map(arg => this.safeGetValue(evaluate(arg)));
+                                
+                                // Create completely isolated execution context
+                                const functionCompiler = new SimpleScriptCompiler();
+                                functionCompiler.functions = this.functions; // Share functions but not variables
+                                functionCompiler.output = this.output; // Share output
+                                
+                                // Set function parameters in isolated scope
+                                for (let i = 0; i < func.params.length; i++) {
+                                    const paramName = func.params[i];
+                                    const argValue = i < args.length ? args[i] : null;
+                                    functionCompiler.variables[paramName] = this.safeGetValue(argValue);
+                                }
+                                
+                                let result = null;
+                                // Execute function body statements in order using isolated compiler
+                                for (let i = 0; i < func.body.length && i < 20; i++) {
+                                    const stmt = func.body[i];
+                                    const res = functionCompiler.executeStatement(stmt);
                                     if (res && res.type === 'return') {
                                         result = res.value;
                                         break;
                                     }
                                 }
                                 
-                                // Check return type
-                                if (func.returnType && result !== null && func.returnType !== 'any') {
-                                    const actualType = this.getType(result);
-                                    
-                                    if (actualType !== func.returnType) {
-                                        throw new Error(`Function '${node.name}' return type mismatch: Expected ${func.returnType}, got ${actualType}`);
+                                // Update shared output
+                                this.output = functionCompiler.output;
+                                
+                                return this.safeGetValue(result);
+                                
+                            case 'ObjectCreation':
+                                const className = node.className;
+                                const classFunc = this.functions[className];
+                                if (!classFunc || classFunc.type !== 'class') {
+                                    return null;
+                                }
+                                
+                                // Create new object instance
+                                const instance = {
+                                    _className: className,
+                                    _properties: {},
+                                    _methods: {}
+                                };
+                                
+                                // Copy class properties with default values
+                                if (classFunc.properties) {
+                                    for (const prop of classFunc.properties) {
+                                        const defaultVal = prop.defaultValue ? this.safeGetValue(evaluate(prop.defaultValue)) : null;
+                                        instance._properties[prop.name] = defaultVal;
                                     }
                                 }
-                            } finally {
-                                // Restore scope
-                                this.variables = oldVars;
-                            }
-                            
-                            return result;
-                            
-                        default:
-                            throw new Error(`Unknown expression type: ${node.type}`);
+                                
+                                // Copy class methods
+                                if (classFunc.methods) {
+                                    for (const method of classFunc.methods) {
+                                        instance._methods[method.name] = method;
+                                    }
+                                }
+                                
+                                // Call constructor if it exists
+                                const constructor = instance._methods.constructor;
+                                if (constructor) {
+                                    const constructorArgs = node.args.map(arg => this.safeGetValue(evaluate(arg)));
+                                    
+                                    // Save current context completely
+                                    const savedVariables = JSON.parse(JSON.stringify(this.variables));
+                                    const savedThis = this.currentThis;
+                                    
+                                    // Create completely isolated constructor scope
+                                    this.variables = {};
+                                    this.currentThis = instance;
+                                    
+                                    // Set constructor parameters in isolated scope
+                                    for (let i = 0; i < constructor.params.length; i++) {
+                                        const paramName = constructor.params[i];
+                                        const argValue = i < constructorArgs.length ? constructorArgs[i] : null;
+                                        this.variables[paramName] = this.safeGetValue(argValue);
+                                    }
+                                    
+                                    // Execute constructor statements in order
+                                    for (let i = 0; i < constructor.body.length && i < 20; i++) {
+                                        executeStatement(constructor.body[i]);
+                                    }
+                                    
+                                    // Restore original context completely
+                                    this.variables = savedVariables;
+                                    this.currentThis = savedThis;
+                                }
+                                
+                                return instance;
+                                
+                            case 'PropertyAccess':
+                                const obj = evaluate(node.object);
+                                return this.safeGetProperty(obj, node.property);
+                                
+                            case 'MethodCall':
+                                const targetObj = evaluate(node.object);
+                                if (!targetObj || typeof targetObj !== 'object') {
+                                    return null;
+                                }
+                                
+                                let method = null;
+                                if (targetObj._methods && targetObj._methods[node.method]) {
+                                    method = targetObj._methods[node.method];
+                                }
+                                
+                                if (!method) {
+                                    return null;
+                                }
+                                
+                                const methodArgs = node.args.map(arg => this.safeGetValue(evaluate(arg)));
+                                
+                                // Save current context completely
+                                const savedVars = JSON.parse(JSON.stringify(this.variables));
+                                const savedThisObj = this.currentThis;
+                                
+                                // Create completely isolated method scope
+                                this.variables = {};
+                                this.currentThis = targetObj;
+                                
+                                // Set method parameters in isolated scope
+                                for (let i = 0; i < method.params.length; i++) {
+                                    const paramName = method.params[i];
+                                    const argValue = i < methodArgs.length ? methodArgs[i] : null;
+                                    this.variables[paramName] = this.safeGetValue(argValue);
+                                }
+                                
+                                let methodResult = null;
+                                // Execute method body in order
+                                for (let i = 0; i < method.body.length && i < 20; i++) {
+                                    const stmt = method.body[i];
+                                    const res = executeStatement(stmt);
+                                    if (res && res.type === 'return') {
+                                        methodResult = res.value;
+                                        break;
+                                    }
+                                }
+                                
+                                // Restore original context completely
+                                this.variables = savedVars;
+                                this.currentThis = savedThisObj;
+                                
+                                return this.safeGetValue(methodResult);
+                                
+                            default:
+                                return null;
+                        }
+                    } catch (error) {
+                        console.error('Evaluation error:', error);
+                        return null;
                     }
                 };
                 
                 const executeStatement = (stmt) => {
-                    switch (stmt.type) {
-                        case 'VariableDeclaration':
-                            const value = evaluate(stmt.value);
-                            
-                            // Type checking
-                            if (stmt.dataType && stmt.dataType !== 'any') {
-                                const actualType = this.getType(value);
-                                
-                                if (actualType !== stmt.dataType) {
-                                    throw new Error(`Type mismatch: Expected ${stmt.dataType}, got ${actualType} for variable '${stmt.name}'`);
+                    if (!stmt) return null;
+                    
+                    try {
+                        switch (stmt.type) {
+                            case 'Using':
+                                // Import library functions
+                                const libraryName = stmt.library;
+                                if (this.libraries[libraryName] && !this.importedLibraries.has(libraryName)) {
+                                    const library = this.libraries[libraryName];
+                                    
+                                    // Parse and execute library code to get functions
+                                    const libTokens = this.tokenize(library.content);
+                                    const libAst = this.parse(libTokens);
+                                    
+                                    // Extract functions from library
+                                    if (libAst && libAst.statements) {
+                                        for (const libStmt of libAst.statements) {
+                                            if (libStmt.type === 'FunctionDeclaration') {
+                                                this.functions[libStmt.name] = {
+                                                    params: libStmt.params || [],
+                                                    body: libStmt.body || [],
+                                                    returnType: libStmt.returnType
+                                                };
+                                            } else if (libStmt.type === 'ClassDeclaration') {
+                                                this.functions[libStmt.name] = {
+                                                    type: 'class',
+                                                    properties: libStmt.properties || [],
+                                                    methods: libStmt.methods || []
+                                                };
+                                            }
+                                        }
+                                    }
+                                    
+                                    this.importedLibraries.add(libraryName);
+                                    this.output.push(`✅ Imported library: ${libraryName}`);
                                 }
-                            }
-                            
-                            this.variables[stmt.name] = value;
-                            break;
-                            
-                        case 'Assignment':
-                            this.variables[stmt.name] = evaluate(stmt.value);
-                            break;
-                            
-                        case 'FunctionDeclaration':
-                            this.functions[stmt.name] = {
-                                params: stmt.params,
-                                body: stmt.body,
-                                returnType: stmt.returnType
-                            };
-                            break;
-                            
-                        case 'Print':
-                            const value = evaluate(stmt.value);
-                            this.output.push(String(value));
-                            break;
-                            
-                        case 'If':
-                            const condition = evaluate(stmt.condition);
-                            if (condition) {
-                                stmt.thenBranch.forEach(executeStatement);
-                            } else if (stmt.elseBranch) {
-                                stmt.elseBranch.forEach(executeStatement);
-                            }
-                            break;
-                            
-                        case 'Return':
-                            return { type: 'return', value: evaluate(stmt.value) };
+                                break;
+                                
+                            case 'VariableDeclaration':
+                                const value = evaluate(stmt.value);
+                                this.variables[stmt.name] = this.safeGetValue(value);
+                                break;
+                                
+                            case 'Assignment':
+                                // Handle this.property = value
+                                if (stmt.target && stmt.target.type === 'PropertyAccess' && 
+                                    stmt.target.object.type === 'Identifier' && stmt.target.object.name === 'this') {
+                                    if (this.currentThis && typeof this.currentThis === 'object' && this.currentThis._properties) {
+                                        const assignValue = evaluate(stmt.value);
+                                        this.currentThis._properties[stmt.target.property] = this.safeGetValue(assignValue);
+                                    }
+                                } else if (stmt.name) {
+                                    const assignValue = evaluate(stmt.value);
+                                    this.variables[stmt.name] = this.safeGetValue(assignValue);
+                                }
+                                break;
+                                
+                            case 'FunctionCall':
+                            case 'MethodCall':
+                                // Execute function/method calls that appear as statements
+                                evaluate(stmt);
+                                break;
+                                
+                            case 'FunctionDeclaration':
+                                this.functions[stmt.name] = {
+                                    params: stmt.params || [],
+                                    body: stmt.body || [],
+                                    returnType: stmt.returnType
+                                };
+                                break;
+                                
+                            case 'ClassDeclaration':
+                                this.functions[stmt.name] = {
+                                    type: 'class',
+                                    properties: stmt.properties || [],
+                                    methods: stmt.methods || []
+                                };
+                                break;
+                                
+                            case 'Print':
+                                const printValue = evaluate(stmt.value);
+                                const printStr = this.formatValue(printValue);
+                                this.output.push(printStr);
+                                break;
+                                
+                            case 'If':
+                                const condition = evaluate(stmt.condition);
+                                const conditionValue = condition !== null ? Boolean(condition) : false;
+                                if (conditionValue) {
+                                    if (stmt.thenBranch) {
+                                        for (let i = 0; i < stmt.thenBranch.length && i < 10; i++) {
+                                            executeStatement(stmt.thenBranch[i]);
+                                        }
+                                    }
+                                } else {
+                                    if (stmt.elseBranch) {
+                                        for (let i = 0; i < stmt.elseBranch.length && i < 10; i++) {
+                                            executeStatement(stmt.elseBranch[i]);
+                                        }
+                                    }
+                                }
+                                break;
+                                
+                            case 'Return':
+                                const returnValue = evaluate(stmt.value);
+                                return { type: 'return', value: this.safeGetValue(returnValue) };
+                                
+                            default:
+                                break;
+                        }
+                    } catch (error) {
+                        console.error('Statement execution error:', error);
                     }
+                    
+                    return null;
                 };
                 
-                for (const stmt of ast.statements) {
-                    executeStatement(stmt);
+                // Execute statements quickly
+                if (!ast || !ast.statements) return this.output;
+                
+                for (let i = 0; i < ast.statements.length && i < 50; i++) {
+                    const stmt = ast.statements[i];
+                    if (stmt) {
+                        executeStatement(stmt);
+                    }
                 }
                 
                 return this.output;
+            }
+
+            // Library management methods
+            addLibrary(name, content, description = '') {
+                this.libraries[name] = {
+                    name,
+                    content,
+                    description,
+                    functions: this.extractFunctionNames(content)
+                };
+            }
+
+            removeLibrary(name) {
+                delete this.libraries[name];
+                this.importedLibraries.delete(name);
+            }
+
+            extractFunctionNames(content) {
+                const functions = [];
+                const lines = content.split('\n');
+                
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (trimmed.startsWith('function ')) {
+                        const match = trimmed.match(/function\s+(\w+)/);
+                        if (match) {
+                            functions.push(match[1]);
+                        }
+                    } else if (trimmed.startsWith('class ')) {
+                        const match = trimmed.match(/class\s+(\w+)/);
+                        if (match) {
+                            functions.push(match[1] + ' (class)');
+                        }
+                    }
+                }
+                
+                return functions;
             }
         }
 
@@ -815,11 +1731,494 @@ if (result > 25) {
         const status = document.getElementById('status');
         const lineCount = document.getElementById('line-count');
 
-        // Update line count
+        // Tab management system
+        let tabs = [
+            {
+                id: 0,
+                name: 'main.ss',
+                content: editor.value,
+                active: true
+            }
+        ];
+        let nextTabId = 1;
+
+        // No default libraries - start with clean library manager
+
+        // Update line count and save current tab content
         editor.addEventListener('input', () => {
             const lines = editor.value.split('\n').length;
             lineCount.textContent = `Lines: ${lines}`;
+            
+            // Save current tab content
+            const activeTab = tabs.find(tab => tab.active);
+            if (activeTab) {
+                activeTab.content = editor.value;
+                
+                // If editing a library, update the library content
+                if (activeTab.isLibrary && activeTab.libraryName) {
+                    const library = compiler.libraries[activeTab.libraryName];
+                    if (library) {
+                        library.content = editor.value;
+                        library.functions = compiler.extractFunctionNames(editor.value);
+                        
+                        // Update description if found in comments
+                        const lines = editor.value.split('\n');
+                        for (const line of lines) {
+                            if (line.trim().startsWith('//') && line.includes('description:')) {
+                                library.description = line.split('description:')[1].trim();
+                                break;
+                            }
+                        }
+                        
+                        // Re-render libraries to show updated function list
+                        renderLibraries();
+                    }
+                }
+            }
         });
+
+        function renderTabs() {
+            const tabsContainer = document.querySelector('.tabs-container');
+            const newTabBtn = tabsContainer.querySelector('.new-tab-btn');
+            
+            // Clear existing tabs
+            tabsContainer.innerHTML = '';
+            
+            // Render tabs
+            tabs.forEach(tab => {
+                const tabElement = document.createElement('div');
+                tabElement.className = `tab ${tab.active ? 'active' : ''}`;
+                tabElement.setAttribute('data-tab-id', tab.id);
+                
+                // Add library indicator
+                const libraryIcon = tab.isLibrary ? '📚 ' : '';
+                const tabTitle = tab.isLibrary ? `Library: ${tab.name}` : tab.name;
+                
+                tabElement.innerHTML = `
+                    <span class="tab-name" title="${tabTitle}">${libraryIcon}${tab.name}</span>
+                    <button class="tab-rename" onclick="startRename(${tab.id})" title="Rename tab">✏️</button>
+                    ${tabs.length > 1 ? `<button class="tab-close" onclick="closeTab(${tab.id})">×</button>` : ''}
+                `;
+                tabElement.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('tab-close') && 
+                        !e.target.classList.contains('tab-rename') && 
+                        !e.target.classList.contains('editing')) {
+                        switchToTab(tab.id);
+                    }
+                });
+                tabsContainer.appendChild(tabElement);
+            });
+            
+            // Re-add new tab button
+            tabsContainer.appendChild(newTabBtn);
+        }
+
+        function renderLibraries() {
+            const libraryGrid = document.getElementById('library-grid');
+            libraryGrid.innerHTML = '';
+            
+            Object.values(compiler.libraries).forEach(library => {
+                const libraryElement = document.createElement('div');
+                libraryElement.className = 'library-item';
+                libraryElement.innerHTML = `
+                    <div class="library-name">
+                        <span>${library.name}</span>
+                        <span style="font-size: 12px; color: #718096;">${library.functions.length} functions</span>
+                    </div>
+                    <div class="library-description">${library.description}</div>
+                    <div class="library-functions">
+                        <strong>Functions:</strong> ${library.functions.join(', ')}
+                    </div>
+                    <div class="library-actions">
+                        <button class="btn btn-use btn-small" onclick="useLibrary('${library.name}')">📥 Use Library</button>
+                        <button class="btn btn-secondary btn-small" onclick="editLibrary('${library.name}')">✏️ Edit</button>
+                        <button class="btn btn-remove btn-small" onclick="removeLibrary('${library.name}')">🗑️ Remove</button>
+                    </div>
+                `;
+                libraryGrid.appendChild(libraryElement);
+            });
+        }
+
+        function switchToTab(tabId) {
+            // Save current tab content
+            const currentActiveTab = tabs.find(tab => tab.active);
+            if (currentActiveTab) {
+                currentActiveTab.content = editor.value;
+                currentActiveTab.active = false;
+            }
+            
+            // Switch to new tab
+            const newActiveTab = tabs.find(tab => tab.id === tabId);
+            if (newActiveTab) {
+                newActiveTab.active = true;
+                editor.value = newActiveTab.content;
+                
+                const lines = editor.value.split('\n').length;
+                lineCount.textContent = `Lines: ${lines}`;
+                
+                // Show/hide save library button based on tab type
+                const saveLibraryBtn = document.getElementById('save-library-btn');
+                if (newActiveTab.isLibrary) {
+                    saveLibraryBtn.style.display = 'inline-block';
+                } else {
+                    saveLibraryBtn.style.display = 'none';
+                }
+                
+                renderTabs();
+                
+                // Show appropriate output for library editing
+                if (newActiveTab.isLibrary) {
+                    output.innerHTML = `
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                            <strong>📝 Library Editor Mode</strong><br>
+                            You are now editing the <strong>${newActiveTab.libraryName}</strong> library.<br>
+                            <em>Changes are saved automatically. Use "Save Library" to download a copy.</em>
+                        </div>
+                        <div class="language-info">
+                            <h3>Library Development Tips:</h3>
+                            <p><strong>Function Declaration:</strong> <code>function name(params).returnType { }</code></p>
+                            <p><strong>Class Declaration:</strong> <code>class ClassName { }</code></p>
+                            <p><strong>Comments:</strong> Add <code>// description: Your library description</code> at the top</p>
+                            <p><strong>Documentation:</strong> Use comments to describe what each function does</p>
+                            <p><strong>Testing:</strong> You can test library functions by importing them in other tabs</p>
+                        </div>
+                    `;
+                } else {
+                    clearOutput();
+                }
+            }
+        }
+
+        function saveLibraryFile() {
+            const activeTab = tabs.find(tab => tab.active);
+            if (!activeTab || !activeTab.isLibrary) {
+                updateStatus('No library tab active', true);
+                return;
+            }
+            
+            try {
+                const libraryContent = editor.value;
+                const libraryName = activeTab.libraryName;
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `${libraryName}_${timestamp}.ss`;
+                
+                // Create library file with metadata
+                const fileContent = `// SimpleScript Library
+// Name: ${libraryName}
+// Created: ${new Date().toISOString()}
+// Type: Library
+// description: ${compiler.libraries[libraryName]?.description || 'Custom library'}
+
+${libraryContent}`;
+                
+                // Create and download file
+                const blob = new Blob([fileContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                updateStatus(`Library saved as ${filename}`);
+                
+                output.innerHTML = `
+                    <div class="success">✅ Library saved successfully!</div>
+                    <p><strong>Library:</strong> ${libraryName}</p>
+                    <p><strong>Filename:</strong> ${filename}</p>
+                    <p><strong>Size:</strong> ${fileContent.length} characters</p>
+                    <p><strong>Functions:</strong> ${compiler.libraries[libraryName]?.functions.length || 0}</p>
+                    <div style="background: #f7fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                        <strong>File Format:</strong> .ss (SimpleScript Library)<br>
+                        <strong>Encoding:</strong> UTF-8<br>
+                        <strong>Compatible:</strong> SimpleScript Compiler v1.0+<br>
+                        <strong>Usage:</strong> Import this file in other projects using "Add Library"
+                    </div>
+                `;
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Save Error: ${error.message}</div>`;
+                updateStatus('Save failed', true);
+            }
+        }
+
+        function createNewTab() {
+            // Save current tab content
+            const activeTab = tabs.find(tab => tab.active);
+            if (activeTab) {
+                activeTab.content = editor.value;
+                activeTab.active = false;
+            }
+            
+            // Create new tab
+            const newTab = {
+                id: nextTabId++,
+                name: `untitled${nextTabId - 1}.ss`,
+                content: '// New SimpleScript file\nprint("Hello from new tab!");',
+                active: true
+            };
+            
+            tabs.push(newTab);
+            editor.value = newTab.content;
+            
+            const lines = editor.value.split('\n').length;
+            lineCount.textContent = `Lines: ${lines}`;
+            
+            renderTabs();
+            clearOutput();
+        }
+
+        function closeTab(tabId) {
+            if (tabs.length <= 1) return; // Don't close the last tab
+            
+            const tabIndex = tabs.findIndex(tab => tab.id === tabId);
+            if (tabIndex === -1) return;
+            
+            const wasActive = tabs[tabIndex].active;
+            tabs.splice(tabIndex, 1);
+            
+            // If we closed the active tab, switch to another one
+            if (wasActive) {
+                const newActiveIndex = Math.min(tabIndex, tabs.length - 1);
+                tabs[newActiveIndex].active = true;
+                editor.value = tabs[newActiveIndex].content;
+                
+                const lines = editor.value.split('\n').length;
+                lineCount.textContent = `Lines: ${lines}`;
+            }
+            
+            renderTabs();
+            clearOutput();
+        }
+
+        function startRename(tabId) {
+            const tab = tabs.find(t => t.id === tabId);
+            if (!tab) return;
+            
+            const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`);
+            const nameSpan = tabElement.querySelector('.tab-name');
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = tab.name.replace('.ss', '');
+            input.className = 'tab-name editing';
+            input.style.width = '100px';
+            
+            input.addEventListener('blur', () => finishRename(tabId, input.value));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    finishRename(tabId, input.value);
+                } else if (e.key === 'Escape') {
+                    renderTabs(); // Cancel rename
+                }
+            });
+            
+            nameSpan.replaceWith(input);
+            input.focus();
+            input.select();
+        }
+
+        function finishRename(tabId, newName) {
+            const tab = tabs.find(t => t.id === tabId);
+            if (!tab) return;
+            
+            // Validate and format name
+            let fileName = newName.trim();
+            if (!fileName) fileName = 'untitled';
+            
+            // Add .ss extension if not present
+            if (!fileName.endsWith('.ss')) {
+                fileName += '.ss';
+            }
+            
+            // Check for duplicate names
+            const existingTab = tabs.find(t => t.id !== tabId && t.name === fileName);
+            if (existingTab) {
+                let counter = 1;
+                let baseName = fileName.replace('.ss', '');
+                while (tabs.find(t => t.id !== tabId && t.name === `${baseName}${counter}.ss`)) {
+                    counter++;
+                }
+                fileName = `${baseName}${counter}.ss`;
+            }
+            
+            tab.name = fileName;
+            renderTabs();
+        }
+
+        function useLibrary(libraryName) {
+            const activeTab = tabs.find(tab => tab.active);
+            if (!activeTab) return;
+            
+            // Add using statement to the beginning of the file
+            const usingStatement = `using ${libraryName};\n`;
+            const currentContent = editor.value;
+            
+            // Check if library is already imported
+            if (currentContent.includes(`using ${libraryName};`)) {
+                updateStatus(`Library ${libraryName} already imported`, false);
+                return;
+            }
+            
+            // Add using statement at the top
+            const newContent = usingStatement + currentContent;
+            editor.value = newContent;
+            activeTab.content = newContent;
+            
+            const lines = editor.value.split('\n').length;
+            lineCount.textContent = `Lines: ${lines}`;
+            
+            updateStatus(`Added using ${libraryName}; to current file`, false);
+        }
+
+        function editLibrary(libraryName) {
+            const library = compiler.libraries[libraryName];
+            if (!library) {
+                updateStatus('Library not found', true);
+                return;
+            }
+            
+            // Save current tab content
+            const activeTab = tabs.find(tab => tab.active);
+            if (activeTab) {
+                activeTab.content = editor.value;
+                activeTab.active = false;
+            }
+            
+            // Create new tab for library editing
+            const newTab = {
+                id: nextTabId++,
+                name: `${libraryName}.ss`,
+                content: library.content,
+                active: true,
+                isLibrary: true,
+                libraryName: libraryName
+            };
+            
+            tabs.push(newTab);
+            editor.value = library.content;
+            
+            const lineCount = library.content.split('\n').length;
+            document.getElementById('line-count').textContent = `Lines: ${lineCount}`;
+            
+            renderTabs();
+            updateStatus(`Editing library: ${libraryName}`, false);
+            
+            output.innerHTML = `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                    <strong>📝 Library Editor Mode</strong><br>
+                    You are now editing the <strong>${libraryName}</strong> library.<br>
+                    <em>Changes will be saved automatically when you switch tabs or compile.</em>
+                </div>
+                <div class="language-info">
+                    <h3>Library Development Tips:</h3>
+                    <p><strong>Function Declaration:</strong> <code>function name(params).returnType { }</code></p>
+                    <p><strong>Class Declaration:</strong> <code>class ClassName { }</code></p>
+                    <p><strong>Comments:</strong> Add <code>// description: Your library description</code> at the top</p>
+                    <p><strong>Documentation:</strong> Use comments to describe what each function does</p>
+                    <p><strong>Testing:</strong> You can test library functions by importing them in other tabs</p>
+                </div>
+            `;
+        }
+
+        function removeLibrary(libraryName) {
+            // Confirm removal
+            if (!confirm(`Are you sure you want to remove the "${libraryName}" library?`)) {
+                return;
+            }
+            
+            // Close any open library editing tabs
+            const libraryTabs = tabs.filter(tab => tab.isLibrary && tab.libraryName === libraryName);
+            libraryTabs.forEach(tab => {
+                const tabIndex = tabs.findIndex(t => t.id === tab.id);
+                if (tabIndex !== -1) {
+                    tabs.splice(tabIndex, 1);
+                }
+            });
+            
+            // If we removed the active tab, switch to another one
+            if (!tabs.find(tab => tab.active)) {
+                if (tabs.length > 0) {
+                    tabs[0].active = true;
+                    editor.value = tabs[0].content;
+                    const lines = editor.value.split('\n').length;
+                    document.getElementById('line-count').textContent = `Lines: ${lines}`;
+                } else {
+                    // Create a new main tab if no tabs left
+                    tabs.push({
+                        id: nextTabId++,
+                        name: 'main.ss',
+                        content: '// New SimpleScript file\nprint("Hello World!");',
+                        active: true
+                    });
+                    editor.value = tabs[0].content;
+                    const lines = editor.value.split('\n').length;
+                    document.getElementById('line-count').textContent = `Lines: ${lines}`;
+                }
+            }
+            
+            // Remove from compiler
+            compiler.removeLibrary(libraryName);
+            
+            // Update UI
+            renderTabs();
+            renderLibraries();
+            updateStatus(`Removed library: ${libraryName}`, false);
+            
+            // Show confirmation in output
+            output.innerHTML = `
+                <div class="success">✅ Library removed successfully!</div>
+                <p><strong>Library:</strong> ${libraryName}</p>
+                <p><strong>Status:</strong> All functions and classes from this library are no longer available</p>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                    <strong>⚠️ Note:</strong> If you have code that uses functions from this library, 
+                    you may need to remove the <code>using ${libraryName};</code> statements to avoid errors.
+                </div>
+            `;
+        }
+
+        function addLibraryFromFile() {
+            const libraryInput = document.getElementById('library-input');
+            libraryInput.click();
+        }
+
+        function handleLibraryImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.ss')) {
+                updateStatus('Library files must have .ss extension', true);
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const libraryName = file.name.replace('.ss', '');
+                    
+                    // Extract description from comments
+                    const lines = content.split('\n');
+                    let description = 'Custom library';
+                    for (const line of lines) {
+                        if (line.trim().startsWith('//') && line.includes('description:')) {
+                            description = line.split('description:')[1].trim();
+                            break;
+                        }
+                    }
+                    
+                    compiler.addLibrary(libraryName, content, description);
+                    renderLibraries();
+                    updateStatus(`Added library: ${libraryName}`, false);
+                } catch (error) {
+                    updateStatus(`Failed to add library: ${error.message}`, true);
+                }
+            };
+            
+            reader.readAsText(file);
+            event.target.value = '';
+        }
 
         function updateStatus(text, isError = false) {
             status.textContent = text;
@@ -848,6 +2247,12 @@ if (result > 25) {
                             '<em>No variables defined</em>'
                         }
                     </div>
+                    ${compiler.importedLibraries.size > 0 ? `
+                    <h3>Imported Libraries:</h3>
+                    <div style="background: #e6fffa; border: 1px solid #81e6d9; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                        ${Array.from(compiler.importedLibraries).map(lib => `<code>${lib}</code>`).join(', ')}
+                    </div>
+                    ` : ''}
                 `;
                 
                 updateStatus('Execution complete');
@@ -913,6 +2318,7 @@ if (result > 25) {
                     <p><strong>Operators:</strong> <code>+ - * / == != > < >= <=</code></p>
                     <p><strong>Comments:</strong> <code>// This is a comment</code></p>
                     <p><strong>Statement Separator:</strong> <code>;</code> (semicolon separates statements on same line)</p>
+                    <p><strong>Libraries:</strong> <code>using LibraryName;</code> (import library functions)</p>
                 </div>
                 <div class="success">Ready to compile! Click "Compile & Run" to execute your code.</div>
             `;
@@ -920,114 +2326,273 @@ if (result > 25) {
         }
 
         function loadExample() {
-            editor.value = `// Advanced SimpleScript with Enhanced Type System
-// Working with complex data structures and type safety
+            editor.value = `// Complete Class Usage Example - SimpleScript OOP Guide
+print("=== SimpleScript Class System Demo ===");
 
-// Fibonacci with integer types
-function fibonacci(n).int {
-    if (n <= 1) {
-        return n;
-    } else {
-        return fibonacci(n - 1) + fibonacci(n - 2);
+// Example 1: Basic class with constructor and toString
+class Person {
+    let(string) name = "Unknown";
+    let(int) age = 0;
+    let(string) city = "Nowhere";
+    
+    // Constructor - called when creating new objects
+    function constructor(personName, personAge).void {
+        this.name = personName;
+        this.age = personAge;
+        this.city = "Default City";
+        print("Person created: " + this.name);
+    }
+    
+    // toString method - for string representation
+    function toString().string {
+        return this.name + " (age " + this.age + ") from " + this.city;
+    }
+    
+    function greet().void {
+        print("Hello, I'm " + this.name + " and I'm " + this.age + " years old!");
+    }
+    
+    function setCity(newCity).void {
+        this.city = newCity;
+        print(this.name + " moved to " + newCity);
     }
 }
 
-let(int) count = 8; print("Fibonacci F(" + count + ") = " + fibonacci(count));
+// Creating objects - ALWAYS use 'any' type for objects
+let(any) person1 = new Person("Alice", 25);
+let(any) person2 = new Person("Bob", 30);
 
-// Working with lists and data processing
-function createRange(start, end).list {
-    let(list) result = []; // Note: This is a simplified example
-    return [start, start + 1, start + 2, end];
+// Using object methods
+person1.greet();
+person2.greet();
+
+// Setting properties through methods
+person1.setCity("New York");
+person2.setCity("London");
+
+// Using toString method
+print("Person 1: " + person1.toString());
+print("Person 2: " + person2.toString());
+
+// Example 2: More complex class with calculations
+class BankAccount {
+    let(string) accountHolder = "";
+    let(float) balance = 0.0;
+    let(int) accountNumber = 0;
+    
+    function constructor(holder, initialBalance, accNum).void {
+        this.accountHolder = holder;
+        this.balance = initialBalance;
+        this.accountNumber = accNum;
+        print("Account created for " + holder + " with balance: " + initialBalance);
+    }
+    
+    function deposit(amount).void {
+        this.balance = this.balance + amount;
+        print("Deposited " + amount + ". New balance: " + this.balance);
+    }
+    
+    function withdraw(amount).boolean {
+        if (this.balance >= amount) {
+            this.balance = this.balance - amount;
+            print("Withdrew " + amount + ". New balance: " + this.balance);
+            return true;
+        } else {
+            print("Insufficient funds! Balance: " + this.balance);
+            return false;
+        }
+    }
+    
+    function getBalance().float {
+        return this.balance;
+    }
+    
+    function toString().string {
+        return "Account #" + this.accountNumber + " - " + this.accountHolder + ": $" + this.balance;
+    }
 }
 
-let(list) numbers = createRange(1, 10); print("Range: " + numbers);
+// Create bank accounts
+let(any) account1 = new BankAccount("Alice", 1000.0, 12345);
+let(any) account2 = new BankAccount("Bob", 500.0, 67890);
 
-// Dictionary operations
-let(dict) student = {"name": "Bob", "age": 20, "grades": [85, 92, 78]};
+// Use account methods
+account1.deposit(250.0);
+account1.withdraw(100.0);
+account2.deposit(50.0);
 
-print("Student info: " + student);
+print("Final account states:");
+print(account1.toString());
+print(account2.toString());
 
-// Boolean logic and mixed types
-let(bool) isPassing = true; let(float) average = 85.5; let(any) metadata = null;
-
-function analyzeGrades(grades).dict {
-    return {"count": 3, "average": 85.0, "passing": true};
-}
-
-let(dict) analysis = analyzeGrades([85, 92, 78]); print("Grade analysis: " + analysis);
-
-// String formatting with type safety
-function formatStudent(info).str {
-    return "Student: " + info + " (processed)";
-}
-
-let(str) report = formatStudent("Alice, Grade A"); print(report);`;
+print("=== Class Usage Summary ===");
+print("✓ Define classes with properties and methods");
+print("✓ Use constructor(params).void for initialization");
+print("✓ Use toString().string for string representation");
+print("✓ Create objects with: let(any) obj = new ClassName(params)");
+print("✓ Access properties and methods with: obj.property or obj.method()");`;
             
             const lines = editor.value.split('\n').length;
             lineCount.textContent = `Lines: ${lines}`;
-            updateStatus('Example loaded');
+            updateStatus('Library example loaded');
         }
 
-        // Initialize when page loads
-        window.onload = function() {
-            console.log('Page loaded, setting up buttons...');
+        function exportFile() {
+            try {
+                const code = editor.value;
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `simplescript_${timestamp}.ss`;
+                
+                // Create file content with metadata
+                const fileContent = `// SimpleScript File
+// Created: ${new Date().toISOString()}
+// Language: SimpleScript v1.0
+
+${code}`;
+                
+                // Create and download file
+                const blob = new Blob([fileContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                updateStatus(`Exported as ${filename}`);
+                
+                output.innerHTML = `
+                    <div class="success">✅ File exported successfully!</div>
+                    <p><strong>Filename:</strong> ${filename}</p>
+                    <p><strong>Size:</strong> ${fileContent.length} characters</p>
+                    <p><strong>Lines:</strong> ${fileContent.split('\n').length}</p>
+                    <div style="background: #f7fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                        <strong>File Format:</strong> .ss (SimpleScript)<br>
+                        <strong>Encoding:</strong> UTF-8<br>
+                        <strong>Compatible:</strong> SimpleScript Compiler v1.0+
+                    </div>
+                `;
+            } catch (error) {
+                output.innerHTML = `<div class="error">❌ Export Error: ${error.message}</div>`;
+                updateStatus('Export failed', true);
+            }
+        }
+
+        function importFile() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.click();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            updateStatus('Ready');
-            const lines = editor.value.split('\n').length;
-            lineCount.textContent = `Lines: ${lines}`;
-            
-            // Add event listeners to buttons with error checking
-            const compileBtn = document.getElementById('compile-btn');
-            const tokenizeBtn = document.getElementById('tokenize-btn');
-            const parseBtn = document.getElementById('parse-btn');
-            const clearBtn = document.getElementById('clear-btn');
-            const exampleBtn = document.getElementById('example-btn');
-            const backBtn = document.getElementById('back-btn');
-            
-            if (compileBtn) {
-                compileBtn.addEventListener('click', function() {
-                    console.log('Compile button clicked');
-                    compileAndRun();
-                });
+            if (!file.name.endsWith('.ss')) {
+                output.innerHTML = `<div class="error">❌ Invalid file format. Please select a .ss file.</div>`;
+                updateStatus('Import failed', true);
+                return;
             }
             
-            if (tokenizeBtn) {
-                tokenizeBtn.addEventListener('click', function() {
-                    console.log('Tokenize button clicked');
-                    tokenize();
-                });
-            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let content = e.target.result;
+                    
+                    // Remove metadata header if present
+                    const lines = content.split('\n');
+                    let codeStartIndex = 0;
+                    
+                    // Skip metadata lines at the beginning
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line.startsWith('// SimpleScript File') || 
+                            line.startsWith('// Created:') || 
+                            line.startsWith('// Language:') ||
+                            line === '') {
+                            codeStartIndex = i + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    const actualCode = lines.slice(codeStartIndex).join('\n');
+                    
+                    // Save current tab content
+                    const activeTab = tabs.find(tab => tab.active);
+                    if (activeTab) {
+                        activeTab.content = editor.value;
+                        activeTab.active = false;
+                    }
+                    
+                    // Create new tab for imported file
+                    const newTab = {
+                        id: nextTabId++,
+                        name: file.name,
+                        content: actualCode,
+                        active: true
+                    };
+                    
+                    tabs.push(newTab);
+                    editor.value = actualCode;
+                    
+                    const lineCount = actualCode.split('\n').length;
+                    document.getElementById('line-count').textContent = `Lines: ${lineCount}`;
+                    
+                    renderTabs();
+                    updateStatus(`Imported ${file.name}`);
+                    
+                    output.innerHTML = `
+                        <div class="success">✅ File imported successfully!</div>
+                        <p><strong>Filename:</strong> ${file.name}</p>
+                        <p><strong>Size:</strong> ${file.size} bytes</p>
+                        <p><strong>Lines:</strong> ${lineCount}</p>
+                        <div style="background: #f7fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                            <strong>Status:</strong> Ready to compile<br>
+                            <strong>Format:</strong> SimpleScript (.ss)<br>
+                            <strong>Action:</strong> Click "Compile & Run" to execute<br>
+                            <strong>Tab:</strong> Opened in new tab "${file.name}"
+                        </div>
+                    `;
+                } catch (error) {
+                    output.innerHTML = `<div class="error">❌ Import Error: ${error.message}</div>`;
+                    updateStatus('Import failed', true);
+                }
+            };
             
-            if (parseBtn) {
-                parseBtn.addEventListener('click', function() {
-                    console.log('Parse button clicked');
-                    parseAST();
-                });
-            }
+            reader.onerror = function() {
+                output.innerHTML = `<div class="error">❌ Failed to read file</div>`;
+                updateStatus('Import failed', true);
+            };
             
-            if (clearBtn) {
-                clearBtn.addEventListener('click', function() {
-                    console.log('Clear button clicked');
-                    clearOutput();
-                });
-            }
+            reader.readAsText(file);
             
-            if (exampleBtn) {
-                exampleBtn.addEventListener('click', function() {
-                    console.log('Example button clicked');
-                    loadExample();
-                });
-            }
-            
-            if (backBtn) {
-                backBtn.addEventListener('click', function() {
-                    console.log('Back button clicked');
-                    alert('Back button clicked - main.html navigation disabled for demo');
-                });
-            }
-            
-            console.log('All button listeners attached');
+            // Clear the input so the same file can be imported again
+            event.target.value = '';
+        }
+
+        // Event listeners - direct attachment
+        document.getElementById('compile-btn').onclick = compileAndRun;
+        document.getElementById('tokenize-btn').onclick = tokenize;
+        document.getElementById('parse-btn').onclick = parseAST;
+        document.getElementById('clear-btn').onclick = clearOutput;
+        document.getElementById('example-btn').onclick = loadExample;
+        document.getElementById('export-btn').onclick = exportFile;
+        document.getElementById('import-btn').onclick = importFile;
+        document.getElementById('save-library-btn').onclick = saveLibraryFile;
+        document.getElementById('file-input').onchange = handleFileImport;
+        document.getElementById('add-library-btn').onclick = addLibraryFromFile;
+        document.getElementById('library-input').onchange = handleLibraryImport;
+        document.getElementById('back-btn').onclick = function() {
+            window.location.href = 'main.html';
         };
+
+        // Initialize
+        updateStatus('Ready');
+        const lines = editor.value.split('\n').length;
+        lineCount.textContent = `Lines: ${lines}`;
+        renderLibraries();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97273d18c625ffb8',t:'MTc1NTc0ODk4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972f70359719942c',t:'MTc1NTgzNDk2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
