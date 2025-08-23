@@ -427,30 +427,63 @@
                     <span>📝 Code Editor</span>
                     <span id="line-count">Lines: 1</span>
                 </div>
-                <textarea id="code-editor" class="editor" placeholder="Write your SimpleScript code here...">// Simple test with indentation - should run instantly!
-print(10 + 20);
-print("Hello World!");
+                <textarea id="code-editor" class="editor" placeholder="Write your SimpleScript code here...">// Object-Oriented SimpleScript with Classes!
+print("=== Class and Object Demo ===");
 
-// Void function example - doesn't return anything
-function greetUser(name).void {
-    print("Hello, " + name + "!");
-    print("Welcome to SimpleScript!");
+// Define a Person class
+class Person {
+    let(string) name = "Unknown";
+    let(int) age = 0;
+    
+    function constructor(n, a).void {
+        this.name = n;
+        this.age = a;
+        print("Created person: " + this.name);
+    }
+    
+    function greet().void {
+        print("Hello, I'm " + this.name + " and I'm " + this.age + " years old!");
+    }
+    
+    function getInfo().string {
+        return this.name + " (age " + this.age + ")";
+    }
+    
+    function haveBirthday().void {
+        this.age = this.age + 1;
+        print(this.name + " is now " + this.age + " years old!");
+    }
 }
 
-let(int) x = 5;
-let(int) y = 3;
-print("Sum: " + (x + y));
+// Create objects
+let(any) person1 = new Person("Alice", 25);
+let(any) person2 = new Person("Bob", 30);
 
-// Call the void function
-greetUser("Alice");
+// Call methods
+person1.greet();
+person2.greet();
 
-if (x > 3) {
-    print("x is greater than 3");
-    let(string) message = "Inside if block";
-    print(message);
-} else {
-    print("x is not greater than 3");
-}</textarea>
+print("Person 1 info: " + person1.getInfo());
+print("Person 2 info: " + person2.getInfo());
+
+// Modify objects
+person1.haveBirthday();
+person2.haveBirthday();
+
+print("After birthdays:");
+print("Person 1: " + person1.getInfo());
+print("Person 2: " + person2.getInfo());
+
+// Regular functions still work
+function compareAges(p1, p2).void {
+    if (p1.age > p2.age) {
+        print(p1.name + " is older than " + p2.name);
+    } else {
+        print(p2.name + " is older than " + p1.name);
+    }
+}
+
+compareAges(person1, person2);</textarea>
             </div>
 
             <div class="output-section">
@@ -1147,52 +1180,66 @@ if (x > 3) {
 
             // Helper method to format values for display
             formatValue(value) {
-                if (value === null || value === undefined) return 'null';
-                if (typeof value === 'boolean') return value.toString();
-                if (typeof value === 'string') return value;
-                if (typeof value === 'number') return value.toString();
-                if (Array.isArray(value)) {
-                    return '[' + value.map(v => this.formatValue(v)).join(', ') + ']';
-                }
-                if (typeof value === 'object') {
-                    // Handle custom objects with _properties
-                    if (value._properties) {
-                        const pairs = Object.entries(value._properties).map(([k, v]) => `"${k}": ${this.formatValue(v)}`);
-                        return '{' + pairs.join(', ') + '}';
+                try {
+                    if (value === null || value === undefined) return 'null';
+                    if (typeof value === 'boolean') return value.toString();
+                    if (typeof value === 'string') return value;
+                    if (typeof value === 'number') return value.toString();
+                    if (Array.isArray(value)) {
+                        return '[' + value.map(v => this.formatValue(v)).join(', ') + ']';
                     }
-                    const pairs = Object.entries(value).map(([k, v]) => `"${k}": ${this.formatValue(v)}`);
-                    return '{' + pairs.join(', ') + '}';
+                    if (typeof value === 'object') {
+                        // Handle custom objects with _properties
+                        if (value && value._properties) {
+                            const pairs = Object.entries(value._properties).map(([k, v]) => `"${k}": ${this.formatValue(v)}`);
+                            return '{' + pairs.join(', ') + '}';
+                        }
+                        if (value) {
+                            const pairs = Object.entries(value).map(([k, v]) => `"${k}": ${this.formatValue(v)}`);
+                            return '{' + pairs.join(', ') + '}';
+                        }
+                    }
+                    return String(value);
+                } catch (error) {
+                    return 'null';
                 }
-                return String(value);
             }
 
             // Safe value retrieval with proper null handling
             safeGetValue(value) {
-                if (value === null || value === undefined) {
+                try {
+                    if (value === null || value === undefined) {
+                        return null;
+                    }
+                    return value;
+                } catch (error) {
                     return null;
                 }
-                return value;
             }
 
             // Safe property access with proper null handling
             safeGetProperty(obj, prop) {
-                if (!obj || typeof obj !== 'object') {
+                try {
+                    if (!obj || typeof obj !== 'object') {
+                        return null;
+                    }
+                    
+                    // Check _properties first (for custom objects)
+                    if (obj._properties && obj._properties.hasOwnProperty(prop)) {
+                        const value = obj._properties[prop];
+                        return this.safeGetValue(value);
+                    }
+                    
+                    // Check direct properties
+                    if (obj.hasOwnProperty(prop)) {
+                        const value = obj[prop];
+                        return this.safeGetValue(value);
+                    }
+                    
+                    return null;
+                } catch (error) {
                     return null;
                 }
-                
-                // Check _properties first (for custom objects)
-                if (obj._properties && obj._properties.hasOwnProperty(prop)) {
-                    const value = obj._properties[prop];
-                    return this.safeGetValue(value);
-                }
-                
-                // Check direct properties
-                if (obj.hasOwnProperty(prop)) {
-                    const value = obj[prop];
-                    return this.safeGetValue(value);
-                }
-                
-                return null;
             }
 
             // Helper method for isolated statement execution
@@ -1259,6 +1306,15 @@ if (x > 3) {
                                 const obj = evaluate(node.object);
                                 return this.safeGetProperty(obj, node.property);
                                 
+                            case 'ObjectCreation':
+                                return this.executeObjectCreation(node, evaluate);
+                                
+                            case 'MethodCall':
+                                return this.executeMethodCall(node, evaluate);
+                                
+                            case 'FunctionCall':
+                                return this.executeFunctionCall(node, evaluate);
+                                
                             default:
                                 return null;
                         }
@@ -1300,6 +1356,46 @@ if (x > 3) {
                             const returnValue = evaluate(stmt.value);
                             return { type: 'return', value: this.safeGetValue(returnValue) };
                             
+                        case 'FunctionDeclaration':
+                            this.functions[stmt.name] = {
+                                params: stmt.params || [],
+                                body: stmt.body || [],
+                                returnType: stmt.returnType
+                            };
+                            break;
+                            
+                        case 'ClassDeclaration':
+                            this.functions[stmt.name] = {
+                                type: 'class',
+                                properties: stmt.properties || [],
+                                methods: stmt.methods || []
+                            };
+                            break;
+                            
+                        case 'If':
+                            const condition = evaluate(stmt.condition);
+                            const conditionValue = condition !== null ? Boolean(condition) : false;
+                            if (conditionValue) {
+                                if (stmt.thenBranch) {
+                                    for (let i = 0; i < stmt.thenBranch.length && i < 10; i++) {
+                                        const res = this.executeStatement(stmt.thenBranch[i]);
+                                        if (res && res.type === 'return') {
+                                            return res;
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (stmt.elseBranch) {
+                                    for (let i = 0; i < stmt.elseBranch.length && i < 10; i++) {
+                                        const res = this.executeStatement(stmt.elseBranch[i]);
+                                        if (res && res.type === 'return') {
+                                            return res;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                            
                         default:
                             break;
                     }
@@ -1310,382 +1406,259 @@ if (x > 3) {
                 return null;
             }
 
-            // Optimized Code Execution - Fast and simple with proper null handling
+            // Token-based execution with proper function flow control
             execute(ast) {
                 this.variables = {};
                 this.functions = {};
                 this.output = [];
                 this.importedLibraries.clear();
                 
-                const evaluate = (node) => {
-                    if (!node) return null;
-                    
-                    try {
-                        switch (node.type) {
-                            case 'Number': 
-                                return this.safeGetValue(node.value);
-                            case 'String': 
-                                return this.safeGetValue(node.value);
-                            case 'Boolean': 
-                                return this.safeGetValue(node.value);
-                            case 'Null': 
-                                return null;
-                            
-                            case 'List':
-                                return node.elements.map(el => this.safeGetValue(evaluate(el)));
-                                
-                            case 'Dict':
-                                const dict = {};
-                                for (let i = 0; i < node.pairs.length && i < 20; i++) {
-                                    const pair = node.pairs[i];
-                                    const key = evaluate(pair.key);
-                                    const value = evaluate(pair.value);
-                                    if (key !== null) {
-                                        dict[key] = this.safeGetValue(value);
-                                    }
-                                }
-                                return dict;
-                                
-                            case 'Identifier':
-                                if (node.name === 'this') {
-                                    return this.safeGetValue(this.currentThis);
-                                }
-                                const varValue = this.variables[node.name];
-                                return this.safeGetValue(varValue);
-                                
-                            case 'BinaryOp':
-                                const left = evaluate(node.left);
-                                const right = evaluate(node.right);
-                                
-                                switch (node.operator) {
-                                    case '+': 
-                                        if (typeof left === 'string' || typeof right === 'string') {
-                                            const leftStr = left !== null ? String(left) : 'null';
-                                            const rightStr = right !== null ? String(right) : 'null';
-                                            return leftStr + rightStr;
-                                        }
-                                        if (Array.isArray(left) && Array.isArray(right)) {
-                                            return left.concat(right);
-                                        }
-                                        if (typeof left === 'object' || typeof right === 'object') {
-                                            const leftStr = left !== null ? this.formatValue(left) : 'null';
-                                            const rightStr = right !== null ? this.formatValue(right) : 'null';
-                                            return leftStr + rightStr;
-                                        }
-                                        const leftNum = left !== null ? Number(left) : 0;
-                                        const rightNum = right !== null ? Number(right) : 0;
-                                        return leftNum + rightNum;
-                                    case '-': 
-                                        return (left !== null ? Number(left) : 0) - (right !== null ? Number(right) : 0);
-                                    case '*': 
-                                        return (left !== null ? Number(left) : 0) * (right !== null ? Number(right) : 0);
-                                    case '/': 
-                                        const divisor = right !== null ? Number(right) : 1;
-                                        return divisor !== 0 ? (left !== null ? Number(left) : 0) / divisor : 0;
-                                    case '==': 
-                                        return left === right;
-                                    case '!=': 
-                                        return left !== right;
-                                    case '>': 
-                                        return (left !== null ? Number(left) : 0) > (right !== null ? Number(right) : 0);
-                                    case '<': 
-                                        return (left !== null ? Number(left) : 0) < (right !== null ? Number(right) : 0);
-                                    case '>=': 
-                                        return (left !== null ? Number(left) : 0) >= (right !== null ? Number(right) : 0);
-                                    case '<=': 
-                                        return (left !== null ? Number(left) : 0) <= (right !== null ? Number(right) : 0);
-                                    default: 
-                                        return null;
-                                }
-                                
-                            case 'FunctionCall':
-                                const func = this.functions[node.name];
-                                if (!func || func.type === 'class') {
-                                    return null;
-                                }
-                                
-                                const args = node.args.map(arg => this.safeGetValue(evaluate(arg)));
-                                
-                                // Create completely isolated execution context
-                                const functionCompiler = new SimpleScriptCompiler();
-                                functionCompiler.functions = this.functions; // Share functions but not variables
-                                functionCompiler.output = this.output; // Share output
-                                
-                                // Set function parameters in isolated scope
-                                for (let i = 0; i < func.params.length; i++) {
-                                    const paramName = func.params[i];
-                                    const argValue = i < args.length ? args[i] : null;
-                                    functionCompiler.variables[paramName] = this.safeGetValue(argValue);
-                                }
-                                
-                                let result = null;
-                                // Execute function body statements in order using isolated compiler
-                                for (let i = 0; i < func.body.length && i < 20; i++) {
-                                    const stmt = func.body[i];
-                                    const res = functionCompiler.executeStatement(stmt);
-                                    if (res && res.type === 'return') {
-                                        result = res.value;
-                                        break;
-                                    }
-                                }
-                                
-                                // Update shared output
-                                this.output = functionCompiler.output;
-                                
-                                return this.safeGetValue(result);
-                                
-                            case 'ObjectCreation':
-                                const className = node.className;
-                                const classFunc = this.functions[className];
-                                if (!classFunc || classFunc.type !== 'class') {
-                                    return null;
-                                }
-                                
-                                // Create new object instance
-                                const instance = {
-                                    _className: className,
-                                    _properties: {},
-                                    _methods: {}
-                                };
-                                
-                                // Copy class properties with default values
-                                if (classFunc.properties) {
-                                    for (const prop of classFunc.properties) {
-                                        const defaultVal = prop.defaultValue ? this.safeGetValue(evaluate(prop.defaultValue)) : null;
-                                        instance._properties[prop.name] = defaultVal;
-                                    }
-                                }
-                                
-                                // Copy class methods
-                                if (classFunc.methods) {
-                                    for (const method of classFunc.methods) {
-                                        instance._methods[method.name] = method;
-                                    }
-                                }
-                                
-                                // Call constructor if it exists
-                                const constructor = instance._methods.constructor;
-                                if (constructor) {
-                                    const constructorArgs = node.args.map(arg => this.safeGetValue(evaluate(arg)));
-                                    
-                                    // Save current context completely
-                                    const savedVariables = JSON.parse(JSON.stringify(this.variables));
-                                    const savedThis = this.currentThis;
-                                    
-                                    // Create completely isolated constructor scope
-                                    this.variables = {};
-                                    this.currentThis = instance;
-                                    
-                                    // Set constructor parameters in isolated scope
-                                    for (let i = 0; i < constructor.params.length; i++) {
-                                        const paramName = constructor.params[i];
-                                        const argValue = i < constructorArgs.length ? constructorArgs[i] : null;
-                                        this.variables[paramName] = this.safeGetValue(argValue);
-                                    }
-                                    
-                                    // Execute constructor statements in order
-                                    for (let i = 0; i < constructor.body.length && i < 20; i++) {
-                                        executeStatement(constructor.body[i]);
-                                    }
-                                    
-                                    // Restore original context completely
-                                    this.variables = savedVariables;
-                                    this.currentThis = savedThis;
-                                }
-                                
-                                return instance;
-                                
-                            case 'PropertyAccess':
-                                const obj = evaluate(node.object);
-                                return this.safeGetProperty(obj, node.property);
-                                
-                            case 'MethodCall':
-                                const targetObj = evaluate(node.object);
-                                if (!targetObj || typeof targetObj !== 'object') {
-                                    return null;
-                                }
-                                
-                                let method = null;
-                                if (targetObj._methods && targetObj._methods[node.method]) {
-                                    method = targetObj._methods[node.method];
-                                }
-                                
-                                if (!method) {
-                                    return null;
-                                }
-                                
-                                const methodArgs = node.args.map(arg => this.safeGetValue(evaluate(arg)));
-                                
-                                // Save current context completely
-                                const savedVars = JSON.parse(JSON.stringify(this.variables));
-                                const savedThisObj = this.currentThis;
-                                
-                                // Create completely isolated method scope
-                                this.variables = {};
-                                this.currentThis = targetObj;
-                                
-                                // Set method parameters in isolated scope
-                                for (let i = 0; i < method.params.length; i++) {
-                                    const paramName = method.params[i];
-                                    const argValue = i < methodArgs.length ? methodArgs[i] : null;
-                                    this.variables[paramName] = this.safeGetValue(argValue);
-                                }
-                                
-                                let methodResult = null;
-                                // Execute method body in order
-                                for (let i = 0; i < method.body.length && i < 20; i++) {
-                                    const stmt = method.body[i];
-                                    const res = executeStatement(stmt);
-                                    if (res && res.type === 'return') {
-                                        methodResult = res.value;
-                                        break;
-                                    }
-                                }
-                                
-                                // Restore original context completely
-                                this.variables = savedVars;
-                                this.currentThis = savedThisObj;
-                                
-                                return this.safeGetValue(methodResult);
-                                
-                            default:
-                                return null;
-                        }
-                    } catch (error) {
-                        console.error('Evaluation error:', error);
-                        return null;
-                    }
-                };
-                
-                const executeStatement = (stmt) => {
-                    if (!stmt) return null;
-                    
-                    try {
-                        switch (stmt.type) {
-                            case 'Using':
-                                // Import library functions
-                                const libraryName = stmt.library;
-                                if (this.libraries[libraryName] && !this.importedLibraries.has(libraryName)) {
-                                    const library = this.libraries[libraryName];
-                                    
-                                    // Parse and execute library code to get functions
-                                    const libTokens = this.tokenize(library.content);
-                                    const libAst = this.parse(libTokens);
-                                    
-                                    // Extract functions from library
-                                    if (libAst && libAst.statements) {
-                                        for (const libStmt of libAst.statements) {
-                                            if (libStmt.type === 'FunctionDeclaration') {
-                                                this.functions[libStmt.name] = {
-                                                    params: libStmt.params || [],
-                                                    body: libStmt.body || [],
-                                                    returnType: libStmt.returnType
-                                                };
-                                            } else if (libStmt.type === 'ClassDeclaration') {
-                                                this.functions[libStmt.name] = {
-                                                    type: 'class',
-                                                    properties: libStmt.properties || [],
-                                                    methods: libStmt.methods || []
-                                                };
-                                            }
-                                        }
-                                    }
-                                    
-                                    this.importedLibraries.add(libraryName);
-                                    this.output.push(`✅ Imported library: ${libraryName}`);
-                                }
-                                break;
-                                
-                            case 'VariableDeclaration':
-                                const value = evaluate(stmt.value);
-                                this.variables[stmt.name] = this.safeGetValue(value);
-                                break;
-                                
-                            case 'Assignment':
-                                // Handle this.property = value
-                                if (stmt.target && stmt.target.type === 'PropertyAccess' && 
-                                    stmt.target.object.type === 'Identifier' && stmt.target.object.name === 'this') {
-                                    if (this.currentThis && typeof this.currentThis === 'object' && this.currentThis._properties) {
-                                        const assignValue = evaluate(stmt.value);
-                                        this.currentThis._properties[stmt.target.property] = this.safeGetValue(assignValue);
-                                    }
-                                } else if (stmt.name) {
-                                    const assignValue = evaluate(stmt.value);
-                                    this.variables[stmt.name] = this.safeGetValue(assignValue);
-                                }
-                                break;
-                                
-                            case 'FunctionCall':
-                            case 'MethodCall':
-                                // Execute function/method calls that appear as statements
-                                evaluate(stmt);
-                                break;
-                                
-                            case 'FunctionDeclaration':
-                                this.functions[stmt.name] = {
-                                    params: stmt.params || [],
-                                    body: stmt.body || [],
-                                    returnType: stmt.returnType
-                                };
-                                break;
-                                
-                            case 'ClassDeclaration':
-                                this.functions[stmt.name] = {
-                                    type: 'class',
-                                    properties: stmt.properties || [],
-                                    methods: stmt.methods || []
-                                };
-                                break;
-                                
-                            case 'Print':
-                                const printValue = evaluate(stmt.value);
-                                const printStr = this.formatValue(printValue);
-                                this.output.push(printStr);
-                                break;
-                                
-                            case 'If':
-                                const condition = evaluate(stmt.condition);
-                                const conditionValue = condition !== null ? Boolean(condition) : false;
-                                if (conditionValue) {
-                                    if (stmt.thenBranch) {
-                                        for (let i = 0; i < stmt.thenBranch.length && i < 10; i++) {
-                                            executeStatement(stmt.thenBranch[i]);
-                                        }
-                                    }
-                                } else {
-                                    if (stmt.elseBranch) {
-                                        for (let i = 0; i < stmt.elseBranch.length && i < 10; i++) {
-                                            executeStatement(stmt.elseBranch[i]);
-                                        }
-                                    }
-                                }
-                                break;
-                                
-                            case 'Return':
-                                const returnValue = evaluate(stmt.value);
-                                return { type: 'return', value: this.safeGetValue(returnValue) };
-                                
-                            default:
-                                break;
-                        }
-                    } catch (error) {
-                        console.error('Statement execution error:', error);
-                    }
-                    
-                    return null;
-                };
-                
-                // Execute statements quickly
                 if (!ast || !ast.statements) return this.output;
                 
-                for (let i = 0; i < ast.statements.length && i < 50; i++) {
+                // Execute statements in order
+                for (let i = 0; i < ast.statements.length; i++) {
                     const stmt = ast.statements[i];
-                    if (stmt) {
-                        executeStatement(stmt);
+                    try {
+                        this.executeStatement(stmt);
+                    } catch (error) {
+                        console.error('Execution error:', error);
                     }
                 }
                 
                 return this.output;
+            }
+
+            // Separate method for executing function calls with proper scoping
+            executeFunctionCall(node, evaluate) {
+                try {
+                    const func = this.functions[node.name];
+                    if (!func || func.type === 'class') {
+                        return null;
+                    }
+                    
+                    const args = [];
+                    if (node.args && Array.isArray(node.args)) {
+                        for (let i = 0; i < node.args.length; i++) {
+                            try {
+                                const argValue = evaluate(node.args[i]);
+                                args.push(this.safeGetValue(argValue));
+                            } catch (error) {
+                                args.push(null);
+                            }
+                        }
+                    }
+                    
+                    // Save current execution context
+                    const savedVariables = { ...this.variables };
+                    const savedThis = this.currentThis;
+                    
+                    // Create new isolated scope for function
+                    const functionScope = {};
+                    
+                    // Set function parameters in new scope
+                    if (func.params && Array.isArray(func.params)) {
+                        for (let i = 0; i < func.params.length; i++) {
+                            const paramName = func.params[i];
+                            const argValue = i < args.length ? args[i] : null;
+                            functionScope[paramName] = this.safeGetValue(argValue);
+                        }
+                    }
+                    
+                    // Switch to function scope
+                    this.variables = functionScope;
+                    
+                    let result = null;
+                    // Execute function body statements in order
+                    if (func.body && Array.isArray(func.body)) {
+                        for (let i = 0; i < func.body.length && i < 20; i++) {
+                            const stmt = func.body[i];
+                            try {
+                                const res = this.executeStatement(stmt);
+                                if (res && res.type === 'return') {
+                                    result = res.value;
+                                    break;
+                                }
+                            } catch (error) {
+                                console.error('Function statement error:', error);
+                            }
+                        }
+                    }
+                    
+                    // Restore original execution context
+                    this.variables = savedVariables;
+                    this.currentThis = savedThis;
+                    
+                    return this.safeGetValue(result);
+                } catch (error) {
+                    console.error('Function call error:', error);
+                    return null;
+                }
+            }
+
+            // Separate method for object creation
+            executeObjectCreation(node, evaluate) {
+                try {
+                    const className = node.className;
+                    const classFunc = this.functions[className];
+                    if (!classFunc || classFunc.type !== 'class') {
+                        return null;
+                    }
+                    
+                    // Create new object instance
+                    const instance = {
+                        _className: className,
+                        _properties: {},
+                        _methods: {}
+                    };
+                    
+                    // Copy class properties with default values
+                    if (classFunc.properties && Array.isArray(classFunc.properties)) {
+                        for (const prop of classFunc.properties) {
+                            try {
+                                const defaultVal = prop.defaultValue ? this.safeGetValue(evaluate(prop.defaultValue)) : null;
+                                instance._properties[prop.name] = defaultVal;
+                            } catch (error) {
+                                instance._properties[prop.name] = null;
+                            }
+                        }
+                    }
+                    
+                    // Copy class methods
+                    if (classFunc.methods && Array.isArray(classFunc.methods)) {
+                        for (const method of classFunc.methods) {
+                            instance._methods[method.name] = method;
+                        }
+                    }
+                    
+                    // Call constructor if it exists
+                    const constructor = instance._methods.constructor;
+                    if (constructor) {
+                        const constructorArgs = [];
+                        if (node.args && Array.isArray(node.args)) {
+                            for (let i = 0; i < node.args.length; i++) {
+                                try {
+                                    const argValue = evaluate(node.args[i]);
+                                    constructorArgs.push(this.safeGetValue(argValue));
+                                } catch (error) {
+                                    constructorArgs.push(null);
+                                }
+                            }
+                        }
+                        
+                        // Save current context
+                        const savedVariables = { ...this.variables };
+                        const savedThis = this.currentThis;
+                        
+                        // Create constructor scope
+                        const constructorScope = {};
+                        this.variables = constructorScope;
+                        this.currentThis = instance;
+                        
+                        // Set constructor parameters
+                        if (constructor.params && Array.isArray(constructor.params)) {
+                            for (let i = 0; i < constructor.params.length; i++) {
+                                const paramName = constructor.params[i];
+                                const argValue = i < constructorArgs.length ? constructorArgs[i] : null;
+                                this.variables[paramName] = this.safeGetValue(argValue);
+                            }
+                        }
+                        
+                        // Execute constructor statements
+                        if (constructor.body && Array.isArray(constructor.body)) {
+                            for (let i = 0; i < constructor.body.length && i < 20; i++) {
+                                try {
+                                    this.executeStatement(constructor.body[i]);
+                                } catch (error) {
+                                    console.error('Constructor statement error:', error);
+                                }
+                            }
+                        }
+                        
+                        // Restore original context
+                        this.variables = savedVariables;
+                        this.currentThis = savedThis;
+                    }
+                    
+                    return instance;
+                } catch (error) {
+                    console.error('Object creation error:', error);
+                    return null;
+                }
+            }
+
+            // Separate method for method calls
+            executeMethodCall(node, evaluate) {
+                try {
+                    const targetObj = evaluate(node.object);
+                    if (!targetObj || typeof targetObj !== 'object') {
+                        return null;
+                    }
+                    
+                    let method = null;
+                    if (targetObj._methods && targetObj._methods[node.method]) {
+                        method = targetObj._methods[node.method];
+                    }
+                    
+                    if (!method) {
+                        return null;
+                    }
+                    
+                    const methodArgs = [];
+                    if (node.args && Array.isArray(node.args)) {
+                        for (let i = 0; i < node.args.length; i++) {
+                            try {
+                                const argValue = evaluate(node.args[i]);
+                                methodArgs.push(this.safeGetValue(argValue));
+                            } catch (error) {
+                                methodArgs.push(null);
+                            }
+                        }
+                    }
+                    
+                    // Save current context
+                    const savedVars = { ...this.variables };
+                    const savedThisObj = this.currentThis;
+                    
+                    // Create method scope
+                    const methodScope = {};
+                    this.variables = methodScope;
+                    this.currentThis = targetObj;
+                    
+                    // Set method parameters
+                    if (method.params && Array.isArray(method.params)) {
+                        for (let i = 0; i < method.params.length; i++) {
+                            const paramName = method.params[i];
+                            const argValue = i < methodArgs.length ? methodArgs[i] : null;
+                            this.variables[paramName] = this.safeGetValue(argValue);
+                        }
+                    }
+                    
+                    let methodResult = null;
+                    // Execute method body
+                    if (method.body && Array.isArray(method.body)) {
+                        for (let i = 0; i < method.body.length && i < 20; i++) {
+                            const stmt = method.body[i];
+                            try {
+                                const res = this.executeStatement(stmt);
+                                if (res && res.type === 'return') {
+                                    methodResult = res.value;
+                                    break;
+                                }
+                            } catch (error) {
+                                console.error('Method statement error:', error);
+                            }
+                        }
+                    }
+                    
+                    // Restore original context
+                    this.variables = savedVars;
+                    this.currentThis = savedThisObj;
+                    
+                    return this.safeGetValue(methodResult);
+                } catch (error) {
+                    console.error('Method call error:', error);
+                    return null;
+                }
             }
 
             // Library management methods
@@ -2595,5 +2568,5 @@ ${code}`;
         lineCount.textContent = `Lines: ${lines}`;
         renderLibraries();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972f73d014227ad0',t:'MTc1NTgzNTExMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97370d4134f0f973',t:'MTc1NTkxNDc5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
