@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Tycoon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 2px solid #00ff88;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #00ff88;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #00ccff;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .arcade-view {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 204, 255, 0.3);
+            height: fit-content;
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .money { color: #00ff88; }
+        .customers { color: #00ccff; }
+        .machines { color: #ff6b6b; }
+        .reputation { color: #ffd93d; }
+        .income { color: #6bcf7f; }
+        .day { color: #ff9ff3; }
+
+        .arcade-floor {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 3px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            min-height: 450px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .floor-tile {
+            background: #1a1a2e;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 70px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .floor-tile:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .floor-tile.occupied {
+            cursor: default;
+        }
+
+        .arcade-machine {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
+            border: 2px solid;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .machine-classic { border-color: #00ff88; background: linear-gradient(145deg, #003d1a, #001a0d); }
+        .machine-racing { border-color: #ff6b6b; background: linear-gradient(145deg, #3d1a1a, #1a0d0d); }
+        .machine-fighting { border-color: #ffd93d; background: linear-gradient(145deg, #3d3d1a, #1a1a0d); }
+        .machine-rhythm { border-color: #ff9ff3; background: linear-gradient(145deg, #3d1a3d, #1a0d1a); }
+        .machine-vr { border-color: #00ccff; background: linear-gradient(145deg, #1a3d3d, #0d1a1a); }
+
+        .machine-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .machine-name {
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+
+        .machine-earnings {
+            font-size: 0.6rem;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #00ff88;
+        }
+
+        .customer {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            background: #00ccff;
+            box-shadow: 0 0 8px #00ccff;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .customer.playing {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .shop-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .shop-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ff88;
+            text-align: center;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .machine-option {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .machine-option:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: #00ff88;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .machine-option.selected {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .option-name {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .option-cost {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .option-stats {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+            background: linear-gradient(45deg, #00cc6a, #00ff88);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #00ccff, #0099cc);
+            box-shadow: 0 4px 15px rgba(0, 204, 255, 0.3);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 8px 25px rgba(0, 204, 255, 0.4);
+            background: linear-gradient(45deg, #0099cc, #00ccff);
+        }
+
+        .btn.warning {
+            background: linear-gradient(45deg, #ffd93d, #ffcc00);
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.3);
+        }
+
+        .btn.warning:hover {
+            box-shadow: 0 8px 25px rgba(255, 217, 61, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .events-log {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 204, 255, 0.3);
+        }
+
+        .event {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border-left: 3px solid;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .event.info { border-color: #00ccff; }
+        .event.success { border-color: #00ff88; }
+        .event.warning { border-color: #ffd93d; }
+        .event.danger { border-color: #ff6b6b; }
+
+        .floating-money {
+            position: absolute;
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 0.8rem;
+            pointer-events: none;
+            animation: floatUp 2s ease-out forwards;
+            text-shadow: 0 0 5px #00ff88;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-30px); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .arcade-floor {
+                grid-template-columns: repeat(6, 1fr);
+                grid-template-rows: repeat(8, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .arcade-floor {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(12, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">🕹️ ARCADE TYCOON</h1>
+        <p class="subtitle">Build the Ultimate Gaming Empire</p>
+    </div>
+
+    <div class="main-container">
+        <div class="arcade-view">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Money</div>
+                    <div class="stat-value money" id="money">$10,000</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Customers</div>
+                    <div class="stat-value customers" id="customers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Machines</div>
+                    <div class="stat-value machines" id="machines">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Reputation</div>
+                    <div class="stat-value reputation" id="reputation">50</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Income/Min</div>
+                    <div class="stat-value income" id="income">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Day</div>
+                    <div class="stat-value day" id="day">1</div>
+                </div>
+            </div>
+
+            <div class="arcade-floor" id="arcadeFloor"></div>
+        </div>
+
+        <div class="control-panel">
+            <div class="shop-section">
+                <h3 class="shop-title">🛒 ARCADE SHOP</h3>
+                
+                <div class="machine-option" data-machine="classic">
+                    <div class="option-header">
+                        <span class="option-name">🕹️ Classic Arcade</span>
+                        <span class="option-cost">$500</span>
+                    </div>
+                    <div class="option-stats">
+                        Earnings: $2/min | Appeal: Low<br>
+                        The foundation of any arcade
+                    </div>
+                </div>
+                
+                <div class="machine-option" data-machine="racing">
+                    <div class="option-header">
+                        <span class="option-name">🏎️ Racing Game</span>
+                        <span class="option-cost">$1,200</span>
+                    </div>
+                    <div class="option-stats">
+                        Earnings: $5/min | Appeal: Medium<br>
+                        High-speed thrills for customers
+                    </div>
+                </div>
+                
+                <div class="machine-option" data-machine="fighting">
+                    <div class="option-header">
+                        <span class="option-name">👊 Fighting Game</span>
+                        <span class="option-cost">$1,500</span>
+                    </div>
+                    <div class="option-stats">
+                        Earnings: $6/min | Appeal: Medium<br>
+                        Competitive gaming at its finest
+                    </div>
+                </div>
+                
+                <div class="machine-option" data-machine="rhythm">
+                    <div class="option-header">
+                        <span class="option-name">🎵 Rhythm Game</span>
+                        <span class="option-cost">$2,000</span>
+                    </div>
+                    <div class="option-stats">
+                        Earnings: $8/min | Appeal: High<br>
+                        Music and movement combined
+                    </div>
+                </div>
+                
+                <div class="machine-option" data-machine="vr">
+                    <div class="option-header">
+                        <span class="option-name">🥽 VR Experience</span>
+                        <span class="option-cost">$5,000</span>
+                    </div>
+                    <div class="option-stats">
+                        Earnings: $15/min | Appeal: Very High<br>
+                        Cutting-edge virtual reality
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn" onclick="placeMachine()" id="placeBtn" disabled>Place Machine</button>
+                <button class="btn secondary" onclick="upgradeMachine()">Upgrade Machine</button>
+                <button class="btn warning" onclick="marketingCampaign()">Marketing ($1,000)</button>
+            </div>
+
+            <div class="events-log" id="eventsLog">
+                <div class="event info">🎮 Welcome to Arcade Tycoon! Buy machines and place them to start earning.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            money: 10000,
+            customers: 0,
+            machines: 0,
+            reputation: 50,
+            income: 0,
+            day: 1,
+            selectedMachine: null,
+            selectedTile: null,
+            arcadeMachines: [],
+            customerCount: 0,
+            totalEarnings: 0
+        };
+
+        const machineTypes = {
+            classic: { 
+                cost: 500, 
+                earnings: 2, 
+                appeal: 1, 
+                icon: '🕹️', 
+                name: 'Classic',
+                upgradeMultiplier: 1.5
+            },
+            racing: { 
+                cost: 1200, 
+                earnings: 5, 
+                appeal: 2, 
+                icon: '🏎️', 
+                name: 'Racing',
+                upgradeMultiplier: 1.6
+            },
+            fighting: { 
+                cost: 1500, 
+                earnings: 6, 
+                appeal: 2, 
+                icon: '👊', 
+                name: 'Fighting',
+                upgradeMultiplier: 1.7
+            },
+            rhythm: { 
+                cost: 2000, 
+                earnings: 8, 
+                appeal: 3, 
+                icon: '🎵', 
+                name: 'Rhythm',
+                upgradeMultiplier: 1.8
+            },
+            vr: { 
+                cost: 5000, 
+                earnings: 15, 
+                appeal: 4, 
+                icon: '🥽', 
+                name: 'VR',
+                upgradeMultiplier: 2.0
+            }
+        };
+
+        let customers = [];
+        let gameRunning = true;
+
+        function initGame() {
+            createArcadeFloor();
+            setupEventListeners();
+            updateDisplay();
+            gameLoop();
+            customerSpawnLoop();
+        }
+
+        function createArcadeFloor() {
+            const floor = document.getElementById('arcadeFloor');
+            floor.innerHTML = '';
+
+            for (let i = 0; i < 48; i++) { // 8x6 grid
+                const tile = document.createElement('div');
+                tile.className = 'floor-tile';
+                tile.dataset.index = i;
+                tile.addEventListener('click', () => selectTile(i));
+                floor.appendChild(tile);
+            }
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.machine-option').forEach(option => {
+                option.addEventListener('click', () => selectMachine(option.dataset.machine));
+            });
+        }
+
+        function selectMachine(machineType) {
+            gameState.selectedMachine = machineType;
+            document.querySelectorAll('.machine-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-machine="${machineType}"]`).classList.add('selected');
+            
+            const machine = machineTypes[machineType];
+            document.getElementById('placeBtn').disabled = gameState.money < machine.cost;
+            
+            addEvent(`🎯 Selected ${machine.name} machine. Click an empty tile to place it!`, 'info');
+        }
+
+        function selectTile(index) {
+            if (!gameState.selectedMachine) {
+                addEvent('❌ Select a machine type first!', 'warning');
+                return;
+            }
+
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            if (tile.classList.contains('occupied')) {
+                addEvent('❌ This spot is already occupied!', 'warning');
+                return;
+            }
+
+            gameState.selectedTile = index;
+            
+            // Highlight selected tile
+            document.querySelectorAll('.floor-tile').forEach(t => t.style.border = '1px solid rgba(255, 255, 255, 0.1)');
+            tile.style.border = '2px solid #00ff88';
+            
+            addEvent(`📍 Selected tile ${index + 1}. Click 'Place Machine' to confirm!`, 'info');
+        }
+
+        function placeMachine() {
+            if (!gameState.selectedMachine || gameState.selectedTile === null) {
+                addEvent('❌ Select a machine and tile first!', 'warning');
+                return;
+            }
+
+            const machine = machineTypes[gameState.selectedMachine];
+            if (gameState.money < machine.cost) {
+                addEvent('❌ Not enough money!', 'danger');
+                return;
+            }
+
+            // Create machine
+            const newMachine = {
+                id: Date.now(),
+                type: gameState.selectedMachine,
+                tile: gameState.selectedTile,
+                earnings: machine.earnings,
+                level: 1,
+                totalEarned: 0,
+                customers: 0,
+                lastEarning: Date.now()
+            };
+
+            gameState.arcadeMachines.push(newMachine);
+            gameState.money -= machine.cost;
+            gameState.machines++;
+            gameState.reputation += machine.appeal;
+
+            // Create visual machine
+            const tile = document.querySelector(`[data-index="${gameState.selectedTile}"]`);
+            tile.classList.add('occupied');
+            tile.innerHTML = `
+                <div class="arcade-machine machine-${gameState.selectedMachine}">
+                    <div class="machine-icon">${machine.icon}</div>
+                    <div class="machine-name">${machine.name}</div>
+                    <div class="machine-earnings">$0</div>
+                </div>
+            `;
+
+            addEvent(`✅ ${machine.name} machine placed! Earning $${machine.earnings}/min`, 'success');
+            
+            // Reset selections
+            gameState.selectedMachine = null;
+            gameState.selectedTile = null;
+            document.querySelectorAll('.machine-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('placeBtn').disabled = true;
+            
+            updateDisplay();
+        }
+
+        function upgradeMachine() {
+            if (gameState.arcadeMachines.length === 0) {
+                addEvent('❌ No machines to upgrade!', 'warning');
+                return;
+            }
+
+            // Find a random machine to upgrade
+            const machine = gameState.arcadeMachines[Math.floor(Math.random() * gameState.arcadeMachines.length)];
+            const machineType = machineTypes[machine.type];
+            const upgradeCost = Math.floor(machineType.cost * machine.level * 0.8);
+
+            if (gameState.money < upgradeCost) {
+                addEvent(`❌ Need $${upgradeCost} to upgrade ${machineType.name} machine!`, 'danger');
+                return;
+            }
+
+            gameState.money -= upgradeCost;
+            machine.level++;
+            machine.earnings = Math.floor(machine.earnings * machineType.upgradeMultiplier);
+            gameState.reputation += 2;
+
+            addEvent(`⬆️ ${machineType.name} machine upgraded to level ${machine.level}! Now earning $${machine.earnings}/min`, 'success');
+            updateDisplay();
+        }
+
+        function marketingCampaign() {
+            if (gameState.money < 1000) {
+                addEvent('❌ Need $1,000 for marketing campaign!', 'danger');
+                return;
+            }
+
+            gameState.money -= 1000;
+            gameState.reputation += 15;
+            
+            // Spawn extra customers
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => spawnCustomer(), i * 200);
+            }
+
+            addEvent('📢 Marketing campaign launched! More customers incoming!', 'success');
+            updateDisplay();
+        }
+
+        function spawnCustomer() {
+            if (gameState.arcadeMachines.length === 0) return;
+
+            const customer = {
+                id: Date.now() + Math.random(),
+                x: Math.random() * 100,
+                y: Math.random() * 100,
+                targetMachine: null,
+                playTime: 0,
+                maxPlayTime: Math.random() * 30000 + 10000, // 10-40 seconds
+                money: Math.random() * 50 + 10
+            };
+
+            // Find available machine based on reputation and appeal
+            const availableMachines = gameState.arcadeMachines.filter(machine => {
+                const machineType = machineTypes[machine.type];
+                return Math.random() * 100 < (gameState.reputation + machineType.appeal * 10);
+            });
+
+            if (availableMachines.length > 0) {
+                customer.targetMachine = availableMachines[Math.floor(Math.random() * availableMachines.length)];
+                customers.push(customer);
+                gameState.customerCount++;
+                
+                // Create visual customer
+                createCustomerElement(customer);
+                moveCustomerToMachine(customer);
+            }
+        }
+
+        function createCustomerElement(customer) {
+            const customerElement = document.createElement('div');
+            customerElement.className = 'customer';
+            customerElement.id = `customer-${customer.id}`;
+            customerElement.style.left = `${customer.x}%`;
+            customerElement.style.top = `${customer.y}%`;
+            
+            document.getElementById('arcadeFloor').appendChild(customerElement);
+        }
+
+        function moveCustomerToMachine(customer) {
+            const customerElement = document.getElementById(`customer-${customer.id}`);
+            if (!customerElement || !customer.targetMachine) return;
+
+            const tile = document.querySelector(`[data-index="${customer.targetMachine.tile}"]`);
+            const rect = tile.getBoundingClientRect();
+            const floorRect = document.getElementById('arcadeFloor').getBoundingClientRect();
+            
+            const targetX = ((rect.left - floorRect.left + rect.width / 2) / floorRect.width) * 100;
+            const targetY = ((rect.top - floorRect.top + rect.height / 2) / floorRect.height) * 100;
+
+            customerElement.style.left = `${targetX}%`;
+            customerElement.style.top = `${targetY}%`;
+
+            // Start playing after movement
+            setTimeout(() => {
+                if (customerElement) {
+                    customerElement.classList.add('playing');
+                    customer.targetMachine.customers++;
+                }
+            }, 500);
+        }
+
+        function updateMachineEarnings() {
+            const currentTime = Date.now();
+            
+            gameState.arcadeMachines.forEach(machine => {
+                const timeDiff = currentTime - machine.lastEarning;
+                
+                if (timeDiff >= 1000 && machine.customers > 0) { // Earn every second when customers are playing
+                    const earnings = Math.floor(machine.earnings * (machine.customers * 0.5 + 0.5));
+                    machine.totalEarned += earnings;
+                    gameState.money += earnings;
+                    gameState.totalEarnings += earnings;
+                    machine.lastEarning = currentTime;
+
+                    // Update visual earnings
+                    const tile = document.querySelector(`[data-index="${machine.tile}"]`);
+                    const earningsElement = tile.querySelector('.machine-earnings');
+                    if (earningsElement) {
+                        earningsElement.textContent = `$${machine.totalEarned}`;
+                    }
+
+                    // Show floating money
+                    showFloatingMoney(tile, earnings);
+                }
+            });
+        }
+
+        function showFloatingMoney(tile, amount) {
+            const floatingMoney = document.createElement('div');
+            floatingMoney.className = 'floating-money';
+            floatingMoney.textContent = `+$${amount}`;
+            floatingMoney.style.left = '50%';
+            floatingMoney.style.top = '20%';
+            floatingMoney.style.transform = 'translateX(-50%)';
+            
+            tile.appendChild(floatingMoney);
+            
+            setTimeout(() => {
+                if (floatingMoney.parentNode) {
+                    floatingMoney.parentNode.removeChild(floatingMoney);
+                }
+            }, 2000);
+        }
+
+        function updateCustomers() {
+            customers.forEach((customer, index) => {
+                customer.playTime += 100;
+                
+                if (customer.playTime >= customer.maxPlayTime) {
+                    // Customer finished playing
+                    const customerElement = document.getElementById(`customer-${customer.id}`);
+                    if (customerElement && customerElement.parentNode) {
+                        customerElement.parentNode.removeChild(customerElement);
+                    }
+                    
+                    if (customer.targetMachine) {
+                        customer.targetMachine.customers = Math.max(0, customer.targetMachine.customers - 1);
+                    }
+                    
+                    customers.splice(index, 1);
+                }
+            });
+        }
+
+        function calculateIncome() {
+            gameState.income = gameState.arcadeMachines.reduce((total, machine) => {
+                return total + machine.earnings;
+            }, 0);
+        }
+
+        function updateDisplay() {
+            document.getElementById('money').textContent = `$${gameState.money.toLocaleString()}`;
+            document.getElementById('customers').textContent = customers.length;
+            document.getElementById('machines').textContent = gameState.machines;
+            document.getElementById('reputation').textContent = Math.min(100, Math.round(gameState.reputation));
+            document.getElementById('income').textContent = `$${gameState.income}`;
+            document.getElementById('day').textContent = gameState.day;
+        }
+
+        function addEvent(message, type) {
+            const eventsLog = document.getElementById('eventsLog');
+            const event = document.createElement('div');
+            event.className = `event ${type}`;
+            event.textContent = message;
+            
+            eventsLog.insertBefore(event, eventsLog.firstChild);
+            
+            // Keep only last 8 events
+            while (eventsLog.children.length > 8) {
+                eventsLog.removeChild(eventsLog.lastChild);
+            }
+        }
+
+        function simulateRandomEvents() {
+            if (Math.random() < 0.02) { // 2% chance per update
+                const events = [
+                    { message: '🎉 Gaming tournament brings extra customers!', type: 'success', effect: () => { 
+                        for (let i = 0; i < 3; i++) setTimeout(() => spawnCustomer(), i * 300);
+                        gameState.reputation += 5;
+                    }},
+                    { message: '⚡ Power surge! Some machines temporarily offline.', type: 'warning', effect: () => {
+                        gameState.income *= 0.8;
+                        setTimeout(() => calculateIncome(), 5000);
+                    }},
+                    { message: '🏆 Your arcade wins local gaming award!', type: 'success', effect: () => {
+                        gameState.reputation += 10;
+                        gameState.money += 2000;
+                    }},
+                    { message: '🎮 New gaming trend increases customer interest!', type: 'info', effect: () => {
+                        gameState.reputation += 3;
+                    }},
+                    { message: '💰 Loyal customer leaves big tip!', type: 'success', effect: () => {
+                        gameState.money += Math.floor(Math.random() * 500 + 200);
+                    }}
+                ];
+
+                const event = events[Math.floor(Math.random() * events.length)];
+                addEvent(event.message, event.type);
+                event.effect();
+            }
+        }
+
+        function advanceDay() {
+            gameState.day++;
+            gameState.reputation = Math.max(30, gameState.reputation - 2); // Reputation slowly decays
+            addEvent(`🌅 Day ${gameState.day} begins! Keep your customers happy!`, 'info');
+        }
+
+        function customerSpawnLoop() {
+            if (gameRunning) {
+                // Spawn customers based on reputation and number of machines
+                const spawnChance = Math.min(0.8, (gameState.reputation / 100) * (gameState.machines / 10));
+                
+                if (Math.random() < spawnChance && customers.length < 20) {
+                    spawnCustomer();
+                }
+                
+                setTimeout(customerSpawnLoop, 2000 + Math.random() * 3000);
+            }
+        }
+
+        function gameLoop() {
+            if (gameRunning) {
+                updateMachineEarnings();
+                updateCustomers();
+                calculateIncome();
+                simulateRandomEvents();
+                updateDisplay();
+                
+                // Advance day every 2 minutes
+                if (Date.now() % 120000 < 100) {
+                    advanceDay();
+                }
+            }
+            
+            setTimeout(gameLoop, 100);
+        }
+
+        // Initialize game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972eba51c1a23c35',t:'MTc1NTgyNzUxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

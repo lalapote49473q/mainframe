@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Tycoon Empire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .slot-machine {
+            animation: spin 0.5s ease-in-out;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        .money-animation {
+            animation: moneyFloat 2s ease-out forwards;
+        }
+        
+        @keyframes moneyFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+        
+        .casino-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .upgrade-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .customer-walk {
+            animation: walk 3s linear infinite;
+        }
+        
+        @keyframes walk {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(100px); }
+        }
+        
+        .jackpot-flash {
+            animation: jackpotFlash 0.5s ease-in-out 3;
+        }
+        
+        @keyframes jackpotFlash {
+            0%, 100% { background-color: rgba(255, 215, 0, 0.1); }
+            50% { background-color: rgba(255, 215, 0, 0.3); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-red-900 to-black min-h-screen text-white">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-6xl font-bold bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent mb-2">
+                🎰 Casino Tycoon Empire
+            </h1>
+            <p class="text-xl text-yellow-200">Build the ultimate gambling paradise!</p>
+        </div>
+
+        <!-- Main Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-center casino-glow">
+                <div class="text-3xl mb-2">💰</div>
+                <div class="text-2xl font-bold" id="money">$10,000</div>
+                <div class="text-sm text-green-200">Cash</div>
+            </div>
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-center">
+                <div class="text-3xl mb-2">👥</div>
+                <div class="text-2xl font-bold" id="customers">0</div>
+                <div class="text-sm text-blue-200">Customers</div>
+            </div>
+            <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl p-6 text-center">
+                <div class="text-3xl mb-2">⭐</div>
+                <div class="text-2xl font-bold" id="reputation">50</div>
+                <div class="text-sm text-purple-200">Reputation</div>
+            </div>
+            <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-xl p-6 text-center">
+                <div class="text-3xl mb-2">💎</div>
+                <div class="text-2xl font-bold" id="income">$0/sec</div>
+                <div class="text-sm text-yellow-200">Income</div>
+            </div>
+        </div>
+
+        <!-- Casino Floor -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <!-- Gaming Area -->
+            <div class="xl:col-span-2 space-y-6">
+                <!-- Slot Machines -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/30">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center">
+                        🎰 Slot Machine Floor
+                        <span class="ml-auto text-lg text-yellow-400" id="slotCount">0 machines</span>
+                    </h3>
+                    <div class="grid grid-cols-4 gap-4 mb-4" id="slotMachines">
+                        <!-- Slot machines will be generated here -->
+                    </div>
+                    <div class="text-center">
+                        <button onclick="buySlotMachine()" class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 px-6 py-3 rounded-lg font-bold transition-all duration-200 upgrade-pulse">
+                            Buy Slot Machine - $<span id="slotPrice">1000</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Tables -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-red-500/30">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center">
+                        🃏 Card Tables
+                        <span class="ml-auto text-lg text-red-400" id="tableCount">0 tables</span>
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4 mb-4" id="cardTables">
+                        <!-- Card tables will be generated here -->
+                    </div>
+                    <div class="text-center">
+                        <button onclick="buyCardTable()" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-6 py-3 rounded-lg font-bold transition-all duration-200">
+                            Buy Card Table - $<span id="tablePrice">5000</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Roulette Wheels -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-green-500/30">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center">
+                        🎯 Roulette Wheels
+                        <span class="ml-auto text-lg text-green-400" id="rouletteCount">0 wheels</span>
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4" id="rouletteWheels">
+                        <!-- Roulette wheels will be generated here -->
+                    </div>
+                    <div class="text-center">
+                        <button onclick="buyRoulette()" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-6 py-3 rounded-lg font-bold transition-all duration-200">
+                            Buy Roulette Wheel - $<span id="roulettePrice">15000</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management Panel -->
+            <div class="space-y-6">
+                <!-- Upgrades -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-purple-500/30">
+                    <h3 class="text-xl font-bold mb-4">🚀 Casino Upgrades</h3>
+                    <div class="space-y-3">
+                        <button onclick="buyUpgrade('security')" class="w-full bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg text-left transition-colors">
+                            <div class="font-semibold">🛡️ Enhanced Security</div>
+                            <div class="text-sm text-blue-200">Reduce theft, increase reputation</div>
+                            <div class="text-yellow-400">$<span id="securityPrice">25000</span></div>
+                        </button>
+                        
+                        <button onclick="buyUpgrade('vip')" class="w-full bg-purple-600 hover:bg-purple-700 py-3 px-4 rounded-lg text-left transition-colors">
+                            <div class="font-semibold">👑 VIP Lounge</div>
+                            <div class="text-sm text-purple-200">Attract high-roller customers</div>
+                            <div class="text-yellow-400">$<span id="vipPrice">50000</span></div>
+                        </button>
+                        
+                        <button onclick="buyUpgrade('marketing')" class="w-full bg-pink-600 hover:bg-pink-700 py-3 px-4 rounded-lg text-left transition-colors">
+                            <div class="font-semibold">📺 Marketing Campaign</div>
+                            <div class="text-sm text-pink-200">Increase customer flow</div>
+                            <div class="text-yellow-400">$<span id="marketingPrice">35000</span></div>
+                        </button>
+                        
+                        <button onclick="buyUpgrade('luxury')" class="w-full bg-yellow-600 hover:bg-yellow-700 py-3 px-4 rounded-lg text-left transition-colors">
+                            <div class="font-semibold">✨ Luxury Decor</div>
+                            <div class="text-sm text-yellow-200">Boost all game profits</div>
+                            <div class="text-yellow-400">$<span id="luxuryPrice">100000</span></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Staff -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-orange-500/30">
+                    <h3 class="text-xl font-bold mb-4">👨‍💼 Staff Management</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span>🎰 Slot Attendants</span>
+                            <div>
+                                <span id="slotStaff" class="font-bold">0</span>
+                                <button onclick="hireStaff('slot')" class="ml-2 bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-sm">
+                                    Hire $<span id="slotStaffPrice">2000</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span>🃏 Dealers</span>
+                            <div>
+                                <span id="dealers" class="font-bold">0</span>
+                                <button onclick="hireStaff('dealer')" class="ml-2 bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-sm">
+                                    Hire $<span id="dealerPrice">5000</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span>🛡️ Security Guards</span>
+                            <div>
+                                <span id="security" class="font-bold">0</span>
+                                <button onclick="hireStaff('security')" class="ml-2 bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-sm">
+                                    Hire $<span id="securityStaffPrice">3000</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-cyan-500/30">
+                    <h3 class="text-xl font-bold mb-4">📰 Casino News</h3>
+                    <div class="space-y-2 max-h-48 overflow-y-auto" id="events">
+                        <div class="text-center text-gray-400 py-4">
+                            Welcome to your casino!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-indigo-500/30">
+                    <h3 class="text-xl font-bold mb-4">⚡ Quick Actions</h3>
+                    <div class="space-y-2">
+                        <button onclick="hostEvent()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2 px-4 rounded font-medium transition-colors">
+                            🎉 Host Special Event - $10,000
+                        </button>
+                        <button onclick="runPromotion()" class="w-full bg-pink-600 hover:bg-pink-700 py-2 px-4 rounded font-medium transition-colors">
+                            🎁 Run Promotion - $5,000
+                        </button>
+                        <button onclick="expandCasino()" class="w-full bg-orange-600 hover:bg-orange-700 py-2 px-4 rounded font-medium transition-colors">
+                            🏗️ Expand Casino - $200,000
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Flow -->
+        <div class="mt-8 bg-black/30 rounded-xl p-4 border border-white/10">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold">👥 Customer Flow</span>
+                <span class="text-sm text-gray-400">Customers entering your casino</span>
+            </div>
+            <div class="relative h-16 bg-gray-800 rounded-lg overflow-hidden">
+                <div id="customerFlow" class="absolute top-1/2 transform -translate-y-1/2">
+                    <!-- Animated customers will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            money: 10000,
+            customers: 0,
+            reputation: 50,
+            income: 0,
+            
+            // Gaming Equipment
+            slotMachines: 0,
+            cardTables: 0,
+            rouletteWheels: 0,
+            
+            // Staff
+            slotStaff: 0,
+            dealers: 0,
+            securityStaff: 0,
+            
+            // Upgrades
+            upgrades: {
+                security: 0,
+                vip: 0,
+                marketing: 0,
+                luxury: 0
+            },
+            
+            // Prices
+            prices: {
+                slotMachine: 1000,
+                cardTable: 5000,
+                roulette: 15000,
+                slotStaff: 2000,
+                dealer: 5000,
+                securityStaff: 3000,
+                security: 25000,
+                vip: 50000,
+                marketing: 35000,
+                luxury: 100000
+            }
+        };
+
+        // Initialize game
+        function initializeGame() {
+            updateDisplay();
+            startGameLoop();
+            generateCustomers();
+            
+            addEvent("🎰 Welcome to Casino Tycoon! Start by buying your first slot machine.");
+        }
+
+        // Buy slot machine
+        function buySlotMachine() {
+            if (gameState.money >= gameState.prices.slotMachine) {
+                gameState.money -= gameState.prices.slotMachine;
+                gameState.slotMachines++;
+                gameState.prices.slotMachine = Math.floor(gameState.prices.slotMachine * 1.15);
+                
+                addSlotMachineToFloor();
+                addEvent(`🎰 Purchased new slot machine! Total: ${gameState.slotMachines}`);
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money for slot machine!");
+            }
+        }
+
+        // Buy card table
+        function buyCardTable() {
+            if (gameState.money >= gameState.prices.cardTable) {
+                gameState.money -= gameState.prices.cardTable;
+                gameState.cardTables++;
+                gameState.prices.cardTable = Math.floor(gameState.prices.cardTable * 1.15);
+                
+                addCardTableToFloor();
+                addEvent(`🃏 Purchased new card table! Total: ${gameState.cardTables}`);
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money for card table!");
+            }
+        }
+
+        // Buy roulette wheel
+        function buyRoulette() {
+            if (gameState.money >= gameState.prices.roulette) {
+                gameState.money -= gameState.prices.roulette;
+                gameState.rouletteWheels++;
+                gameState.prices.roulette = Math.floor(gameState.prices.roulette * 1.15);
+                
+                addRouletteToFloor();
+                addEvent(`🎯 Purchased new roulette wheel! Total: ${gameState.rouletteWheels}`);
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money for roulette wheel!");
+            }
+        }
+
+        // Add gaming equipment to floor
+        function addSlotMachineToFloor() {
+            const container = document.getElementById('slotMachines');
+            const slot = document.createElement('div');
+            slot.className = 'bg-yellow-600/20 border border-yellow-500 rounded-lg p-4 text-center cursor-pointer hover:bg-yellow-600/30 transition-colors slot-machine';
+            slot.innerHTML = `
+                <div class="text-2xl mb-2">🎰</div>
+                <div class="text-sm">Slot ${gameState.slotMachines}</div>
+            `;
+            slot.onclick = () => playSlot(slot);
+            container.appendChild(slot);
+        }
+
+        function addCardTableToFloor() {
+            const container = document.getElementById('cardTables');
+            const table = document.createElement('div');
+            table.className = 'bg-red-600/20 border border-red-500 rounded-lg p-4 text-center cursor-pointer hover:bg-red-600/30 transition-colors';
+            table.innerHTML = `
+                <div class="text-2xl mb-2">🃏</div>
+                <div class="text-sm">Table ${gameState.cardTables}</div>
+            `;
+            table.onclick = () => playCards(table);
+            container.appendChild(table);
+        }
+
+        function addRouletteToFloor() {
+            const container = document.getElementById('rouletteWheels');
+            const roulette = document.createElement('div');
+            roulette.className = 'bg-green-600/20 border border-green-500 rounded-lg p-4 text-center cursor-pointer hover:bg-green-600/30 transition-colors';
+            roulette.innerHTML = `
+                <div class="text-2xl mb-2">🎯</div>
+                <div class="text-sm">Wheel ${gameState.rouletteWheels}</div>
+            `;
+            roulette.onclick = () => playRoulette(roulette);
+            container.appendChild(roulette);
+        }
+
+        // Game interactions
+        function playSlot(element) {
+            element.classList.add('slot-machine');
+            setTimeout(() => element.classList.remove('slot-machine'), 500);
+            
+            const win = Math.random() < 0.3;
+            const amount = win ? Math.floor(Math.random() * 500 + 100) : Math.floor(Math.random() * 50 + 10);
+            
+            if (win) {
+                gameState.money += amount;
+                showMoneyAnimation(element, `+$${amount}`, 'text-green-400');
+                if (amount > 400) {
+                    element.classList.add('jackpot-flash');
+                    setTimeout(() => element.classList.remove('jackpot-flash'), 1500);
+                    addEvent(`🎉 JACKPOT! Customer won $${amount} on slot machine!`);
+                }
+            } else {
+                gameState.money += amount;
+                showMoneyAnimation(element, `+$${amount}`, 'text-yellow-400');
+            }
+        }
+
+        function playCards(element) {
+            const win = Math.random() < 0.4;
+            const amount = win ? Math.floor(Math.random() * 1000 + 200) : Math.floor(Math.random() * 200 + 50);
+            
+            gameState.money += amount;
+            showMoneyAnimation(element, `+$${amount}`, win ? 'text-green-400' : 'text-yellow-400');
+            
+            if (win && amount > 800) {
+                addEvent(`🃏 High roller won big at card table! +$${amount}`);
+            }
+        }
+
+        function playRoulette(element) {
+            const win = Math.random() < 0.35;
+            const amount = win ? Math.floor(Math.random() * 2000 + 500) : Math.floor(Math.random() * 300 + 100);
+            
+            gameState.money += amount;
+            showMoneyAnimation(element, `+$${amount}`, win ? 'text-green-400' : 'text-yellow-400');
+            
+            if (win && amount > 1500) {
+                addEvent(`🎯 Massive roulette win! Customer hit big for $${amount}!`);
+            }
+        }
+
+        // Show money animation
+        function showMoneyAnimation(element, text, colorClass) {
+            const animation = document.createElement('div');
+            animation.className = `absolute top-0 left-1/2 transform -translate-x-1/2 font-bold text-lg ${colorClass} money-animation pointer-events-none z-10`;
+            animation.textContent = text;
+            element.style.position = 'relative';
+            element.appendChild(animation);
+            
+            setTimeout(() => {
+                if (animation.parentNode) {
+                    animation.parentNode.removeChild(animation);
+                }
+            }, 2000);
+        }
+
+        // Hire staff
+        function hireStaff(type) {
+            const priceKey = type === 'slot' ? 'slotStaff' : type === 'dealer' ? 'dealer' : 'securityStaff';
+            const price = gameState.prices[priceKey];
+            
+            if (gameState.money >= price) {
+                gameState.money -= price;
+                gameState[type === 'slot' ? 'slotStaff' : type === 'dealer' ? 'dealers' : 'securityStaff']++;
+                gameState.prices[priceKey] = Math.floor(price * 1.2);
+                
+                const staffNames = {
+                    slot: 'slot attendant',
+                    dealer: 'dealer',
+                    security: 'security guard'
+                };
+                
+                addEvent(`👨‍💼 Hired new ${staffNames[type]}!`);
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money to hire staff!");
+            }
+        }
+
+        // Buy upgrades
+        function buyUpgrade(type) {
+            const price = gameState.prices[type];
+            
+            if (gameState.money >= price) {
+                gameState.money -= price;
+                gameState.upgrades[type]++;
+                gameState.prices[type] = Math.floor(price * 1.5);
+                
+                const upgradeMessages = {
+                    security: "🛡️ Enhanced security installed! Reputation +10",
+                    vip: "👑 VIP lounge opened! Attracting high rollers",
+                    marketing: "📺 Marketing campaign launched! More customers incoming",
+                    luxury: "✨ Luxury decor installed! All profits increased"
+                };
+                
+                if (type === 'security') gameState.reputation += 10;
+                
+                addEvent(upgradeMessages[type]);
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money for upgrade!");
+            }
+        }
+
+        // Special actions
+        function hostEvent() {
+            if (gameState.money >= 10000) {
+                gameState.money -= 10000;
+                gameState.reputation += 5;
+                gameState.customers += Math.floor(Math.random() * 50 + 20);
+                addEvent("🎉 Special event hosted! Reputation and customers increased!");
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money to host event!");
+            }
+        }
+
+        function runPromotion() {
+            if (gameState.money >= 5000) {
+                gameState.money -= 5000;
+                gameState.customers += Math.floor(Math.random() * 30 + 15);
+                addEvent("🎁 Promotion running! More customers attracted!");
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money for promotion!");
+            }
+        }
+
+        function expandCasino() {
+            if (gameState.money >= 200000) {
+                gameState.money -= 200000;
+                gameState.reputation += 20;
+                addEvent("🏗️ Casino expanded! Massive reputation boost!");
+                updateDisplay();
+            } else {
+                addEvent("❌ Not enough money to expand casino!");
+            }
+        }
+
+        // Calculate income
+        function calculateIncome() {
+            let income = 0;
+            
+            // Base income from equipment
+            income += gameState.slotMachines * 10;
+            income += gameState.cardTables * 25;
+            income += gameState.rouletteWheels * 50;
+            
+            // Staff bonuses
+            income += gameState.slotStaff * 5;
+            income += gameState.dealers * 15;
+            income += gameState.securityStaff * 8;
+            
+            // Upgrade bonuses
+            income *= (1 + gameState.upgrades.luxury * 0.2);
+            income *= (1 + gameState.upgrades.vip * 0.15);
+            income *= (1 + gameState.upgrades.marketing * 0.1);
+            
+            // Reputation bonus
+            income *= (1 + gameState.reputation / 1000);
+            
+            return Math.floor(income);
+        }
+
+        // Generate customers
+        function generateCustomers() {
+            setInterval(() => {
+                let newCustomers = Math.floor(Math.random() * 5 + 1);
+                
+                // Upgrade bonuses
+                newCustomers += gameState.upgrades.marketing * 2;
+                newCustomers += gameState.upgrades.vip;
+                
+                // Reputation bonus
+                newCustomers = Math.floor(newCustomers * (1 + gameState.reputation / 200));
+                
+                gameState.customers += newCustomers;
+                
+                // Show customer animation
+                showCustomerFlow(newCustomers);
+                
+                updateDisplay();
+            }, 3000);
+        }
+
+        // Show customer flow animation
+        function showCustomerFlow(count) {
+            const container = document.getElementById('customerFlow');
+            
+            for (let i = 0; i < Math.min(count, 5); i++) {
+                setTimeout(() => {
+                    const customer = document.createElement('div');
+                    customer.className = 'customer-walk text-2xl absolute';
+                    customer.textContent = ['🚶‍♂️', '🚶‍♀️', '🧑‍💼', '👩‍💼', '🕴️'][Math.floor(Math.random() * 5)];
+                    customer.style.top = Math.random() * 30 + 'px';
+                    container.appendChild(customer);
+                    
+                    setTimeout(() => {
+                        if (customer.parentNode) {
+                            customer.parentNode.removeChild(customer);
+                        }
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+
+        // Game loop
+        function startGameLoop() {
+            setInterval(() => {
+                gameState.income = calculateIncome();
+                gameState.money += gameState.income;
+                
+                // Random events
+                if (Math.random() < 0.02) {
+                    triggerRandomEvent();
+                }
+                
+                updateDisplay();
+            }, 1000);
+        }
+
+        // Random events
+        function triggerRandomEvent() {
+            const events = [
+                {
+                    message: "🎰 Lucky customer hit the jackpot!",
+                    effect: () => { gameState.money += Math.floor(Math.random() * 5000 + 2000); }
+                },
+                {
+                    message: "👮 Health inspector visit - small fine",
+                    effect: () => { gameState.money -= Math.floor(Math.random() * 1000 + 500); }
+                },
+                {
+                    message: "📺 Casino featured on TV! Reputation boost!",
+                    effect: () => { gameState.reputation += Math.floor(Math.random() * 10 + 5); }
+                },
+                {
+                    message: "🎉 Celebrity visited your casino!",
+                    effect: () => { 
+                        gameState.reputation += 15;
+                        gameState.customers += Math.floor(Math.random() * 100 + 50);
+                    }
+                },
+                {
+                    message: "⚡ Power outage - temporary income loss",
+                    effect: () => { gameState.money -= gameState.income * 5; }
+                }
+            ];
+            
+            const event = events[Math.floor(Math.random() * events.length)];
+            event.effect();
+            addEvent(event.message);
+        }
+
+        // Add event to news feed
+        function addEvent(message) {
+            const events = document.getElementById('events');
+            const event = document.createElement('div');
+            event.className = 'bg-white/5 rounded-lg p-3 border border-white/10 text-sm';
+            event.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <span>${message}</span>
+                    <span class="text-xs text-gray-400">${new Date().toLocaleTimeString()}</span>
+                </div>
+            `;
+            
+            if (events.children[0]?.textContent.includes('Welcome to your casino!')) {
+                events.innerHTML = '';
+            }
+            
+            events.insertBefore(event, events.firstChild);
+            
+            if (events.children.length > 8) {
+                events.removeChild(events.lastChild);
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('money').textContent = '$' + gameState.money.toLocaleString();
+            document.getElementById('customers').textContent = gameState.customers.toLocaleString();
+            document.getElementById('reputation').textContent = gameState.reputation;
+            document.getElementById('income').textContent = '$' + gameState.income.toLocaleString() + '/sec';
+            
+            // Equipment counts
+            document.getElementById('slotCount').textContent = gameState.slotMachines + ' machines';
+            document.getElementById('tableCount').textContent = gameState.cardTables + ' tables';
+            document.getElementById('rouletteCount').textContent = gameState.rouletteWheels + ' wheels';
+            
+            // Prices
+            document.getElementById('slotPrice').textContent = gameState.prices.slotMachine.toLocaleString();
+            document.getElementById('tablePrice').textContent = gameState.prices.cardTable.toLocaleString();
+            document.getElementById('roulettePrice').textContent = gameState.prices.roulette.toLocaleString();
+            
+            // Staff
+            document.getElementById('slotStaff').textContent = gameState.slotStaff;
+            document.getElementById('dealers').textContent = gameState.dealers;
+            document.getElementById('security').textContent = gameState.securityStaff;
+            
+            // Staff prices
+            document.getElementById('slotStaffPrice').textContent = gameState.prices.slotStaff.toLocaleString();
+            document.getElementById('dealerPrice').textContent = gameState.prices.dealer.toLocaleString();
+            document.getElementById('securityStaffPrice').textContent = gameState.prices.securityStaff.toLocaleString();
+            
+            // Upgrade prices
+            document.getElementById('securityPrice').textContent = gameState.prices.security.toLocaleString();
+            document.getElementById('vipPrice').textContent = gameState.prices.vip.toLocaleString();
+            document.getElementById('marketingPrice').textContent = gameState.prices.marketing.toLocaleString();
+            document.getElementById('luxuryPrice').textContent = gameState.prices.luxury.toLocaleString();
+        }
+
+        // Initialize the game
+        initializeGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972ebbd650d1cf2b',t:'MTc1NTgyNzU3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

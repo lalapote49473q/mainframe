@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .school-view {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .time { color: #3498db; }
+        .students { color: #2ecc71; }
+        .teachers { color: #e67e22; }
+        .budget { color: #f1c40f; }
+        .happiness { color: #e74c3c; }
+        .reputation { color: #9b59b6; }
+
+        .school-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+
+        .room {
+            background: #34495e;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 60px;
+            padding: 5px;
+        }
+
+        .room:hover {
+            background: #4a6741;
+            transform: scale(1.05);
+        }
+
+        .room.classroom { background: #3498db; }
+        .room.library { background: #9b59b6; }
+        .room.cafeteria { background: #e67e22; }
+        .room.gym { background: #e74c3c; }
+        .room.office { background: #f39c12; }
+        .room.hallway { background: #95a5a6; }
+
+        .room-icon {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .room-name {
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .room-occupancy {
+            font-size: 0.6rem;
+            opacity: 0.8;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.5);
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        .person {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s ease;
+        }
+
+        .student { background: #2ecc71; }
+        .teacher { background: #e67e22; }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn.success {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn.success:hover {
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn.warning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn.warning:hover {
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .events-log {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .event {
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            border-left: 3px solid;
+        }
+
+        .event.info { 
+            background: rgba(52, 152, 219, 0.2); 
+            border-color: #3498db; 
+        }
+
+        .event.success { 
+            background: rgba(46, 204, 113, 0.2); 
+            border-color: #2ecc71; 
+        }
+
+        .event.warning { 
+            background: rgba(243, 156, 18, 0.2); 
+            border-color: #f39c12; 
+        }
+
+        .event.danger { 
+            background: rgba(231, 76, 60, 0.2); 
+            border-color: #e74c3c; 
+        }
+
+        .room-details {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .room-details h4 {
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            height: 8px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .happiness-bar { background: #e74c3c; }
+        .learning-bar { background: #3498db; }
+        .energy-bar { background: #f1c40f; }
+
+        @media (max-width: 1000px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .school-grid {
+                grid-template-columns: repeat(6, 1fr);
+                grid-template-rows: repeat(8, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .school-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(12, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">🏫 School Simulator</h1>
+        <p class="subtitle">Manage your school and keep everyone happy!</p>
+    </div>
+
+    <div class="main-container">
+        <div class="school-view">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value time" id="currentTime">8:00 AM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Students</div>
+                    <div class="stat-value students" id="studentCount">150</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Teachers</div>
+                    <div class="stat-value teachers" id="teacherCount">12</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Budget</div>
+                    <div class="stat-value budget" id="budget">$50,000</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Happiness</div>
+                    <div class="stat-value happiness" id="happiness">75%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Reputation</div>
+                    <div class="stat-value reputation" id="reputation">80%</div>
+                </div>
+            </div>
+
+            <div class="school-grid" id="schoolGrid"></div>
+
+            <div class="room-details" id="roomDetails">
+                <h4>Select a room to view details</h4>
+                <p>Click on any room in the school to see what's happening there.</p>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="action-buttons">
+                <button class="btn" onclick="startDay()">Start Day</button>
+                <button class="btn success" onclick="hireTeacher()">Hire Teacher</button>
+                <button class="btn warning" onclick="organizeEvent()">School Event</button>
+                <button class="btn" onclick="upgradeRoom()">Upgrade Room</button>
+            </div>
+
+            <div class="events-log" id="eventsLog">
+                <div class="event info">Welcome to your school! Click 'Start Day' to begin.</div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px;">School Progress</h4>
+                <div style="margin-bottom: 8px;">
+                    <small>Overall Happiness</small>
+                    <div class="progress-bar">
+                        <div class="progress-fill happiness-bar" id="happinessBar" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <small>Learning Quality</small>
+                    <div class="progress-bar">
+                        <div class="progress-fill learning-bar" id="learningBar" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <small>School Energy</small>
+                    <div class="progress-bar">
+                        <div class="progress-fill energy-bar" id="energyBar" style="width: 80%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            time: 8,
+            day: 1,
+            students: 150,
+            teachers: 12,
+            budget: 50000,
+            happiness: 75,
+            reputation: 80,
+            learning: 70,
+            energy: 80,
+            dayInProgress: false,
+            selectedRoom: null,
+            events: []
+        };
+
+        const rooms = [
+            { id: 'classroom1', name: 'Math Class', type: 'classroom', icon: '📚', capacity: 30, occupancy: 0 },
+            { id: 'classroom2', name: 'Science Lab', type: 'classroom', icon: '🔬', capacity: 25, occupancy: 0 },
+            { id: 'classroom3', name: 'English Class', type: 'classroom', icon: '📖', capacity: 30, occupancy: 0 },
+            { id: 'classroom4', name: 'History Class', type: 'classroom', icon: '🏛️', capacity: 30, occupancy: 0 },
+            { id: 'library', name: 'Library', type: 'library', icon: '📚', capacity: 50, occupancy: 0 },
+            { id: 'cafeteria', name: 'Cafeteria', type: 'cafeteria', icon: '🍽️', capacity: 100, occupancy: 0 },
+            { id: 'gym', name: 'Gymnasium', type: 'gym', icon: '🏃', capacity: 60, occupancy: 0 },
+            { id: 'office', name: 'Principal Office', type: 'office', icon: '🏢', capacity: 10, occupancy: 0 },
+            { id: 'hallway1', name: 'Main Hall', type: 'hallway', icon: '🚶', capacity: 80, occupancy: 0 },
+            { id: 'hallway2', name: 'East Wing', type: 'hallway', icon: '🚶', capacity: 60, occupancy: 0 },
+            { id: 'classroom5', name: 'Art Room', type: 'classroom', icon: '🎨', capacity: 25, occupancy: 0 },
+            { id: 'classroom6', name: 'Music Room', type: 'classroom', icon: '🎵', capacity: 25, occupancy: 0 },
+            { id: 'computer', name: 'Computer Lab', type: 'classroom', icon: '💻', capacity: 30, occupancy: 0 },
+            { id: 'nurse', name: 'Nurse Office', type: 'office', icon: '🏥', capacity: 5, occupancy: 0 },
+            { id: 'storage', name: 'Storage', type: 'hallway', icon: '📦', capacity: 10, occupancy: 0 },
+            { id: 'playground', name: 'Playground', type: 'gym', icon: '🎪', capacity: 80, occupancy: 0 }
+        ];
+
+        let people = [];
+
+        function initGame() {
+            createSchoolGrid();
+            createPeople();
+            updateDisplay();
+            gameLoop();
+        }
+
+        function createSchoolGrid() {
+            const grid = document.getElementById('schoolGrid');
+            grid.innerHTML = '';
+
+            rooms.forEach((room, index) => {
+                const roomElement = document.createElement('div');
+                roomElement.className = `room ${room.type}`;
+                roomElement.id = room.id;
+                roomElement.onclick = () => selectRoom(room);
+
+                roomElement.innerHTML = `
+                    <div class="room-icon">${room.icon}</div>
+                    <div class="room-name">${room.name}</div>
+                    <div class="room-occupancy">${room.occupancy}/${room.capacity}</div>
+                `;
+
+                grid.appendChild(roomElement);
+            });
+        }
+
+        function createPeople() {
+            people = [];
+            
+            // Create students
+            for (let i = 0; i < gameState.students; i++) {
+                people.push({
+                    id: `student-${i}`,
+                    type: 'student',
+                    currentRoom: getRandomRoom(),
+                    happiness: Math.random() * 40 + 60,
+                    energy: Math.random() * 40 + 60,
+                    schedule: generateSchedule('student')
+                });
+            }
+
+            // Create teachers
+            for (let i = 0; i < gameState.teachers; i++) {
+                people.push({
+                    id: `teacher-${i}`,
+                    type: 'teacher',
+                    currentRoom: getRandomClassroom(),
+                    happiness: Math.random() * 30 + 70,
+                    energy: Math.random() * 30 + 70,
+                    schedule: generateSchedule('teacher')
+                });
+            }
+        }
+
+        function generateSchedule(type) {
+            const schedule = {};
+            if (type === 'student') {
+                schedule[8] = 'classroom1';
+                schedule[9] = 'classroom2';
+                schedule[10] = 'library';
+                schedule[11] = 'classroom3';
+                schedule[12] = 'cafeteria';
+                schedule[13] = 'gym';
+                schedule[14] = 'classroom4';
+                schedule[15] = 'hallway1';
+            } else {
+                schedule[8] = 'classroom1';
+                schedule[9] = 'classroom1';
+                schedule[10] = 'office';
+                schedule[11] = 'classroom2';
+                schedule[12] = 'cafeteria';
+                schedule[13] = 'classroom3';
+                schedule[14] = 'classroom4';
+                schedule[15] = 'office';
+            }
+            return schedule;
+        }
+
+        function getRandomRoom() {
+            return rooms[Math.floor(Math.random() * rooms.length)].id;
+        }
+
+        function getRandomClassroom() {
+            const classrooms = rooms.filter(room => room.type === 'classroom');
+            return classrooms[Math.floor(Math.random() * classrooms.length)].id;
+        }
+
+        function selectRoom(room) {
+            gameState.selectedRoom = room;
+            const peopleInRoom = people.filter(person => person.currentRoom === room.id);
+            const students = peopleInRoom.filter(p => p.type === 'student').length;
+            const teachers = peopleInRoom.filter(p => p.type === 'teacher').length;
+
+            document.getElementById('roomDetails').innerHTML = `
+                <h4>${room.icon} ${room.name}</h4>
+                <p><strong>Capacity:</strong> ${room.occupancy}/${room.capacity}</p>
+                <p><strong>Students:</strong> ${students}</p>
+                <p><strong>Teachers:</strong> ${teachers}</p>
+                <p><strong>Type:</strong> ${room.type}</p>
+                ${room.occupancy > room.capacity ? '<p style="color: #e74c3c;"><strong>⚠️ Overcrowded!</strong></p>' : ''}
+            `;
+        }
+
+        function startDay() {
+            if (gameState.dayInProgress) return;
+            
+            gameState.dayInProgress = true;
+            gameState.time = 8;
+            addEvent('🌅 School day started!', 'info');
+            
+            // Reset room occupancies
+            rooms.forEach(room => room.occupancy = 0);
+            
+            // Move people to their scheduled locations
+            movePeopleToScheduledRooms();
+        }
+
+        function movePeopleToScheduledRooms() {
+            people.forEach(person => {
+                const scheduledRoom = person.schedule[gameState.time];
+                if (scheduledRoom) {
+                    person.currentRoom = scheduledRoom;
+                }
+            });
+            updateRoomOccupancy();
+        }
+
+        function updateRoomOccupancy() {
+            // Reset occupancy
+            rooms.forEach(room => room.occupancy = 0);
+            
+            // Count people in each room
+            people.forEach(person => {
+                const room = rooms.find(r => r.id === person.currentRoom);
+                if (room) {
+                    room.occupancy++;
+                }
+            });
+
+            // Update visual occupancy
+            rooms.forEach(room => {
+                const roomElement = document.getElementById(room.id);
+                if (roomElement) {
+                    const occupancyElement = roomElement.querySelector('.room-occupancy');
+                    occupancyElement.textContent = `${room.occupancy}/${room.capacity}`;
+                    
+                    // Add overcrowding visual indicator
+                    if (room.occupancy > room.capacity) {
+                        roomElement.style.boxShadow = '0 0 10px #e74c3c';
+                    } else {
+                        roomElement.style.boxShadow = 'none';
+                    }
+                }
+            });
+        }
+
+        function hireTeacher() {
+            if (gameState.budget < 5000) {
+                addEvent('❌ Not enough budget to hire teacher!', 'danger');
+                return;
+            }
+
+            gameState.teachers++;
+            gameState.budget -= 5000;
+            gameState.learning += 5;
+            gameState.happiness += 3;
+
+            // Add new teacher
+            people.push({
+                id: `teacher-${gameState.teachers}`,
+                type: 'teacher',
+                currentRoom: getRandomClassroom(),
+                happiness: 80,
+                energy: 80,
+                schedule: generateSchedule('teacher')
+            });
+
+            addEvent('👩‍🏫 New teacher hired! Learning quality improved.', 'success');
+            updateDisplay();
+        }
+
+        function organizeEvent() {
+            if (gameState.budget < 2000) {
+                addEvent('❌ Not enough budget for school event!', 'danger');
+                return;
+            }
+
+            const events = [
+                { name: 'Science Fair', happiness: 10, reputation: 8, cost: 2000 },
+                { name: 'Sports Day', happiness: 15, energy: 10, cost: 1500 },
+                { name: 'Art Exhibition', happiness: 8, reputation: 12, cost: 1800 },
+                { name: 'Music Concert', happiness: 12, reputation: 10, cost: 2200 }
+            ];
+
+            const event = events[Math.floor(Math.random() * events.length)];
+            
+            gameState.budget -= event.cost;
+            gameState.happiness = Math.min(100, gameState.happiness + event.happiness);
+            if (event.reputation) gameState.reputation = Math.min(100, gameState.reputation + event.reputation);
+            if (event.energy) gameState.energy = Math.min(100, gameState.energy + event.energy);
+
+            addEvent(`🎉 ${event.name} organized! Everyone loved it!`, 'success');
+            updateDisplay();
+        }
+
+        function upgradeRoom() {
+            if (!gameState.selectedRoom) {
+                addEvent('❌ Select a room first!', 'warning');
+                return;
+            }
+
+            if (gameState.budget < 3000) {
+                addEvent('❌ Not enough budget to upgrade room!', 'danger');
+                return;
+            }
+
+            gameState.budget -= 3000;
+            gameState.selectedRoom.capacity += 10;
+            gameState.learning += 3;
+            gameState.happiness += 2;
+
+            addEvent(`🔧 ${gameState.selectedRoom.name} upgraded! Capacity increased.`, 'success');
+            updateDisplay();
+            updateRoomOccupancy();
+        }
+
+        function addEvent(message, type) {
+            const eventsLog = document.getElementById('eventsLog');
+            const event = document.createElement('div');
+            event.className = `event ${type}`;
+            event.textContent = message;
+            
+            eventsLog.insertBefore(event, eventsLog.firstChild);
+            
+            // Keep only last 10 events
+            while (eventsLog.children.length > 10) {
+                eventsLog.removeChild(eventsLog.lastChild);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentTime').textContent = formatTime(gameState.time);
+            document.getElementById('studentCount').textContent = gameState.students;
+            document.getElementById('teacherCount').textContent = gameState.teachers;
+            document.getElementById('budget').textContent = `$${gameState.budget.toLocaleString()}`;
+            document.getElementById('happiness').textContent = `${Math.round(gameState.happiness)}%`;
+            document.getElementById('reputation').textContent = `${Math.round(gameState.reputation)}%`;
+
+            // Update progress bars
+            document.getElementById('happinessBar').style.width = `${gameState.happiness}%`;
+            document.getElementById('learningBar').style.width = `${gameState.learning}%`;
+            document.getElementById('energyBar').style.width = `${gameState.energy}%`;
+        }
+
+        function formatTime(hour) {
+            const period = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : hour;
+            return `${displayHour}:00 ${period}`;
+        }
+
+        function simulateRandomEvents() {
+            if (!gameState.dayInProgress) return;
+
+            const randomEvents = [
+                { message: '📚 Students are engaged in learning!', type: 'success', effect: () => gameState.learning += 1 },
+                { message: '😴 Some students look tired...', type: 'warning', effect: () => gameState.energy -= 2 },
+                { message: '🎯 Great teaching moment in classroom!', type: 'success', effect: () => gameState.happiness += 2 },
+                { message: '🍎 Healthy lunch served in cafeteria!', type: 'info', effect: () => gameState.energy += 3 },
+                { message: '⚠️ Minor discipline issue resolved.', type: 'warning', effect: () => gameState.happiness -= 1 },
+                { message: '🏆 Student achievement recognized!', type: 'success', effect: () => gameState.reputation += 2 }
+            ];
+
+            if (Math.random() < 0.3) { // 30% chance per update
+                const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+                addEvent(event.message, event.type);
+                event.effect();
+                
+                // Keep values in bounds
+                gameState.happiness = Math.max(0, Math.min(100, gameState.happiness));
+                gameState.learning = Math.max(0, Math.min(100, gameState.learning));
+                gameState.energy = Math.max(0, Math.min(100, gameState.energy));
+                gameState.reputation = Math.max(0, Math.min(100, gameState.reputation));
+            }
+        }
+
+        function advanceTime() {
+            if (!gameState.dayInProgress) return;
+
+            gameState.time++;
+            
+            if (gameState.time > 15) { // End of school day
+                gameState.dayInProgress = false;
+                gameState.day++;
+                addEvent('🌅 School day ended! Great job managing the school.', 'info');
+                
+                // Daily budget increase
+                gameState.budget += 1000;
+                addEvent('💰 Daily budget allocation received: +$1,000', 'success');
+            } else {
+                movePeopleToScheduledRooms();
+            }
+        }
+
+        function gameLoop() {
+            updateRoomOccupancy();
+            simulateRandomEvents();
+            updateDisplay();
+            
+            // Advance time every 3 seconds during school day
+            if (gameState.dayInProgress) {
+                setTimeout(advanceTime, 3000);
+            }
+            
+            setTimeout(gameLoop, 1000);
+        }
+
+        // Initialize game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972eaa5090819e56',t:'MTc1NTgyNjg1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

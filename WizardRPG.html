@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c1810 0%, #1a0f0a 50%, #0d0704 100%);
+            min-height: 100vh;
+            color: #f4e4c1;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="%23ffd700" opacity="0.3"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle><circle cx="80" cy="30" r="0.5" fill="%23ffd700" opacity="0.5"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/></circle><circle cx="60" cy="70" r="0.8" fill="%23ffd700" opacity="0.4"><animate attributeName="opacity" values="0.4;1;0.4" dur="4s" repeatCount="indefinite"/></circle></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #8b4513, #a0522d);
+            color: #f4e4c1;
+            border: 2px solid #daa520;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #a0522d, #8b4513);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(218, 165, 32, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 3px solid #daa520;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #daa520;
+            background: linear-gradient(45deg, #daa520, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #cd853f;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .character-panel, .spells-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(218, 165, 32, 0.3);
+            height: fit-content;
+            box-shadow: 0 0 30px rgba(218, 165, 32, 0.1);
+        }
+
+        .game-area {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(218, 165, 32, 0.3);
+            min-height: 600px;
+        }
+
+        .character-stats {
+            margin-bottom: 20px;
+        }
+
+        .character-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #daa520;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #daa520;
+        }
+
+        .stat-bar {
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .health-bar { background: linear-gradient(90deg, #dc143c, #ff6347); }
+        .mana-bar { background: linear-gradient(90deg, #4169e1, #87ceeb); }
+        .exp-bar { background: linear-gradient(90deg, #daa520, #ffd700); }
+
+        .spell-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .spell-button {
+            background: linear-gradient(45deg, #4b0082, #663399);
+            color: #f4e4c1;
+            border: 2px solid #daa520;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spell-button:hover {
+            background: linear-gradient(45deg, #663399, #4b0082);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(218, 165, 32, 0.4);
+        }
+
+        .spell-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spell-button.fire { border-color: #ff4500; background: linear-gradient(45deg, #8b0000, #dc143c); }
+        .spell-button.ice { border-color: #00bfff; background: linear-gradient(45deg, #191970, #4169e1); }
+        .spell-button.lightning { border-color: #ffff00; background: linear-gradient(45deg, #4b0082, #9932cc); }
+        .spell-button.healing { border-color: #32cd32; background: linear-gradient(45deg, #006400, #228b22); }
+
+        .dungeon-view {
+            background: rgba(0,0,0,0.8);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            min-height: 300px;
+            position: relative;
+        }
+
+        .dungeon-floor {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            height: 250px;
+        }
+
+        .dungeon-tile {
+            background: #2c1810;
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dungeon-tile:hover {
+            background: rgba(218, 165, 32, 0.2);
+            transform: scale(1.1);
+        }
+
+        .dungeon-tile.player { background: linear-gradient(45deg, #daa520, #ffd700); }
+        .dungeon-tile.monster { background: linear-gradient(45deg, #8b0000, #dc143c); }
+        .dungeon-tile.treasure { background: linear-gradient(45deg, #ffd700, #ffff00); }
+        .dungeon-tile.stairs { background: linear-gradient(45deg, #8b4513, #a0522d); }
+        .dungeon-tile.wall { background: #1a1a1a; }
+
+        .combat-area {
+            background: rgba(139, 0, 0, 0.3);
+            border: 2px solid #dc143c;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .combat-area.active {
+            display: block;
+            animation: combatStart 0.5s ease-out;
+        }
+
+        @keyframes combatStart {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .enemy-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .enemy-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc143c;
+            margin-bottom: 10px;
+        }
+
+        .enemy-health {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 20px;
+            margin: 0 auto;
+            width: 200px;
+            overflow: hidden;
+            border: 1px solid #dc143c;
+        }
+
+        .enemy-health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6347);
+            transition: width 0.3s ease;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #daa520, #ffd700);
+            color: #000;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(218, 165, 32, 0.4);
+            background: linear-gradient(45deg, #ffd700, #daa520);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #dc143c, #ff6347);
+            color: white;
+        }
+
+        .btn.danger:hover {
+            background: linear-gradient(45deg, #ff6347, #dc143c);
+        }
+
+        .inventory {
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .inventory-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #daa520;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .inventory-slot {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .inventory-slot:hover {
+            background: rgba(218, 165, 32, 0.2);
+        }
+
+        .inventory-slot.has-item {
+            border-color: #daa520;
+            background: rgba(218, 165, 32, 0.1);
+        }
+
+        .game-log {
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(218, 165, 32, 0.1);
+            font-size: 0.9rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-entry.damage { color: #ff6347; }
+        .log-entry.healing { color: #32cd32; }
+        .log-entry.info { color: #87ceeb; }
+        .log-entry.loot { color: #ffd700; }
+
+        .floating-damage {
+            position: absolute;
+            color: #ff6347;
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: floatDamage 2s ease-out forwards;
+            text-shadow: 0 0 5px #ff6347;
+            z-index: 100;
+        }
+
+        .floating-heal {
+            position: absolute;
+            color: #32cd32;
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: floatDamage 2s ease-out forwards;
+            text-shadow: 0 0 5px #32cd32;
+            z-index: 100;
+        }
+
+        @keyframes floatDamage {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .character-panel, .spells-panel {
+                order: 2;
+            }
+            
+            .game-area {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .spell-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dungeon-floor {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ← Back to Main
+    </a>
+
+    <div class="header">
+        <h1 class="title">🧙‍♂️ WIZARD RPG</h1>
+        <p class="subtitle">Master the Arcane Arts and Conquer the Dungeons</p>
+    </div>
+
+    <div class="main-container">
+        <div class="character-panel">
+            <div class="character-stats">
+                <div class="character-name" id="characterName">Archmage Eldrin</div>
+                
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>Health</span>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill health-bar" id="healthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>Mana</span>
+                        <span id="manaText">80/80</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill mana-bar" id="manaBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>Experience</span>
+                        <span id="expText">0/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill exp-bar" id="expBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>Level</span>
+                        <span id="levelText">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inventory">
+                <div class="inventory-title">📦 Inventory</div>
+                <div class="inventory-grid" id="inventoryGrid"></div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="dungeon-view">
+                <h3 style="text-align: center; margin-bottom: 15px; color: #daa520;">🏰 Dungeon Level <span id="dungeonLevel">1</span></h3>
+                <div class="dungeon-floor" id="dungeonFloor"></div>
+            </div>
+
+            <div class="combat-area" id="combatArea">
+                <div class="enemy-info">
+                    <div class="enemy-name" id="enemyName">Goblin Warrior</div>
+                    <div class="enemy-health">
+                        <div class="enemy-health-fill" id="enemyHealthBar" style="width: 100%"></div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <span id="enemyHealthText">50/50 HP</span>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="playerAttack()">⚔️ Attack</button>
+                    <button class="btn" onclick="castSpellInCombat()">🔮 Cast Spell</button>
+                    <button class="btn danger" onclick="attemptFlee()">🏃 Flee</button>
+                    <button class="btn" onclick="usePotion()">🧪 Potion</button>
+                </div>
+            </div>
+
+            <div class="game-log" id="gameLog"></div>
+        </div>
+
+        <div class="spells-panel">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #daa520;">🔮 Spellbook</h3>
+            
+            <div class="spell-grid">
+                <button class="spell-button fire" onclick="selectSpell('fireball')" id="fireball">
+                    🔥 Fireball<br><small>25 Mana</small>
+                </button>
+                <button class="spell-button ice" onclick="selectSpell('frostbolt')" id="frostbolt">
+                    ❄️ Frostbolt<br><small>20 Mana</small>
+                </button>
+                <button class="spell-button lightning" onclick="selectSpell('lightning')" id="lightning">
+                    ⚡ Lightning<br><small>30 Mana</small>
+                </button>
+                <button class="spell-button healing" onclick="selectSpell('heal')" id="heal">
+                    💚 Heal<br><small>15 Mana</small>
+                </button>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h4 style="color: #daa520; margin-bottom: 10px;">🎯 Selected Spell</h4>
+                <div id="selectedSpell" style="text-align: center; padding: 10px; background: rgba(0,0,0,0.6); border-radius: 8px;">
+                    None selected
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 20px;">
+                <button class="btn" onclick="exploreRoom()">🚪 Explore</button>
+                <button class="btn" onclick="restAtCampfire()">🔥 Rest</button>
+                <button class="btn" onclick="nextLevel()">⬇️ Descend</button>
+                <button class="btn danger" onclick="resetGame()">🔄 New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            player: {
+                name: "Archmage Eldrin",
+                level: 1,
+                health: 100,
+                maxHealth: 100,
+                mana: 80,
+                maxMana: 80,
+                experience: 0,
+                expToNext: 100,
+                x: 0,
+                y: 0
+            },
+            dungeon: {
+                level: 1,
+                width: 8,
+                height: 4,
+                tiles: [],
+                monsters: [],
+                treasures: []
+            },
+            combat: {
+                active: false,
+                enemy: null,
+                selectedSpell: null
+            },
+            inventory: [],
+            spells: {
+                fireball: { name: "Fireball", cost: 25, damage: [20, 35], type: "fire" },
+                frostbolt: { name: "Frostbolt", cost: 20, damage: [15, 25], type: "ice" },
+                lightning: { name: "Lightning", cost: 30, damage: [25, 40], type: "lightning" },
+                heal: { name: "Heal", cost: 15, healing: [20, 35], type: "healing" }
+            }
+        };
+
+        const monsters = [
+            { name: "Goblin Scout", health: 30, damage: [5, 12], exp: 15, loot: ["Health Potion"] },
+            { name: "Orc Warrior", health: 50, damage: [8, 18], exp: 25, loot: ["Mana Potion", "Gold"] },
+            { name: "Dark Wizard", health: 40, damage: [12, 20], exp: 30, loot: ["Spell Scroll", "Magic Crystal"] },
+            { name: "Stone Golem", health: 80, damage: [15, 25], exp: 40, loot: ["Rare Gem", "Gold"] },
+            { name: "Shadow Beast", health: 60, damage: [10, 22], exp: 35, loot: ["Dark Essence", "Health Potion"] }
+        ];
+
+        function initGame() {
+            generateDungeon();
+            updateDisplay();
+            updateInventory();
+            addLogEntry("🌟 Welcome to the Wizard RPG! Explore the dungeon and master your spells.", "info");
+        }
+
+        function generateDungeon() {
+            const { width, height } = gameState.dungeon;
+            gameState.dungeon.tiles = [];
+            gameState.dungeon.monsters = [];
+            gameState.dungeon.treasures = [];
+
+            // Create empty dungeon
+            for (let i = 0; i < width * height; i++) {
+                gameState.dungeon.tiles.push({
+                    type: Math.random() < 0.2 ? 'wall' : 'floor',
+                    occupied: false,
+                    content: null
+                });
+            }
+
+            // Place player at start
+            gameState.player.x = 0;
+            gameState.player.y = 0;
+            gameState.dungeon.tiles[0].type = 'floor';
+            gameState.dungeon.tiles[0].occupied = true;
+            gameState.dungeon.tiles[0].content = 'player';
+
+            // Place stairs at end
+            const stairIndex = width * height - 1;
+            gameState.dungeon.tiles[stairIndex].type = 'stairs';
+            gameState.dungeon.tiles[stairIndex].content = 'stairs';
+
+            // Place monsters
+            const monsterCount = Math.min(5, Math.floor(gameState.dungeon.level * 1.5));
+            for (let i = 0; i < monsterCount; i++) {
+                let attempts = 0;
+                while (attempts < 20) {
+                    const index = Math.floor(Math.random() * (width * height));
+                    const tile = gameState.dungeon.tiles[index];
+                    
+                    if (tile.type === 'floor' && !tile.occupied && index !== 0 && index !== stairIndex) {
+                        tile.occupied = true;
+                        tile.content = 'monster';
+                        
+                        const monsterTemplate = monsters[Math.floor(Math.random() * monsters.length)];
+                        gameState.dungeon.monsters.push({
+                            ...monsterTemplate,
+                            id: Date.now() + i,
+                            x: index % width,
+                            y: Math.floor(index / width),
+                            maxHealth: monsterTemplate.health
+                        });
+                        break;
+                    }
+                    attempts++;
+                }
+            }
+
+            // Place treasures
+            const treasureCount = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < treasureCount; i++) {
+                let attempts = 0;
+                while (attempts < 20) {
+                    const index = Math.floor(Math.random() * (width * height));
+                    const tile = gameState.dungeon.tiles[index];
+                    
+                    if (tile.type === 'floor' && !tile.occupied && index !== 0 && index !== stairIndex) {
+                        tile.occupied = true;
+                        tile.content = 'treasure';
+                        
+                        gameState.dungeon.treasures.push({
+                            id: Date.now() + i + 1000,
+                            x: index % width,
+                            y: Math.floor(index / width),
+                            items: generateTreasure()
+                        });
+                        break;
+                    }
+                    attempts++;
+                }
+            }
+
+            renderDungeon();
+        }
+
+        function generateTreasure() {
+            const treasures = [
+                "Health Potion", "Mana Potion", "Gold", "Magic Crystal", 
+                "Spell Scroll", "Rare Gem", "Ancient Tome", "Mystic Orb"
+            ];
+            
+            const count = Math.floor(Math.random() * 2) + 1;
+            const items = [];
+            
+            for (let i = 0; i < count; i++) {
+                items.push(treasures[Math.floor(Math.random() * treasures.length)]);
+            }
+            
+            return items;
+        }
+
+        function renderDungeon() {
+            const floor = document.getElementById('dungeonFloor');
+            floor.innerHTML = '';
+
+            gameState.dungeon.tiles.forEach((tile, index) => {
+                const tileElement = document.createElement('div');
+                tileElement.className = `dungeon-tile ${tile.type}`;
+                tileElement.dataset.index = index;
+                
+                if (tile.content === 'player') {
+                    tileElement.innerHTML = '🧙‍♂️';
+                    tileElement.classList.add('player');
+                } else if (tile.content === 'monster') {
+                    tileElement.innerHTML = '👹';
+                    tileElement.classList.add('monster');
+                } else if (tile.content === 'treasure') {
+                    tileElement.innerHTML = '💎';
+                    tileElement.classList.add('treasure');
+                } else if (tile.content === 'stairs') {
+                    tileElement.innerHTML = '🪜';
+                    tileElement.classList.add('stairs');
+                } else if (tile.type === 'wall') {
+                    tileElement.innerHTML = '🧱';
+                }
+
+                tileElement.addEventListener('click', () => movePlayer(index));
+                floor.appendChild(tileElement);
+            });
+        }
+
+        function movePlayer(targetIndex) {
+            if (gameState.combat.active) return;
+
+            const { width } = gameState.dungeon;
+            const currentIndex = gameState.player.y * width + gameState.player.x;
+            const targetTile = gameState.dungeon.tiles[targetIndex];
+            
+            // Check if move is valid (adjacent tile)
+            const currentX = gameState.player.x;
+            const currentY = gameState.player.y;
+            const targetX = targetIndex % width;
+            const targetY = Math.floor(targetIndex / width);
+            
+            const distance = Math.abs(currentX - targetX) + Math.abs(currentY - targetY);
+            
+            if (distance !== 1 || targetTile.type === 'wall') {
+                addLogEntry("❌ Cannot move there!", "info");
+                return;
+            }
+
+            // Clear current position
+            gameState.dungeon.tiles[currentIndex].occupied = false;
+            gameState.dungeon.tiles[currentIndex].content = null;
+
+            // Move player
+            gameState.player.x = targetX;
+            gameState.player.y = targetY;
+
+            // Handle tile content
+            if (targetTile.content === 'monster') {
+                startCombat(targetIndex);
+            } else if (targetTile.content === 'treasure') {
+                collectTreasure(targetIndex);
+            } else if (targetTile.content === 'stairs') {
+                addLogEntry("🪜 You found the stairs to the next level!", "info");
+            } else {
+                // Normal movement
+                targetTile.occupied = true;
+                targetTile.content = 'player';
+                addLogEntry(`🚶 Moved to new position.`, "info");
+            }
+
+            renderDungeon();
+        }
+
+        function startCombat(monsterIndex) {
+            const { width } = gameState.dungeon;
+            const x = monsterIndex % width;
+            const y = Math.floor(monsterIndex / width);
+            
+            const monster = gameState.dungeon.monsters.find(m => m.x === x && m.y === y);
+            if (!monster) return;
+
+            gameState.combat.active = true;
+            gameState.combat.enemy = monster;
+
+            document.getElementById('combatArea').classList.add('active');
+            document.getElementById('enemyName').textContent = monster.name;
+            updateEnemyHealth();
+
+            addLogEntry(`⚔️ Combat started with ${monster.name}!`, "damage");
+        }
+
+        function playerAttack() {
+            if (!gameState.combat.active || !gameState.combat.enemy) return;
+
+            const damage = Math.floor(Math.random() * 15) + 10;
+            gameState.combat.enemy.health -= damage;
+
+            showFloatingDamage(document.getElementById('combatArea'), damage, 'damage');
+            addLogEntry(`⚔️ You attack for ${damage} damage!`, "damage");
+
+            if (gameState.combat.enemy.health <= 0) {
+                endCombat(true);
+            } else {
+                updateEnemyHealth();
+                setTimeout(enemyAttack, 1000);
+            }
+        }
+
+        function castSpellInCombat() {
+            if (!gameState.combat.selectedSpell) {
+                addLogEntry("❌ No spell selected!", "info");
+                return;
+            }
+
+            const spell = gameState.spells[gameState.combat.selectedSpell];
+            
+            if (gameState.player.mana < spell.cost) {
+                addLogEntry("❌ Not enough mana!", "info");
+                return;
+            }
+
+            gameState.player.mana -= spell.cost;
+
+            if (spell.type === 'healing') {
+                const healing = Math.floor(Math.random() * (spell.healing[1] - spell.healing[0] + 1)) + spell.healing[0];
+                gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healing);
+                showFloatingDamage(document.getElementById('combatArea'), healing, 'heal');
+                addLogEntry(`💚 You heal for ${healing} health!`, "healing");
+            } else {
+                const damage = Math.floor(Math.random() * (spell.damage[1] - spell.damage[0] + 1)) + spell.damage[0];
+                gameState.combat.enemy.health -= damage;
+                showFloatingDamage(document.getElementById('combatArea'), damage, 'damage');
+                addLogEntry(`🔮 ${spell.name} deals ${damage} damage!`, "damage");
+            }
+
+            if (gameState.combat.enemy.health <= 0) {
+                endCombat(true);
+            } else {
+                updateEnemyHealth();
+                setTimeout(enemyAttack, 1000);
+            }
+
+            updateDisplay();
+        }
+
+        function enemyAttack() {
+            if (!gameState.combat.active || !gameState.combat.enemy) return;
+
+            const enemy = gameState.combat.enemy;
+            const damage = Math.floor(Math.random() * (enemy.damage[1] - enemy.damage[0] + 1)) + enemy.damage[0];
+            
+            gameState.player.health -= damage;
+            addLogEntry(`👹 ${enemy.name} attacks for ${damage} damage!`, "damage");
+
+            if (gameState.player.health <= 0) {
+                endCombat(false);
+            }
+
+            updateDisplay();
+        }
+
+        function attemptFlee() {
+            if (Math.random() < 0.7) {
+                addLogEntry("🏃 You successfully fled from combat!", "info");
+                endCombat(false, true);
+            } else {
+                addLogEntry("❌ Failed to flee!", "info");
+                setTimeout(enemyAttack, 500);
+            }
+        }
+
+        function endCombat(victory, fled = false) {
+            gameState.combat.active = false;
+            document.getElementById('combatArea').classList.remove('active');
+
+            if (victory) {
+                const enemy = gameState.combat.enemy;
+                gameState.player.experience += enemy.exp;
+                
+                // Remove monster from dungeon
+                const monsterIndex = gameState.dungeon.monsters.findIndex(m => m.id === enemy.id);
+                if (monsterIndex !== -1) {
+                    gameState.dungeon.monsters.splice(monsterIndex, 1);
+                }
+
+                // Clear tile
+                const { width } = gameState.dungeon;
+                const tileIndex = enemy.y * width + enemy.x;
+                gameState.dungeon.tiles[tileIndex].occupied = true;
+                gameState.dungeon.tiles[tileIndex].content = 'player';
+
+                // Add loot
+                if (enemy.loot && enemy.loot.length > 0) {
+                    const loot = enemy.loot[Math.floor(Math.random() * enemy.loot.length)];
+                    gameState.inventory.push(loot);
+                    addLogEntry(`💰 You found: ${loot}`, "loot");
+                }
+
+                addLogEntry(`🏆 Victory! Gained ${enemy.exp} experience.`, "info");
+                
+                // Check for level up
+                if (gameState.player.experience >= gameState.player.expToNext) {
+                    levelUp();
+                }
+            } else if (!fled) {
+                addLogEntry("💀 You have been defeated! Game Over.", "damage");
+                setTimeout(() => {
+                    if (confirm("Game Over! Start a new game?")) {
+                        resetGame();
+                    }
+                }, 1000);
+            }
+
+            gameState.combat.enemy = null;
+            renderDungeon();
+            updateDisplay();
+        }
+
+        function levelUp() {
+            gameState.player.level++;
+            gameState.player.experience -= gameState.player.expToNext;
+            gameState.player.expToNext = Math.floor(gameState.player.expToNext * 1.5);
+            
+            const healthIncrease = 20;
+            const manaIncrease = 15;
+            
+            gameState.player.maxHealth += healthIncrease;
+            gameState.player.maxMana += manaIncrease;
+            gameState.player.health = gameState.player.maxHealth;
+            gameState.player.mana = gameState.player.maxMana;
+
+            addLogEntry(`🌟 Level Up! You are now level ${gameState.player.level}!`, "info");
+            addLogEntry(`💪 Health increased by ${healthIncrease}, Mana by ${manaIncrease}`, "healing");
+        }
+
+        function collectTreasure(treasureIndex) {
+            const { width } = gameState.dungeon;
+            const x = treasureIndex % width;
+            const y = Math.floor(treasureIndex / width);
+            
+            const treasure = gameState.dungeon.treasures.find(t => t.x === x && t.y === y);
+            if (!treasure) return;
+
+            treasure.items.forEach(item => {
+                gameState.inventory.push(item);
+                addLogEntry(`💎 Found: ${item}`, "loot");
+            });
+
+            // Remove treasure
+            const treasureArrayIndex = gameState.dungeon.treasures.findIndex(t => t.id === treasure.id);
+            if (treasureArrayIndex !== -1) {
+                gameState.dungeon.treasures.splice(treasureArrayIndex, 1);
+            }
+
+            // Update tile
+            gameState.dungeon.tiles[treasureIndex].occupied = true;
+            gameState.dungeon.tiles[treasureIndex].content = 'player';
+
+            updateInventory();
+        }
+
+        function selectSpell(spellName) {
+            gameState.combat.selectedSpell = spellName;
+            const spell = gameState.spells[spellName];
+            
+            document.getElementById('selectedSpell').innerHTML = `
+                <strong>${spell.name}</strong><br>
+                <small>Cost: ${spell.cost} Mana</small>
+            `;
+
+            // Update spell button styles
+            document.querySelectorAll('.spell-button').forEach(btn => {
+                btn.style.opacity = '0.7';
+            });
+            document.getElementById(spellName).style.opacity = '1';
+
+            addLogEntry(`🎯 Selected spell: ${spell.name}`, "info");
+        }
+
+        function exploreRoom() {
+            if (gameState.combat.active) return;
+
+            const events = [
+                { message: "🕯️ You find a mysterious candle that restores some mana.", effect: () => {
+                    gameState.player.mana = Math.min(gameState.player.maxMana, gameState.player.mana + 10);
+                }},
+                { message: "📚 An ancient tome teaches you about magic.", effect: () => {
+                    gameState.player.experience += 5;
+                }},
+                { message: "💧 A magical spring restores your health.", effect: () => {
+                    gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + 15);
+                }},
+                { message: "🗝️ You find a small key... but no lock to use it on.", effect: () => {} },
+                { message: "👻 A ghostly whisper echoes through the room...", effect: () => {} }
+            ];
+
+            const event = events[Math.floor(Math.random() * events.length)];
+            addLogEntry(event.message, "info");
+            event.effect();
+            updateDisplay();
+        }
+
+        function restAtCampfire() {
+            if (gameState.combat.active) return;
+
+            gameState.player.health = gameState.player.maxHealth;
+            gameState.player.mana = gameState.player.maxMana;
+            
+            addLogEntry("🔥 You rest by a magical campfire and recover fully!", "healing");
+            updateDisplay();
+        }
+
+        function nextLevel() {
+            const { width } = gameState.dungeon;
+            const playerIndex = gameState.player.y * width + gameState.player.x;
+            const currentTile = gameState.dungeon.tiles[playerIndex];
+
+            if (currentTile.content !== 'stairs') {
+                addLogEntry("❌ You need to find the stairs first!", "info");
+                return;
+            }
+
+            gameState.dungeon.level++;
+            addLogEntry(`⬇️ Descending to dungeon level ${gameState.dungeon.level}...`, "info");
+            generateDungeon();
+            updateDisplay();
+        }
+
+        function usePotion() {
+            const potionIndex = gameState.inventory.findIndex(item => 
+                item === "Health Potion" || item === "Mana Potion"
+            );
+
+            if (potionIndex === -1) {
+                addLogEntry("❌ No potions available!", "info");
+                return;
+            }
+
+            const potion = gameState.inventory[potionIndex];
+            gameState.inventory.splice(potionIndex, 1);
+
+            if (potion === "Health Potion") {
+                const healing = 30;
+                gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + healing);
+                addLogEntry(`🧪 Used Health Potion! Restored ${healing} health.`, "healing");
+            } else if (potion === "Mana Potion") {
+                const manaRestore = 25;
+                gameState.player.mana = Math.min(gameState.player.maxMana, gameState.player.mana + manaRestore);
+                addLogEntry(`🧪 Used Mana Potion! Restored ${manaRestore} mana.`, "info");
+            }
+
+            updateDisplay();
+            updateInventory();
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to start a new game?")) {
+                gameState = {
+                    player: {
+                        name: "Archmage Eldrin",
+                        level: 1,
+                        health: 100,
+                        maxHealth: 100,
+                        mana: 80,
+                        maxMana: 80,
+                        experience: 0,
+                        expToNext: 100,
+                        x: 0,
+                        y: 0
+                    },
+                    dungeon: {
+                        level: 1,
+                        width: 8,
+                        height: 4,
+                        tiles: [],
+                        monsters: [],
+                        treasures: []
+                    },
+                    combat: {
+                        active: false,
+                        enemy: null,
+                        selectedSpell: null
+                    },
+                    inventory: [],
+                    spells: {
+                        fireball: { name: "Fireball", cost: 25, damage: [20, 35], type: "fire" },
+                        frostbolt: { name: "Frostbolt", cost: 20, damage: [15, 25], type: "ice" },
+                        lightning: { name: "Lightning", cost: 30, damage: [25, 40], type: "lightning" },
+                        heal: { name: "Heal", cost: 15, healing: [20, 35], type: "healing" }
+                    }
+                };
+
+                document.getElementById('combatArea').classList.remove('active');
+                document.getElementById('selectedSpell').innerHTML = 'None selected';
+                document.querySelectorAll('.spell-button').forEach(btn => {
+                    btn.style.opacity = '1';
+                });
+
+                initGame();
+            }
+        }
+
+        function updateDisplay() {
+            const player = gameState.player;
+            
+            document.getElementById('healthText').textContent = `${player.health}/${player.maxHealth}`;
+            document.getElementById('manaText').textContent = `${player.mana}/${player.maxMana}`;
+            document.getElementById('expText').textContent = `${player.experience}/${player.expToNext}`;
+            document.getElementById('levelText').textContent = player.level;
+            document.getElementById('dungeonLevel').textContent = gameState.dungeon.level;
+
+            document.getElementById('healthBar').style.width = `${(player.health / player.maxHealth) * 100}%`;
+            document.getElementById('manaBar').style.width = `${(player.mana / player.maxMana) * 100}%`;
+            document.getElementById('expBar').style.width = `${(player.experience / player.expToNext) * 100}%`;
+
+            // Update spell button states
+            Object.keys(gameState.spells).forEach(spellName => {
+                const spell = gameState.spells[spellName];
+                const button = document.getElementById(spellName);
+                button.disabled = player.mana < spell.cost;
+            });
+        }
+
+        function updateEnemyHealth() {
+            const enemy = gameState.combat.enemy;
+            if (!enemy) return;
+
+            document.getElementById('enemyHealthText').textContent = `${enemy.health}/${enemy.maxHealth} HP`;
+            document.getElementById('enemyHealthBar').style.width = `${(enemy.health / enemy.maxHealth) * 100}%`;
+        }
+
+        function updateInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+
+            // Create 9 inventory slots
+            for (let i = 0; i < 9; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+                
+                if (i < gameState.inventory.length) {
+                    slot.textContent = gameState.inventory[i];
+                    slot.classList.add('has-item');
+                    slot.title = gameState.inventory[i];
+                } else {
+                    slot.textContent = '—';
+                }
+
+                grid.appendChild(slot);
+            }
+        }
+
+        function addLogEntry(message, type) {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 20 entries
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function showFloatingDamage(container, amount, type) {
+            const floating = document.createElement('div');
+            floating.className = type === 'heal' ? 'floating-heal' : 'floating-damage';
+            floating.textContent = type === 'heal' ? `+${amount}` : `-${amount}`;
+            floating.style.left = '50%';
+            floating.style.top = '30%';
+            floating.style.transform = 'translateX(-50%)';
+            
+            container.appendChild(floating);
+            
+            setTimeout(() => {
+                if (floating.parentNode) {
+                    floating.parentNode.removeChild(floating);
+                }
+            }, 2000);
+        }
+
+        // Initialize game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736d2c7963b2511',t:'MTc1NTkxMjQwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spa Resort Tycoon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .zen-bg { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #bae6fd 60%, #7dd3fc 100%); }
+        .floating-animation { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .treatment-card { transition: all 0.3s ease; }
+        .treatment-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .money-animation { animation: moneyFloat 1s ease-out; }
+        @keyframes moneyFloat { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+        .wellness-glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+        .relaxation-pulse { animation: relaxPulse 2s infinite; }
+        @keyframes relaxPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .steam-animation { animation: steam 4s ease-in-out infinite; }
+        @keyframes steam { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.7; } 50% { transform: translateY(-20px) scale(1.1); opacity: 0.3; } }
+    </style>
+</head>
+<body class="zen-bg min-h-screen">
+    <!-- Floating Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-20 left-10 text-4xl floating-animation" style="animation-delay: 0s;">🌸</div>
+        <div class="absolute top-40 right-20 text-3xl floating-animation" style="animation-delay: 1s;">🧘‍♀️</div>
+        <div class="absolute bottom-40 left-20 text-3xl floating-animation" style="animation-delay: 2s;">🌿</div>
+        <div class="absolute top-60 left-1/2 text-2xl floating-animation" style="animation-delay: 1.5s;">✨</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white/20 backdrop-blur-sm text-gray-800 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🧘‍♀️</div>
+                <h1 class="text-2xl font-bold">Zen Spa Resort Tycoon</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">💰</span>
+                    <span class="text-xl font-bold" id="money">$150,000</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">👥</span>
+                    <span class="text-lg" id="guests">0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🌟</span>
+                    <span class="text-lg" id="wellness">0.0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🏆</span>
+                    <span class="text-lg" id="reputation">Newcomer</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Spa Resort Overview -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl wellness-glow">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">🏨 Your Spa Resort</h2>
+                <div class="flex gap-3">
+                    <button onclick="showTreatmentMenu()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                        🛁 Treatments
+                    </button>
+                    <button onclick="showFacilityMenu()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                        🏗️ Facilities
+                    </button>
+                    <button onclick="showStaffMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                        👨‍⚕️ Staff
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resortGrid" class="grid grid-cols-8 gap-2 h-96 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-4 border-4 border-green-200">
+                <!-- Resort grid will be populated here -->
+            </div>
+        </div>
+
+        <!-- Treatment Menu Modal -->
+        <div id="treatmentMenu" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">🛁 Treatment Menu</h2>
+                    <button onclick="hideTreatmentMenu()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Massage Room -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">💆‍♀️</div>
+                            <h3 class="text-xl font-bold">Massage Room</h3>
+                            <p class="text-gray-600">Relaxing therapeutic massages</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">2 guests/hour</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$120/treatment</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Wellness:</span>
+                                <span class="font-semibold text-blue-600">+0.3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Duration:</span>
+                                <span class="font-semibold">60 minutes</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('massage')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $35,000
+                        </button>
+                    </div>
+
+                    <!-- Facial Room -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🧴</div>
+                            <h3 class="text-xl font-bold">Facial Room</h3>
+                            <p class="text-gray-600">Rejuvenating skincare treatments</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">1 guest/hour</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$90/treatment</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Wellness:</span>
+                                <span class="font-semibold text-blue-600">+0.4</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Duration:</span>
+                                <span class="font-semibold">75 minutes</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('facial')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $25,000
+                        </button>
+                    </div>
+
+                    <!-- Sauna -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🧖‍♀️</div>
+                            <h3 class="text-xl font-bold">Sauna</h3>
+                            <p class="text-gray-600">Traditional Finnish sauna experience</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">8 guests/session</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$40/guest</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Wellness:</span>
+                                <span class="font-semibold text-blue-600">+0.2</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Duration:</span>
+                                <span class="font-semibold">30 minutes</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('sauna')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $45,000
+                        </button>
+                    </div>
+
+                    <!-- Hot Tub -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🛁</div>
+                            <h3 class="text-xl font-bold">Hot Tub</h3>
+                            <p class="text-gray-600">Therapeutic hot water therapy</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">6 guests/session</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$35/guest</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Wellness:</span>
+                                <span class="font-semibold text-blue-600">+0.25</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$300/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('hottub')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $55,000
+                        </button>
+                    </div>
+
+                    <!-- Yoga Studio -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🧘‍♀️</div>
+                            <h3 class="text-xl font-bold">Yoga Studio</h3>
+                            <p class="text-gray-600">Mindfulness and flexibility classes</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">15 guests/class</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$25/guest</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Wellness:</span>
+                                <span class="font-semibold text-blue-600">+0.5</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Duration:</span>
+                                <span class="font-semibold">90 minutes</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('yoga')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $30,000
+                        </button>
+                    </div>
+
+                    <!-- Meditation Garden -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🌸</div>
+                            <h3 class="text-xl font-bold">Meditation Garden</h3>
+                            <p class="text-gray-600">Peaceful outdoor sanctuary</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">20 guests</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$15/guest</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Wellness:</span>
+                                <span class="font-semibold text-blue-600">+0.6</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Ambiance:</span>
+                                <span class="font-semibold text-purple-600">Resort-wide boost</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('garden')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $40,000
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facility Menu Modal -->
+        <div id="facilityMenu" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">🏗️ Support Facilities</h2>
+                    <button onclick="hideFacilityMenu()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Reception -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🏨</div>
+                            <h3 class="text-xl font-bold">Reception</h3>
+                            <p class="text-gray-600">Guest check-in and information</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Function:</span>
+                                <span class="font-semibold">Guest management</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Efficiency:</span>
+                                <span class="font-semibold text-blue-600">+20% booking rate</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Staff Required:</span>
+                                <span class="font-semibold text-orange-600">2 receptionists</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('reception')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $20,000
+                        </button>
+                    </div>
+
+                    <!-- Relaxation Lounge -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🛋️</div>
+                            <h3 class="text-xl font-bold">Relaxation Lounge</h3>
+                            <p class="text-gray-600">Comfortable waiting area</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">30 guests</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Comfort:</span>
+                                <span class="font-semibold text-blue-600">+0.2 wellness</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$10/guest</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('lounge')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $25,000
+                        </button>
+                    </div>
+
+                    <!-- Juice Bar -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🥤</div>
+                            <h3 class="text-xl font-bold">Juice Bar</h3>
+                            <p class="text-gray-600">Healthy refreshments</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$15/drink</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Health Boost:</span>
+                                <span class="font-semibold text-blue-600">+0.1 wellness</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Operating Cost:</span>
+                                <span class="font-semibold text-red-600">$200/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('juicebar')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $18,000
+                        </button>
+                    </div>
+
+                    <!-- Changing Rooms -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🚿</div>
+                            <h3 class="text-xl font-bold">Changing Rooms</h3>
+                            <p class="text-gray-600">Private changing facilities</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">20 guests</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Convenience:</span>
+                                <span class="font-semibold text-blue-600">+0.15 wellness</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Essential:</span>
+                                <span class="font-semibold text-purple-600">Required facility</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('changing')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $15,000
+                        </button>
+                    </div>
+
+                    <!-- Retail Shop -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🛍️</div>
+                            <h3 class="text-xl font-bold">Retail Shop</h3>
+                            <p class="text-gray-600">Spa products and wellness items</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$50/guest</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Purchase Rate:</span>
+                                <span class="font-semibold">30% of guests</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Inventory Cost:</span>
+                                <span class="font-semibold text-red-600">$400/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('retail')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $35,000
+                        </button>
+                    </div>
+
+                    <!-- Parking -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 treatment-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🚗</div>
+                            <h3 class="text-xl font-bold">Parking Area</h3>
+                            <p class="text-gray-600">Guest vehicle parking</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">50 vehicles</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Convenience:</span>
+                                <span class="font-semibold text-blue-600">+10% guest capacity</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$5/vehicle</span>
+                            </div>
+                        </div>
+                        <button onclick="buildFacility('parking')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $12,000
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Menu Modal -->
+        <div id="staffMenu" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">👨‍⚕️ Staff Management</h2>
+                    <button onclick="hideStaffMenu()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">💆‍♀️</div>
+                            <h3 class="text-xl font-bold">Massage Therapists</h3>
+                            <p class="text-gray-600">Licensed massage professionals</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="therapistCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$300/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">Enables massage rooms</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('therapist')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('therapist')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🧘‍♂️</div>
+                            <h3 class="text-xl font-bold">Yoga Instructors</h3>
+                            <p class="text-gray-600">Certified yoga and meditation guides</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="yogaCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$250/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">Enables yoga classes</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('yoga')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('yoga')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🏨</div>
+                            <h3 class="text-xl font-bold">Receptionists</h3>
+                            <p class="text-gray-600">Guest service and booking management</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="receptionistCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$200/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">+15% guest satisfaction</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('receptionist')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('receptionist')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🧹</div>
+                            <h3 class="text-xl font-bold">Cleaning Staff</h3>
+                            <p class="text-gray-600">Maintain cleanliness and hygiene</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="cleaningCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$150/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">+0.2 wellness rating</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('cleaning')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('cleaning')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Analytics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Daily Operations -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">📈 Daily Operations</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Daily Revenue:</span>
+                        <span class="font-bold text-xl text-green-600" id="dailyRevenue">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Operating Costs:</span>
+                        <span class="font-bold text-xl text-red-600" id="operatingCosts">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Net Profit:</span>
+                        <span class="font-bold text-xl text-blue-600" id="netProfit">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Guest Satisfaction:</span>
+                        <span class="font-bold text-xl" id="satisfaction">😊 Satisfied</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Occupancy Rate:</span>
+                        <span class="font-bold text-xl" id="occupancy">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resort Statistics -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">🏨 Resort Statistics</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Facilities:</span>
+                        <span class="font-bold text-xl" id="totalFacilities">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Treatment Rooms:</span>
+                        <span class="font-bold text-xl" id="treatmentRooms">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Staff:</span>
+                        <span class="font-bold text-xl" id="totalStaff">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Guest Capacity:</span>
+                        <span class="font-bold text-xl" id="guestCapacity">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Treatments Today:</span>
+                        <span class="font-bold text-xl" id="treatmentsToday">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🏆 Wellness Achievements</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="achievementsContainer">
+                <!-- Achievements will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Game State
+        let gameState = {
+            money: 150000,
+            guests: 0,
+            wellness: 0.0,
+            reputation: 'Newcomer',
+            facilities: [],
+            staff: {
+                therapist: 0,
+                yoga: 0,
+                receptionist: 0,
+                cleaning: 0
+            },
+            stats: {
+                dailyRevenue: 0,
+                operatingCosts: 0,
+                treatmentsToday: 0,
+                totalTreatments: 0
+            },
+            achievements: [],
+            day: 1
+        };
+
+        // Facility Types
+        const facilityTypes = {
+            // Treatment Facilities
+            massage: { name: 'Massage Room', emoji: '💆‍♀️', cost: 35000, income: 120, capacity: 2, wellness: 0.3, maintenance: 100, requiresStaff: 'therapist' },
+            facial: { name: 'Facial Room', emoji: '🧴', cost: 25000, income: 90, capacity: 1, wellness: 0.4, maintenance: 80, requiresStaff: 'therapist' },
+            sauna: { name: 'Sauna', emoji: '🧖‍♀️', cost: 45000, income: 40, capacity: 8, wellness: 0.2, maintenance: 200 },
+            hottub: { name: 'Hot Tub', emoji: '🛁', cost: 55000, income: 35, capacity: 6, wellness: 0.25, maintenance: 300 },
+            yoga: { name: 'Yoga Studio', emoji: '🧘‍♀️', cost: 30000, income: 25, capacity: 15, wellness: 0.5, maintenance: 50, requiresStaff: 'yoga' },
+            garden: { name: 'Meditation Garden', emoji: '🌸', cost: 40000, income: 15, capacity: 20, wellness: 0.6, maintenance: 150 },
+            
+            // Support Facilities
+            reception: { name: 'Reception', emoji: '🏨', cost: 20000, income: 0, capacity: 0, wellness: 0, maintenance: 100, boost: 'booking' },
+            lounge: { name: 'Relaxation Lounge', emoji: '🛋️', cost: 25000, income: 10, capacity: 30, wellness: 0.2, maintenance: 75 },
+            juicebar: { name: 'Juice Bar', emoji: '🥤', cost: 18000, income: 15, capacity: 0, wellness: 0.1, maintenance: 200 },
+            changing: { name: 'Changing Rooms', emoji: '🚿', cost: 15000, income: 0, capacity: 20, wellness: 0.15, maintenance: 50 },
+            retail: { name: 'Retail Shop', emoji: '🛍️', cost: 35000, income: 50, capacity: 0, wellness: 0, maintenance: 400 },
+            parking: { name: 'Parking Area', emoji: '🚗', cost: 12000, income: 5, capacity: 50, wellness: 0, maintenance: 25, boost: 'capacity' }
+        };
+
+        // Achievements
+        const achievements = [
+            { id: 'first_facility', name: 'Wellness Pioneer', description: 'Build your first facility', icon: '🏗️', unlocked: false },
+            { id: 'zen_master', name: 'Zen Master', description: 'Achieve 4.0 wellness rating', icon: '🧘‍♀️', unlocked: false },
+            { id: 'spa_mogul', name: 'Spa Mogul', description: 'Earn $500,000', icon: '💰', unlocked: false },
+            { id: 'treatment_expert', name: 'Treatment Expert', description: 'Complete 1000 treatments', icon: '💆‍♀️', unlocked: false },
+            { id: 'full_service', name: 'Full Service Resort', description: 'Build 15 facilities', icon: '🏨', unlocked: false },
+            { id: 'wellness_guru', name: 'Wellness Guru', description: 'Achieve 5.0 wellness rating', icon: '⭐', unlocked: false }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            initializeResortGrid();
+            updateUI();
+            renderAchievements();
+            
+            // Start game loop
+            setInterval(gameLoop, 3000); // 3 seconds = 1 game hour
+            setInterval(dailyUpdate, 45000); // 45 seconds = 1 game day
+        }
+
+        // Initialize Resort Grid
+        function initializeResortGrid() {
+            const grid = document.getElementById('resortGrid');
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'aspect-square bg-white/50 border border-green-300 rounded-lg flex items-center justify-center text-2xl cursor-pointer hover:bg-white/70 transition-colors';
+                cell.dataset.index = i;
+                cell.onclick = () => selectGridCell(i);
+                grid.appendChild(cell);
+            }
+        }
+
+        // Game Loop
+        function gameLoop() {
+            calculateGuests();
+            calculateIncome();
+            updateWellnessRating();
+            updateReputation();
+            updateUI();
+        }
+
+        // Daily Update
+        function dailyUpdate() {
+            gameState.day++;
+            payOperatingCosts();
+            checkAchievements();
+            updateUI();
+        }
+
+        // Calculate Guests
+        function calculateGuests() {
+            let baseGuests = 5;
+            let capacity = 0;
+            
+            gameState.facilities.forEach(facility => {
+                const type = facilityTypes[facility.type];
+                capacity += type.capacity;
+                
+                // Reception boost
+                if (facility.type === 'reception') {
+                    baseGuests *= 1.2;
+                }
+            });
+            
+            // Parking boost
+            if (gameState.facilities.some(f => f.type === 'parking')) {
+                capacity *= 1.1;
+            }
+            
+            // Wellness rating effect
+            baseGuests *= (1 + gameState.wellness / 5);
+            
+            // Staff effect
+            baseGuests *= (1 + gameState.staff.receptionist * 0.15);
+            
+            gameState.guests = Math.min(Math.floor(baseGuests), Math.floor(capacity));
+        }
+
+        // Calculate Income
+        function calculateIncome() {
+            let revenue = 0;
+            let treatments = 0;
+            
+            gameState.facilities.forEach(facility => {
+                const type = facilityTypes[facility.type];
+                
+                // Check if facility requires staff
+                if (type.requiresStaff && gameState.staff[type.requiresStaff] === 0) {
+                    return; // Skip if no required staff
+                }
+                
+                if (type.income > 0) {
+                    let facilityRevenue = 0;
+                    let guestsServed = Math.min(gameState.guests, type.capacity || gameState.guests);
+                    
+                    if (facility.type === 'retail') {
+                        // Only 30% of guests buy from retail
+                        guestsServed = Math.floor(gameState.guests * 0.3);
+                    }
+                    
+                    facilityRevenue = type.income * guestsServed;
+                    revenue += facilityRevenue;
+                    
+                    // Count treatments
+                    if (['massage', 'facial', 'sauna', 'hottub', 'yoga'].includes(facility.type)) {
+                        treatments += guestsServed;
+                    }
+                }
+            });
+            
+            gameState.money += revenue;
+            gameState.stats.dailyRevenue += revenue;
+            gameState.stats.treatmentsToday += treatments;
+            gameState.stats.totalTreatments += treatments;
+            
+            if (revenue > 0) {
+                showMoneyAnimation(revenue);
+            }
+        }
+
+        // Pay Operating Costs
+        function payOperatingCosts() {
+            let costs = 0;
+            
+            // Facility maintenance
+            gameState.facilities.forEach(facility => {
+                const type = facilityTypes[facility.type];
+                costs += type.maintenance;
+            });
+            
+            // Staff salaries
+            costs += gameState.staff.therapist * 300;
+            costs += gameState.staff.yoga * 250;
+            costs += gameState.staff.receptionist * 200;
+            costs += gameState.staff.cleaning * 150;
+            
+            gameState.money -= costs;
+            gameState.stats.operatingCosts = costs;
+        }
+
+        // Update Wellness Rating
+        function updateWellnessRating() {
+            let wellness = 0;
+            
+            gameState.facilities.forEach(facility => {
+                const type = facilityTypes[facility.type];
+                wellness += type.wellness;
+            });
+            
+            // Staff bonuses
+            wellness += gameState.staff.cleaning * 0.2;
+            
+            gameState.wellness = Math.min(5.0, Math.max(0, wellness));
+        }
+
+        // Update Reputation
+        function updateReputation() {
+            if (gameState.wellness >= 4.5) gameState.reputation = 'Legendary';
+            else if (gameState.wellness >= 4.0) gameState.reputation = 'Renowned';
+            else if (gameState.wellness >= 3.0) gameState.reputation = 'Respected';
+            else if (gameState.wellness >= 2.0) gameState.reputation = 'Established';
+            else if (gameState.wellness >= 1.0) gameState.reputation = 'Growing';
+            else gameState.reputation = 'Newcomer';
+        }
+
+        // Show/Hide Menus
+        function showTreatmentMenu() {
+            document.getElementById('treatmentMenu').classList.remove('hidden');
+            document.getElementById('treatmentMenu').classList.add('flex');
+        }
+
+        function hideTreatmentMenu() {
+            document.getElementById('treatmentMenu').classList.add('hidden');
+            document.getElementById('treatmentMenu').classList.remove('flex');
+        }
+
+        function showFacilityMenu() {
+            document.getElementById('facilityMenu').classList.remove('hidden');
+            document.getElementById('facilityMenu').classList.add('flex');
+        }
+
+        function hideFacilityMenu() {
+            document.getElementById('facilityMenu').classList.add('hidden');
+            document.getElementById('facilityMenu').classList.remove('flex');
+        }
+
+        function showStaffMenu() {
+            document.getElementById('staffMenu').classList.remove('hidden');
+            document.getElementById('staffMenu').classList.add('flex');
+        }
+
+        function hideStaffMenu() {
+            document.getElementById('staffMenu').classList.add('hidden');
+            document.getElementById('staffMenu').classList.remove('flex');
+        }
+
+        // Build Facility
+        function buildFacility(type) {
+            const facilityType = facilityTypes[type];
+            if (gameState.money >= facilityType.cost) {
+                gameState.money -= facilityType.cost;
+                
+                // Find empty grid cell
+                const grid = document.getElementById('resortGrid');
+                const cells = grid.children;
+                for (let i = 0; i < cells.length; i++) {
+                    if (!cells[i].dataset.facility) {
+                        cells[i].innerHTML = facilityType.emoji;
+                        cells[i].dataset.facility = type;
+                        cells[i].classList.add('bg-green-100', 'wellness-glow');
+                        
+                        gameState.facilities.push({ type: type, position: i });
+                        
+                        checkAchievement('first_facility');
+                        if (gameState.facilities.length >= 15) checkAchievement('full_service');
+                        
+                        break;
+                    }
+                }
+                
+                updateUI();
+                hideTreatmentMenu();
+                hideFacilityMenu();
+                showMoneyAnimation(-facilityType.cost);
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        // Staff Management
+        function hireStaff(type) {
+            const costs = { therapist: 300, yoga: 250, receptionist: 200, cleaning: 150 };
+            const cost = costs[type] * 7; // Weekly advance payment
+            
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                gameState.staff[type]++;
+                updateUI();
+                showMoneyAnimation(-cost);
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        function fireStaff(type) {
+            if (gameState.staff[type] > 0) {
+                gameState.staff[type]--;
+                updateUI();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('money').textContent = '$' + gameState.money.toLocaleString();
+            document.getElementById('guests').textContent = gameState.guests.toLocaleString();
+            document.getElementById('wellness').textContent = gameState.wellness.toFixed(1);
+            document.getElementById('reputation').textContent = gameState.reputation;
+            
+            // Daily operations
+            document.getElementById('dailyRevenue').textContent = '$' + gameState.stats.dailyRevenue.toLocaleString();
+            document.getElementById('operatingCosts').textContent = '$' + gameState.stats.operatingCosts.toLocaleString();
+            document.getElementById('netProfit').textContent = '$' + (gameState.stats.dailyRevenue - gameState.stats.operatingCosts).toLocaleString();
+            
+            // Satisfaction
+            const satisfaction = gameState.wellness >= 4 ? '😍 Blissful' : 
+                               gameState.wellness >= 3 ? '😊 Relaxed' : 
+                               gameState.wellness >= 2 ? '😐 Content' : '😞 Stressed';
+            document.getElementById('satisfaction').textContent = satisfaction;
+            
+            // Occupancy
+            let totalCapacity = 0;
+            gameState.facilities.forEach(facility => {
+                totalCapacity += facilityTypes[facility.type].capacity;
+            });
+            const occupancy = totalCapacity > 0 ? Math.round((gameState.guests / totalCapacity) * 100) : 0;
+            document.getElementById('occupancy').textContent = occupancy + '%';
+            
+            // Resort statistics
+            document.getElementById('totalFacilities').textContent = gameState.facilities.length;
+            document.getElementById('treatmentRooms').textContent = gameState.facilities.filter(f => 
+                ['massage', 'facial', 'sauna', 'hottub', 'yoga', 'garden'].includes(f.type)
+            ).length;
+            document.getElementById('totalStaff').textContent = Object.values(gameState.staff).reduce((a, b) => a + b, 0);
+            document.getElementById('guestCapacity').textContent = totalCapacity;
+            document.getElementById('treatmentsToday').textContent = gameState.stats.treatmentsToday;
+            
+            // Staff counts
+            document.getElementById('therapistCount').textContent = gameState.staff.therapist;
+            document.getElementById('yogaCount').textContent = gameState.staff.yoga;
+            document.getElementById('receptionistCount').textContent = gameState.staff.receptionist;
+            document.getElementById('cleaningCount').textContent = gameState.staff.cleaning;
+        }
+
+        // Show Money Animation
+        function showMoneyAnimation(amount) {
+            const moneyElement = document.getElementById('money');
+            const animationElement = document.createElement('div');
+            animationElement.className = 'absolute text-xl font-bold money-animation';
+            animationElement.style.color = amount > 0 ? '#10b981' : '#ef4444';
+            animationElement.textContent = (amount > 0 ? '+' : '') + '$' + Math.abs(amount).toLocaleString();
+            animationElement.style.left = '50%';
+            animationElement.style.transform = 'translateX(-50%)';
+            
+            moneyElement.parentElement.style.position = 'relative';
+            moneyElement.parentElement.appendChild(animationElement);
+            
+            setTimeout(() => {
+                animationElement.remove();
+            }, 1000);
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            if (gameState.wellness >= 4.0) checkAchievement('zen_master');
+            if (gameState.wellness >= 5.0) checkAchievement('wellness_guru');
+            if (gameState.money >= 500000) checkAchievement('spa_mogul');
+            if (gameState.stats.totalTreatments >= 1000) checkAchievement('treatment_expert');
+        }
+
+        function checkAchievement(id) {
+            const achievement = achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                gameState.achievements.push(id);
+                showAchievementNotification(achievement);
+                renderAchievements();
+            }
+        }
+
+        // Show Achievement Notification
+        function showAchievementNotification(achievement) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-400 text-white p-4 rounded-xl shadow-xl z-50 transform translate-x-full transition-transform duration-500';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">${achievement.icon}</span>
+                    <div>
+                        <div class="font-bold">Achievement Unlocked!</div>
+                        <div class="text-sm">${achievement.name}: ${achievement.description}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Render Achievements
+        function renderAchievements() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-xl ${achievement.unlocked ? 'bg-green-100 border-2 border-green-300' : 'bg-gray-100 border-2 border-gray-200'} text-center">
+                    <div class="text-3xl mb-2 ${achievement.unlocked ? '' : 'grayscale opacity-50'}">${achievement.icon}</div>
+                    <h3 class="font-semibold text-sm ${achievement.unlocked ? 'text-green-800' : 'text-gray-600'}">${achievement.name}</h3>
+                    <p class="text-xs ${achievement.unlocked ? 'text-green-700' : 'text-gray-500'}">${achievement.description}</p>
+                    ${achievement.unlocked ? '<div class="text-xs text-green-600 font-semibold mt-1">✓ UNLOCKED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972ec32c66a9f93d',t:'MTc1NTgyNzg3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

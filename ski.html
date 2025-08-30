@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ski Resort Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mountain-bg { background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 30%, #81d4fa 60%, #ffffff 100%); }
+        .snow-animation { animation: snowfall 3s linear infinite; }
+        @keyframes snowfall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+        .building-card { transition: all 0.3s ease; }
+        .building-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .money-animation { animation: moneyFloat 1s ease-out; }
+        @keyframes moneyFloat { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+        .visitor-animation { animation: visitorMove 2s ease-in-out infinite; }
+        @keyframes visitorMove { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+        .snowflake { position: absolute; color: white; user-select: none; pointer-events: none; }
+    </style>
+</head>
+<body class="mountain-bg min-h-screen overflow-hidden">
+    <!-- Snowfall Effect -->
+    <div id="snowfall"></div>
+
+    <!-- Header -->
+    <header class="bg-white/20 backdrop-blur-sm text-gray-800 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🎿</div>
+                <h1 class="text-2xl font-bold">Alpine Resort Simulator</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">💰</span>
+                    <span class="text-xl font-bold" id="money">$100,000</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">👥</span>
+                    <span class="text-lg" id="visitors">0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">⭐</span>
+                    <span class="text-lg" id="rating">0.0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🌡️</span>
+                    <span class="text-lg" id="temperature">-5°C</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Resort Overview -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">🏔️ Your Resort</h2>
+                <div class="flex gap-3">
+                    <button onclick="showBuildMenu()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                        🏗️ Build
+                    </button>
+                    <button onclick="showStaffMenu()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                        👥 Staff
+                    </button>
+                    <button onclick="showUpgradeMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                        ⚡ Upgrades
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resortGrid" class="grid grid-cols-6 gap-2 h-96 bg-gradient-to-b from-white to-blue-100 rounded-xl p-4 border-4 border-blue-200">
+                <!-- Resort grid will be populated here -->
+            </div>
+        </div>
+
+        <!-- Build Menu Modal -->
+        <div id="buildMenu" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">🏗️ Build Menu</h2>
+                    <button onclick="hideBuildMenu()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Ski Lifts -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 building-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🚠</div>
+                            <h3 class="text-xl font-bold">Ski Lift</h3>
+                            <p class="text-gray-600">Transport skiers up the mountain</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">100 skiers/hour</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$50/ride</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$200/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildStructure('lift')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $25,000
+                        </button>
+                    </div>
+
+                    <!-- Ski Slopes -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 building-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">⛷️</div>
+                            <h3 class="text-xl font-bold">Ski Slope</h3>
+                            <p class="text-gray-600">Beginner to expert trails</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">50 skiers</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Rating Boost:</span>
+                                <span class="font-semibold text-blue-600">+0.2</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$100/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildStructure('slope')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $15,000
+                        </button>
+                    </div>
+
+                    <!-- Lodge -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 building-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🏠</div>
+                            <h3 class="text-xl font-bold">Lodge</h3>
+                            <p class="text-gray-600">Warm shelter and food</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">200 guests</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$30/guest</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Comfort:</span>
+                                <span class="font-semibold text-blue-600">+0.3 rating</span>
+                            </div>
+                        </div>
+                        <button onclick="buildStructure('lodge')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $40,000
+                        </button>
+                    </div>
+
+                    <!-- Rental Shop -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 building-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🎿</div>
+                            <h3 class="text-xl font-bold">Rental Shop</h3>
+                            <p class="text-gray-600">Ski and snowboard rentals</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$25/rental</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Convenience:</span>
+                                <span class="font-semibold text-blue-600">+0.1 rating</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Staff Cost:</span>
+                                <span class="font-semibold text-red-600">$150/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildStructure('rental')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $20,000
+                        </button>
+                    </div>
+
+                    <!-- Restaurant -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 building-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🍽️</div>
+                            <h3 class="text-xl font-bold">Restaurant</h3>
+                            <p class="text-gray-600">Fine dining experience</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">80 guests</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$45/meal</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Luxury:</span>
+                                <span class="font-semibold text-blue-600">+0.4 rating</span>
+                            </div>
+                        </div>
+                        <button onclick="buildStructure('restaurant')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $60,000
+                        </button>
+                    </div>
+
+                    <!-- Snow Making Machine -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 building-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">❄️</div>
+                            <h3 class="text-xl font-bold">Snow Machine</h3>
+                            <p class="text-gray-600">Artificial snow production</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Coverage:</span>
+                                <span class="font-semibold">Large area</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Weather Immunity:</span>
+                                <span class="font-semibold text-blue-600">+0.5 rating</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Operating Cost:</span>
+                                <span class="font-semibold text-red-600">$500/day</span>
+                            </div>
+                        </div>
+                        <button onclick="buildStructure('snowmachine')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Build for $80,000
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Menu Modal -->
+        <div id="staffMenu" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">👥 Staff Management</h2>
+                    <button onclick="hideStaffMenu()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🎿</div>
+                            <h3 class="text-xl font-bold">Ski Instructors</h3>
+                            <p class="text-gray-600">Teach guests and improve safety</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="instructorCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$200/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">+0.1 rating each</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('instructor')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('instructor')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🚑</div>
+                            <h3 class="text-xl font-bold">Ski Patrol</h3>
+                            <p class="text-gray-600">Emergency response and safety</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="patrolCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$250/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">+0.2 rating each</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('patrol')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('patrol')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🔧</div>
+                            <h3 class="text-xl font-bold">Maintenance Crew</h3>
+                            <p class="text-gray-600">Keep equipment running smoothly</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="maintenanceCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$180/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">-20% maintenance costs</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('maintenance')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('maintenance')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">🎯</div>
+                            <h3 class="text-xl font-bold">Marketing Team</h3>
+                            <p class="text-gray-600">Attract more visitors</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Current Staff:</span>
+                                <span class="font-semibold" id="marketingCount">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Salary:</span>
+                                <span class="font-semibold text-red-600">$300/day each</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Benefit:</span>
+                                <span class="font-semibold text-green-600">+10% visitors each</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="hireStaff('marketing')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-colors">Hire</button>
+                            <button onclick="fireStaff('marketing')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold transition-colors">Fire</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics and Info -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Daily Report -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">📊 Daily Report</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Daily Revenue:</span>
+                        <span class="font-bold text-xl text-green-600" id="dailyRevenue">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Daily Expenses:</span>
+                        <span class="font-bold text-xl text-red-600" id="dailyExpenses">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Net Profit:</span>
+                        <span class="font-bold text-xl text-blue-600" id="netProfit">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Visitor Satisfaction:</span>
+                        <span class="font-bold text-xl" id="satisfaction">😊 Good</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Weather Condition:</span>
+                        <span class="font-bold text-xl" id="weather">❄️ Snowing</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resort Statistics -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">🏔️ Resort Stats</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Buildings:</span>
+                        <span class="font-bold text-xl" id="totalBuildings">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Ski Lifts:</span>
+                        <span class="font-bold text-xl" id="liftCount">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Ski Slopes:</span>
+                        <span class="font-bold text-xl" id="slopeCount">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Staff:</span>
+                        <span class="font-bold text-xl" id="totalStaff">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Resort Capacity:</span>
+                        <span class="font-bold text-xl" id="capacity">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🏆 Achievements</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="achievementsContainer">
+                <!-- Achievements will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Game State
+        let gameState = {
+            money: 100000,
+            visitors: 0,
+            rating: 0.0,
+            temperature: -5,
+            buildings: [],
+            staff: {
+                instructor: 0,
+                patrol: 0,
+                maintenance: 0,
+                marketing: 0
+            },
+            stats: {
+                dailyRevenue: 0,
+                dailyExpenses: 0,
+                totalBuildings: 0
+            },
+            achievements: [],
+            day: 1,
+            weather: 'snowing'
+        };
+
+        // Building Types
+        const buildingTypes = {
+            lift: { name: 'Ski Lift', emoji: '🚠', cost: 25000, income: 50, maintenance: 200, capacity: 100, rating: 0 },
+            slope: { name: 'Ski Slope', emoji: '⛷️', cost: 15000, income: 0, maintenance: 100, capacity: 50, rating: 0.2 },
+            lodge: { name: 'Lodge', emoji: '🏠', cost: 40000, income: 30, maintenance: 150, capacity: 200, rating: 0.3 },
+            rental: { name: 'Rental Shop', emoji: '🎿', cost: 20000, income: 25, maintenance: 150, capacity: 0, rating: 0.1 },
+            restaurant: { name: 'Restaurant', emoji: '🍽️', cost: 60000, income: 45, maintenance: 200, capacity: 80, rating: 0.4 },
+            snowmachine: { name: 'Snow Machine', emoji: '❄️', cost: 80000, income: 0, maintenance: 500, capacity: 0, rating: 0.5 }
+        };
+
+        // Achievements
+        const achievements = [
+            { id: 'first_building', name: 'Builder', description: 'Build your first structure', icon: '🏗️', unlocked: false },
+            { id: 'hundred_visitors', name: 'Popular Resort', description: 'Attract 100 visitors in one day', icon: '👥', unlocked: false },
+            { id: 'millionaire', name: 'Snow Millionaire', description: 'Earn $1,000,000', icon: '💰', unlocked: false },
+            { id: 'five_star', name: 'Five Star Resort', description: 'Achieve 5.0 rating', icon: '⭐', unlocked: false },
+            { id: 'full_staff', name: 'Fully Staffed', description: 'Hire 20 total staff members', icon: '👨‍💼', unlocked: false },
+            { id: 'weather_master', name: 'Weather Master', description: 'Build 3 snow machines', icon: '❄️', unlocked: false }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            createSnowfall();
+            initializeResortGrid();
+            updateUI();
+            renderAchievements();
+            
+            // Start game loop
+            setInterval(gameLoop, 5000); // 5 seconds = 1 game hour
+            setInterval(dailyUpdate, 30000); // 30 seconds = 1 game day
+        }
+
+        // Create Snowfall Effect
+        function createSnowfall() {
+            const snowfall = document.getElementById('snowfall');
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake snow-animation';
+                snowflake.innerHTML = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDelay = Math.random() * 3 + 's';
+                snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                snowfall.appendChild(snowflake);
+            }
+        }
+
+        // Initialize Resort Grid
+        function initializeResortGrid() {
+            const grid = document.getElementById('resortGrid');
+            for (let i = 0; i < 36; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'aspect-square bg-white/50 border border-gray-300 rounded-lg flex items-center justify-center text-2xl cursor-pointer hover:bg-white/70 transition-colors';
+                cell.dataset.index = i;
+                cell.onclick = () => selectGridCell(i);
+                grid.appendChild(cell);
+            }
+        }
+
+        // Game Loop
+        function gameLoop() {
+            calculateVisitors();
+            calculateIncome();
+            updateWeather();
+            updateUI();
+        }
+
+        // Daily Update
+        function dailyUpdate() {
+            gameState.day++;
+            payDailyExpenses();
+            updateRating();
+            checkAchievements();
+            updateUI();
+        }
+
+        // Calculate Visitors
+        function calculateVisitors() {
+            let baseVisitors = 10;
+            let capacity = 0;
+            
+            gameState.buildings.forEach(building => {
+                const type = buildingTypes[building.type];
+                capacity += type.capacity;
+            });
+            
+            // Weather effect
+            if (gameState.weather === 'snowing') baseVisitors *= 1.5;
+            if (gameState.weather === 'sunny') baseVisitors *= 0.8;
+            if (gameState.weather === 'storm') baseVisitors *= 0.3;
+            
+            // Rating effect
+            baseVisitors *= (1 + gameState.rating / 5);
+            
+            // Marketing staff effect
+            baseVisitors *= (1 + gameState.staff.marketing * 0.1);
+            
+            gameState.visitors = Math.min(Math.floor(baseVisitors), capacity);
+        }
+
+        // Calculate Income
+        function calculateIncome() {
+            let revenue = 0;
+            
+            gameState.buildings.forEach(building => {
+                const type = buildingTypes[building.type];
+                if (type.income > 0) {
+                    revenue += type.income * Math.min(gameState.visitors, type.capacity || gameState.visitors);
+                }
+            });
+            
+            gameState.money += revenue;
+            gameState.stats.dailyRevenue += revenue;
+            
+            if (revenue > 0) {
+                showMoneyAnimation(revenue);
+            }
+        }
+
+        // Pay Daily Expenses
+        function payDailyExpenses() {
+            let expenses = 0;
+            
+            // Building maintenance
+            gameState.buildings.forEach(building => {
+                const type = buildingTypes[building.type];
+                let maintenance = type.maintenance;
+                
+                // Maintenance staff reduces costs
+                if (gameState.staff.maintenance > 0) {
+                    maintenance *= (1 - gameState.staff.maintenance * 0.2);
+                }
+                
+                expenses += maintenance;
+            });
+            
+            // Staff salaries
+            expenses += gameState.staff.instructor * 200;
+            expenses += gameState.staff.patrol * 250;
+            expenses += gameState.staff.maintenance * 180;
+            expenses += gameState.staff.marketing * 300;
+            
+            gameState.money -= expenses;
+            gameState.stats.dailyExpenses = expenses;
+        }
+
+        // Update Rating
+        function updateRating() {
+            let rating = 0;
+            
+            gameState.buildings.forEach(building => {
+                const type = buildingTypes[building.type];
+                rating += type.rating;
+            });
+            
+            // Staff bonuses
+            rating += gameState.staff.instructor * 0.1;
+            rating += gameState.staff.patrol * 0.2;
+            
+            gameState.rating = Math.min(5.0, Math.max(0, rating));
+        }
+
+        // Update Weather
+        function updateWeather() {
+            const weathers = ['snowing', 'sunny', 'cloudy', 'storm'];
+            const temperatures = [-10, -5, 0, 5, -15, -8];
+            
+            if (Math.random() < 0.3) { // 30% chance to change weather
+                gameState.weather = weathers[Math.floor(Math.random() * weathers.length)];
+                gameState.temperature = temperatures[Math.floor(Math.random() * temperatures.length)];
+            }
+        }
+
+        // Show/Hide Menus
+        function showBuildMenu() {
+            document.getElementById('buildMenu').classList.remove('hidden');
+            document.getElementById('buildMenu').classList.add('flex');
+        }
+
+        function hideBuildMenu() {
+            document.getElementById('buildMenu').classList.add('hidden');
+            document.getElementById('buildMenu').classList.remove('flex');
+        }
+
+        function showStaffMenu() {
+            document.getElementById('staffMenu').classList.remove('hidden');
+            document.getElementById('staffMenu').classList.add('flex');
+        }
+
+        function hideStaffMenu() {
+            document.getElementById('staffMenu').classList.add('hidden');
+            document.getElementById('staffMenu').classList.remove('flex');
+        }
+
+        // Build Structure
+        function buildStructure(type) {
+            const buildingType = buildingTypes[type];
+            if (gameState.money >= buildingType.cost) {
+                gameState.money -= buildingType.cost;
+                
+                // Find empty grid cell
+                const grid = document.getElementById('resortGrid');
+                const cells = grid.children;
+                for (let i = 0; i < cells.length; i++) {
+                    if (!cells[i].dataset.building) {
+                        cells[i].innerHTML = buildingType.emoji;
+                        cells[i].dataset.building = type;
+                        cells[i].classList.add('bg-green-100');
+                        
+                        gameState.buildings.push({ type: type, position: i });
+                        gameState.stats.totalBuildings++;
+                        
+                        checkAchievement('first_building');
+                        if (type === 'snowmachine' && gameState.buildings.filter(b => b.type === 'snowmachine').length >= 3) {
+                            checkAchievement('weather_master');
+                        }
+                        
+                        break;
+                    }
+                }
+                
+                updateUI();
+                hideBuildMenu();
+                showMoneyAnimation(-buildingType.cost);
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        // Staff Management
+        function hireStaff(type) {
+            const costs = { instructor: 200, patrol: 250, maintenance: 180, marketing: 300 };
+            const cost = costs[type] * 7; // Weekly advance payment
+            
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                gameState.staff[type]++;
+                updateUI();
+                showMoneyAnimation(-cost);
+                
+                const totalStaff = Object.values(gameState.staff).reduce((a, b) => a + b, 0);
+                if (totalStaff >= 20) checkAchievement('full_staff');
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        function fireStaff(type) {
+            if (gameState.staff[type] > 0) {
+                gameState.staff[type]--;
+                updateUI();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('money').textContent = '$' + gameState.money.toLocaleString();
+            document.getElementById('visitors').textContent = gameState.visitors.toLocaleString();
+            document.getElementById('rating').textContent = gameState.rating.toFixed(1);
+            document.getElementById('temperature').textContent = gameState.temperature + '°C';
+            
+            // Daily report
+            document.getElementById('dailyRevenue').textContent = '$' + gameState.stats.dailyRevenue.toLocaleString();
+            document.getElementById('dailyExpenses').textContent = '$' + gameState.stats.dailyExpenses.toLocaleString();
+            document.getElementById('netProfit').textContent = '$' + (gameState.stats.dailyRevenue - gameState.stats.dailyExpenses).toLocaleString();
+            
+            // Satisfaction
+            const satisfaction = gameState.rating >= 4 ? '😍 Excellent' : 
+                               gameState.rating >= 3 ? '😊 Good' : 
+                               gameState.rating >= 2 ? '😐 Average' : '😞 Poor';
+            document.getElementById('satisfaction').textContent = satisfaction;
+            
+            // Weather
+            const weatherEmoji = {
+                snowing: '❄️ Snowing',
+                sunny: '☀️ Sunny',
+                cloudy: '☁️ Cloudy',
+                storm: '⛈️ Storm'
+            };
+            document.getElementById('weather').textContent = weatherEmoji[gameState.weather];
+            
+            // Resort stats
+            document.getElementById('totalBuildings').textContent = gameState.buildings.length;
+            document.getElementById('liftCount').textContent = gameState.buildings.filter(b => b.type === 'lift').length;
+            document.getElementById('slopeCount').textContent = gameState.buildings.filter(b => b.type === 'slope').length;
+            document.getElementById('totalStaff').textContent = Object.values(gameState.staff).reduce((a, b) => a + b, 0);
+            
+            let capacity = 0;
+            gameState.buildings.forEach(building => {
+                capacity += buildingTypes[building.type].capacity;
+            });
+            document.getElementById('capacity').textContent = capacity;
+            
+            // Staff counts
+            document.getElementById('instructorCount').textContent = gameState.staff.instructor;
+            document.getElementById('patrolCount').textContent = gameState.staff.patrol;
+            document.getElementById('maintenanceCount').textContent = gameState.staff.maintenance;
+            document.getElementById('marketingCount').textContent = gameState.staff.marketing;
+        }
+
+        // Show Money Animation
+        function showMoneyAnimation(amount) {
+            const moneyElement = document.getElementById('money');
+            const animationElement = document.createElement('div');
+            animationElement.className = 'absolute text-xl font-bold money-animation';
+            animationElement.style.color = amount > 0 ? '#10b981' : '#ef4444';
+            animationElement.textContent = (amount > 0 ? '+' : '') + '$' + Math.abs(amount).toLocaleString();
+            animationElement.style.left = '50%';
+            animationElement.style.transform = 'translateX(-50%)';
+            
+            moneyElement.parentElement.style.position = 'relative';
+            moneyElement.parentElement.appendChild(animationElement);
+            
+            setTimeout(() => {
+                animationElement.remove();
+            }, 1000);
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            if (gameState.visitors >= 100) checkAchievement('hundred_visitors');
+            if (gameState.money >= 1000000) checkAchievement('millionaire');
+            if (gameState.rating >= 5.0) checkAchievement('five_star');
+        }
+
+        function checkAchievement(id) {
+            const achievement = achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                gameState.achievements.push(id);
+                showAchievementNotification(achievement);
+                renderAchievements();
+            }
+        }
+
+        // Show Achievement Notification
+        function showAchievementNotification(achievement) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-yellow-400 text-black p-4 rounded-xl shadow-xl z-50 transform translate-x-full transition-transform duration-500';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">${achievement.icon}</span>
+                    <div>
+                        <div class="font-bold">Achievement Unlocked!</div>
+                        <div class="text-sm">${achievement.name}: ${achievement.description}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Render Achievements
+        function renderAchievements() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-xl ${achievement.unlocked ? 'bg-yellow-100 border-2 border-yellow-300' : 'bg-gray-100 border-2 border-gray-200'} text-center">
+                    <div class="text-3xl mb-2 ${achievement.unlocked ? '' : 'grayscale opacity-50'}">${achievement.icon}</div>
+                    <h3 class="font-semibold text-sm ${achievement.unlocked ? 'text-yellow-800' : 'text-gray-600'}">${achievement.name}</h3>
+                    <p class="text-xs ${achievement.unlocked ? 'text-yellow-700' : 'text-gray-500'}">${achievement.description}</p>
+                    ${achievement.unlocked ? '<div class="text-xs text-yellow-600 font-semibold mt-1">✓ UNLOCKED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972eae75454a7aee',t:'MTc1NTgyNzAyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
