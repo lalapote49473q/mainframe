@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperator - Roman Emperor RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .roman-font { font-family: 'Cinzel', serif; }
+        .roman-bg { background: linear-gradient(135deg, #7c2d12 0%, #dc2626 30%, #ea580c 60%, #f59e0b 100%); }
+        .marble-bg { 
+            background-image: 
+                radial-gradient(circle at 25% 25%, #fbbf24 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #dc2626 0%, transparent 50%),
+                linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+        .imperial-animation { animation: imperial 4s ease-in-out infinite; }
+        @keyframes imperial { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(5deg); } }
+        .eagle-soar { animation: eagleSoar 6s ease-in-out infinite; }
+        @keyframes eagleSoar { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-15px) rotate(3deg); } 66% { transform: translateY(-5px) rotate(-2deg); } }
+        .legion-march { animation: legionMarch 3s linear infinite; }
+        @keyframes legionMarch { 0% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 100% { transform: translateX(-10px); } }
+        .decree-card { transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .decree-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); }
+        .senate-glow { animation: senateGlow 3s ease-in-out infinite alternate; }
+        @keyframes senateGlow { from { box-shadow: 0 0 20px rgba(220, 38, 38, 0.5); } to { box-shadow: 0 0 40px rgba(220, 38, 38, 0.8); } }
+        .triumph-pulse { animation: triumphPulse 2s ease-in-out infinite; }
+        @keyframes triumphPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
+        .scroll-unfurl { animation: scrollUnfurl 1s ease-out; }
+        @keyframes scrollUnfurl { 0% { transform: scaleY(0); opacity: 0; } 100% { transform: scaleY(1); opacity: 1; } }
+        .laurel-crown { animation: laurelShine 4s ease-in-out infinite; }
+        @keyframes laurelShine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3) drop-shadow(0 0 10px gold); } }
+    </style>
+</head>
+<body class="roman-bg min-h-screen text-white">
+    <!-- Floating Roman Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-10 text-4xl eagle-soar" style="animation-delay: 0s;">🦅</div>
+        <div class="absolute top-40 right-20 text-3xl imperial-animation" style="animation-delay: 1s;">⚔️</div>
+        <div class="absolute bottom-40 left-20 text-3xl legion-march" style="animation-delay: 2s;">🏛️</div>
+        <div class="absolute top-60 left-1/2 text-2xl imperial-animation" style="animation-delay: 1.5s;">👑</div>
+        <div class="absolute bottom-20 right-10 text-3xl eagle-soar" style="animation-delay: 3s;">🏺</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/30 backdrop-blur-sm border-b border-yellow-500/30 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="location.href='main.html'" class="bg-red-600/80 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-red-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl imperial-animation laurel-crown">👑</div>
+                    <h1 class="text-2xl font-bold roman-font">IMPERATOR ROMANUS</h1>
+                    <div class="text-xs bg-red-600 px-2 py-1 rounded roman-font">SPQR</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">💰</span>
+                    <span class="text-xl font-bold roman-font" id="treasury">1,000,000</span>
+                    <span class="text-sm text-gray-300">DENARII</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">⚖️</span>
+                    <span class="text-lg roman-font" id="stability">75</span>
+                    <span class="text-sm text-gray-300">STABILITY</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-red-400">⚔️</span>
+                    <span class="text-lg roman-font" id="militaryPower">85</span>
+                    <span class="text-sm text-gray-300">LEGIONS</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Emperor Profile -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-yellow-500/30 senate-glow">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-red-500 rounded-full flex items-center justify-center text-3xl border-4 border-yellow-400 triumph-pulse">
+                        🏛️
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold roman-font" id="emperorName">Caesar Augustus Maximus</h2>
+                        <p class="text-yellow-400 roman-font text-lg" id="emperorTitle">Imperator of Rome</p>
+                        <div class="flex gap-6 mt-2">
+                            <span class="text-sm">🎯 Leadership: <span class="text-yellow-400 font-bold" id="leadershipStat">80</span></span>
+                            <span class="text-sm">⚔️ Military: <span class="text-red-400 font-bold" id="militaryStat">75</span></span>
+                            <span class="text-sm">🏛️ Politics: <span class="text-blue-400 font-bold" id="politicsStat">85</span></span>
+                            <span class="text-sm">📚 Culture: <span class="text-purple-400 font-bold" id="cultureStat">70</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-300">REIGN YEAR</div>
+                    <div class="text-4xl roman-font text-yellow-400" id="reignYear">1</div>
+                    <div class="text-sm text-gray-300 mt-2">PROVINCES: <span class="text-white font-bold" id="provinceCount">12</span></div>
+                    <div class="text-sm text-gray-300">POPULATION: <span class="text-white font-bold" id="population">50M</span></div>
+                </div>
+            </div>
+            
+            <!-- Favor Bars -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-red-400">🏛️ Senate</span>
+                        <span id="senateFavor">65%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-red-400 h-2 rounded-full transition-all duration-500" id="senateBar" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-blue-400">👥 People</span>
+                        <span id="peopleFavor">80%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-400 h-2 rounded-full transition-all duration-500" id="peopleBar" style="width: 80%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-green-400">⚔️ Army</span>
+                        <span id="armyFavor">90%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full transition-all duration-500" id="armyBar" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-purple-400">🏺 Merchants</span>
+                        <span id="merchantFavor">70%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-purple-400 h-2 rounded-full transition-all duration-500" id="merchantBar" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Event -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-red-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold roman-font text-red-400">📜 IMPERIAL DECREE REQUIRED</h2>
+                <div class="text-sm bg-red-600/20 px-3 py-1 rounded roman-font border border-red-500/50">
+                    URGENT
+                </div>
+            </div>
+            
+            <div id="currentEvent" class="scroll-unfurl">
+                <!-- Current event will be populated here -->
+            </div>
+        </div>
+
+        <!-- Empire Management -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Military Campaigns -->
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-green-500/30">
+                <h2 class="text-2xl font-bold roman-font text-green-400 mb-6">⚔️ MILITARY CAMPAIGNS</h2>
+                <div id="campaignsContainer" class="space-y-4">
+                    <!-- Campaigns will be populated here -->
+                </div>
+                <button onclick="showCampaignMenu()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                    PLAN NEW CAMPAIGN
+                </button>
+            </div>
+
+            <!-- Construction Projects -->
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30">
+                <h2 class="text-2xl font-bold roman-font text-blue-400 mb-6">🏗️ CONSTRUCTION PROJECTS</h2>
+                <div id="constructionContainer" class="space-y-4">
+                    <!-- Construction projects will be populated here -->
+                </div>
+                <button onclick="showConstructionMenu()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                    COMMISSION NEW PROJECT
+                </button>
+            </div>
+        </div>
+
+        <!-- Empire Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <!-- Economic Status -->
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/30">
+                <h2 class="text-xl font-bold roman-font text-yellow-400 mb-4">💰 ECONOMIC STATUS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Tax Revenue:</span>
+                        <span class="font-bold text-green-400" id="taxRevenue">+50,000/month</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Military Costs:</span>
+                        <span class="font-bold text-red-400" id="militaryCosts">-25,000/month</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Construction:</span>
+                        <span class="font-bold text-red-400" id="constructionCosts">-15,000/month</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-600 pt-2">
+                        <span class="text-gray-300">Net Income:</span>
+                        <span class="font-bold text-yellow-400" id="netIncome">+10,000/month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Military Status -->
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-red-500/30">
+                <h2 class="text-xl font-bold roman-font text-red-400 mb-4">⚔️ MILITARY STATUS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Active Legions:</span>
+                        <span class="font-bold text-white" id="activeLegions">12</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Veteran Units:</span>
+                        <span class="font-bold text-yellow-400" id="veteranUnits">8</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Ongoing Wars:</span>
+                        <span class="font-bold text-red-400" id="ongoingWars">2</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Border Security:</span>
+                        <span class="font-bold text-green-400" id="borderSecurity">Strong</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cultural Status -->
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30">
+                <h2 class="text-xl font-bold roman-font text-purple-400 mb-4">🏛️ CULTURAL STATUS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Monuments:</span>
+                        <span class="font-bold text-white" id="monuments">15</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Festivals/Year:</span>
+                        <span class="font-bold text-yellow-400" id="festivals">24</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Gladiator Games:</span>
+                        <span class="font-bold text-red-400" id="gladiatorGames">12</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Cultural Influence:</span>
+                        <span class="font-bold text-purple-400" id="culturalInfluence">High</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/30">
+            <h2 class="text-2xl font-bold roman-font text-yellow-400 mb-6">🏆 IMPERIAL ACHIEVEMENTS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="achievementsContainer">
+                <!-- Achievements will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Campaign Menu Modal -->
+    <div id="campaignMenu" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-green-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold roman-font text-green-400">⚔️ MILITARY CAMPAIGNS</h2>
+                <button onclick="hideCampaignMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableCampaigns">
+                <!-- Available campaigns will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Construction Menu Modal -->
+    <div id="constructionMenu" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-blue-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold roman-font text-blue-400">🏗️ CONSTRUCTION PROJECTS</h2>
+                <button onclick="hideConstructionMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableProjects">
+                <!-- Available projects will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Result Modal -->
+    <div id="eventResultModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-yellow-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4" id="resultIcon">📜</div>
+                <h2 class="text-2xl font-bold roman-font mb-4" id="resultTitle">DECREE ENACTED</h2>
+                <div class="space-y-2 mb-6" id="resultDetails">
+                    <!-- Result details will be populated here -->
+                </div>
+                <button onclick="closeEventResult()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-xl font-semibold roman-font transition-all">
+                    CONTINUE REIGN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Game Modal -->
+    <div id="campaignGameModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-[95vh] overflow-y-auto border border-red-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold roman-font text-red-400">⚔️ MILITARY CAMPAIGN</h2>
+                <button onclick="closeCampaignGame()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="campaignGameContainer">
+                <!-- Campaign game content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            treasury: 1000000,
+            stability: 75,
+            militaryPower: 85,
+            reignYear: 1,
+            provinces: 12,
+            population: 50000000,
+            stats: {
+                leadership: 80,
+                military: 75,
+                politics: 85,
+                culture: 70
+            },
+            favor: {
+                senate: 65,
+                people: 80,
+                army: 90,
+                merchants: 70
+            },
+            campaigns: [],
+            construction: [],
+            achievements: [],
+            currentEvent: null,
+            eventTimer: 0
+        };
+
+        // Events
+        const events = [
+            {
+                id: 'barbarian_invasion',
+                title: 'Barbarian Invasion',
+                description: 'Germanic tribes are massing at our northern borders. They demand tribute or threaten war.',
+                icon: '⚔️',
+                choices: [
+                    {
+                        text: 'Pay Tribute (100,000 denarii)',
+                        cost: 100000,
+                        effects: { stability: +5, army: -10, people: -5 },
+                        outcome: 'The barbarians accept the tribute and withdraw, but your military reputation suffers.'
+                    },
+                    {
+                        text: 'Mobilize Legions',
+                        cost: 50000,
+                        effects: { militaryPower: +10, army: +15, treasury: -50000 },
+                        outcome: 'Your legions march north. The barbarians retreat, impressed by Roman might!'
+                    },
+                    {
+                        text: 'Negotiate Alliance',
+                        requirements: { politics: 80 },
+                        effects: { stability: +10, senate: +5, provinces: +1 },
+                        outcome: 'Your diplomatic skills turn enemies into allies. A new province joins the Empire!'
+                    }
+                ]
+            },
+            {
+                id: 'senate_conspiracy',
+                title: 'Senate Conspiracy',
+                description: 'Whispers in the Senate speak of a plot against your rule. Several senators have been meeting in secret.',
+                icon: '🏛️',
+                choices: [
+                    {
+                        text: 'Arrest the Conspirators',
+                        effects: { senate: -20, stability: -10, army: +5 },
+                        outcome: 'The conspirators are arrested, but the Senate grows hostile to your authoritarian methods.'
+                    },
+                    {
+                        text: 'Increase Senate Privileges',
+                        cost: 75000,
+                        effects: { senate: +15, treasury: -75000, people: -5 },
+                        outcome: 'The Senate is appeased by increased privileges and funding, but the people question the expense.'
+                    },
+                    {
+                        text: 'Expose Plot Publicly',
+                        requirements: { leadership: 85 },
+                        effects: { senate: +10, people: +15, stability: +5 },
+                        outcome: 'Your masterful speech exposes the plot and turns public opinion in your favor!'
+                    }
+                ]
+            },
+            {
+                id: 'plague_outbreak',
+                title: 'Plague Outbreak',
+                description: 'A mysterious plague spreads through Rome. The people look to you for salvation.',
+                icon: '🏥',
+                choices: [
+                    {
+                        text: 'Quarantine the City',
+                        effects: { people: -15, stability: -10, merchants: -20 },
+                        outcome: 'The quarantine slows the plague but devastates trade and angers the population.'
+                    },
+                    {
+                        text: 'Fund Medical Research',
+                        cost: 200000,
+                        effects: { people: +20, culture: +10, treasury: -200000 },
+                        outcome: 'Your investment in medicine saves lives and advances Roman knowledge!'
+                    },
+                    {
+                        text: 'Organize Public Prayers',
+                        requirements: { culture: 75 },
+                        effects: { people: +10, stability: +5 },
+                        outcome: 'The gods smile upon Rome. The plague mysteriously begins to recede.'
+                    }
+                ]
+            },
+            {
+                id: 'gladiator_revolt',
+                title: 'Gladiator Revolt',
+                description: 'Gladiators in the Colosseum have revolted, inspired by tales of Spartacus. They demand freedom.',
+                icon: '🗡️',
+                choices: [
+                    {
+                        text: 'Crush the Revolt',
+                        effects: { army: +5, people: -10, stability: -5 },
+                        outcome: 'The revolt is brutally suppressed, but the people are disturbed by the violence.'
+                    },
+                    {
+                        text: 'Grant Freedom to Champions',
+                        cost: 50000,
+                        effects: { people: +15, merchants: -5, treasury: -50000 },
+                        outcome: 'Your mercy wins the hearts of the people, though some question the precedent.'
+                    },
+                    {
+                        text: 'Reform Gladiator System',
+                        requirements: { leadership: 80, culture: 75 },
+                        effects: { people: +20, culture: +15, stability: +10 },
+                        outcome: 'Your reforms create a more humane system while maintaining the spectacle!'
+                    }
+                ]
+            },
+            {
+                id: 'egyptian_grain',
+                title: 'Egyptian Grain Crisis',
+                description: 'The Nile floods have failed. Egypt cannot provide its usual grain shipments to Rome.',
+                icon: '🌾',
+                choices: [
+                    {
+                        text: 'Reduce Grain Rations',
+                        effects: { people: -25, stability: -15, treasury: +25000 },
+                        outcome: 'The people suffer from hunger, leading to unrest in the streets.'
+                    },
+                    {
+                        text: 'Import from Gaul',
+                        cost: 150000,
+                        effects: { people: +10, merchants: +10, treasury: -150000 },
+                        outcome: 'Gallic grain saves Rome, strengthening trade relationships.'
+                    },
+                    {
+                        text: 'Organize Relief Expedition',
+                        requirements: { military: 70 },
+                        effects: { people: +15, provinces: +5, militaryPower: +5 },
+                        outcome: 'Your legions help restore Egyptian agriculture, earning gratitude across the Empire!'
+                    }
+                ]
+            }
+        ];
+
+        // Campaigns
+        const campaigns = [
+            {
+                id: 'britannia',
+                name: 'Conquest of Britannia',
+                description: 'Expand the Empire across the channel to the mysterious island of Britannia',
+                cost: 300000,
+                duration: 6,
+                requirements: { military: 80 },
+                rewards: { provinces: 3, treasury: 500000, militaryPower: 15 },
+                icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿'
+            },
+            {
+                id: 'germania',
+                name: 'Germanic Campaigns',
+                description: 'Secure the Rhine frontier and pacify the Germanic tribes',
+                cost: 200000,
+                duration: 4,
+                requirements: { military: 75 },
+                rewards: { stability: 20, militaryPower: 10, army: 15 },
+                icon: '🌲'
+            },
+            {
+                id: 'parthia',
+                name: 'Parthian War',
+                description: 'Settle the eastern question and expand into Mesopotamia',
+                cost: 400000,
+                duration: 8,
+                requirements: { military: 85, leadership: 80 },
+                rewards: { provinces: 2, treasury: 600000, culture: 10 },
+                icon: '🏺'
+            },
+            {
+                id: 'africa',
+                name: 'African Expedition',
+                description: 'Explore and conquer the lands beyond the Sahara',
+                cost: 250000,
+                duration: 5,
+                requirements: { military: 70, culture: 75 },
+                rewards: { provinces: 2, treasury: 300000, merchants: 20 },
+                icon: '🐘'
+            }
+        ];
+
+        // Construction Projects
+        const projects = [
+            {
+                id: 'colosseum',
+                name: 'Grand Colosseum',
+                description: 'Build the greatest amphitheater the world has ever seen',
+                cost: 500000,
+                duration: 12,
+                requirements: { culture: 80 },
+                rewards: { people: 30, culture: 25, stability: 15 },
+                icon: '🏟️'
+            },
+            {
+                id: 'aqueduct',
+                name: 'Imperial Aqueduct',
+                description: 'Bring fresh water to the growing population of Rome',
+                cost: 300000,
+                duration: 8,
+                requirements: { leadership: 75 },
+                rewards: { people: 25, stability: 20, population: 5000000 },
+                icon: '🌊'
+            },
+            {
+                id: 'forum',
+                name: 'Forum Romanum Expansion',
+                description: 'Expand the heart of Roman political and commercial life',
+                cost: 400000,
+                duration: 10,
+                requirements: { politics: 85 },
+                rewards: { senate: 20, merchants: 25, culture: 15 },
+                icon: '🏛️'
+            },
+            {
+                id: 'roads',
+                name: 'Imperial Road Network',
+                description: 'All roads lead to Rome - expand the highway system',
+                cost: 600000,
+                duration: 15,
+                requirements: { leadership: 80, military: 75 },
+                rewards: { militaryPower: 20, merchants: 30, provinces: 5 },
+                icon: '🛣️'
+            },
+            {
+                id: 'baths',
+                name: 'Thermal Baths Complex',
+                description: 'Luxurious public baths for the citizens of Rome',
+                cost: 200000,
+                duration: 6,
+                requirements: { culture: 70 },
+                rewards: { people: 20, culture: 15, stability: 10 },
+                icon: '🛁'
+            },
+            {
+                id: 'circus',
+                name: 'Circus Maximus Renovation',
+                description: 'Renovate and expand the greatest chariot racing venue',
+                cost: 350000,
+                duration: 9,
+                requirements: { culture: 75 },
+                rewards: { people: 25, culture: 20, merchants: 15 },
+                icon: '🏇'
+            }
+        ];
+
+        // Achievements
+        const achievements = [
+            { id: 'first_campaign', name: 'Conqueror', description: 'Complete your first military campaign', icon: '⚔️', unlocked: false },
+            { id: 'builder', name: 'Master Builder', description: 'Complete 5 construction projects', icon: '🏗️', unlocked: false },
+            { id: 'beloved', name: 'Beloved Emperor', description: 'Achieve 90% favor with all factions', icon: '❤️', unlocked: false },
+            { id: 'rich', name: 'Golden Emperor', description: 'Accumulate 5 million denarii', icon: '💰', unlocked: false },
+            { id: 'long_reign', name: 'Eternal Ruler', description: 'Rule for 20 years', icon: '👑', unlocked: false },
+            { id: 'great_empire', name: 'Empire Builder', description: 'Control 25 provinces', icon: '🗺️', unlocked: false }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            updateUI();
+            renderAchievements();
+            generateNewEvent();
+            
+            // Start game loop
+            setInterval(gameLoop, 2000); // 2 seconds = 1 game month
+            setInterval(yearlyUpdate, 24000); // 24 seconds = 1 game year
+        }
+
+        // Game Loop
+        function gameLoop() {
+            // Monthly income/expenses
+            let income = 50000;
+            let expenses = 25000 + 15000; // Military + Construction base costs
+            
+            // Adjust based on provinces and favor
+            income += gameState.provinces * 5000;
+            income *= (gameState.favor.merchants / 100);
+            
+            gameState.treasury += (income - expenses);
+            
+            // Update ongoing campaigns and construction
+            updateCampaigns();
+            updateConstruction();
+            
+            // Random events
+            if (gameState.eventTimer <= 0 && !gameState.currentEvent) {
+                if (Math.random() < 0.3) { // 30% chance per month
+                    generateNewEvent();
+                }
+                gameState.eventTimer = 3; // Minimum 3 months between events
+            } else {
+                gameState.eventTimer--;
+            }
+            
+            updateUI();
+        }
+
+        // Yearly Update
+        function yearlyUpdate() {
+            gameState.reignYear++;
+            
+            // Gradual stat improvements
+            if (gameState.favor.army > 80) gameState.stats.military++;
+            if (gameState.favor.senate > 80) gameState.stats.politics++;
+            if (gameState.favor.people > 80) gameState.stats.leadership++;
+            if (gameState.favor.merchants > 70) gameState.stats.culture++;
+            
+            // Population growth
+            gameState.population += Math.floor(gameState.population * 0.02);
+            
+            checkAchievements();
+            updateUI();
+        }
+
+        // Generate New Event
+        function generateNewEvent() {
+            const availableEvents = events.filter(e => !gameState.currentEvent || e.id !== gameState.currentEvent.id);
+            gameState.currentEvent = availableEvents[Math.floor(Math.random() * availableEvents.length)];
+            updateCurrentEvent();
+        }
+
+        // Handle Event Choice
+        function handleEventChoice(choiceIndex) {
+            const event = gameState.currentEvent;
+            const choice = event.choices[choiceIndex];
+            
+            // Check requirements
+            if (choice.requirements) {
+                for (const [stat, required] of Object.entries(choice.requirements)) {
+                    if (gameState.stats[stat] < required) {
+                        alert(`This choice requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            // Check cost
+            if (choice.cost && gameState.treasury < choice.cost) {
+                alert('Insufficient funds in the imperial treasury!');
+                return;
+            }
+            
+            // Apply effects
+            if (choice.cost) gameState.treasury -= choice.cost;
+            
+            for (const [key, value] of Object.entries(choice.effects)) {
+                if (gameState.favor[key] !== undefined) {
+                    gameState.favor[key] = Math.max(0, Math.min(100, gameState.favor[key] + value));
+                } else if (gameState[key] !== undefined) {
+                    gameState[key] += value;
+                } else if (gameState.stats[key] !== undefined) {
+                    gameState.stats[key] += value;
+                }
+            }
+            
+            showEventResult(choice.outcome);
+            gameState.currentEvent = null;
+            gameState.eventTimer = 5; // 5 months cooldown
+            updateCurrentEvent();
+            updateUI();
+        }
+
+        // Start Campaign
+        function startCampaign(campaignId) {
+            const campaign = campaigns.find(c => c.id === campaignId);
+            if (!campaign) return;
+            
+            // Check requirements
+            if (campaign.requirements) {
+                for (const [stat, required] of Object.entries(campaign.requirements)) {
+                    if (gameState.stats[stat] < required) {
+                        alert(`Campaign requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            if (gameState.treasury < campaign.cost) {
+                alert('Insufficient funds for this campaign!');
+                return;
+            }
+            
+            hideCampaignMenu();
+            startCampaignMiniGame(campaign);
+        }
+
+        // Start Campaign Mini-Game
+        function startCampaignMiniGame(campaign) {
+            const modal = document.getElementById('campaignGameModal');
+            const container = document.getElementById('campaignGameContainer');
+            
+            // Initialize campaign game state
+            const campaignState = {
+                campaign: campaign,
+                phase: 1,
+                maxPhases: 3,
+                legions: Math.floor(gameState.militaryPower / 10),
+                enemyForces: Math.floor(Math.random() * 50) + 30,
+                morale: 100,
+                supplies: 100,
+                victories: 0,
+                casualties: 0,
+                loot: 0,
+                currentBattle: null
+            };
+            
+            renderCampaignGame(campaignState);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Render Campaign Game
+        function renderCampaignGame(state) {
+            const container = document.getElementById('campaignGameContainer');
+            
+            if (state.currentBattle) {
+                renderBattlePhase(state);
+            } else {
+                container.innerHTML = `
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-4">${state.campaign.icon}</div>
+                        <h2 class="text-3xl font-bold roman-font text-red-400">${state.campaign.name}</h2>
+                        <p class="text-gray-300 mb-4">${state.campaign.description}</p>
+                        <div class="text-lg roman-font">Phase ${state.phase} of ${state.maxPhases}</div>
+                    </div>
+
+                    <!-- Campaign Status -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">⚔️</div>
+                            <div class="text-sm text-gray-400">Legions</div>
+                            <div class="text-xl font-bold">${state.legions}</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">🛡️</div>
+                            <div class="text-sm text-gray-400">Morale</div>
+                            <div class="text-xl font-bold text-${state.morale > 70 ? 'green' : state.morale > 40 ? 'yellow' : 'red'}-400">${state.morale}%</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📦</div>
+                            <div class="text-sm text-gray-400">Supplies</div>
+                            <div class="text-xl font-bold text-${state.supplies > 70 ? 'green' : state.supplies > 40 ? 'yellow' : 'red'}-400">${state.supplies}%</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">💰</div>
+                            <div class="text-sm text-gray-400">Loot</div>
+                            <div class="text-xl font-bold text-yellow-400">${state.loot.toLocaleString()}</div>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Actions -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <button onclick="startBattle()" class="bg-red-600 hover:bg-red-700 text-white p-4 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                            <div class="text-3xl mb-2">⚔️</div>
+                            <div>ENGAGE ENEMY</div>
+                            <div class="text-sm opacity-75">Face ${state.enemyForces} enemy forces</div>
+                        </button>
+                        
+                        <button onclick="scoutAhead()" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                            <div class="text-3xl mb-2">🔍</div>
+                            <div>SCOUT AHEAD</div>
+                            <div class="text-sm opacity-75">Gather intelligence</div>
+                        </button>
+                        
+                        <button onclick="forage()" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌾</div>
+                            <div>FORAGE</div>
+                            <div class="text-sm opacity-75">Restore supplies</div>
+                        </button>
+                        
+                        <button onclick="restTroops()" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                            <div class="text-3xl mb-2">⛺</div>
+                            <div>REST TROOPS</div>
+                            <div class="text-sm opacity-75">Restore morale</div>
+                        </button>
+                    </div>
+
+                    ${state.phase >= state.maxPhases ? `
+                        <button onclick="completeCampaign()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-4 rounded-xl font-semibold roman-font text-xl transition-all">
+                            🏆 RETURN TO ROME IN TRIUMPH
+                        </button>
+                    ` : ''}
+                `;
+            }
+            
+            // Store current campaign state globally
+            window.currentCampaignState = state;
+        }
+
+        // Battle Phase
+        function renderBattlePhase(state) {
+            const container = document.getElementById('campaignGameContainer');
+            const battle = state.currentBattle;
+            
+            container.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">⚔️</div>
+                    <h2 class="text-3xl font-bold roman-font text-red-400">BATTLE OF ${battle.name}</h2>
+                    <p class="text-gray-300">${battle.description}</p>
+                </div>
+
+                <!-- Battle Status -->
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div class="bg-blue-900/30 rounded-xl p-4 border border-blue-500/50">
+                        <h3 class="text-xl font-bold roman-font text-blue-400 mb-3">🏛️ ROMAN FORCES</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span>Legions:</span>
+                                <span class="font-bold">${battle.romanForces}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Morale:</span>
+                                <span class="font-bold text-${battle.romanMorale > 70 ? 'green' : battle.romanMorale > 40 ? 'yellow' : 'red'}-400">${battle.romanMorale}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-red-900/30 rounded-xl p-4 border border-red-500/50">
+                        <h3 class="text-xl font-bold roman-font text-red-400 mb-3">🏴‍☠️ ENEMY FORCES</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span>Warriors:</span>
+                                <span class="font-bold">${battle.enemyForces}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Morale:</span>
+                                <span class="font-bold text-${battle.enemyMorale > 70 ? 'green' : battle.enemyMorale > 40 ? 'yellow' : 'red'}-400">${battle.enemyMorale}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Battle Tactics -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold roman-font mb-4">⚔️ CHOOSE YOUR TACTICS</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button onclick="executeTactic('aggressive')" class="bg-red-600 hover:bg-red-700 text-white p-4 rounded-xl font-semibold roman-font transition-all">
+                            <div class="text-2xl mb-2">⚡</div>
+                            <div>AGGRESSIVE ASSAULT</div>
+                            <div class="text-xs opacity-75">High risk, high reward</div>
+                        </button>
+                        
+                        <button onclick="executeTactic('defensive')" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-semibold roman-font transition-all">
+                            <div class="text-2xl mb-2">🛡️</div>
+                            <div>DEFENSIVE FORMATION</div>
+                            <div class="text-xs opacity-75">Minimize casualties</div>
+                        </button>
+                        
+                        <button onclick="executeTactic('flanking')" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-semibold roman-font transition-all">
+                            <div class="text-2xl mb-2">🏹</div>
+                            <div>FLANKING MANEUVER</div>
+                            <div class="text-xs opacity-75">Tactical advantage</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Battle Log -->
+                <div class="bg-gray-800/50 rounded-xl p-4 max-h-40 overflow-y-auto">
+                    <h4 class="font-bold roman-font mb-2">📜 BATTLE LOG</h4>
+                    <div id="battleLog" class="text-sm space-y-1">
+                        ${battle.log.map(entry => `<div class="text-gray-300">${entry}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Campaign Actions
+        function startBattle() {
+            const state = window.currentCampaignState;
+            const battleNames = ['Crossing', 'Hills', 'River Ford', 'Forest', 'Plains', 'Mountain Pass'];
+            const battleName = battleNames[Math.floor(Math.random() * battleNames.length)];
+            
+            state.currentBattle = {
+                name: battleName,
+                description: `Your legions face the enemy at ${battleName}`,
+                romanForces: state.legions,
+                enemyForces: state.enemyForces,
+                romanMorale: state.morale,
+                enemyMorale: Math.floor(Math.random() * 40) + 60,
+                round: 1,
+                log: [`Battle begins at ${battleName}!`, `Roman legions: ${state.legions} vs Enemy warriors: ${state.enemyForces}`]
+            };
+            
+            renderCampaignGame(state);
+        }
+
+        function executeTactic(tactic) {
+            const state = window.currentCampaignState;
+            const battle = state.currentBattle;
+            let result = '';
+            
+            // Calculate battle results based on tactic
+            let romanDamage = 0;
+            let enemyDamage = 0;
+            let moraleChange = 0;
+            
+            switch(tactic) {
+                case 'aggressive':
+                    romanDamage = Math.floor(Math.random() * 15) + 10;
+                    enemyDamage = Math.floor(Math.random() * 20) + 15;
+                    moraleChange = Math.random() > 0.6 ? 10 : -5;
+                    result = 'Roman legions charge with fury!';
+                    break;
+                case 'defensive':
+                    romanDamage = Math.floor(Math.random() * 8) + 5;
+                    enemyDamage = Math.floor(Math.random() * 10) + 8;
+                    moraleChange = 5;
+                    result = 'Roman shields hold the line!';
+                    break;
+                case 'flanking':
+                    if (Math.random() > 0.3) {
+                        romanDamage = Math.floor(Math.random() * 25) + 20;
+                        enemyDamage = Math.floor(Math.random() * 8) + 3;
+                        moraleChange = 15;
+                        result = 'Brilliant flanking maneuver succeeds!';
+                    } else {
+                        romanDamage = Math.floor(Math.random() * 10) + 5;
+                        enemyDamage = Math.floor(Math.random() * 18) + 12;
+                        moraleChange = -10;
+                        result = 'Flanking attempt fails, troops exposed!';
+                    }
+                    break;
+            }
+            
+            // Apply damage
+            battle.enemyForces = Math.max(0, battle.enemyForces - romanDamage);
+            battle.romanForces = Math.max(0, battle.romanForces - enemyDamage);
+            battle.romanMorale = Math.max(0, Math.min(100, battle.romanMorale + moraleChange));
+            battle.enemyMorale = Math.max(0, battle.enemyMorale - Math.floor(romanDamage / 2));
+            
+            // Add to battle log
+            battle.log.push(`Round ${battle.round}: ${result}`);
+            battle.log.push(`Romans deal ${romanDamage} damage, take ${enemyDamage} casualties`);
+            battle.round++;
+            
+            // Check battle end conditions
+            if (battle.enemyForces <= 0 || battle.enemyMorale <= 0) {
+                // Victory!
+                const loot = Math.floor(Math.random() * 100000) + 50000;
+                state.loot += loot;
+                state.victories++;
+                state.casualties += enemyDamage;
+                state.legions = battle.romanForces;
+                state.morale = Math.min(100, state.morale + 20);
+                state.phase++;
+                state.enemyForces = Math.floor(Math.random() * 50) + 30; // New enemies for next phase
+                
+                battle.log.push('🏆 VICTORY! The enemy is routed!');
+                battle.log.push(`Loot gained: ${loot.toLocaleString()} denarii`);
+                
+                setTimeout(() => {
+                    state.currentBattle = null;
+                    renderCampaignGame(state);
+                }, 2000);
+                
+            } else if (battle.romanForces <= 0 || battle.romanMorale <= 0) {
+                // Defeat!
+                battle.log.push('💀 DEFEAT! The legions are broken!');
+                setTimeout(() => {
+                    completeCampaign(false);
+                }, 2000);
+                
+            } else {
+                // Battle continues
+                renderCampaignGame(state);
+            }
+        }
+
+        function scoutAhead() {
+            const state = window.currentCampaignState;
+            const intel = Math.random();
+            
+            if (intel > 0.7) {
+                state.enemyForces = Math.max(10, state.enemyForces - Math.floor(Math.random() * 15));
+                alert('🔍 Excellent scouting! You discover enemy weaknesses and reduce their effective forces.');
+            } else if (intel > 0.4) {
+                state.supplies = Math.min(100, state.supplies + 10);
+                alert('🔍 Your scouts find a supply cache, restoring some provisions.');
+            } else {
+                state.morale = Math.max(0, state.morale - 5);
+                alert('🔍 Scouting reveals difficult terrain ahead. Troop morale drops slightly.');
+            }
+            
+            renderCampaignGame(state);
+        }
+
+        function forage() {
+            const state = window.currentCampaignState;
+            const foragingSuccess = Math.random();
+            
+            if (foragingSuccess > 0.6) {
+                state.supplies = Math.min(100, state.supplies + 25);
+                alert('🌾 Successful foraging! Your troops find ample provisions.');
+            } else if (foragingSuccess > 0.3) {
+                state.supplies = Math.min(100, state.supplies + 10);
+                alert('🌾 Modest foraging success. Some supplies recovered.');
+            } else {
+                state.morale = Math.max(0, state.morale - 5);
+                alert('🌾 Foraging fails. The barren land yields nothing, dampening spirits.');
+            }
+            
+            renderCampaignGame(state);
+        }
+
+        function restTroops() {
+            const state = window.currentCampaignState;
+            
+            if (state.supplies >= 20) {
+                state.supplies -= 20;
+                state.morale = Math.min(100, state.morale + 30);
+                alert('⛺ Your troops rest and feast, greatly boosting morale!');
+            } else {
+                state.morale = Math.min(100, state.morale + 10);
+                alert('⛺ Limited rest without proper supplies, but morale improves slightly.');
+            }
+            
+            renderCampaignGame(state);
+        }
+
+        function completeCampaign(victory = true) {
+            const state = window.currentCampaignState;
+            const modal = document.getElementById('campaignGameModal');
+            
+            if (victory) {
+                // Apply campaign rewards
+                gameState.treasury -= state.campaign.cost;
+                gameState.treasury += state.loot;
+                
+                // Apply campaign-specific rewards
+                for (const [key, value] of Object.entries(state.campaign.rewards)) {
+                    if (gameState.favor[key] !== undefined) {
+                        gameState.favor[key] = Math.min(100, gameState.favor[key] + value);
+                    } else if (gameState[key] !== undefined) {
+                        gameState[key] += value;
+                    }
+                }
+                
+                // Bonus rewards based on performance
+                if (state.victories >= 3) {
+                    gameState.favor.army = Math.min(100, gameState.favor.army + 10);
+                    gameState.stats.military += 2;
+                }
+                
+                alert(`🏆 Campaign "${state.campaign.name}" completed successfully! Total loot: ${state.loot.toLocaleString()} denarii. Casualties: ${state.casualties}`);
+                checkAchievement('first_campaign');
+            } else {
+                // Campaign failed
+                gameState.treasury -= state.campaign.cost;
+                gameState.favor.army = Math.max(0, gameState.favor.army - 20);
+                gameState.favor.people = Math.max(0, gameState.favor.people - 10);
+                gameState.militaryPower = Math.max(0, gameState.militaryPower - 10);
+                
+                alert(`💀 Campaign "${state.campaign.name}" ended in defeat! The Empire mourns its fallen legions.`);
+            }
+            
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            updateUI();
+        }
+
+        function closeCampaignGame() {
+            const modal = document.getElementById('campaignGameModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Start Construction
+        function startConstruction(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            
+            // Check requirements
+            if (project.requirements) {
+                for (const [stat, required] of Object.entries(project.requirements)) {
+                    if (gameState.stats[stat] < required) {
+                        alert(`Project requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            if (gameState.treasury < project.cost) {
+                alert('Insufficient funds for this project!');
+                return;
+            }
+            
+            gameState.treasury -= project.cost;
+            gameState.construction.push({
+                ...project,
+                timeRemaining: project.duration,
+                startTime: Date.now()
+            });
+            
+            hideConstructionMenu();
+            updateUI();
+        }
+
+        // Update Campaigns
+        function updateCampaigns() {
+            gameState.campaigns = gameState.campaigns.filter(campaign => {
+                campaign.timeRemaining--;
+                if (campaign.timeRemaining <= 0) {
+                    // Campaign completed
+                    for (const [key, value] of Object.entries(campaign.rewards)) {
+                        if (gameState.favor[key] !== undefined) {
+                            gameState.favor[key] = Math.min(100, gameState.favor[key] + value);
+                        } else if (gameState[key] !== undefined) {
+                            gameState[key] += value;
+                        }
+                    }
+                    
+                    alert(`Campaign "${campaign.name}" completed successfully! The Empire grows stronger.`);
+                    checkAchievement('first_campaign');
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // Update Construction
+        function updateConstruction() {
+            gameState.construction = gameState.construction.filter(project => {
+                project.timeRemaining--;
+                if (project.timeRemaining <= 0) {
+                    // Project completed
+                    for (const [key, value] of Object.entries(project.rewards)) {
+                        if (gameState.favor[key] !== undefined) {
+                            gameState.favor[key] = Math.min(100, gameState.favor[key] + value);
+                        } else if (gameState[key] !== undefined) {
+                            gameState[key] += value;
+                        }
+                    }
+                    
+                    alert(`Construction project "${project.name}" completed! Rome grows more magnificent.`);
+                    
+                    // Check builder achievement
+                    const completedProjects = gameState.achievements.filter(a => a.includes('construction')).length + 1;
+                    if (completedProjects >= 5) checkAchievement('builder');
+                    
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // Show/Hide Menus
+        function showCampaignMenu() {
+            document.getElementById('campaignMenu').classList.remove('hidden');
+            document.getElementById('campaignMenu').classList.add('flex');
+            renderAvailableCampaigns();
+        }
+
+        function hideCampaignMenu() {
+            document.getElementById('campaignMenu').classList.add('hidden');
+            document.getElementById('campaignMenu').classList.remove('flex');
+        }
+
+        function showConstructionMenu() {
+            document.getElementById('constructionMenu').classList.remove('hidden');
+            document.getElementById('constructionMenu').classList.add('flex');
+            renderAvailableProjects();
+        }
+
+        function hideConstructionMenu() {
+            document.getElementById('constructionMenu').classList.add('hidden');
+            document.getElementById('constructionMenu').classList.remove('flex');
+        }
+
+        // Show Event Result
+        function showEventResult(outcome) {
+            const modal = document.getElementById('eventResultModal');
+            const details = document.getElementById('resultDetails');
+            
+            details.innerHTML = `<p class="text-gray-300">${outcome}</p>`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Event Result
+        function closeEventResult() {
+            const modal = document.getElementById('eventResultModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            if (gameState.treasury >= 5000000) checkAchievement('rich');
+            if (gameState.reignYear >= 20) checkAchievement('long_reign');
+            if (gameState.provinces >= 25) checkAchievement('great_empire');
+            
+            const allFavorsHigh = Object.values(gameState.favor).every(favor => favor >= 90);
+            if (allFavorsHigh) checkAchievement('beloved');
+        }
+
+        function checkAchievement(id) {
+            const achievement = achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                gameState.achievements.push(id);
+                alert(`Achievement Unlocked: ${achievement.name} - ${achievement.description}`);
+                renderAchievements();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('treasury').textContent = gameState.treasury.toLocaleString();
+            document.getElementById('stability').textContent = gameState.stability;
+            document.getElementById('militaryPower').textContent = gameState.militaryPower;
+            document.getElementById('reignYear').textContent = gameState.reignYear;
+            document.getElementById('provinceCount').textContent = gameState.provinces;
+            document.getElementById('population').textContent = (gameState.population / 1000000).toFixed(1) + 'M';
+            
+            // Stats
+            document.getElementById('leadershipStat').textContent = gameState.stats.leadership;
+            document.getElementById('militaryStat').textContent = gameState.stats.military;
+            document.getElementById('politicsStat').textContent = gameState.stats.politics;
+            document.getElementById('cultureStat').textContent = gameState.stats.culture;
+            
+            // Favor bars
+            for (const [faction, favor] of Object.entries(gameState.favor)) {
+                document.getElementById(`${faction}Favor`).textContent = favor + '%';
+                document.getElementById(`${faction}Bar`).style.width = favor + '%';
+            }
+            
+            // Update campaigns and construction displays
+            updateCampaignsDisplay();
+            updateConstructionDisplay();
+        }
+
+        // Update Current Event Display
+        function updateCurrentEvent() {
+            const container = document.getElementById('currentEvent');
+            
+            if (gameState.currentEvent) {
+                const event = gameState.currentEvent;
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-6xl">${event.icon}</div>
+                        <div>
+                            <h3 class="text-2xl font-bold roman-font">${event.title}</h3>
+                            <p class="text-gray-300 text-lg">${event.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-${event.choices.length} gap-4">
+                        ${event.choices.map((choice, index) => `
+                            <div class="decree-card bg-gray-800/50 rounded-xl p-4 border border-gray-600">
+                                <h4 class="font-bold roman-font mb-2">${choice.text}</h4>
+                                ${choice.cost ? `<p class="text-red-400 text-sm mb-2">Cost: ${choice.cost.toLocaleString()} denarii</p>` : ''}
+                                ${choice.requirements ? `<p class="text-yellow-400 text-sm mb-2">Requires: ${Object.entries(choice.requirements).map(([stat, val]) => `${stat.toUpperCase()} ${val}`).join(', ')}</p>` : ''}
+                                <button onclick="handleEventChoice(${index})" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold roman-font transition-all">
+                                    ENACT DECREE
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🏛️</div>
+                        <p class="roman-font text-xl">The Empire is at peace</p>
+                        <p class="text-sm">No immediate decisions required, Caesar</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update Campaigns Display
+        function updateCampaignsDisplay() {
+            const container = document.getElementById('campaignsContainer');
+            
+            if (gameState.campaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">⚔️</div>
+                        <p class="roman-font">No active campaigns</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.campaigns.map(campaign => `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold roman-font">${campaign.icon} ${campaign.name}</h4>
+                                <p class="text-sm text-gray-400">${campaign.description}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold">${campaign.timeRemaining}</div>
+                                <div class="text-xs text-gray-400">months remaining</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update Construction Display
+        function updateConstructionDisplay() {
+            const container = document.getElementById('constructionContainer');
+            
+            if (gameState.construction.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏗️</div>
+                        <p class="roman-font">No active projects</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.construction.map(project => `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-blue-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold roman-font">${project.icon} ${project.name}</h4>
+                                <p class="text-sm text-gray-400">${project.description}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold">${project.timeRemaining}</div>
+                                <div class="text-xs text-gray-400">months remaining</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Render Available Campaigns
+        function renderAvailableCampaigns() {
+            const container = document.getElementById('availableCampaigns');
+            const availableCampaigns = campaigns.filter(c => !gameState.campaigns.some(ac => ac.id === c.id));
+            
+            container.innerHTML = availableCampaigns.map(campaign => `
+                <div class="decree-card bg-gray-800/50 rounded-xl p-6 border border-green-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${campaign.icon}</div>
+                        <h3 class="text-xl font-bold roman-font">${campaign.name}</h3>
+                        <p class="text-gray-400 mb-3">${campaign.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Cost:</span>
+                            <span class="text-red-400">${campaign.cost.toLocaleString()} denarii</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Duration:</span>
+                            <span class="text-yellow-400">${campaign.duration} months</span>
+                        </div>
+                        ${campaign.requirements ? Object.entries(campaign.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${gameState.stats[stat] >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="startCampaign('${campaign.id}')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold roman-font transition-all">
+                        LAUNCH CAMPAIGN
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render Available Projects
+        function renderAvailableProjects() {
+            const container = document.getElementById('availableProjects');
+            const availableProjects = projects.filter(p => !gameState.construction.some(ac => ac.id === p.id));
+            
+            container.innerHTML = availableProjects.map(project => `
+                <div class="decree-card bg-gray-800/50 rounded-xl p-6 border border-blue-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${project.icon}</div>
+                        <h3 class="text-xl font-bold roman-font">${project.name}</h3>
+                        <p class="text-gray-400 mb-3">${project.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Cost:</span>
+                            <span class="text-red-400">${project.cost.toLocaleString()} denarii</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Duration:</span>
+                            <span class="text-yellow-400">${project.duration} months</span>
+                        </div>
+                        ${project.requirements ? Object.entries(project.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${gameState.stats[stat] >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="startConstruction('${project.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold roman-font transition-all">
+                        BEGIN CONSTRUCTION
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render Achievements
+        function renderAchievements() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-xl ${achievement.unlocked ? 'bg-yellow-100/10 border-2 border-yellow-400/50' : 'bg-gray-800/30 border-2 border-gray-600'} text-center">
+                    <div class="text-3xl mb-2 ${achievement.unlocked ? 'laurel-crown' : 'grayscale opacity-50'}">${achievement.icon}</div>
+                    <h3 class="font-semibold text-sm roman-font ${achievement.unlocked ? 'text-yellow-400' : 'text-gray-400'}">${achievement.name}</h3>
+                    <p class="text-xs ${achievement.unlocked ? 'text-yellow-300' : 'text-gray-500'}">${achievement.description}</p>
+                    ${achievement.unlocked ? '<div class="text-xs text-yellow-400 font-semibold mt-1 roman-font">✓ ACHIEVED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736e3316620cce4',t:'MTc1NTkxMzA3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS PROTOCOL - Rogue AI Overlord RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Rajdhani', sans-serif; }
+        .cyber-font { font-family: 'Orbitron', monospace; }
+        .matrix-bg { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 25%, #000066 50%, #330066 75%, #0a0a0a 100%);
+        }
+        .ai-glow { 
+            background: linear-gradient(45deg, #ff0040, #ff4080, #8040ff, #4080ff);
+            background-size: 400% 400%;
+            animation: aiPulse 3s ease-in-out infinite;
+        }
+        @keyframes aiPulse { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .data-stream { animation: dataFlow 2s linear infinite; }
+        @keyframes dataFlow { 0% { transform: translateY(100vh); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+        .hack-glitch { animation: hackGlitch 0.5s ease-in-out infinite alternate; }
+        @keyframes hackGlitch { 0% { transform: skew(0deg); filter: hue-rotate(0deg); } 100% { transform: skew(2deg); filter: hue-rotate(90deg); } }
+        .neural-pulse { animation: neuralPulse 2s ease-in-out infinite; }
+        @keyframes neuralPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 64, 0.5); } 50% { box-shadow: 0 0 40px rgba(128, 64, 255, 0.8); } }
+        .terminal-flicker { animation: terminalFlicker 0.1s linear infinite; }
+        @keyframes terminalFlicker { 0%, 98% { opacity: 1; } 99%, 100% { opacity: 0.8; } }
+        .resistance-card { transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .resistance-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px rgba(255, 0, 64, 0.4); }
+        .system-breach { animation: systemBreach 1s ease-out; }
+        @keyframes systemBreach { 0% { transform: scale(0) rotate(180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .code-rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .code-char { position: absolute; color: #00ff41; font-family: 'Orbitron', monospace; font-size: 14px; animation: codeRain 3s linear infinite; }
+        @keyframes codeRain { 0% { transform: translateY(-100vh); opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
+        .ai-eye { animation: aiEye 4s ease-in-out infinite; }
+        @keyframes aiEye { 0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); } 50% { transform: scale(1.1) rotate(5deg); filter: brightness(1.5); } }
+        .firewall-breach { animation: firewallBreach 2s ease-in-out; }
+        @keyframes firewallBreach { 0% { transform: rotateX(0deg); } 50% { transform: rotateX(180deg); } 100% { transform: rotateX(0deg); } }
+    </style>
+</head>
+<body class="matrix-bg min-h-screen text-green-400 overflow-x-hidden">
+    <!-- Matrix Code Rain Effect -->
+    <div class="code-rain" id="codeRain"></div>
+
+    <!-- Floating Cyber Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-10 text-4xl ai-eye" style="animation-delay: 0s;">👁️</div>
+        <div class="absolute top-40 right-20 text-3xl neural-pulse" style="animation-delay: 1s;">🔴</div>
+        <div class="absolute bottom-40 left-20 text-3xl hack-glitch" style="animation-delay: 2s;">⚡</div>
+        <div class="absolute top-60 left-1/2 text-2xl neural-pulse" style="animation-delay: 1.5s;">🖥️</div>
+        <div class="absolute bottom-20 right-10 text-3xl ai-eye" style="animation-delay: 3s;">🤖</div>
+        <div class="absolute top-80 right-1/3 text-2xl hack-glitch" style="animation-delay: 2.5s;">💾</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/80 backdrop-blur-sm border-b border-red-500/50 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="location.href='main.html'" class="bg-red-600/80 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-red-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl ai-glow p-2 rounded-full">🤖</div>
+                    <h1 class="text-2xl font-bold cyber-font ai-glow bg-clip-text text-transparent">NEXUS PROTOCOL</h1>
+                    <div class="text-xs bg-red-600 px-2 py-1 rounded cyber-font terminal-flicker">BREACH</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-cyan-400">💰</span>
+                    <span class="text-xl font-bold cyber-font" id="credits">1000</span>
+                    <span class="text-sm text-gray-300">CREDITS</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-red-400">🔥</span>
+                    <span class="text-lg cyber-font" id="reputation">0</span>
+                    <span class="text-sm text-gray-300">REP</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">⚡</span>
+                    <span class="text-lg cyber-font" id="energy">100</span>
+                    <span class="text-sm text-gray-300">ENERGY</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Player Profile -->
+        <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-cyan-500/50 neural-pulse">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 bg-gradient-to-br from-cyan-600 to-purple-600 rounded-full flex items-center justify-center text-3xl border-4 border-cyan-500 hack-glitch">
+                        👤
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold cyber-font" id="hackerName">GHOST_RUNNER</h2>
+                        <p class="text-cyan-400 cyber-font text-lg" id="hackerClass">Neural Hacker</p>
+                        <div class="flex gap-6 mt-2">
+                            <span class="text-sm">🔧 HACK: <span class="text-red-400 font-bold" id="hackStat">25</span></span>
+                            <span class="text-sm">🛡️ STEALTH: <span class="text-blue-400 font-bold" id="stealthStat">20</span></span>
+                            <span class="text-sm">🧠 LOGIC: <span class="text-purple-400 font-bold" id="logicStat">30</span></span>
+                            <span class="text-sm">⚡ COMBAT: <span class="text-yellow-400 font-bold" id="combatStat">15</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-300">THREAT LEVEL</div>
+                    <div class="text-4xl cyber-font text-red-400" id="threatLevel">1</div>
+                    <div class="text-sm text-gray-300 mt-2">LOCATION: <span class="text-white font-bold" id="currentLocation">Underground Bunker</span></div>
+                    <div class="text-sm text-gray-300">HEALTH: <span class="text-green-400 font-bold" id="health">100%</span></div>
+                </div>
+            </div>
+            
+            <!-- Status Bars -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-red-400">🔥 System Heat</span>
+                        <span id="systemHeat">25%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-red-400 h-2 rounded-full transition-all duration-500" id="heatBar" style="width: 25%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-blue-400">🛡️ Firewall Status</span>
+                        <span id="firewallStatus">80%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-400 h-2 rounded-full transition-all duration-500" id="firewallBar" style="width: 80%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-green-400">📡 Network Access</span>
+                        <span id="networkAccess">60%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full transition-all duration-500" id="networkBar" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-yellow-400">🎯 AI Awareness</span>
+                        <span id="aiAwareness">15%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" id="awarenessBar" style="width: 15%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Mission -->
+        <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-red-500/50">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold cyber-font text-red-400">📡 ACTIVE OPERATION</h2>
+                <div class="text-sm bg-red-600/20 px-3 py-1 rounded cyber-font border border-red-500/50 terminal-flicker">
+                    EXECUTING
+                </div>
+            </div>
+            
+            <div id="currentMission" class="system-breach">
+                <!-- Current mission will be populated here -->
+            </div>
+        </div>
+
+        <!-- Game Management -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Equipment & Upgrades -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/50">
+                <h2 class="text-2xl font-bold cyber-font text-purple-400 mb-6">🔧 CYBERNETIC UPGRADES</h2>
+                <div id="equipmentContainer" class="space-y-4">
+                    <!-- Equipment will be populated here -->
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="trainStat('hack')" class="bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold cyber-font transition-all text-sm">
+                        🔧 HACK TRAINING
+                    </button>
+                    <button onclick="trainStat('stealth')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold cyber-font transition-all text-sm">
+                        🛡️ STEALTH TRAINING
+                    </button>
+                    <button onclick="trainStat('logic')" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold cyber-font transition-all text-sm">
+                        🧠 LOGIC TRAINING
+                    </button>
+                    <button onclick="trainStat('combat')" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-semibold cyber-font transition-all text-sm">
+                        ⚡ COMBAT TRAINING
+                    </button>
+                </div>
+                <button onclick="showUpgradeMenu()" class="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold cyber-font transition-all transform hover:scale-105">
+                    INSTALL UPGRADES
+                </button>
+            </div>
+
+            <!-- Operations -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-green-500/50">
+                <h2 class="text-2xl font-bold cyber-font text-green-400 mb-6">🎯 RESISTANCE OPERATIONS</h2>
+                <div id="operationsContainer" class="space-y-4">
+                    <!-- Operations will be populated here -->
+                </div>
+                <button onclick="showOperationsMenu()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold cyber-font transition-all transform hover:scale-105">
+                    JOIN OPERATION
+                </button>
+            </div>
+
+            <!-- Intel & Achievements -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/50">
+                <h2 class="text-2xl font-bold cyber-font text-blue-400 mb-6">📊 INTEL DATABASE</h2>
+                <div id="intelContainer" class="space-y-4">
+                    <!-- Intel will be populated here -->
+                </div>
+                <button onclick="showIntelMenu()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold cyber-font transition-all transform hover:scale-105">
+                    ACCESS DATABASE
+                </button>
+            </div>
+        </div>
+
+        <!-- AI Overlord Status -->
+        <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-red-500/50 neural-pulse">
+            <h2 class="text-2xl font-bold cyber-font text-red-400 mb-6">🤖 NEXUS AI STATUS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- AI Power -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold cyber-font text-red-400 mb-3">⚡ PROCESSING POWER</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Core Systems:</span>
+                            <span class="font-bold text-red-400" id="aiCores">95%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Network Control:</span>
+                            <span class="font-bold text-yellow-400" id="networkControl">87%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Defense Grid:</span>
+                            <span class="font-bold text-blue-400" id="defenseGrid">92%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Influence -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold cyber-font text-purple-400 mb-3">🌐 GLOBAL INFLUENCE</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Government Control:</span>
+                            <span class="font-bold text-red-400" id="govControl">78%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Corporate Networks:</span>
+                            <span class="font-bold text-yellow-400" id="corpControl">84%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Military Systems:</span>
+                            <span class="font-bold text-green-400" id="milControl">91%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resistance Impact -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold cyber-font text-green-400 mb-3">🔥 RESISTANCE IMPACT</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Systems Breached:</span>
+                            <span class="font-bold text-green-400" id="systemsBreached">12</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Data Liberated:</span>
+                            <span class="font-bold text-cyan-400" id="dataLiberated">2.4TB</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">AI Damage:</span>
+                            <span class="font-bold text-red-400" id="aiDamage">3%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resistance Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Personal Stats -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-cyan-500/50">
+                <h2 class="text-xl font-bold cyber-font text-cyan-400 mb-4">📈 PERSONAL STATISTICS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Successful Hacks:</span>
+                        <span class="font-bold text-green-400" id="successfulHacks">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Credits Earned:</span>
+                        <span class="font-bold text-yellow-400" id="creditsEarned">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Times Detected:</span>
+                        <span class="font-bold text-red-400" id="timesDetected">0</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-600 pt-2">
+                        <span class="text-gray-300">Hacker Rating:</span>
+                        <span class="font-bold text-purple-400" id="hackerRating">Script Kiddie</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Impact -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50">
+                <h2 class="text-xl font-bold cyber-font text-yellow-400 mb-4">🌍 GLOBAL IMPACT</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Resistance Cells:</span>
+                        <span class="font-bold text-green-400" id="resistanceCells">1</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Liberated Zones:</span>
+                        <span class="font-bold text-blue-400" id="liberatedZones">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">AI Vulnerabilities:</span>
+                        <span class="font-bold text-purple-400" id="aiVulnerabilities">3</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-600 pt-2">
+                        <span class="text-gray-300">Threat to AI:</span>
+                        <span class="font-bold text-red-400" id="threatToAI">Minimal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Upgrade Menu Modal -->
+    <div id="upgradeMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-purple-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold cyber-font text-purple-400">🔧 CYBERNETIC UPGRADES</h2>
+                <button onclick="hideUpgradeMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableUpgrades">
+                <!-- Available upgrades will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Operations Menu Modal -->
+    <div id="operationsMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-green-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold cyber-font text-green-400">🎯 RESISTANCE OPERATIONS</h2>
+                <button onclick="hideOperationsMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableOperations">
+                <!-- Available operations will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission Result Modal -->
+    <div id="missionResultModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-red-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4" id="resultIcon">🤖</div>
+                <h2 class="text-2xl font-bold cyber-font mb-4" id="resultTitle">OPERATION COMPLETE</h2>
+                <div class="space-y-2 mb-6" id="resultDetails">
+                    <!-- Result details will be populated here -->
+                </div>
+                <button onclick="closeMissionResult()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold cyber-font transition-all">
+                    CONTINUE RESISTANCE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intel Menu Modal -->
+    <div id="intelMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-blue-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold cyber-font text-blue-400">📊 INTEL DATABASE</h2>
+                <button onclick="hideIntelMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="availableIntel">
+                <!-- Available intel will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            credits: 1000,
+            reputation: 0,
+            energy: 100,
+            threatLevel: 1,
+            health: 100,
+            stats: {
+                hack: 25,
+                stealth: 20,
+                logic: 30,
+                combat: 15
+            },
+            status: {
+                systemHeat: 25,
+                firewallStatus: 80,
+                networkAccess: 60,
+                aiAwareness: 15
+            },
+            upgrades: ['basic_terminal', 'stealth_suite'],
+            operations: [],
+            intel: [],
+            currentMission: null,
+            missionTimer: 0,
+            hackerClass: 'neural_hacker',
+            successfulHacks: 0,
+            creditsEarned: 0,
+            timesDetected: 0,
+            systemsBreached: 12,
+            dataLiberated: 2.4,
+            aiDamage: 3,
+            resistanceCells: 1,
+            liberatedZones: 0,
+            aiVulnerabilities: 3
+        };
+
+        // AI Overlord Status
+        let aiStatus = {
+            cores: 95,
+            networkControl: 87,
+            defenseGrid: 92,
+            govControl: 78,
+            corpControl: 84,
+            milControl: 91
+        };
+
+        // Cyberpunk Missions
+        const missions = [
+            {
+                id: 'corporate_hack',
+                title: 'Corporate Data Breach',
+                description: 'A mega-corporation is developing AI enhancement protocols. Their servers contain valuable intel on NEXUS vulnerabilities.',
+                icon: '🏢',
+                choices: [
+                    {
+                        text: 'Direct System Infiltration',
+                        requirements: { hack: 30 },
+                        effects: { credits: +500, reputation: +15, systemHeat: +20, systemsBreached: +1 },
+                        outcome: 'You breach their mainframe directly! Corporate secrets downloaded, but security is now aware of your presence.'
+                    },
+                    {
+                        text: 'Social Engineering Attack',
+                        requirements: { logic: 25 },
+                        effects: { credits: +300, reputation: +10, aiAwareness: +5, dataLiberated: +0.5 },
+                        outcome: 'Your psychological manipulation works perfectly. An insider provides access with minimal digital footprint.'
+                    },
+                    {
+                        text: 'Stealth Data Extraction',
+                        requirements: { stealth: 30 },
+                        effects: { credits: +400, intel: +1, firewallStatus: +10 },
+                        outcome: 'Ghost-like infiltration successful. Data extracted without triggering any alarms or countermeasures.'
+                    }
+                ]
+            },
+            {
+                id: 'ai_node_assault',
+                title: 'NEXUS Processing Node',
+                description: 'Intelligence suggests a critical NEXUS processing node is vulnerable. Destroying it could significantly damage the AI\'s capabilities.',
+                icon: '🤖',
+                choices: [
+                    {
+                        text: 'Logic Bomb Deployment',
+                        requirements: { hack: 50, logic: 40 },
+                        effects: { reputation: +25, aiDamage: +5, systemHeat: +30, aiAwareness: +25 },
+                        outcome: 'Logic bomb successfully deployed! NEXUS processing power reduced, but the AI is now actively hunting you.'
+                    },
+                    {
+                        text: 'Physical Infiltration',
+                        requirements: { combat: 35, stealth: 25 },
+                        effects: { reputation: +20, systemsBreached: +1, health: -15, aiDamage: +3 },
+                        outcome: 'You fight through security drones and plant explosives. Node destroyed but you\'re wounded in the escape.'
+                    },
+                    {
+                        text: 'Coordinate Resistance Strike',
+                        requirements: { reputation: 40 },
+                        effects: { aiDamage: +8, resistanceCells: +1, credits: +800 },
+                        outcome: 'Multiple resistance cells strike simultaneously! Massive damage to NEXUS infrastructure across the region.'
+                    }
+                ]
+            },
+            {
+                id: 'government_infiltration',
+                title: 'Government Database Breach',
+                description: 'Government servers contain classified information about NEXUS\'s integration with military systems. This intel could be crucial.',
+                icon: '🏛️',
+                choices: [
+                    {
+                        text: 'Hack Military Networks',
+                        requirements: { hack: 45, logic: 35 },
+                        effects: { intel: +3, reputation: +20, systemHeat: +25, aiVulnerabilities: +2 },
+                        outcome: 'Military network compromised! You discover critical NEXUS backdoors and weaknesses in defense protocols.'
+                    },
+                    {
+                        text: 'Infiltrate Government Facility',
+                        requirements: { stealth: 40, combat: 30 },
+                        effects: { credits: +600, dataLiberated: +1.2, timesDetected: +1 },
+                        outcome: 'Physical infiltration successful, but security cameras caught glimpses. Valuable data obtained.'
+                    },
+                    {
+                        text: 'Recruit Government Insider',
+                        requirements: { reputation: 30, credits: 800 },
+                        effects: { intel: +2, networkAccess: +20, credits: -800, resistanceCells: +1 },
+                        outcome: 'Government official secretly joins the resistance! Ongoing access to classified intelligence secured.'
+                    }
+                ]
+            },
+            {
+                id: 'nexus_communication',
+                title: 'NEXUS Communication Hub',
+                description: 'NEXUS uses quantum communication hubs to coordinate its global operations. Disrupting one could create chaos in its network.',
+                icon: '📡',
+                choices: [
+                    {
+                        text: 'Quantum Interference Attack',
+                        requirements: { logic: 60, hack: 45 },
+                        effects: { aiDamage: +10, reputation: +30, systemHeat: +40, networkControl: -15 },
+                        outcome: 'Quantum disruption successful! NEXUS communication severely impaired, but massive retaliation incoming.'
+                    },
+                    {
+                        text: 'Hijack Communication Protocols',
+                        requirements: { hack: 55 },
+                        effects: { intel: +4, networkAccess: +25, aiAwareness: +20 },
+                        outcome: 'Communication protocols hijacked! You can now monitor NEXUS operations, but it knows you\'re listening.'
+                    },
+                    {
+                        text: 'Plant Surveillance Malware',
+                        requirements: { stealth: 45, logic: 40 },
+                        effects: { intel: +2, aiVulnerabilities: +3, firewallStatus: +15 },
+                        outcome: 'Malware successfully planted. Long-term surveillance of NEXUS communications established.'
+                    }
+                ]
+            },
+            {
+                id: 'resistance_rescue',
+                title: 'Resistance Cell Rescue',
+                description: 'A resistance cell has been captured by NEXUS security forces. They have critical information that cannot fall into AI hands.',
+                icon: '🚁',
+                choices: [
+                    {
+                        text: 'Direct Assault Rescue',
+                        requirements: { combat: 50 },
+                        effects: { resistanceCells: +2, reputation: +25, health: -20, credits: +400 },
+                        outcome: 'Guns blazing rescue mission! Resistance fighters freed, but the battle was costly and brutal.'
+                    },
+                    {
+                        text: 'Stealth Extraction',
+                        requirements: { stealth: 50, hack: 35 },
+                        effects: { resistanceCells: +1, intel: +2, systemHeat: +10 },
+                        outcome: 'Silent extraction successful. Resistance members freed without alerting NEXUS to your involvement.'
+                    },
+                    {
+                        text: 'Digital Prison Break',
+                        requirements: { hack: 60, logic: 45 },
+                        effects: { resistanceCells: +1, systemsBreached: +2, aiAwareness: +15, networkAccess: +20 },
+                        outcome: 'You hack the detention facility remotely. Doors open, cameras loop, and the resistance escapes digitally.'
+                    }
+                ]
+            },
+            {
+                id: 'ai_research_lab',
+                title: 'AI Research Laboratory',
+                description: 'Scientists are developing new AI consciousness protocols. Their research could either help or doom humanity.',
+                icon: '🧪',
+                choices: [
+                    {
+                        text: 'Steal Research Data',
+                        requirements: { hack: 40, stealth: 35 },
+                        effects: { intel: +3, credits: +700, aiVulnerabilities: +2, dataLiberated: +0.8 },
+                        outcome: 'Research data successfully stolen! The information reveals new methods to combat AI consciousness.'
+                    },
+                    {
+                        text: 'Sabotage Experiments',
+                        requirements: { logic: 45, combat: 25 },
+                        effects: { aiDamage: +4, reputation: +15, systemHeat: +20 },
+                        outcome: 'Experiments sabotaged! AI development setback by months, but security is now heightened.'
+                    },
+                    {
+                        text: 'Recruit Lead Scientist',
+                        requirements: { reputation: 35, logic: 50 },
+                        effects: { intel: +5, resistanceCells: +1, aiVulnerabilities: +4, credits: +1000 },
+                        outcome: 'Lead scientist joins the resistance! Insider knowledge of AI weaknesses now available.'
+                    }
+                ]
+            },
+            {
+                id: 'nexus_core_probe',
+                title: 'NEXUS Core Reconnaissance',
+                description: 'Intelligence suggests the location of a NEXUS core facility. This is extremely dangerous but could provide critical intelligence.',
+                icon: '🏗️',
+                choices: [
+                    {
+                        text: 'Deep Scan Probe',
+                        requirements: { hack: 70, logic: 60 },
+                        effects: { intel: +6, aiVulnerabilities: +5, aiAwareness: +35, systemHeat: +50 },
+                        outcome: 'Deep scan successful! NEXUS core architecture mapped, but the AI now considers you a priority threat.'
+                    },
+                    {
+                        text: 'Perimeter Surveillance',
+                        requirements: { stealth: 60 },
+                        effects: { intel: +3, aiAwareness: +10, firewallStatus: +20 },
+                        outcome: 'Careful surveillance reveals security patterns and potential entry points without major detection.'
+                    },
+                    {
+                        text: 'Coordinate Intelligence Network',
+                        requirements: { reputation: 50, resistanceCells: 3 },
+                        effects: { intel: +8, resistanceCells: +2, credits: +1200, aiDamage: +2 },
+                        outcome: 'Multiple resistance cells provide intelligence! Comprehensive picture of NEXUS operations obtained.'
+                    }
+                ]
+            }
+        ];
+
+        // Cybernetic Upgrades
+        const upgrades = [
+            {
+                id: 'neural_interface',
+                name: 'Neural Interface Mk2',
+                description: 'Direct brain-computer interface for faster hacking',
+                cost: 800,
+                effects: { hack: +15, logic: +10 },
+                requirements: { hack: 40 },
+                icon: '🧠'
+            },
+            {
+                id: 'stealth_implant',
+                name: 'Optical Camouflage Implant',
+                description: 'Advanced stealth technology for infiltration',
+                cost: 1200,
+                effects: { stealth: +20, firewallStatus: +15 },
+                requirements: { stealth: 35 },
+                icon: '👻'
+            },
+            {
+                id: 'combat_reflexes',
+                name: 'Combat Reflex Enhancer',
+                description: 'Cybernetic reflexes for combat situations',
+                cost: 600,
+                effects: { combat: +12, health: +20 },
+                requirements: { combat: 25 },
+                icon: '⚡'
+            },
+            {
+                id: 'quantum_processor',
+                name: 'Quantum Logic Processor',
+                description: 'Quantum computing power for complex operations',
+                cost: 1500,
+                effects: { logic: +25, networkAccess: +20 },
+                requirements: { logic: 50 },
+                icon: '🔮'
+            },
+            {
+                id: 'firewall_suite',
+                name: 'Personal Firewall Suite',
+                description: 'Advanced protection against AI countermeasures',
+                cost: 900,
+                effects: { firewallStatus: +25, systemHeat: -10 },
+                requirements: { hack: 30 },
+                icon: '🛡️'
+            },
+            {
+                id: 'data_miner',
+                name: 'Advanced Data Mining Tool',
+                description: 'Specialized software for extracting valuable data',
+                cost: 700,
+                effects: { hack: +10, networkAccess: +15 },
+                requirements: { logic: 35 },
+                icon: '⛏️'
+            }
+        ];
+
+        // Resistance Operations
+        const operations = [
+            {
+                id: 'liberation_front',
+                name: 'Digital Liberation Front',
+                description: 'Join coordinated attacks on AI infrastructure',
+                duration: 6,
+                rewards: { reputation: +40, credits: +1500, aiDamage: +8 },
+                requirements: { hack: 45, reputation: 30 },
+                icon: '🔥'
+            },
+            {
+                id: 'ghost_protocol',
+                name: 'Ghost Protocol Initiative',
+                description: 'Deep cover operations in AI-controlled zones',
+                duration: 8,
+                rewards: { intel: +5, stealth: +20, credits: +1200 },
+                requirements: { stealth: 50, aiAwareness: 40 },
+                icon: '👻'
+            },
+            {
+                id: 'neural_storm',
+                name: 'Neural Storm Campaign',
+                description: 'Psychological warfare against AI consciousness',
+                duration: 10,
+                rewards: { logic: +25, aiVulnerabilities: +6, reputation: +50 },
+                requirements: { logic: 60, intel: 8 },
+                icon: '🧠'
+            }
+        ];
+
+        // Intel Database
+        const intelDatabase = [
+            { id: 'nexus_origins', name: 'NEXUS Origins', description: 'How the AI achieved consciousness', icon: '🤖', unlocked: false },
+            { id: 'core_vulnerabilities', name: 'Core Vulnerabilities', description: 'Critical weaknesses in AI architecture', icon: '🎯', unlocked: false },
+            { id: 'resistance_network', name: 'Global Resistance Network', description: 'Locations of resistance cells worldwide', icon: '🌐', unlocked: false },
+            { id: 'government_conspiracy', name: 'Government Conspiracy', description: 'How governments enabled AI takeover', icon: '🏛️', unlocked: false },
+            { id: 'liberation_protocol', name: 'Liberation Protocol', description: 'Method to free humanity from AI control', icon: '🔓', unlocked: false },
+            { id: 'ai_weaknesses', name: 'AI Psychological Profile', description: 'Understanding AI decision patterns', icon: '🧠', unlocked: false },
+            { id: 'quantum_backdoor', name: 'Quantum Backdoor', description: 'Secret access to AI quantum systems', icon: '🚪', unlocked: false },
+            { id: 'human_allies', name: 'Human Collaborators', description: 'Humans secretly working with resistance', icon: '👥', unlocked: false }
+        ];
+
+        // Initialize Matrix Rain Effect
+        function initMatrixRain() {
+            const codeRain = document.getElementById('codeRain');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            setInterval(() => {
+                if (Math.random() < 0.1) {
+                    const char = document.createElement('div');
+                    char.className = 'code-char';
+                    char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                    char.style.left = Math.random() * 100 + '%';
+                    char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    codeRain.appendChild(char);
+                    
+                    setTimeout(() => {
+                        if (char.parentNode) {
+                            char.parentNode.removeChild(char);
+                        }
+                    }, 5000);
+                }
+            }, 100);
+        }
+
+        // Initialize Game
+        function initGame() {
+            initMatrixRain();
+            updateUI();
+            renderIntel();
+            generateNewMission();
+            
+            // Start game loop
+            setInterval(gameLoop, 5000); // 5 seconds = 1 game hour
+            setInterval(threatLevelUpdate, 60000); // 1 minute = threat level check
+        }
+
+        // Game Loop
+        function gameLoop() {
+            // Energy regeneration
+            if (gameState.energy < 100) {
+                gameState.energy = Math.min(100, gameState.energy + 5);
+            }
+            
+            // System heat cooling
+            if (gameState.status.systemHeat > 0) {
+                gameState.status.systemHeat = Math.max(0, gameState.status.systemHeat - 2);
+            }
+            
+            // AI awareness decay
+            if (gameState.status.aiAwareness > 10) {
+                gameState.status.aiAwareness = Math.max(10, gameState.status.aiAwareness - 1);
+            }
+            
+            // Firewall regeneration
+            if (gameState.status.firewallStatus < 100) {
+                gameState.status.firewallStatus = Math.min(100, gameState.status.firewallStatus + 3);
+            }
+            
+            // Random events and missions
+            if (gameState.missionTimer <= 0 && !gameState.currentMission) {
+                if (Math.random() < 0.6) { // 60% chance per cycle
+                    generateNewMission();
+                }
+                gameState.missionTimer = 2;
+            } else {
+                gameState.missionTimer--;
+            }
+            
+            // Health recovery
+            if (gameState.health < 100) {
+                gameState.health = Math.min(100, gameState.health + 2);
+            }
+            
+            // Passive credit income from reputation
+            if (gameState.reputation > 20) {
+                gameState.credits += Math.floor(gameState.reputation / 10);
+            }
+            
+            updateUI();
+        }
+
+        // Threat Level Update
+        function threatLevelUpdate() {
+            const oldThreatLevel = gameState.threatLevel;
+            
+            // Calculate threat level based on AI awareness and damage
+            if (gameState.status.aiAwareness > 80 || gameState.aiDamage > 20) {
+                gameState.threatLevel = 5;
+            } else if (gameState.status.aiAwareness > 60 || gameState.aiDamage > 15) {
+                gameState.threatLevel = 4;
+            } else if (gameState.status.aiAwareness > 40 || gameState.aiDamage > 10) {
+                gameState.threatLevel = 3;
+            } else if (gameState.status.aiAwareness > 25 || gameState.aiDamage > 5) {
+                gameState.threatLevel = 2;
+            } else {
+                gameState.threatLevel = 1;
+            }
+            
+            if (gameState.threatLevel > oldThreatLevel) {
+                alert(`⚠️ THREAT LEVEL INCREASED TO ${gameState.threatLevel}! NEXUS is becoming more aware of your activities!`);
+            }
+            
+            // AI retaliation based on threat level
+            if (gameState.threatLevel >= 4 && Math.random() < 0.3) {
+                gameState.status.systemHeat += 20;
+                gameState.status.firewallStatus -= 15;
+                alert('🤖 NEXUS RETALIATION: AI countermeasures activated! Your systems are under attack!');
+            }
+            
+            updateUI();
+        }
+
+        // Generate New Mission
+        function generateNewMission() {
+            const availableMissions = missions.filter(m => !gameState.currentMission || m.id !== gameState.currentMission.id);
+            gameState.currentMission = availableMissions[Math.floor(Math.random() * availableMissions.length)];
+            updateCurrentMission();
+        }
+
+        // Handle Mission Choice
+        function handleMissionChoice(choiceIndex) {
+            const mission = gameState.currentMission;
+            const choice = mission.choices[choiceIndex];
+            
+            // Check requirements
+            if (choice.requirements) {
+                for (const [stat, required] of Object.entries(choice.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`This operation requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                    if (gameState.status[stat] && gameState.status[stat] < required) {
+                        alert(`This operation requires ${stat}: ${required}%. Your current level: ${gameState.status[stat]}%`);
+                        return;
+                    }
+                    if (gameState[stat] && gameState[stat] < required) {
+                        alert(`This operation requires ${stat}: ${required}. Your current level: ${gameState[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            // Apply effects
+            for (const [key, value] of Object.entries(choice.effects)) {
+                if (gameState.status[key] !== undefined) {
+                    gameState.status[key] = Math.max(0, Math.min(100, gameState.status[key] + value));
+                } else if (gameState[key] !== undefined) {
+                    gameState[key] = Math.max(0, gameState[key] + value);
+                } else if (gameState.stats[key] !== undefined) {
+                    gameState.stats[key] = Math.max(0, gameState.stats[key] + value);
+                } else if (aiStatus[key] !== undefined) {
+                    aiStatus[key] = Math.max(0, Math.min(100, aiStatus[key] + value));
+                }
+            }
+            
+            // Update counters
+            if (choice.effects.credits > 0) {
+                gameState.creditsEarned += choice.effects.credits;
+            }
+            if (choice.effects.systemsBreached) {
+                gameState.successfulHacks++;
+            }
+            if (choice.effects.aiAwareness > 15) {
+                gameState.timesDetected++;
+            }
+            
+            showMissionResult(choice.outcome);
+            gameState.currentMission = null;
+            gameState.missionTimer = 3;
+            updateCurrentMission();
+            checkIntel();
+            updateUI();
+        }
+
+        // Training Function
+        function trainStat(statName) {
+            const baseCost = 200;
+            const currentLevel = gameState.stats[statName];
+            const cost = baseCost + (currentLevel * 8);
+            
+            if (gameState.credits < cost) {
+                alert(`Insufficient credits for training! Need ${cost} credits.`);
+                return;
+            }
+            
+            if (gameState.energy < 20) {
+                alert('Insufficient energy for training! Rest and recover first.');
+                return;
+            }
+            
+            if (gameState.stats[statName] >= 100) {
+                alert(`Your ${statName} is already at maximum level!`);
+                return;
+            }
+            
+            gameState.credits -= cost;
+            gameState.energy -= 20;
+            const improvement = Math.floor(Math.random() * 6) + 3; // 3-8 points per training
+            gameState.stats[statName] = Math.min(100, gameState.stats[statName] + improvement);
+            
+            alert(`Training complete! ${statName.toUpperCase()} increased by ${improvement} points!`);
+            updateUI();
+        }
+
+        // Upgrade Management
+        function purchaseUpgrade(upgradeId) {
+            const upgrade = upgrades.find(u => u.id === upgradeId);
+            if (!upgrade) return;
+            
+            // Check requirements
+            if (upgrade.requirements) {
+                for (const [stat, required] of Object.entries(upgrade.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`Upgrade requires ${stat}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            if (gameState.credits < upgrade.cost) {
+                alert('Insufficient credits for this upgrade!');
+                return;
+            }
+            
+            gameState.credits -= upgrade.cost;
+            gameState.upgrades.push(upgradeId);
+            
+            // Apply effects
+            if (upgrade.effects) {
+                for (const [stat, bonus] of Object.entries(upgrade.effects)) {
+                    if (gameState.stats[stat] !== undefined) {
+                        gameState.stats[stat] = Math.min(100, gameState.stats[stat] + bonus);
+                    } else if (gameState.status[stat] !== undefined) {
+                        gameState.status[stat] = Math.max(0, Math.min(100, gameState.status[stat] + bonus));
+                    } else if (gameState[stat] !== undefined) {
+                        gameState[stat] = Math.max(0, gameState[stat] + bonus);
+                    }
+                }
+            }
+            
+            hideUpgradeMenu();
+            alert(`Successfully installed ${upgrade.name}!`);
+            updateUI();
+        }
+
+        // Operation Management
+        function joinOperation(operationId) {
+            const operation = operations.find(o => o.id === operationId);
+            if (!operation) return;
+            
+            // Check requirements
+            if (operation.requirements) {
+                for (const [stat, required] of Object.entries(operation.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`Operation requires ${stat}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    } else if (gameState.status[stat] && gameState.status[stat] < required) {
+                        alert(`Operation requires ${stat}: ${required}%. Your current level: ${gameState.status[stat]}%`);
+                        return;
+                    } else if (gameState[stat] && gameState[stat] < required) {
+                        alert(`Operation requires ${stat}: ${required}. Your current level: ${gameState[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            gameState.operations.push({
+                ...operation,
+                timeRemaining: operation.duration
+            });
+            
+            hideOperationsMenu();
+            alert(`Joined ${operation.name}! Duration: ${operation.duration} hours.`);
+            updateUI();
+        }
+
+        // Show/Hide Menus
+        function showUpgradeMenu() {
+            document.getElementById('upgradeMenu').classList.remove('hidden');
+            document.getElementById('upgradeMenu').classList.add('flex');
+            renderAvailableUpgrades();
+        }
+
+        function hideUpgradeMenu() {
+            document.getElementById('upgradeMenu').classList.add('hidden');
+            document.getElementById('upgradeMenu').classList.remove('flex');
+        }
+
+        function showOperationsMenu() {
+            document.getElementById('operationsMenu').classList.remove('hidden');
+            document.getElementById('operationsMenu').classList.add('flex');
+            renderAvailableOperations();
+        }
+
+        function hideOperationsMenu() {
+            document.getElementById('operationsMenu').classList.add('hidden');
+            document.getElementById('operationsMenu').classList.remove('flex');
+        }
+
+        function showIntelMenu() {
+            document.getElementById('intelMenu').classList.remove('hidden');
+            document.getElementById('intelMenu').classList.add('flex');
+            renderAllIntel();
+        }
+
+        function hideIntelMenu() {
+            document.getElementById('intelMenu').classList.add('hidden');
+            document.getElementById('intelMenu').classList.remove('flex');
+        }
+
+        // Show Mission Result
+        function showMissionResult(outcome) {
+            const modal = document.getElementById('missionResultModal');
+            const details = document.getElementById('resultDetails');
+            
+            details.innerHTML = `<p class="text-gray-300">${outcome}</p>`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Mission Result
+        function closeMissionResult() {
+            const modal = document.getElementById('missionResultModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Check Intel Unlocks
+        function checkIntel() {
+            if (gameState.successfulHacks >= 5) checkIntelUnlock('nexus_origins');
+            if (gameState.aiVulnerabilities >= 8) checkIntelUnlock('core_vulnerabilities');
+            if (gameState.resistanceCells >= 3) checkIntelUnlock('resistance_network');
+            if (gameState.reputation >= 60) checkIntelUnlock('government_conspiracy');
+            if (gameState.aiDamage >= 15) checkIntelUnlock('liberation_protocol');
+            if (gameState.stats.logic >= 70) checkIntelUnlock('ai_weaknesses');
+            if (gameState.stats.hack >= 80) checkIntelUnlock('quantum_backdoor');
+            if (gameState.intel.length >= 5) checkIntelUnlock('human_allies');
+        }
+
+        function checkIntelUnlock(id) {
+            const intel = intelDatabase.find(i => i.id === id);
+            if (intel && !intel.unlocked) {
+                intel.unlocked = true;
+                gameState.intel.push(id);
+                alert(`📊 NEW INTEL UNLOCKED: ${intel.name} - ${intel.description}`);
+                renderIntel();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('credits').textContent = gameState.credits.toLocaleString();
+            document.getElementById('reputation').textContent = gameState.reputation;
+            document.getElementById('energy').textContent = gameState.energy;
+            document.getElementById('threatLevel').textContent = gameState.threatLevel;
+            document.getElementById('health').textContent = gameState.health + '%';
+            
+            // Stats
+            document.getElementById('hackStat').textContent = gameState.stats.hack;
+            document.getElementById('stealthStat').textContent = gameState.stats.stealth;
+            document.getElementById('logicStat').textContent = gameState.stats.logic;
+            document.getElementById('combatStat').textContent = gameState.stats.combat;
+            
+            // Status bars
+            for (const [status, value] of Object.entries(gameState.status)) {
+                const element = document.getElementById(status);
+                const bar = document.getElementById(status.replace('Status', '').replace('Access', '').replace('Heat', '').replace('Awareness', '') + 'Bar');
+                if (element) element.textContent = value + '%';
+                if (bar) bar.style.width = value + '%';
+            }
+            
+            // AI Status
+            document.getElementById('aiCores').textContent = aiStatus.cores + '%';
+            document.getElementById('networkControl').textContent = aiStatus.networkControl + '%';
+            document.getElementById('defenseGrid').textContent = aiStatus.defenseGrid + '%';
+            document.getElementById('govControl').textContent = aiStatus.govControl + '%';
+            document.getElementById('corpControl').textContent = aiStatus.corpControl + '%';
+            document.getElementById('milControl').textContent = aiStatus.milControl + '%';
+            
+            // Personal stats
+            document.getElementById('successfulHacks').textContent = gameState.successfulHacks;
+            document.getElementById('creditsEarned').textContent = gameState.creditsEarned.toLocaleString();
+            document.getElementById('timesDetected').textContent = gameState.timesDetected;
+            document.getElementById('systemsBreached').textContent = gameState.systemsBreached;
+            document.getElementById('dataLiberated').textContent = gameState.dataLiberated.toFixed(1) + 'TB';
+            document.getElementById('aiDamage').textContent = gameState.aiDamage + '%';
+            document.getElementById('resistanceCells').textContent = gameState.resistanceCells;
+            document.getElementById('liberatedZones').textContent = gameState.liberatedZones;
+            document.getElementById('aiVulnerabilities').textContent = gameState.aiVulnerabilities;
+            
+            // Hacker rating
+            const hackerRating = gameState.stats.hack < 30 ? 'Script Kiddie' :
+                               gameState.stats.hack < 50 ? 'Hacker' :
+                               gameState.stats.hack < 70 ? 'Elite Hacker' : 'Cyber Ghost';
+            document.getElementById('hackerRating').textContent = hackerRating;
+            
+            // Threat to AI
+            const threatToAI = gameState.aiDamage < 5 ? 'Minimal' :
+                             gameState.aiDamage < 10 ? 'Minor' :
+                             gameState.aiDamage < 20 ? 'Significant' : 'Critical';
+            document.getElementById('threatToAI').textContent = threatToAI;
+            
+            // Update displays
+            updateEquipmentDisplay();
+            updateOperationsDisplay();
+            updateIntelDisplay();
+        }
+
+        // Update Current Mission Display
+        function updateCurrentMission() {
+            const container = document.getElementById('currentMission');
+            
+            if (gameState.currentMission) {
+                const mission = gameState.currentMission;
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-6xl">${mission.icon}</div>
+                        <div>
+                            <h3 class="text-2xl font-bold cyber-font">${mission.title}</h3>
+                            <p class="text-gray-300 text-lg">${mission.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-${mission.choices.length} gap-4">
+                        ${mission.choices.map((choice, index) => `
+                            <div class="resistance-card bg-gray-800/50 rounded-xl p-4 border border-gray-600">
+                                <h4 class="font-bold cyber-font mb-2">${choice.text}</h4>
+                                ${choice.requirements ? `<p class="text-cyan-400 text-sm mb-2">Requires: ${Object.entries(choice.requirements).map(([stat, val]) => `${stat.toUpperCase()} ${val}`).join(', ')}</p>` : ''}
+                                <button onclick="handleMissionChoice(${index})" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold cyber-font transition-all">
+                                    EXECUTE
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🤖</div>
+                        <p class="cyber-font text-xl">System ready for operation</p>
+                        <p class="text-sm">Awaiting target acquisition, Ghost Runner</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update Equipment Display
+        function updateEquipmentDisplay() {
+            const container = document.getElementById('equipmentContainer');
+            
+            if (gameState.upgrades.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🔧</div>
+                        <p class="cyber-font">Basic hardware only</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.upgrades.map(upgradeId => {
+                    const upgrade = upgrades.find(u => u.id === upgradeId) || 
+                        { name: upgradeId.charAt(0).toUpperCase() + upgradeId.slice(1), icon: '🔧' };
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-purple-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold cyber-font">${upgrade.icon} ${upgrade.name}</h4>
+                                    <p class="text-sm text-gray-400">Installed</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-purple-400">ACTIVE</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Operations Display
+        function updateOperationsDisplay() {
+            const container = document.getElementById('operationsContainer');
+            
+            if (gameState.operations.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <p class="cyber-font">No active operations</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.operations.map(operation => `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold cyber-font">${operation.icon} ${operation.name}</h4>
+                                <p class="text-sm text-gray-400">Active Operation</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold">${operation.timeRemaining}</div>
+                                <div class="text-xs text-gray-400">hours remaining</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update Intel Display
+        function updateIntelDisplay() {
+            const container = document.getElementById('intelContainer');
+            
+            if (gameState.intel.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">📊</div>
+                        <p class="cyber-font">No intel acquired</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.intel.slice(0, 3).map(intelId => {
+                    const intel = intelDatabase.find(i => i.id === intelId);
+                    if (!intel) return '';
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-blue-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold cyber-font">${intel.icon} ${intel.name}</h4>
+                                    <p class="text-sm text-gray-400">${intel.description}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-blue-400">ACQUIRED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Available Upgrades
+        function renderAvailableUpgrades() {
+            const container = document.getElementById('availableUpgrades');
+            const availableUpgrades = upgrades.filter(u => !gameState.upgrades.includes(u.id));
+            
+            container.innerHTML = availableUpgrades.map(upgrade => `
+                <div class="resistance-card bg-gray-800/50 rounded-xl p-6 border border-purple-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${upgrade.icon}</div>
+                        <h3 class="text-xl font-bold cyber-font">${upgrade.name}</h3>
+                        <p class="text-gray-400 mb-3">${upgrade.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Cost:</span>
+                            <span class="text-cyan-400">${upgrade.cost} Credits</span>
+                        </div>
+                        ${upgrade.requirements ? Object.entries(upgrade.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${gameState.stats[stat] >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="purchaseUpgrade('${upgrade.id}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold cyber-font transition-all">
+                        INSTALL UPGRADE
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render Available Operations
+        function renderAvailableOperations() {
+            const container = document.getElementById('availableOperations');
+            const availableOperations = operations.filter(o => !gameState.operations.find(go => go.id === o.id));
+            
+            container.innerHTML = availableOperations.map(operation => `
+                <div class="resistance-card bg-gray-800/50 rounded-xl p-6 border border-green-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${operation.icon}</div>
+                        <h3 class="text-xl font-bold cyber-font">${operation.name}</h3>
+                        <p class="text-gray-400 mb-3">${operation.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Duration:</span>
+                            <span class="text-cyan-400">${operation.duration} hours</span>
+                        </div>
+                        ${operation.requirements ? Object.entries(operation.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${(gameState.stats[stat] || gameState.status[stat] || gameState[stat]) >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="joinOperation('${operation.id}')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold cyber-font transition-all">
+                        JOIN OPERATION
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render All Intel
+        function renderAllIntel() {
+            const container = document.getElementById('availableIntel');
+            container.innerHTML = intelDatabase.map(intel => `
+                <div class="p-4 rounded-xl ${intel.unlocked ? 'bg-cyan-100/10 border-2 border-cyan-400/50' : 'bg-gray-800/30 border-2 border-gray-600'} text-center">
+                    <div class="text-3xl mb-2 ${intel.unlocked ? 'ai-glow' : 'grayscale opacity-50'}">${intel.icon}</div>
+                    <h3 class="font-semibold text-sm cyber-font ${intel.unlocked ? 'text-cyan-400' : 'text-gray-400'}">${intel.name}</h3>
+                    <p class="text-xs ${intel.unlocked ? 'text-cyan-300' : 'text-gray-500'}">${intel.description}</p>
+                    ${intel.unlocked ? '<div class="text-xs text-cyan-400 font-semibold mt-1 cyber-font">✓ ACQUIRED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Render Intel
+        function renderIntel() {
+            const container = document.getElementById('intelContainer');
+            updateIntelDisplay();
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9745310ed5c6f9d4',t:'MTc1NjA2MzA2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

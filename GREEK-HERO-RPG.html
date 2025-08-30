@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greek Hero RPG - Forge Your Legend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #1a252f 100%);
+            min-height: 100vh;
+            color: #ecf0f1;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="30" r="0.5" fill="%23f39c12" opacity="0.4"><animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite"/></circle><circle cx="80" cy="20" r="0.3" fill="%23f39c12" opacity="0.5"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="4s" repeatCount="indefinite"/></circle><circle cx="60" cy="80" r="0.4" fill="%23f39c12" opacity="0.3"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite"/></circle></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            color: #ecf0f1;
+            border: 2px solid #f39c12;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #f39c12;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #f39c12;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            color: #f39c12;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .character-panel, .inventory-panel {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(243, 156, 18, 0.3);
+            height: fit-content;
+            box-shadow: 0 0 30px rgba(243, 156, 18, 0.1);
+        }
+
+        .game-world {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(243, 156, 18, 0.3);
+            min-height: 700px;
+            position: relative;
+        }
+
+        .hero-avatar {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(243, 156, 18, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .avatar-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .hero-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #f39c12;
+        }
+
+        .hero-level {
+            font-size: 1rem;
+            color: #e67e22;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 0 0 5px #f39c12;
+        }
+
+        .stat-bar {
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .progress-container {
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            height: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .health-bar { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .mana-bar { background: linear-gradient(90deg, #3498db, #2980b9); }
+        .divine-bar { background: linear-gradient(90deg, #f39c12, #e67e22); }
+        .exp-bar { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attribute-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(243, 156, 18, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .attribute-card:hover {
+            border-color: rgba(243, 156, 18, 0.5);
+            background: rgba(243, 156, 18, 0.05);
+        }
+
+        .attribute-name {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .attribute-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .world-view {
+            background: rgba(52, 73, 94, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #34495e;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="M100,50 L120,90 L160,90 L130,120 L140,160 L100,140 L60,160 L70,120 L40,90 L80,90 Z" fill="none" stroke="%23f39c12" stroke-width="1" opacity="0.2"/><circle cx="100" cy="100" r="40" fill="none" stroke="%2334495e" stroke-width="0.5" opacity="0.3"/></svg>') center center no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .location-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(243, 156, 18, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(243, 156, 18, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .location-card:hover::before {
+            left: 100%;
+        }
+
+        .location-card:hover {
+            background: rgba(243, 156, 18, 0.1);
+            border-color: #f39c12;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.3);
+        }
+
+        .location-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #7f8c8d;
+        }
+
+        .location-card.locked:hover {
+            transform: none;
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #7f8c8d;
+        }
+
+        .location-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .location-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #f39c12;
+            font-size: 1.1rem;
+        }
+
+        .location-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .location-difficulty {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .difficulty-easy { background: rgba(39, 174, 96, 0.3); color: #27ae60; }
+        .difficulty-medium { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
+        .difficulty-hard { background: rgba(231, 76, 60, 0.3); color: #e74c3c; }
+        .difficulty-legendary { background: rgba(155, 89, 182, 0.3); color: #9b59b6; }
+        .difficulty-divine { background: linear-gradient(45deg, rgba(255, 215, 0, 0.3), rgba(255, 255, 255, 0.3)); color: #ffd700; }
+
+        .battle-screen {
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .battle-screen.active {
+            display: block;
+            animation: battleStart 0.5s ease-out;
+        }
+
+        @keyframes battleStart {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .enemy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .enemy-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid rgba(231, 76, 60, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .enemy-card:hover {
+            background: rgba(231, 76, 60, 0.1);
+            border-color: #e74c3c;
+            transform: scale(1.05);
+        }
+
+        .enemy-card.defeated {
+            opacity: 0.4;
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+            cursor: not-allowed;
+        }
+
+        .enemy-card.selected {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+        }
+
+        .enemy-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .enemy-name {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
+        .enemy-health {
+            font-size: 0.9rem;
+            color: #e74c3c;
+            font-weight: 500;
+        }
+
+        .battle-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-button {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: #fff;
+            border: none;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+            background: linear-gradient(45deg, #e67e22, #f39c12);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-button.magic {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .action-button.magic:hover {
+            background: linear-gradient(45deg, #2980b9, #3498db);
+        }
+
+        .action-button.divine {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+
+        .action-button.divine:hover {
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+        }
+
+        .action-button.special {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .action-button.special:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+        }
+
+        .inventory-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .equipment-slot {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .equipment-slot.equipped {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .shop-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .shop-tab {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            color: #ecf0f1;
+            padding: 8px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .shop-tab:hover {
+            background: rgba(243, 156, 18, 0.1);
+            border-color: #f39c12;
+        }
+
+        .shop-tab.active {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            border-color: #e67e22;
+            color: #fff;
+        }
+
+        .shop-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .shop-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .shop-item {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop-item:hover {
+            background: rgba(243, 156, 18, 0.1);
+            border-color: #f39c12;
+        }
+
+        .shop-item.affordable {
+            border-color: #27ae60;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .item-description {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: #f39c12;
+            font-size: 0.9rem;
+        }
+
+        .game-button {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+            background: linear-gradient(45deg, #e67e22, #f39c12);
+        }
+
+        .game-button.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .game-button.danger:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+        }
+
+        .game-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-log {
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(243, 156, 18, 0.1);
+            font-size: 0.9rem;
+            animation: logFadeIn 0.5s ease-out;
+            line-height: 1.4;
+        }
+
+        @keyframes logFadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-combat { color: #e74c3c; }
+        .log-exploration { color: #3498db; }
+        .log-success { color: #27ae60; }
+        .log-loot { color: #f39c12; }
+        .log-magic { color: #9b59b6; }
+        .log-divine { color: #ffd700; }
+
+        .floating-damage {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatDamage 2s ease-out forwards;
+            z-index: 100;
+            color: #e74c3c;
+            text-shadow: 0 0 10px #e74c3c;
+        }
+
+        .floating-heal {
+            color: #27ae60;
+            text-shadow: 0 0 10px #27ae60;
+        }
+
+        .floating-gold {
+            color: #f39c12;
+            text-shadow: 0 0 10px #f39c12;
+        }
+
+        .floating-divine {
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        @keyframes floatDamage {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        @media (max-width: 1200px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .character-panel, .inventory-panel {
+                order: 2;
+            }
+            
+            .game-world {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .enemy-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .battle-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .attributes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ⬅️ Back to Main
+    </a>
+
+    <div class="header">
+        <h1 class="title">⚡ GREEK HERO SAGA</h1>
+        <p class="subtitle">Ascend to Olympus and Claim Your Divine Destiny</p>
+    </div>
+
+    <div class="game-container">
+        <!-- Character Panel -->
+        <div class="character-panel">
+            <div class="hero-avatar">
+                <span class="avatar-icon">⚡</span>
+                <div class="hero-name" id="heroName">Perseus the Bold</div>
+                <div class="hero-level" id="heroLevel">Level 1 Demigod</div>
+            </div>
+
+            <div class="stats-section">
+                <div class="section-title">⚡ Divine Stats</div>
+                
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>❤️ Health</span>
+                        <span id="healthText">200/200</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar health-bar" id="healthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>🔮 Mana</span>
+                        <span id="manaText">100/100</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar mana-bar" id="manaBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>⚡ Divine Power</span>
+                        <span id="divineText">50/50</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar divine-bar" id="divineBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>⭐ Experience</span>
+                        <span id="expText">0/400</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar exp-bar" id="expBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attributes-grid">
+                <div class="attribute-card">
+                    <div class="attribute-name">💪 Strength</div>
+                    <div class="attribute-value" id="strengthValue">25</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🏃 Agility</div>
+                    <div class="attribute-value" id="agilityValue">20</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🧠 Wisdom</div>
+                    <div class="attribute-value" id="wisdomValue">18</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">⚡ Divine Favor</div>
+                    <div class="attribute-value" id="divineFavorValue">15</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🛡️ Heroism</div>
+                    <div class="attribute-value" id="heroismValue">22</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🪙 Drachmas</div>
+                    <div class="attribute-value" id="goldValue">2000</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🏆 Glory</div>
+                    <div class="attribute-value" id="gloryValue">0</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">⚔️ Victories</div>
+                    <div class="attribute-value" id="victoriesValue">0</div>
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <div class="section-title">⚔️ Divine Arsenal</div>
+                <div class="equipment-grid">
+                    <div class="equipment-slot equipped" id="weaponSlot">
+                        ⚔️ Bronze Sword
+                    </div>
+                    <div class="equipment-slot equipped" id="armorSlot">
+                        🛡️ Leather Cuirass
+                    </div>
+                    <div class="equipment-slot" id="helmSlot">
+                        No Helmet
+                    </div>
+                    <div class="equipment-slot" id="shieldSlot">
+                        No Shield
+                    </div>
+                    <div class="equipment-slot" id="accessorySlot">
+                        No Artifact
+                    </div>
+                    <div class="equipment-slot" id="blessingSlot">
+                        No Divine Blessing
+                    </div>
+                    <div class="equipment-slot" id="companionSlot">
+                        No Companion
+                    </div>
+                    <div class="equipment-slot" id="skillPointsSlot">
+                        🌟 SP: <span id="skillPointsValue">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game World -->
+        <div class="game-world">
+            <div class="world-view" id="worldView">
+                <div class="location-grid" id="locationGrid">
+                    <h3 style="grid-column: 1/-1; text-align: center; margin-bottom: 20px; color: #f39c12;">🗺️ Choose Your Epic Quest</h3>
+                    
+                    <div class="location-card" onclick="startQuest('village')">
+                        <span class="location-icon">🏛️</span>
+                        <div class="location-name">Athens Outskirts</div>
+                        <div class="location-description">Bandits threaten peaceful villages (Lv.1+)</div>
+                        <div class="location-difficulty difficulty-easy">Easy</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="startQuest('forest')">
+                        <span class="location-icon">🌲</span>
+                        <div class="location-name">Sacred Grove</div>
+                        <div class="location-description">Mythical beasts guard ancient secrets (Lv.3+)</div>
+                        <div class="location-difficulty difficulty-easy">Easy</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="startQuest('labyrinth')" id="labyrinthQuest">
+                        <span class="location-icon">🏛️</span>
+                        <div class="location-name">Cretan Labyrinth</div>
+                        <div class="location-description">Face the legendary Minotaur (Lv.6+)</div>
+                        <div class="location-difficulty difficulty-medium">Medium</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startQuest('underworld')" id="underworldQuest">
+                        <span class="location-icon">💀</span>
+                        <div class="location-name">Gates of Hades</div>
+                        <div class="location-description">Journey to the realm of the dead (Lv.10+)</div>
+                        <div class="location-difficulty difficulty-hard">Hard</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startQuest('medusa')" id="medusaQuest">
+                        <span class="location-icon">🐍</span>
+                        <div class="location-name">Medusa's Lair</div>
+                        <div class="location-description">Confront the deadly Gorgon (Lv.14+)</div>
+                        <div class="location-difficulty difficulty-hard">Hard</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startQuest('titans')" id="titansQuest">
+                        <span class="location-icon">⛰️</span>
+                        <div class="location-name">Titan's Prison</div>
+                        <div class="location-description">Battle the imprisoned Titans (Lv.18+)</div>
+                        <div class="location-difficulty difficulty-legendary">Legendary</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startQuest('olympus')" id="olympusQuest">
+                        <span class="location-icon">⚡</span>
+                        <div class="location-name">Mount Olympus</div>
+                        <div class="location-description">Challenge the gods themselves (Lv.22+)</div>
+                        <div class="location-difficulty difficulty-divine">Divine</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startQuest('chaos')" id="chaosQuest">
+                        <span class="location-icon">🌌</span>
+                        <div class="location-name">Primordial Chaos</div>
+                        <div class="location-description">Face the origin of all existence (Lv.25+)</div>
+                        <div class="location-difficulty difficulty-divine">Divine</div>
+                    </div>
+                </div>
+
+                <div class="battle-screen" id="battleScreen">
+                    <h3 style="text-align: center; margin-bottom: 15px; color: #f39c12;" id="battleTitle">⚔️ Epic Battle</h3>
+                    <div class="enemy-grid" id="enemyGrid"></div>
+                    
+                    <div class="battle-actions">
+                        <button class="action-button" onclick="performAction('attack')" id="attackBtn">
+                            ⚔️ Strike
+                        </button>
+                        <button class="action-button magic" onclick="performAction('lightning')" id="lightningBtn">
+                            ⚡ Lightning
+                        </button>
+                        <button class="action-button divine" onclick="performAction('divine')" id="divineBtn">
+                            🌟 Divine Wrath
+                        </button>
+                        <button class="action-button special" onclick="performAction('heroic')" id="heroicBtn">
+                            🛡️ Heroic Stand
+                        </button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="game-button" onclick="completeQuest()" id="victoryBtn" disabled>🏆 Victory!</button>
+                        <button class="game-button danger" onclick="retreatFromBattle()">🏃 Retreat</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-log" id="gameLog"></div>
+        </div>
+
+        <!-- Inventory Panel -->
+        <div class="inventory-panel">
+            <div class="inventory-section">
+                <div class="section-title">🏪 Divine Marketplace</div>
+                
+                <div class="shop-tabs">
+                    <button class="shop-tab active" onclick="switchShopTab('weapons')">⚔️ Arms</button>
+                    <button class="shop-tab" onclick="switchShopTab('armor')">🛡️ Armor</button>
+                    <button class="shop-tab" onclick="switchShopTab('consumables')">🧪 Items</button>
+                    <button class="shop-tab" onclick="switchShopTab('artifacts')">✨ Artifacts</button>
+                </div>
+
+                <div class="shop-content" id="shopContent">
+                    <!-- Dynamic shop content -->
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <div class="section-title">🏛️ Training Academy</div>
+                <div class="shop-grid">
+                    <div class="shop-item" onclick="trainAttribute('strength')">
+                        <div class="item-info">
+                            <div class="item-name">💪 Strength Training</div>
+                            <div class="item-description">+4 Strength</div>
+                        </div>
+                        <div class="item-price">400d</div>
+                    </div>
+                    <div class="shop-item" onclick="trainAttribute('agility')">
+                        <div class="item-info">
+                            <div class="item-name">🏃 Agility Training</div>
+                            <div class="item-description">+4 Agility</div>
+                        </div>
+                        <div class="item-price">400d</div>
+                    </div>
+                    <div class="shop-item" onclick="trainAttribute('wisdom')">
+                        <div class="item-info">
+                            <div class="item-name">🧠 Wisdom Training</div>
+                            <div class="item-description">+4 Wisdom, +Mana</div>
+                        </div>
+                        <div class="item-price">400d</div>
+                    </div>
+                    <div class="shop-item" onclick="trainAttribute('heroism')">
+                        <div class="item-info">
+                            <div class="item-name">🛡️ Heroism Training</div>
+                            <div class="item-description">+4 Heroism, +Health</div>
+                        </div>
+                        <div class="item-price">400d</div>
+                    </div>
+                    <div class="shop-item" onclick="trainAttribute('divineFavor')">
+                        <div class="item-info">
+                            <div class="item-name">⚡ Divine Favor</div>
+                            <div class="item-description">+4 Divine Favor</div>
+                        </div>
+                        <div class="item-price">500d</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <div class="section-title">🎯 Divine Skills (SP Required)</div>
+                <div class="shop-grid">
+                    <div class="shop-item" onclick="trainSkill('swordMastery')">
+                        <div class="item-info">
+                            <div class="item-name">⚔️ Blade Mastery</div>
+                            <div class="item-description">+Sword damage & crit</div>
+                        </div>
+                        <div class="item-price">3 SP</div>
+                    </div>
+                    <div class="shop-item" onclick="trainSkill('lightningMagic')">
+                        <div class="item-info">
+                            <div class="item-name">⚡ Lightning Magic</div>
+                            <div class="item-description">+Lightning spell power</div>
+                        </div>
+                        <div class="item-price">3 SP</div>
+                    </div>
+                    <div class="shop-item" onclick="trainSkill('divineWrath')">
+                        <div class="item-info">
+                            <div class="item-name">🌟 Divine Wrath</div>
+                            <div class="item-description">+Divine power & duration</div>
+                        </div>
+                        <div class="item-price">4 SP</div>
+                    </div>
+                    <div class="shop-item" onclick="trainSkill('heroicStand')">
+                        <div class="item-info">
+                            <div class="item-name">🛡️ Heroic Defense</div>
+                            <div class="item-description">+Defense & healing</div>
+                        </div>
+                        <div class="item-price">3 SP</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="game-button" onclick="restAtTemple()">🏛️ Rest at Temple</button>
+                <button class="game-button" onclick="saveProgress()">💾 Save Progress</button>
+                <button class="game-button danger" onclick="resetGame()">🔄 New Hero</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            character: {
+                name: "Perseus the Bold",
+                level: 1,
+                class: "Demigod",
+                health: 200,
+                maxHealth: 200,
+                mana: 100,
+                maxMana: 100,
+                divinePower: 50,
+                maxDivinePower: 50,
+                experience: 0,
+                expToNext: 400,
+                strength: 25,
+                agility: 20,
+                wisdom: 18,
+                heroism: 22,
+                divineFavor: 15,
+                gold: 2000,
+                questsCompleted: 0,
+                skillPoints: 0,
+                glory: 0,
+                victories: 0
+            },
+            equipment: {
+                weapon: { name: "Bronze Sword", power: 15, type: "weapon" },
+                armor: { name: "Leather Cuirass", defense: 12, type: "armor" },
+                helm: null,
+                shield: null,
+                accessory: null,
+                blessing: null,
+                companion: null
+            },
+            inventory: {
+                healthPotions: 5,
+                manaPotions: 3,
+                divinePotions: 2,
+                scrolls: {},
+                artifacts: {},
+                materials: {}
+            },
+            skills: {
+                swordMastery: 0,
+                spearMastery: 0,
+                archery: 0,
+                lightningMagic: 0,
+                fireMagic: 0,
+                divineWrath: 0,
+                heroicStand: 0,
+                leadership: 0,
+                prophecy: 0,
+                smithing: 0
+            },
+            currentQuest: null,
+            enemies: [],
+            selectedEnemy: null,
+            unlockedQuests: ['village', 'forest', 'labyrinth'],
+            shopTab: 'weapons',
+            currentFloor: 1
+        };
+
+        // Quest Data
+        const quests = {
+            village: {
+                name: "Athens Outskirts Defense",
+                minLevel: 1,
+                enemies: [
+                    { name: "Bandit Leader", icon: "🗡️", health: 80, maxHealth: 80, attack: 18, defense: 8 },
+                    { name: "Thief", icon: "🔪", health: 60, maxHealth: 60, attack: 14, defense: 4 },
+                    { name: "Mercenary", icon: "⚔️", health: 100, maxHealth: 100, attack: 22, defense: 10 },
+                    { name: "Archer", icon: "🏹", health: 70, maxHealth: 70, attack: 20, defense: 6 }
+                ],
+                rewards: { gold: [400, 800], exp: 150, glory: 15, materials: ["Bronze Ingot", "Leather Hide"] }
+            },
+            forest: {
+                name: "Sacred Grove Cleansing",
+                minLevel: 3,
+                enemies: [
+                    { name: "Centaur Warrior", icon: "🐎", health: 120, maxHealth: 120, attack: 26, defense: 14 },
+                    { name: "Dryad Guardian", icon: "🌳", health: 90, maxHealth: 90, attack: 22, defense: 10 },
+                    { name: "Satyr Trickster", icon: "🐐", health: 80, maxHealth: 80, attack: 20, defense: 8 },
+                    { name: "Wild Boar", icon: "🐗", health: 110, maxHealth: 110, attack: 24, defense: 12 }
+                ],
+                rewards: { gold: [600, 1200], exp: 250, glory: 25, materials: ["Sacred Wood", "Moonstone"] }
+            },
+            labyrinth: {
+                name: "Cretan Labyrinth Challenge",
+                minLevel: 6,
+                enemies: [
+                    { name: "Minotaur", icon: "🐂", health: 200, maxHealth: 200, attack: 35, defense: 20 },
+                    { name: "Labyrinth Guardian", icon: "🗿", health: 150, maxHealth: 150, attack: 30, defense: 18 },
+                    { name: "Stone Warrior", icon: "⚔️", health: 130, maxHealth: 130, attack: 28, defense: 16 },
+                    { name: "Maze Spirit", icon: "👻", health: 100, maxHealth: 100, attack: 32, defense: 8 }
+                ],
+                rewards: { gold: [1000, 2000], exp: 400, glory: 40, materials: ["Minotaur Horn", "Ancient Stone"] }
+            },
+            underworld: {
+                name: "Gates of Hades Expedition",
+                minLevel: 10,
+                enemies: [
+                    { name: "Cerberus", icon: "🐕", health: 300, maxHealth: 300, attack: 42, defense: 25 },
+                    { name: "Shade Warrior", icon: "👤", health: 180, maxHealth: 180, attack: 38, defense: 15 },
+                    { name: "Fury", icon: "😈", health: 160, maxHealth: 160, attack: 45, defense: 12 },
+                    { name: "Charon", icon: "⛵", health: 220, maxHealth: 220, attack: 40, defense: 22 }
+                ],
+                rewards: { gold: [1500, 3000], exp: 600, glory: 60, materials: ["Soul Essence", "Stygian Iron"] }
+            },
+            medusa: {
+                name: "Medusa's Lair Assault",
+                minLevel: 14,
+                enemies: [
+                    { name: "Medusa", icon: "🐍", health: 400, maxHealth: 400, attack: 55, defense: 30 },
+                    { name: "Stone Statue", icon: "🗿", health: 250, maxHealth: 250, attack: 35, defense: 40 },
+                    { name: "Gorgon Sister", icon: "👹", health: 300, maxHealth: 300, attack: 50, defense: 25 },
+                    { name: "Petrified Hero", icon: "⚔️", health: 200, maxHealth: 200, attack: 45, defense: 20 }
+                ],
+                rewards: { gold: [2500, 4500], exp: 900, glory: 90, materials: ["Gorgon Scale", "Petrifying Gaze"] }
+            },
+            titans: {
+                name: "Titan's Prison Break",
+                minLevel: 18,
+                enemies: [
+                    { name: "Kronos", icon: "⏰", health: 600, maxHealth: 600, attack: 70, defense: 45 },
+                    { name: "Atlas", icon: "🌍", health: 500, maxHealth: 500, attack: 65, defense: 50 },
+                    { name: "Prometheus", icon: "🔥", health: 450, maxHealth: 450, attack: 75, defense: 35 },
+                    { name: "Titan Guard", icon: "⛰️", health: 400, maxHealth: 400, attack: 60, defense: 40 }
+                ],
+                rewards: { gold: [4000, 7000], exp: 1400, glory: 140, materials: ["Titan Blood", "Primordial Essence"] }
+            },
+            olympus: {
+                name: "Mount Olympus Challenge",
+                minLevel: 22,
+                enemies: [
+                    { name: "Ares", icon: "⚔️", health: 700, maxHealth: 700, attack: 85, defense: 50 },
+                    { name: "Athena", icon: "🦉", health: 650, maxHealth: 650, attack: 80, defense: 55 },
+                    { name: "Apollo", icon: "☀️", health: 600, maxHealth: 600, attack: 90, defense: 45 },
+                    { name: "Zeus", icon: "⚡", health: 1000, maxHealth: 1000, attack: 100, defense: 60 }
+                ],
+                rewards: { gold: [6000, 12000], exp: 2000, glory: 200, materials: ["Divine Essence", "Olympian Blessing"] }
+            },
+            chaos: {
+                name: "Primordial Chaos Confrontation",
+                minLevel: 25,
+                enemies: [
+                    { name: "Chaos Entity", icon: "🌌", health: 800, maxHealth: 800, attack: 95, defense: 55 },
+                    { name: "Void Spawn", icon: "⚫", health: 600, maxHealth: 600, attack: 110, defense: 40 },
+                    { name: "Primordial Force", icon: "💫", health: 900, maxHealth: 900, attack: 105, defense: 65 },
+                    { name: "Origin of All", icon: "🌟", health: 1200, maxHealth: 1200, attack: 120, defense: 70 }
+                ],
+                rewards: { gold: [10000, 20000], exp: 3000, glory: 300, materials: ["Chaos Fragment", "Origin Spark"] }
+            }
+        };
+
+        // Shop Data
+        const shopData = {
+            weapons: [
+                { name: "Iron Sword", icon: "⚔️", power: 20, price: 1500, level: 1, description: "+20 Attack Power" },
+                { name: "Spartan Spear", icon: "🔱", power: 25, price: 2200, level: 3, description: "+25 Attack, +Reach" },
+                { name: "Blessed Blade", icon: "✨", power: 32, price: 3500, level: 6, description: "+32 Attack, Divine damage" },
+                { name: "Xiphos of Heroes", icon: "⚔️", power: 40, price: 5500, level: 10, description: "+40 Attack, +Heroic strikes" },
+                { name: "Sword of Achilles", icon: "🗡️", power: 50, price: 8500, level: 14, description: "+50 Attack, Legendary power" },
+                { name: "Blade of Olympus", icon: "⚡", power: 65, price: 15000, level: 18, description: "+65 Attack, Divine lightning" },
+                { name: "Kronos Scythe", icon: "🗡️", power: 80, price: 25000, level: 22, description: "+80 Attack, Time manipulation" }
+            ],
+            armor: [
+                { name: "Bronze Cuirass", icon: "🛡️", defense: 18, price: 1200, level: 1, description: "+18 Defense" },
+                { name: "Hoplite Armor", icon: "⚔️", defense: 24, price: 2000, level: 3, description: "+24 Defense, +Formation bonus" },
+                { name: "Blessed Mail", icon: "✨", defense: 32, price: 3200, level: 6, description: "+32 Defense, Divine protection" },
+                { name: "Hero's Plate", icon: "🛡️", defense: 42, price: 5000, level: 10, description: "+42 Defense, +Health regen" },
+                { name: "Aegis Armor", icon: "🌟", defense: 55, price: 8000, level: 14, description: "+55 Defense, Reflects damage" },
+                { name: "Divine Raiment", icon: "⚡", defense: 70, price: 12000, level: 18, description: "+70 Defense, God's blessing" },
+                { name: "Armor of Zeus", icon: "⚡", defense: 90, price: 20000, level: 22, description: "+90 Defense, Lightning immunity" }
+            ],
+            helms: [
+                { name: "Bronze Helm", icon: "⛑️", defense: 10, price: 800, level: 1, description: "+10 Defense" },
+                { name: "Corinthian Helmet", icon: "🪖", defense: 15, price: 1300, level: 3, description: "+15 Defense, +Intimidation" },
+                { name: "Helm of Hermes", icon: "🪶", defense: 20, price: 2500, level: 6, description: "+20 Defense, +Speed" },
+                { name: "Crown of Heroes", icon: "👑", defense: 28, price: 4000, level: 10, description: "+28 Defense, +Leadership" },
+                { name: "Helm of Athena", icon: "🦉", defense: 38, price: 6500, level: 14, description: "+38 Defense, +Wisdom" },
+                { name: "Divine Circlet", icon: "✨", defense: 50, price: 10000, level: 18, description: "+50 Defense, Divine sight" }
+            ],
+            shields: [
+                { name: "Bronze Shield", icon: "🛡️", defense: 8, price: 600, level: 1, description: "+8 Defense, +Block chance" },
+                { name: "Aspis Shield", icon: "🔰", defense: 12, price: 1000, level: 3, description: "+12 Defense, Spartan design" },
+                { name: "Shield of Ajax", icon: "🛡️", defense: 18, price: 2000, level: 6, description: "+18 Defense, Massive protection" },
+                { name: "Aegis of Zeus", icon: "⚡", defense: 25, price: 4000, level: 12, description: "+25 Defense, Lightning reflection" },
+                { name: "Divine Aegis", icon: "🌟", defense: 35, price: 8000, level: 18, description: "+35 Defense, God's protection" }
+            ],
+            accessories: [
+                { name: "Golden Ring", icon: "💍", divineFavor: 5, price: 800, level: 1, description: "+5 Divine Favor" },
+                { name: "Amulet of Strength", icon: "🔮", strength: 10, price: 1500, level: 3, description: "+10 Strength" },
+                { name: "Pendant of Wisdom", icon: "📿", wisdom: 12, price: 1800, level: 5, description: "+12 Wisdom" },
+                { name: "Hero's Torc", icon: "🌀", heroism: 15, price: 2500, level: 8, description: "+15 Heroism" },
+                { name: "Hermes' Sandals", icon: "👟", agility: 18, price: 4000, level: 12, description: "+18 Agility, +Speed" },
+                { name: "Eye of Apollo", icon: "👁️", wisdom: 25, price: 7000, level: 16, description: "+25 Wisdom, Foresight" },
+                { name: "Heart of Courage", icon: "❤️", heroism: 30, price: 10000, level: 20, description: "+30 Heroism, Fearless" }
+            ]
+        };
+
+        const consumables = [
+            { name: "Nectar", icon: "🍯", effect: "health", value: 100, price: 200, description: "Restore 100 HP" },
+            { name: "Ambrosia", icon: "🧪", effect: "mana", value: 75, price: 180, description: "Restore 75 MP" },
+            { name: "Divine Elixir", icon: "⚡", effect: "divine", value: 30, price: 250, description: "Restore 30 Divine Power" },
+            { name: "Greater Nectar", icon: "🍯", effect: "health", value: 200, price: 400, description: "Restore 200 HP" },
+            { name: "Potion of Might", icon: "💪", effect: "strength", value: 8, price: 800, description: "Permanently +8 Strength" },
+            { name: "Scroll of Lightning", icon: "📜", effect: "scroll", spell: "lightning", price: 300, description: "Cast powerful lightning" },
+            { name: "Scroll of Healing", icon: "📃", effect: "scroll", spell: "heal", price: 350, description: "Instant full heal" },
+            { name: "Divine Blessing", icon: "✨", effect: "blessing", duration: 5, price: 600, description: "Double damage for 5 turns" }
+        ];
+
+        const artifacts = [
+            { name: "Golden Fleece", icon: "🐑", stat: "heroism", value: 12, price: 3000, description: "+12 Heroism when equipped" },
+            { name: "Pandora's Box", icon: "📦", stat: "wisdom", value: 15, price: 3500, description: "+15 Wisdom, Reveals secrets" },
+            { name: "Caduceus", icon: "⚕️", stat: "healing", value: 20, price: 4000, description: "+20 Healing power" },
+            { name: "Lyre of Orpheus", icon: "🎵", stat: "charisma", value: 18, price: 4500, description: "+18 Charisma, Charm enemies" },
+            { name: "Winged Sandals", icon: "🪶", stat: "agility", value: 20, price: 5000, description: "+20 Agility, Flight ability" },
+            { name: "Trident of Poseidon", icon: "🔱", stat: "all", value: 8, price: 8000, description: "+8 to all stats, Sea mastery" }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            updateDisplay();
+            renderShop();
+            addLogEntry("⚡ Welcome, noble hero! Your divine destiny awaits in ancient Greece!", "exploration");
+            addLogEntry("🏛️ Choose your first quest and begin your legendary journey!", "exploration");
+        }
+
+        // Switch Shop Tab
+        function switchShopTab(tab) {
+            gameState.shopTab = tab;
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderShop();
+        }
+
+        // Render Shop
+        function renderShop() {
+            const container = document.getElementById('shopContent');
+            container.innerHTML = '';
+
+            let items = [];
+            if (gameState.shopTab === 'weapons') {
+                items = [...shopData.weapons, ...shopData.armor, ...shopData.helms, ...shopData.shields, ...shopData.accessories];
+            } else if (gameState.shopTab === 'armor') {
+                items = [...shopData.armor, ...shopData.helms, ...shopData.shields];
+            } else if (gameState.shopTab === 'consumables') {
+                items = consumables;
+            } else if (gameState.shopTab === 'artifacts') {
+                items = artifacts;
+            }
+
+            const shopGrid = document.createElement('div');
+            shopGrid.className = 'shop-grid';
+
+            items.forEach(item => {
+                if (item.level && item.level > gameState.character.level) return;
+
+                const shopItem = document.createElement('div');
+                shopItem.className = `shop-item ${gameState.character.gold >= item.price ? 'affordable' : ''}`;
+                
+                if (gameState.shopTab === 'consumables') {
+                    shopItem.onclick = () => useConsumable(item);
+                } else if (gameState.shopTab === 'artifacts') {
+                    shopItem.onclick = () => buyArtifact(item);
+                } else {
+                    shopItem.onclick = () => buyEquipment(item);
+                }
+
+                shopItem.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${item.icon} ${item.name}</div>
+                        <div class="item-description">${item.description}</div>
+                        ${item.level ? `<div style="font-size: 0.7rem; color: #f39c12;">Req. Level ${item.level}</div>` : ''}
+                    </div>
+                    <div class="item-price">${item.price}d</div>
+                `;
+
+                shopGrid.appendChild(shopItem);
+            });
+
+            container.appendChild(shopGrid);
+        }
+
+        // Start Quest
+        function startQuest(questType) {
+            if (!gameState.unlockedQuests.includes(questType)) {
+                addLogEntry("🔒 This quest is not yet available to you!", "combat");
+                return;
+            }
+
+            const quest = quests[questType];
+            if (!quest) return;
+
+            if (gameState.character.level < quest.minLevel) {
+                addLogEntry(`⚠️ You need to be level ${quest.minLevel} for this quest!`, "combat");
+                return;
+            }
+
+            gameState.currentQuest = questType;
+            gameState.enemies = quest.enemies.map(enemy => ({
+                ...enemy,
+                id: Math.random().toString(36).substr(2, 9),
+                defeated: false
+            }));
+            gameState.selectedEnemy = null;
+
+            document.getElementById('locationGrid').style.display = 'none';
+            document.getElementById('battleScreen').classList.add('active');
+            document.getElementById('battleTitle').textContent = quest.name;
+
+            renderEnemies();
+            addLogEntry(`⚔️ ${quest.name} begins! May the gods favor you!`, "exploration");
+        }
+
+        // Render Enemies
+        function renderEnemies() {
+            const container = document.getElementById('enemyGrid');
+            container.innerHTML = '';
+
+            gameState.enemies.forEach(enemy => {
+                const enemyCard = document.createElement('div');
+                enemyCard.className = `enemy-card ${enemy.defeated ? 'defeated' : ''} ${gameState.selectedEnemy?.id === enemy.id ? 'selected' : ''}`;
+                enemyCard.onclick = () => selectEnemy(enemy);
+
+                enemyCard.innerHTML = `
+                    <div class="enemy-icon">${enemy.icon}</div>
+                    <div class="enemy-name">${enemy.name}</div>
+                    <div class="enemy-health">${enemy.health}/${enemy.maxHealth} HP</div>
+                `;
+
+                container.appendChild(enemyCard);
+            });
+        }
+
+        // Select Enemy
+        function selectEnemy(enemy) {
+            if (enemy.defeated) {
+                addLogEntry("💀 This foe has already fallen!", "combat");
+                return;
+            }
+
+            gameState.selectedEnemy = enemy;
+            addLogEntry(`🎯 You focus your attention on ${enemy.name}!`, "combat");
+            renderEnemies();
+        }
+
+        // Perform Action
+        function performAction(actionType) {
+            if (!gameState.selectedEnemy || gameState.selectedEnemy.defeated) {
+                addLogEntry("⚠️ Select a living enemy first!", "combat");
+                return;
+            }
+
+            const target = gameState.selectedEnemy;
+            let damage = 0;
+            let manaCost = 0;
+            let divineCost = 0;
+
+            switch (actionType) {
+                case 'attack':
+                    damage = calculateDamage('physical');
+                    addLogEntry(`⚔️ You strike ${target.name} with your blade for ${Math.floor(damage)} damage!`, "combat");
+                    break;
+
+                case 'lightning':
+                    if (gameState.character.mana < 30) {
+                        addLogEntry("🔮 Not enough mana for lightning bolt!", "combat");
+                        return;
+                    }
+                    damage = calculateDamage('magic');
+                    manaCost = 30;
+                    addLogEntry(`⚡ You call down lightning upon ${target.name} for ${Math.floor(damage)} divine damage!`, "magic");
+                    break;
+
+                case 'divine':
+                    if (gameState.character.divinePower < 20) {
+                        addLogEntry("⚡ Not enough divine power for divine wrath!", "combat");
+                        return;
+                    }
+                    damage = calculateDamage('divine');
+                    divineCost = 20;
+                    addLogEntry(`🌟 Divine wrath strikes ${target.name} for ${Math.floor(damage)} holy damage!`, "divine");
+                    break;
+
+                case 'heroic':
+                    gameState.character.health = Math.min(gameState.character.maxHealth, gameState.character.health + 50);
+                    gameState.character.divinePower = Math.min(gameState.character.maxDivinePower, gameState.character.divinePower + 15);
+                    addLogEntry("🛡️ You take a heroic stand, recovering health and divine power!", "exploration");
+                    showFloatingText('+50', 'heal');
+                    break;
+            }
+
+            // Apply costs
+            gameState.character.mana -= manaCost;
+            gameState.character.divinePower -= divineCost;
+
+            // Apply damage
+            if (damage > 0) {
+                const finalDamage = Math.max(1, Math.floor(damage - target.defense));
+                target.health = Math.max(0, target.health - finalDamage);
+                showFloatingText(`-${finalDamage}`, 'damage');
+
+                if (target.health <= 0) {
+                    target.defeated = true;
+                    gameState.character.victories++;
+                    addLogEntry(`💀 ${target.name} has been vanquished!`, "success");
+                    gameState.character.experience += 75;
+                    gameState.character.skillPoints += 1;
+                    checkLevelUp();
+                }
+            }
+
+            // Enemy counterattack
+            if (!target.defeated && actionType !== 'heroic') {
+                setTimeout(() => enemyAttack(target), 1000);
+            }
+
+            // Check victory
+            const allDefeated = gameState.enemies.every(enemy => enemy.defeated);
+            document.getElementById('victoryBtn').disabled = !allDefeated;
+
+            renderEnemies();
+            updateDisplay();
+        }
+
+        // Calculate Damage
+        function calculateDamage(type) {
+            let baseDamage;
+            
+            if (type === 'physical') {
+                baseDamage = gameState.character.strength + (gameState.equipment.weapon?.power || 0);
+            } else if (type === 'magic') {
+                baseDamage = gameState.character.wisdom * 1.8;
+            } else if (type === 'divine') {
+                baseDamage = gameState.character.divineFavor * 2.5;
+            }
+
+            const randomFactor = 0.8 + Math.random() * 0.4;
+            return baseDamage * randomFactor;
+        }
+
+        // Enemy Attack
+        function enemyAttack(enemy) {
+            const damage = Math.floor(enemy.attack * (0.7 + Math.random() * 0.6));
+            const defense = (gameState.equipment.armor?.defense || 0) + (gameState.equipment.helm?.defense || 0) + (gameState.equipment.shield?.defense || 0);
+            const finalDamage = Math.max(1, damage - defense);
+
+            gameState.character.health = Math.max(0, gameState.character.health - finalDamage);
+            addLogEntry(`💥 ${enemy.name} attacks you for ${finalDamage} damage!`, "combat");
+            showFloatingText(`-${finalDamage}`, 'damage');
+
+            if (gameState.character.health <= 0) {
+                addLogEntry("💀 You have fallen in battle! The gods grant you another chance...", "combat");
+                setTimeout(() => retreatFromBattle(), 1500);
+            }
+
+            updateDisplay();
+        }
+
+        // Buy Equipment
+        function buyEquipment(item) {
+            if (gameState.character.gold < item.price) {
+                addLogEntry(`❌ Need ${item.price} drachmas for ${item.name}!`, "combat");
+                return;
+            }
+
+            gameState.character.gold -= item.price;
+            
+            // Determine equipment slot
+            let slot = 'accessory';
+            if (item.power) slot = 'weapon';
+            else if (item.defense && shopData.armor.includes(item)) slot = 'armor';
+            else if (item.defense && shopData.helms.includes(item)) slot = 'helm';
+            else if (item.defense && shopData.shields.includes(item)) slot = 'shield';
+
+            gameState.equipment[slot] = { ...item, type: slot };
+            updateEquipmentDisplay();
+            addLogEntry(`🛒 Purchased ${item.name}!`, "success");
+            renderShop();
+            updateDisplay();
+        }
+
+        // Use Consumable
+        function useConsumable(item) {
+            if (gameState.character.gold < item.price) {
+                addLogEntry(`❌ Need ${item.price} drachmas for ${item.name}!`, "combat");
+                return;
+            }
+
+            gameState.character.gold -= item.price;
+
+            switch (item.effect) {
+                case 'health':
+                    gameState.character.health = Math.min(gameState.character.maxHealth, gameState.character.health + item.value);
+                    addLogEntry(`🍯 Used ${item.name} and recovered ${item.value} HP!`, "success");
+                    showFloatingText(`+${item.value}`, 'heal');
+                    break;
+                case 'mana':
+                    gameState.character.mana = Math.min(gameState.character.maxMana, gameState.character.mana + item.value);
+                    addLogEntry(`🧪 Used ${item.name} and recovered ${item.value} MP!`, "success");
+                    break;
+                case 'divine':
+                    gameState.character.divinePower = Math.min(gameState.character.maxDivinePower, gameState.character.divinePower + item.value);
+                    addLogEntry(`⚡ Used ${item.name} and recovered ${item.value} Divine Power!`, "divine");
+                    break;
+                case 'strength':
+                    gameState.character.strength += item.value;
+                    addLogEntry(`💪 Used ${item.name} and permanently gained ${item.value} Strength!`, "success");
+                    break;
+            }
+
+            renderShop();
+            updateDisplay();
+        }
+
+        // Buy Artifact
+        function buyArtifact(item) {
+            if (gameState.character.gold < item.price) {
+                addLogEntry(`❌ Need ${item.price} drachmas for ${item.name}!`, "combat");
+                return;
+            }
+
+            gameState.character.gold -= item.price;
+            
+            if (item.stat === 'all') {
+                gameState.character.strength += item.value;
+                gameState.character.agility += item.value;
+                gameState.character.wisdom += item.value;
+                gameState.character.heroism += item.value;
+                gameState.character.divineFavor += item.value;
+                addLogEntry(`✨ Acquired ${item.name}! All stats increased by ${item.value}!`, "success");
+            } else {
+                gameState.character[item.stat] += item.value;
+                addLogEntry(`✨ Acquired ${item.name}! ${item.stat} increased by ${item.value}!`, "success");
+            }
+
+            renderShop();
+            updateDisplay();
+        }
+
+        // Update Equipment Display
+        function updateEquipmentDisplay() {
+            const slots = ['weapon', 'armor', 'helm', 'shield', 'accessory', 'blessing', 'companion'];
+            
+            slots.forEach(slot => {
+                const element = document.getElementById(slot + 'Slot');
+                if (element) {
+                    const equipment = gameState.equipment[slot];
+                    if (equipment) {
+                        element.innerHTML = `${equipment.icon} ${equipment.name}`;
+                        element.classList.add('equipped');
+                    } else {
+                        const slotNames = {
+                            weapon: 'Weapon',
+                            armor: 'Armor', 
+                            helm: 'Helmet',
+                            shield: 'Shield',
+                            accessory: 'Artifact',
+                            blessing: 'Divine Blessing',
+                            companion: 'Companion'
+                        };
+                        element.innerHTML = `No ${slotNames[slot]}`;
+                        element.classList.remove('equipped');
+                    }
+                }
+            });
+        }
+
+        // Complete Quest
+        function completeQuest() {
+            if (!gameState.enemies.every(enemy => enemy.defeated)) return;
+
+            const quest = quests[gameState.currentQuest];
+            const goldReward = Math.floor(Math.random() * (quest.rewards.gold[1] - quest.rewards.gold[0] + 1)) + quest.rewards.gold[0];
+
+            gameState.character.gold += goldReward;
+            gameState.character.experience += quest.rewards.exp;
+            gameState.character.glory += quest.rewards.glory;
+            gameState.character.questsCompleted++;
+
+            // Add materials to inventory
+            if (quest.rewards.materials) {
+                quest.rewards.materials.forEach(material => {
+                    if (!gameState.inventory.materials[material]) {
+                        gameState.inventory.materials[material] = 0;
+                    }
+                    gameState.inventory.materials[material] += Math.floor(Math.random() * 3) + 1;
+                });
+            }
+
+            addLogEntry(`🎉 Victory! Earned ${goldReward} drachmas, ${quest.rewards.exp} XP, and ${quest.rewards.glory} glory!`, "success");
+            showFloatingText(`+${goldReward}d`, 'gold');
+
+            // Unlock new areas based on level
+            unlockNewAreas();
+
+            checkLevelUp();
+            endQuest();
+        }
+
+        // Unlock New Areas
+        function unlockNewAreas() {
+            const level = gameState.character.level;
+            const unlocks = [
+                { level: 10, quest: 'underworld', element: 'underworldQuest' },
+                { level: 14, quest: 'medusa', element: 'medusaQuest' },
+                { level: 18, quest: 'titans', element: 'titansQuest' },
+                { level: 22, quest: 'olympus', element: 'olympusQuest' },
+                { level: 25, quest: 'chaos', element: 'chaosQuest' }
+            ];
+
+            unlocks.forEach(unlock => {
+                if (level >= unlock.level && !gameState.unlockedQuests.includes(unlock.quest)) {
+                    gameState.unlockedQuests.push(unlock.quest);
+                    const element = document.getElementById(unlock.element);
+                    if (element) {
+                        element.classList.remove('locked');
+                        addLogEntry(`🗺️ New quest unlocked: ${quests[unlock.quest].name}!`, "success");
+                    }
+                }
+            });
+        }
+
+        // Retreat from Battle
+        function retreatFromBattle() {
+            addLogEntry("🏃 You retreat from the battle to fight another day.", "combat");
+            gameState.character.health = Math.max(1, Math.floor(gameState.character.health * 0.5));
+            endQuest();
+        }
+
+        // End Quest
+        function endQuest() {
+            gameState.currentQuest = null;
+            gameState.enemies = [];
+            gameState.selectedEnemy = null;
+
+            document.getElementById('battleScreen').classList.remove('active');
+            document.getElementById('locationGrid').style.display = 'grid';
+            document.getElementById('victoryBtn').disabled = true;
+
+            updateDisplay();
+        }
+
+        // Check Level Up
+        function checkLevelUp() {
+            if (gameState.character.experience >= gameState.character.expToNext) {
+                levelUp();
+            }
+        }
+
+        // Level Up
+        function levelUp() {
+            gameState.character.level++;
+            gameState.character.experience -= gameState.character.expToNext;
+            gameState.character.expToNext = Math.floor(gameState.character.expToNext * 1.5);
+
+            // Stat increases
+            gameState.character.strength += 5;
+            gameState.character.agility += 4;
+            gameState.character.wisdom += 4;
+            gameState.character.heroism += 4;
+            gameState.character.divineFavor += 3;
+            gameState.character.maxHealth += 30 + (gameState.character.heroism * 2);
+            gameState.character.maxMana += 20 + gameState.character.wisdom;
+            gameState.character.maxDivinePower += 10 + gameState.character.divineFavor;
+            gameState.character.skillPoints += 4;
+
+            // Full heal on level up
+            gameState.character.health = gameState.character.maxHealth;
+            gameState.character.mana = gameState.character.maxMana;
+            gameState.character.divinePower = gameState.character.maxDivinePower;
+
+            addLogEntry(`🌟 Level Up! You are now level ${gameState.character.level}!`, "success");
+            addLogEntry("💪 All stats increased, vitals restored, and gained 4 skill points!", "success");
+
+            document.getElementById('heroLevel').textContent = `Level ${gameState.character.level} ${gameState.character.class}`;
+            
+            // Unlock new areas
+            unlockNewAreas();
+        }
+
+        // Train Attribute
+        function trainAttribute(attribute) {
+            const cost = attribute === 'divineFavor' ? 500 : 400;
+            
+            if (gameState.character.gold < cost) {
+                addLogEntry(`❌ Need ${cost} drachmas for training!`, "combat");
+                return;
+            }
+
+            gameState.character.gold -= cost;
+            gameState.character[attribute] += 4;
+
+            if (attribute === 'strength') {
+                addLogEntry("💪 Strength training completed! +4 Strength", "success");
+            } else if (attribute === 'agility') {
+                addLogEntry("🏃 Agility training completed! +4 Agility", "success");
+            } else if (attribute === 'wisdom') {
+                gameState.character.maxMana += 15;
+                addLogEntry("🧠 Wisdom training completed! +4 Wisdom, +15 Max Mana", "success");
+            } else if (attribute === 'heroism') {
+                gameState.character.maxHealth += 20;
+                addLogEntry("🛡️ Heroism training completed! +4 Heroism, +20 Max Health", "success");
+            } else if (attribute === 'divineFavor') {
+                gameState.character.maxDivinePower += 10;
+                addLogEntry("⚡ Divine favor training completed! +4 Divine Favor, +10 Max Divine Power", "divine");
+            }
+
+            updateDisplay();
+        }
+
+        // Train Skill
+        function trainSkill(skill) {
+            const costs = {
+                swordMastery: 3,
+                lightningMagic: 3,
+                divineWrath: 4,
+                heroicStand: 3
+            };
+
+            const cost = costs[skill] || 3;
+            
+            if (gameState.character.skillPoints < cost) {
+                addLogEntry(`❌ Need ${cost} skill points for this training!`, "combat");
+                return;
+            }
+
+            gameState.character.skillPoints -= cost;
+            gameState.skills[skill] += 1;
+
+            const skillNames = {
+                swordMastery: "⚔️ Blade Mastery",
+                lightningMagic: "⚡ Lightning Magic",
+                divineWrath: "🌟 Divine Wrath",
+                heroicStand: "🛡️ Heroic Defense"
+            };
+
+            addLogEntry(`🎯 ${skillNames[skill]} improved! Level ${gameState.skills[skill]}`, "success");
+            updateDisplay();
+        }
+
+        // Rest at Temple
+        function restAtTemple() {
+            gameState.character.health = gameState.character.maxHealth;
+            gameState.character.mana = gameState.character.maxMana;
+            gameState.character.divinePower = gameState.character.maxDivinePower;
+
+            addLogEntry("🏛️ You rest at the temple and the gods restore your strength!", "exploration");
+            updateDisplay();
+        }
+
+        // Save Progress
+        function saveProgress() {
+            localStorage.setItem('greekHeroRPGSave', JSON.stringify(gameState));
+            addLogEntry("💾 Progress saved successfully!", "success");
+        }
+
+        // Reset Game
+        function resetGame() {
+            if (confirm("Are you sure you want to start a new heroic journey?")) {
+                localStorage.removeItem('greekHeroRPGSave');
+                location.reload();
+            }
+        }
+
+        // Update Display
+        function updateDisplay() {
+            const char = gameState.character;
+
+            // Update stats text
+            document.getElementById('healthText').textContent = `${char.health}/${char.maxHealth}`;
+            document.getElementById('manaText').textContent = `${char.mana}/${char.maxMana}`;
+            document.getElementById('divineText').textContent = `${char.divinePower}/${char.maxDivinePower}`;
+            document.getElementById('expText').textContent = `${char.experience}/${char.expToNext}`;
+
+            // Update progress bars
+            document.getElementById('healthBar').style.width = `${(char.health / char.maxHealth) * 100}%`;
+            document.getElementById('manaBar').style.width = `${(char.mana / char.maxMana) * 100}%`;
+            document.getElementById('divineBar').style.width = `${(char.divinePower / char.maxDivinePower) * 100}%`;
+            document.getElementById('expBar').style.width = `${(char.experience / char.expToNext) * 100}%`;
+
+            // Update attributes
+            document.getElementById('strengthValue').textContent = char.strength;
+            document.getElementById('agilityValue').textContent = char.agility;
+            document.getElementById('wisdomValue').textContent = char.wisdom;
+            document.getElementById('heroismValue').textContent = char.heroism;
+            document.getElementById('divineFavorValue').textContent = char.divineFavor;
+            document.getElementById('goldValue').textContent = char.gold;
+            document.getElementById('gloryValue').textContent = char.glory;
+            document.getElementById('victoriesValue').textContent = char.victories;
+            document.getElementById('skillPointsValue').textContent = char.skillPoints;
+
+            // Update action buttons
+            document.getElementById('lightningBtn').disabled = char.mana < 30;
+            document.getElementById('divineBtn').disabled = char.divinePower < 20;
+
+            // Update shop affordability
+            updateShopAffordability();
+        }
+
+        // Update Shop Affordability
+        function updateShopAffordability() {
+            const shopItems = document.querySelectorAll('.shop-item');
+            shopItems.forEach(item => {
+                const priceText = item.querySelector('.item-price').textContent;
+                const price = parseInt(priceText.replace('d', ''));
+                
+                if (gameState.character.gold >= price) {
+                    item.classList.add('affordable');
+                } else {
+                    item.classList.remove('affordable');
+                }
+            });
+        }
+
+        // Add Log Entry
+        function addLogEntry(message, type) {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 20 entries
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Show Floating Text
+        function showFloatingText(text, type) {
+            const floating = document.createElement('div');
+            floating.className = `floating-${type}`;
+            floating.textContent = text;
+            floating.style.position = 'fixed';
+            floating.style.left = '50%';
+            floating.style.top = '40%';
+            floating.style.transform = 'translateX(-50%)';
+            floating.style.fontSize = '1.5rem';
+            floating.style.fontWeight = 'bold';
+            floating.style.pointerEvents = 'none';
+            floating.style.zIndex = '1000';
+            
+            if (type === 'damage') {
+                floating.style.color = '#e74c3c';
+                floating.style.textShadow = '0 0 10px #e74c3c';
+            } else if (type === 'heal') {
+                floating.style.color = '#27ae60';
+                floating.style.textShadow = '0 0 10px #27ae60';
+            } else if (type === 'gold') {
+                floating.style.color = '#f39c12';
+                floating.style.textShadow = '0 0 10px #f39c12';
+            } else if (type === 'divine') {
+                floating.style.color = '#ffd700';
+                floating.style.textShadow = '0 0 10px #ffd700';
+            }
+            
+            floating.style.animation = 'floatDamage 2s ease-out forwards';
+            
+            document.body.appendChild(floating);
+            
+            setTimeout(() => {
+                if (floating.parentNode) {
+                    floating.parentNode.removeChild(floating);
+                }
+            }, 2000);
+        }
+
+        // Load saved game or initialize
+        function loadGame() {
+            const saved = localStorage.getItem('greekHeroRPGSave');
+            if (saved) {
+                try {
+                    gameState = JSON.parse(saved);
+                    
+                    // Update unlocked quests display
+                    gameState.unlockedQuests.forEach(questType => {
+                        const element = document.getElementById(questType + 'Quest');
+                        if (element) {
+                            element.classList.remove('locked');
+                        }
+                    });
+                    
+                    updateEquipmentDisplay();
+                    addLogEntry("💾 Progress loaded! Welcome back, hero!", "success");
+                } catch (e) {
+                    console.error('Failed to load save:', e);
+                }
+            }
+            initGame();
+        }
+
+        // Start the game
+        loadGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9745347730b26897',t:'MTc1NjA2MzIwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

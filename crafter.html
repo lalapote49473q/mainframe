@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan's Quest - Crafting RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .fantasy-font { font-family: 'Cinzel', serif; }
+        .crafting-bg { 
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 30%, #7c2d12 60%, #dc2626 100%);
+        }
+        .workshop-bg { 
+            background-image: 
+                radial-gradient(circle at 25% 25%, #f59e0b 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #dc2626 0%, transparent 50%),
+                linear-gradient(135deg, #374151 0%, #1f2937 100%);
+        }
+        .sparkle { animation: sparkle 2s ease-in-out infinite; }
+        @keyframes sparkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.2); } }
+        .hammer-swing { animation: hammerSwing 1s ease-in-out; }
+        @keyframes hammerSwing { 0% { transform: rotate(0deg); } 50% { transform: rotate(-45deg); } 100% { transform: rotate(0deg); } }
+        .craft-glow { animation: craftGlow 3s ease-in-out infinite alternate; }
+        @keyframes craftGlow { from { box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); } to { box-shadow: 0 0 40px rgba(251, 191, 36, 0.8); } }
+        .resource-bounce { animation: resourceBounce 0.5s ease-out; }
+        @keyframes resourceBounce { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .level-up { animation: levelUp 1s ease-out; }
+        @keyframes levelUp { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        .floating-tools { animation: floatingTools 4s ease-in-out infinite; }
+        @keyframes floatingTools { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+        .recipe-card { transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .recipe-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); }
+        .progress-bar { transition: width 0.5s ease-in-out; }
+    </style>
+</head>
+<body class="crafting-bg min-h-screen text-white">
+    <!-- Floating Crafting Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-10 text-4xl floating-tools" style="animation-delay: 0s;">🔨</div>
+        <div class="absolute top-40 right-20 text-3xl sparkle" style="animation-delay: 1s;">⚒️</div>
+        <div class="absolute bottom-40 left-20 text-3xl floating-tools" style="animation-delay: 2s;">🏺</div>
+        <div class="absolute top-60 left-1/2 text-2xl sparkle" style="animation-delay: 1.5s;">💎</div>
+        <div class="absolute bottom-20 right-10 text-3xl floating-tools" style="animation-delay: 3s;">🧪</div>
+        <div class="absolute top-80 right-1/3 text-2xl sparkle" style="animation-delay: 2.5s;">✨</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/30 backdrop-blur-sm border-b border-yellow-500/30 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="location.href='main.html'" class="bg-blue-600/80 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-blue-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl sparkle">🔨</div>
+                    <h1 class="text-2xl font-bold fantasy-font">ARTISAN'S QUEST</h1>
+                    <div class="text-xs bg-yellow-600 px-2 py-1 rounded fantasy-font">MASTER CRAFTER</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">💰</span>
+                    <span class="text-xl font-bold fantasy-font" id="gold">500</span>
+                    <span class="text-sm text-gray-300">GOLD</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">⭐</span>
+                    <span class="text-lg fantasy-font" id="level">1</span>
+                    <span class="text-sm text-gray-300">LEVEL</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-green-400">🎯</span>
+                    <span class="text-lg fantasy-font" id="exp">0</span>
+                    <span class="text-sm text-gray-300">/ <span id="expNeeded">100</span> EXP</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Character Profile -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-yellow-500/30 craft-glow">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-3xl border-4 border-yellow-400 sparkle">
+                        🧙‍♂️
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold fantasy-font" id="crafterName">Master Artisan</h2>
+                        <p class="text-yellow-400 fantasy-font text-lg" id="crafterTitle">Apprentice Crafter</p>
+                        <div class="w-64 bg-gray-700 rounded-full h-3 mt-2">
+                            <div class="bg-green-400 h-3 rounded-full progress-bar" id="expBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-300">CRAFTING SKILL</div>
+                    <div class="text-4xl fantasy-font text-yellow-400" id="craftingSkill">1</div>
+                    <div class="text-sm text-gray-300 mt-2">RECIPES: <span class="text-white font-bold" id="recipeCount">3</span></div>
+                    <div class="text-sm text-gray-300">ITEMS CRAFTED: <span class="text-white font-bold" id="itemsCrafted">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Tabs -->
+        <div class="flex gap-4 mb-8">
+            <button onclick="showTab('gathering')" id="gatheringTab" class="tab-button bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold fantasy-font transition-all transform hover:scale-105">
+                🌿 GATHERING
+            </button>
+            <button onclick="showTab('crafting')" id="craftingTab" class="tab-button bg-blue-600/50 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold fantasy-font transition-all transform hover:scale-105">
+                🔨 CRAFTING
+            </button>
+            <button onclick="showTab('inventory')" id="inventoryTab" class="tab-button bg-purple-600/50 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold fantasy-font transition-all transform hover:scale-105">
+                🎒 INVENTORY
+            </button>
+            <button onclick="showTab('shop')" id="shopTab" class="tab-button bg-yellow-600/50 hover:bg-yellow-700 text-white px-6 py-3 rounded-xl font-semibold fantasy-font transition-all transform hover:scale-105">
+                🏪 SHOP
+            </button>
+        </div>
+
+        <!-- Gathering Tab -->
+        <div id="gatheringContent" class="tab-content">
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-green-500/30">
+                <h2 class="text-2xl font-bold fantasy-font text-green-400 mb-6">🌿 RESOURCE GATHERING</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="gatheringLocations">
+                    <!-- Gathering locations will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Crafting Tab -->
+        <div id="craftingContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Recipe Book -->
+                <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30">
+                    <h2 class="text-2xl font-bold fantasy-font text-blue-400 mb-6">📜 RECIPE BOOK</h2>
+                    <div id="recipeList" class="space-y-4 max-h-96 overflow-y-auto">
+                        <!-- Recipes will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Crafting Station -->
+                <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-orange-500/30">
+                    <h2 class="text-2xl font-bold fantasy-font text-orange-400 mb-6">🔥 CRAFTING STATION</h2>
+                    <div id="craftingStation">
+                        <div class="text-center py-8 text-gray-400">
+                            <div class="text-6xl mb-4">🔨</div>
+                            <p class="fantasy-font text-xl">Select a recipe to begin crafting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventoryContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Resources -->
+                <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30">
+                    <h2 class="text-2xl font-bold fantasy-font text-purple-400 mb-6">📦 RESOURCES</h2>
+                    <div id="resourceInventory" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Resources will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Crafted Items -->
+                <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/30">
+                    <h2 class="text-2xl font-bold fantasy-font text-yellow-400 mb-6">⚔️ CRAFTED ITEMS</h2>
+                    <div id="itemInventory" class="space-y-4 max-h-96 overflow-y-auto">
+                        <!-- Crafted items will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Tab -->
+        <div id="shopContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Buy Items -->
+                <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-green-500/30">
+                    <h2 class="text-2xl font-bold fantasy-font text-green-400 mb-6">💰 BUY RESOURCES</h2>
+                    <div id="shopBuy" class="space-y-4">
+                        <!-- Shop items will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Sell Items -->
+                <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-red-500/30">
+                    <h2 class="text-2xl font-bold fantasy-font text-red-400 mb-6">💎 SELL ITEMS</h2>
+                    <div id="shopSell" class="space-y-4">
+                        <!-- Sellable items will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Crafting Progress Modal -->
+    <div id="craftingModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-orange-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4 hammer-swing" id="craftingIcon">🔨</div>
+                <h2 class="text-2xl font-bold fantasy-font mb-4" id="craftingTitle">CRAFTING...</h2>
+                <div class="w-full bg-gray-700 rounded-full h-4 mb-4">
+                    <div class="bg-orange-400 h-4 rounded-full progress-bar" id="craftingProgress" style="width: 0%"></div>
+                </div>
+                <div class="text-gray-300" id="craftingStatus">Preparing materials...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Up Modal -->
+    <div id="levelUpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-yellow-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4 level-up">🎉</div>
+                <h2 class="text-2xl font-bold fantasy-font text-yellow-400 mb-4">LEVEL UP!</h2>
+                <div class="space-y-2 mb-6" id="levelUpDetails">
+                    <!-- Level up details will be populated here -->
+                </div>
+                <button onclick="closeLevelUp()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-xl font-semibold fantasy-font transition-all">
+                    CONTINUE CRAFTING
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            gold: 500,
+            level: 1,
+            exp: 0,
+            expNeeded: 100,
+            craftingSkill: 1,
+            itemsCrafted: 0,
+            resources: {
+                wood: 10,
+                stone: 5,
+                iron: 2,
+                leather: 3,
+                herbs: 8,
+                gems: 1
+            },
+            items: {},
+            unlockedRecipes: ['wooden_sword', 'leather_armor', 'health_potion'],
+            activeTab: 'gathering',
+            gatheringCooldowns: {}
+        };
+
+        // Resources Data
+        const resources = {
+            wood: { name: 'Wood', icon: '🪵', color: 'text-amber-400', sellPrice: 2 },
+            stone: { name: 'Stone', icon: '🪨', color: 'text-gray-400', sellPrice: 3 },
+            iron: { name: 'Iron Ore', icon: '⛏️', color: 'text-slate-400', sellPrice: 8 },
+            leather: { name: 'Leather', icon: '🦬', color: 'text-yellow-600', sellPrice: 5 },
+            herbs: { name: 'Herbs', icon: '🌿', color: 'text-green-400', sellPrice: 4 },
+            gems: { name: 'Gems', icon: '💎', color: 'text-purple-400', sellPrice: 20 },
+            coal: { name: 'Coal', icon: '⚫', color: 'text-gray-600', sellPrice: 6 },
+            silver: { name: 'Silver', icon: '🥈', color: 'text-gray-300', sellPrice: 15 },
+            gold_ore: { name: 'Gold Ore', icon: '🟡', color: 'text-yellow-400', sellPrice: 25 },
+            crystal: { name: 'Crystal', icon: '🔮', color: 'text-blue-400', sellPrice: 30 }
+        };
+
+        // Gathering Locations
+        const gatheringLocations = [
+            {
+                id: 'forest',
+                name: 'Enchanted Forest',
+                icon: '🌲',
+                description: 'Gather wood and herbs from the mystical forest',
+                resources: [
+                    { type: 'wood', amount: [2, 5], chance: 0.8 },
+                    { type: 'herbs', amount: [1, 3], chance: 0.6 }
+                ],
+                cooldown: 3000,
+                expReward: 10
+            },
+            {
+                id: 'quarry',
+                name: 'Stone Quarry',
+                icon: '⛰️',
+                description: 'Mine stone and precious ores',
+                resources: [
+                    { type: 'stone', amount: [1, 4], chance: 0.9 },
+                    { type: 'iron', amount: [1, 2], chance: 0.4 },
+                    { type: 'gems', amount: [1, 1], chance: 0.1 }
+                ],
+                cooldown: 4000,
+                expReward: 15
+            },
+            {
+                id: 'cave',
+                name: 'Crystal Caves',
+                icon: '🕳️',
+                description: 'Explore deep caves for rare materials',
+                resources: [
+                    { type: 'coal', amount: [1, 3], chance: 0.7 },
+                    { type: 'silver', amount: [1, 2], chance: 0.3 },
+                    { type: 'crystal', amount: [1, 1], chance: 0.15 }
+                ],
+                cooldown: 6000,
+                expReward: 25,
+                levelRequired: 3
+            },
+            {
+                id: 'plains',
+                name: 'Leather Plains',
+                icon: '🦬',
+                description: 'Hunt creatures for leather and materials',
+                resources: [
+                    { type: 'leather', amount: [1, 3], chance: 0.8 },
+                    { type: 'herbs', amount: [1, 2], chance: 0.5 }
+                ],
+                cooldown: 3500,
+                expReward: 12
+            },
+            {
+                id: 'mountain',
+                name: 'Golden Peaks',
+                icon: '🏔️',
+                description: 'Scale mountains for the rarest treasures',
+                resources: [
+                    { type: 'gold_ore', amount: [1, 2], chance: 0.4 },
+                    { type: 'gems', amount: [1, 2], chance: 0.3 },
+                    { type: 'crystal', amount: [1, 1], chance: 0.2 }
+                ],
+                cooldown: 8000,
+                expReward: 35,
+                levelRequired: 5
+            }
+        ];
+
+        // Recipes Data
+        const recipes = {
+            wooden_sword: {
+                name: 'Wooden Sword',
+                icon: '🗡️',
+                description: 'A basic sword for beginners',
+                materials: { wood: 3, leather: 1 },
+                craftTime: 2000,
+                expReward: 20,
+                sellPrice: 25,
+                category: 'weapon'
+            },
+            leather_armor: {
+                name: 'Leather Armor',
+                icon: '🦺',
+                description: 'Light armor for protection',
+                materials: { leather: 4, herbs: 1 },
+                craftTime: 3000,
+                expReward: 25,
+                sellPrice: 35,
+                category: 'armor'
+            },
+            health_potion: {
+                name: 'Health Potion',
+                icon: '🧪',
+                description: 'Restores health when consumed',
+                materials: { herbs: 2, crystal: 1 },
+                craftTime: 1500,
+                expReward: 15,
+                sellPrice: 20,
+                category: 'consumable'
+            },
+            iron_sword: {
+                name: 'Iron Sword',
+                icon: '⚔️',
+                description: 'A sturdy iron blade',
+                materials: { iron: 3, wood: 1, coal: 1 },
+                craftTime: 4000,
+                expReward: 40,
+                sellPrice: 60,
+                category: 'weapon',
+                levelRequired: 3
+            },
+            steel_armor: {
+                name: 'Steel Armor',
+                icon: '🛡️',
+                description: 'Heavy armor forged from steel',
+                materials: { iron: 5, coal: 2, leather: 2 },
+                craftTime: 6000,
+                expReward: 60,
+                sellPrice: 120,
+                category: 'armor',
+                levelRequired: 4
+            },
+            magic_staff: {
+                name: 'Magic Staff',
+                icon: '🪄',
+                description: 'A staff imbued with magical power',
+                materials: { wood: 2, crystal: 3, gems: 2 },
+                craftTime: 5000,
+                expReward: 80,
+                sellPrice: 150,
+                category: 'weapon',
+                levelRequired: 5
+            },
+            enchanted_ring: {
+                name: 'Enchanted Ring',
+                icon: '💍',
+                description: 'A ring with mystical properties',
+                materials: { silver: 2, gems: 3, crystal: 1 },
+                craftTime: 4500,
+                expReward: 70,
+                sellPrice: 200,
+                category: 'accessory',
+                levelRequired: 6
+            },
+            master_sword: {
+                name: 'Master Sword',
+                icon: '🗡️✨',
+                description: 'The ultimate weapon of a master crafter',
+                materials: { gold_ore: 3, crystal: 5, gems: 4, iron: 2 },
+                craftTime: 10000,
+                expReward: 150,
+                sellPrice: 500,
+                category: 'weapon',
+                levelRequired: 8
+            }
+        };
+
+        // Shop Items
+        const shopItems = {
+            wood: { price: 5 },
+            stone: { price: 7 },
+            iron: { price: 15 },
+            leather: { price: 12 },
+            herbs: { price: 8 },
+            coal: { price: 10 }
+        };
+
+        // Initialize Game
+        function initGame() {
+            updateUI();
+            renderGatheringLocations();
+            renderRecipes();
+            renderInventory();
+            renderShop();
+            showTab('gathering');
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('bg-green-600', 'bg-blue-600', 'bg-purple-600', 'bg-yellow-600');
+                button.classList.add('bg-gray-600/50');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            
+            // Activate selected tab button
+            const activeButton = document.getElementById(tabName + 'Tab');
+            activeButton.classList.remove('bg-gray-600/50');
+            
+            switch(tabName) {
+                case 'gathering':
+                    activeButton.classList.add('bg-green-600');
+                    break;
+                case 'crafting':
+                    activeButton.classList.add('bg-blue-600');
+                    break;
+                case 'inventory':
+                    activeButton.classList.add('bg-purple-600');
+                    break;
+                case 'shop':
+                    activeButton.classList.add('bg-yellow-600');
+                    break;
+            }
+            
+            gameState.activeTab = tabName;
+        }
+
+        // Gathering System
+        function gatherResources(locationId) {
+            const location = gatheringLocations.find(l => l.id === locationId);
+            if (!location) return;
+            
+            // Check level requirement
+            if (location.levelRequired && gameState.level < location.levelRequired) {
+                alert(`You need to be level ${location.levelRequired} to access this location!`);
+                return;
+            }
+            
+            // Check cooldown
+            const now = Date.now();
+            if (gameState.gatheringCooldowns[locationId] && now < gameState.gatheringCooldowns[locationId]) {
+                const remaining = Math.ceil((gameState.gatheringCooldowns[locationId] - now) / 1000);
+                alert(`This location is still recovering. Wait ${remaining} more seconds.`);
+                return;
+            }
+            
+            // Set cooldown
+            gameState.gatheringCooldowns[locationId] = now + location.cooldown;
+            
+            // Gather resources
+            let gatheredResources = [];
+            location.resources.forEach(resource => {
+                if (Math.random() < resource.chance) {
+                    const amount = Math.floor(Math.random() * (resource.amount[1] - resource.amount[0] + 1)) + resource.amount[0];
+                    gameState.resources[resource.type] = (gameState.resources[resource.type] || 0) + amount;
+                    gatheredResources.push(`${amount} ${resources[resource.type].name}`);
+                }
+            });
+            
+            // Award experience
+            gainExp(location.expReward);
+            
+            // Show results
+            if (gatheredResources.length > 0) {
+                alert(`Gathered: ${gatheredResources.join(', ')}`);
+            } else {
+                alert('You found nothing this time. Try again later!');
+            }
+            
+            updateUI();
+            renderGatheringLocations();
+            renderInventory();
+            
+            // Add visual feedback
+            const button = document.querySelector(`[onclick="gatherResources('${locationId}')"]`);
+            if (button) {
+                button.classList.add('resource-bounce');
+                setTimeout(() => button.classList.remove('resource-bounce'), 500);
+            }
+        }
+
+        // Crafting System
+        function selectRecipe(recipeId) {
+            const recipe = recipes[recipeId];
+            if (!recipe) return;
+            
+            const station = document.getElementById('craftingStation');
+            
+            // Check if player has recipe unlocked
+            if (!gameState.unlockedRecipes.includes(recipeId)) {
+                station.innerHTML = `
+                    <div class="text-center py-8 text-red-400">
+                        <div class="text-6xl mb-4">🔒</div>
+                        <p class="fantasy-font text-xl">Recipe not unlocked yet!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Check materials
+            const canCraft = Object.entries(recipe.materials).every(([material, needed]) => {
+                return (gameState.resources[material] || 0) >= needed;
+            });
+            
+            station.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">${recipe.icon}</div>
+                    <h3 class="text-2xl font-bold fantasy-font">${recipe.name}</h3>
+                    <p class="text-gray-300">${recipe.description}</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="text-lg font-bold fantasy-font mb-3">Required Materials:</h4>
+                    <div class="space-y-2">
+                        ${Object.entries(recipe.materials).map(([material, needed]) => {
+                            const have = gameState.resources[material] || 0;
+                            const hasEnough = have >= needed;
+                            return `
+                                <div class="flex justify-between items-center p-2 rounded ${hasEnough ? 'bg-green-900/30' : 'bg-red-900/30'}">
+                                    <span class="flex items-center gap-2">
+                                        <span class="text-xl">${resources[material].icon}</span>
+                                        <span>${resources[material].name}</span>
+                                    </span>
+                                    <span class="${hasEnough ? 'text-green-400' : 'text-red-400'}">${have}/${needed}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="text-sm text-gray-400 mb-4">
+                        Craft Time: ${recipe.craftTime / 1000}s | EXP: ${recipe.expReward} | Sell Value: ${recipe.sellPrice} gold
+                    </div>
+                    <button onclick="craftItem('${recipeId}')" ${!canCraft ? 'disabled' : ''} 
+                            class="w-full py-3 rounded-xl font-semibold fantasy-font transition-all ${canCraft ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'bg-gray-600 text-gray-400 cursor-not-allowed'}">
+                        ${canCraft ? '🔨 CRAFT ITEM' : '❌ INSUFFICIENT MATERIALS'}
+                    </button>
+                </div>
+            `;
+        }
+
+        // Craft Item
+        function craftItem(recipeId) {
+            const recipe = recipes[recipeId];
+            if (!recipe) return;
+            
+            // Check materials again
+            const canCraft = Object.entries(recipe.materials).every(([material, needed]) => {
+                return (gameState.resources[material] || 0) >= needed;
+            });
+            
+            if (!canCraft) {
+                alert('Insufficient materials!');
+                return;
+            }
+            
+            // Consume materials
+            Object.entries(recipe.materials).forEach(([material, needed]) => {
+                gameState.resources[material] -= needed;
+            });
+            
+            // Show crafting modal
+            showCraftingProgress(recipe, () => {
+                // Add item to inventory
+                gameState.items[recipeId] = (gameState.items[recipeId] || 0) + 1;
+                gameState.itemsCrafted++;
+                
+                // Award experience
+                gainExp(recipe.expReward);
+                
+                // Check for new recipe unlocks
+                checkRecipeUnlocks();
+                
+                updateUI();
+                renderInventory();
+                renderRecipes();
+                selectRecipe(recipeId); // Refresh the crafting station
+            });
+        }
+
+        // Show Crafting Progress
+        function showCraftingProgress(recipe, onComplete) {
+            const modal = document.getElementById('craftingModal');
+            const icon = document.getElementById('craftingIcon');
+            const title = document.getElementById('craftingTitle');
+            const progress = document.getElementById('craftingProgress');
+            const status = document.getElementById('craftingStatus');
+            
+            icon.textContent = recipe.icon;
+            title.textContent = `CRAFTING ${recipe.name.toUpperCase()}`;
+            progress.style.width = '0%';
+            status.textContent = 'Preparing materials...';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            let currentProgress = 0;
+            const interval = setInterval(() => {
+                currentProgress += 2;
+                progress.style.width = currentProgress + '%';
+                
+                if (currentProgress < 30) {
+                    status.textContent = 'Preparing materials...';
+                } else if (currentProgress < 60) {
+                    status.textContent = 'Heating the forge...';
+                } else if (currentProgress < 90) {
+                    status.textContent = 'Shaping the item...';
+                } else {
+                    status.textContent = 'Adding finishing touches...';
+                }
+                
+                if (currentProgress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                        onComplete();
+                        alert(`Successfully crafted ${recipe.name}!`);
+                    }, 500);
+                }
+            }, recipe.craftTime / 50);
+        }
+
+        // Experience and Leveling
+        function gainExp(amount) {
+            gameState.exp += amount;
+            
+            while (gameState.exp >= gameState.expNeeded) {
+                gameState.exp -= gameState.expNeeded;
+                levelUp();
+            }
+            
+            updateUI();
+        }
+
+        function levelUp() {
+            gameState.level++;
+            gameState.craftingSkill++;
+            gameState.expNeeded = Math.floor(gameState.expNeeded * 1.5);
+            
+            // Show level up modal
+            showLevelUpModal();
+            
+            // Unlock new recipes
+            checkRecipeUnlocks();
+        }
+
+        function showLevelUpModal() {
+            const modal = document.getElementById('levelUpModal');
+            const details = document.getElementById('levelUpDetails');
+            
+            details.innerHTML = `
+                <div class="text-lg">You are now level <span class="text-yellow-400 font-bold">${gameState.level}</span>!</div>
+                <div class="text-sm text-gray-300">Crafting Skill increased to ${gameState.craftingSkill}</div>
+                <div class="text-sm text-gray-300">New recipes may be available!</div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeLevelUp() {
+            const modal = document.getElementById('levelUpModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Recipe Unlocking
+        function checkRecipeUnlocks() {
+            Object.entries(recipes).forEach(([recipeId, recipe]) => {
+                if (!gameState.unlockedRecipes.includes(recipeId)) {
+                    if (!recipe.levelRequired || gameState.level >= recipe.levelRequired) {
+                        gameState.unlockedRecipes.push(recipeId);
+                        alert(`New recipe unlocked: ${recipe.name}!`);
+                    }
+                }
+            });
+            
+            renderRecipes();
+        }
+
+        // Shop System
+        function buyResource(resourceType, amount = 1) {
+            const item = shopItems[resourceType];
+            const totalCost = item.price * amount;
+            
+            if (gameState.gold < totalCost) {
+                alert('Not enough gold!');
+                return;
+            }
+            
+            gameState.gold -= totalCost;
+            gameState.resources[resourceType] = (gameState.resources[resourceType] || 0) + amount;
+            
+            updateUI();
+            renderInventory();
+            renderShop();
+        }
+
+        function sellItem(itemId, amount = 1) {
+            if (!gameState.items[itemId] || gameState.items[itemId] < amount) {
+                alert('You don\'t have enough of this item!');
+                return;
+            }
+            
+            const recipe = recipes[itemId];
+            const totalValue = recipe.sellPrice * amount;
+            
+            gameState.items[itemId] -= amount;
+            if (gameState.items[itemId] === 0) {
+                delete gameState.items[itemId];
+            }
+            
+            gameState.gold += totalValue;
+            
+            updateUI();
+            renderInventory();
+            renderShop();
+        }
+
+        // Rendering Functions
+        function renderGatheringLocations() {
+            const container = document.getElementById('gatheringLocations');
+            const now = Date.now();
+            
+            container.innerHTML = gatheringLocations.map(location => {
+                const cooldownRemaining = gameState.gatheringCooldowns[location.id] ? 
+                    Math.max(0, gameState.gatheringCooldowns[location.id] - now) : 0;
+                const isOnCooldown = cooldownRemaining > 0;
+                const isLocked = location.levelRequired && gameState.level < location.levelRequired;
+                
+                return `
+                    <div class="recipe-card bg-gray-800/50 rounded-xl p-6 border border-green-500/30">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">${location.icon}</div>
+                            <h3 class="text-xl font-bold fantasy-font">${location.name}</h3>
+                            <p class="text-gray-400 text-sm">${location.description}</p>
+                            ${location.levelRequired ? `<p class="text-yellow-400 text-xs">Level ${location.levelRequired} required</p>` : ''}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-sm font-bold mb-2">Possible Resources:</h4>
+                            <div class="flex flex-wrap gap-1">
+                                ${location.resources.map(resource => `
+                                    <span class="text-xs bg-gray-700 px-2 py-1 rounded">
+                                        ${resources[resource.type].icon} ${resources[resource.type].name}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <button onclick="gatherResources('${location.id}')" 
+                                ${isOnCooldown || isLocked ? 'disabled' : ''}
+                                class="w-full py-3 rounded-xl font-semibold fantasy-font transition-all ${
+                                    isLocked ? 'bg-gray-600 text-gray-400 cursor-not-allowed' :
+                                    isOnCooldown ? 'bg-yellow-600 text-white cursor-not-allowed' : 
+                                    'bg-green-600 hover:bg-green-700 text-white'
+                                }">
+                            ${isLocked ? '🔒 LOCKED' : 
+                              isOnCooldown ? `⏱️ ${Math.ceil(cooldownRemaining / 1000)}s` : 
+                              '🌿 GATHER'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRecipes() {
+            const container = document.getElementById('recipeList');
+            
+            container.innerHTML = gameState.unlockedRecipes.map(recipeId => {
+                const recipe = recipes[recipeId];
+                const canCraft = Object.entries(recipe.materials).every(([material, needed]) => {
+                    return (gameState.resources[material] || 0) >= needed;
+                });
+                
+                return `
+                    <div class="recipe-card bg-gray-800/50 rounded-lg p-4 border border-blue-500/30 cursor-pointer hover:bg-gray-700/50" 
+                         onclick="selectRecipe('${recipeId}')">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl">${recipe.icon}</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold fantasy-font">${recipe.name}</h4>
+                                <p class="text-sm text-gray-400">${recipe.description}</p>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    ${Object.entries(recipe.materials).map(([material, needed]) => 
+                                        `${resources[material].icon}${needed}`
+                                    ).join(' ')}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm ${canCraft ? 'text-green-400' : 'text-red-400'}">
+                                    ${canCraft ? '✓ Ready' : '✗ Missing'}
+                                </div>
+                                <div class="text-xs text-gray-400">${recipe.sellPrice}g</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderInventory() {
+            // Render resources
+            const resourceContainer = document.getElementById('resourceInventory');
+            resourceContainer.innerHTML = Object.entries(gameState.resources)
+                .filter(([type, amount]) => amount > 0)
+                .map(([type, amount]) => {
+                    const resource = resources[type];
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-3 text-center border border-gray-600">
+                            <div class="text-2xl mb-1">${resource.icon}</div>
+                            <div class="text-sm font-bold">${resource.name}</div>
+                            <div class="text-lg ${resource.color}">${amount}</div>
+                        </div>
+                    `;
+                }).join('') || '<div class="col-span-full text-center text-gray-400">No resources</div>';
+            
+            // Render crafted items
+            const itemContainer = document.getElementById('itemInventory');
+            itemContainer.innerHTML = Object.entries(gameState.items)
+                .filter(([itemId, amount]) => amount > 0)
+                .map(([itemId, amount]) => {
+                    const recipe = recipes[itemId];
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-yellow-500/30">
+                            <div class="flex items-center gap-4">
+                                <div class="text-3xl">${recipe.icon}</div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold fantasy-font">${recipe.name}</h4>
+                                    <p class="text-sm text-gray-400">${recipe.description}</p>
+                                    <div class="text-xs text-gray-500">Value: ${recipe.sellPrice}g each</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-yellow-400">${amount}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<div class="text-center text-gray-400 py-8">No crafted items</div>';
+        }
+
+        function renderShop() {
+            // Render buy section
+            const buyContainer = document.getElementById('shopBuy');
+            buyContainer.innerHTML = Object.entries(shopItems).map(([resourceType, item]) => {
+                const resource = resources[resourceType];
+                return `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">${resource.icon}</div>
+                                <div>
+                                    <div class="font-bold">${resource.name}</div>
+                                    <div class="text-sm text-gray-400">${item.price} gold each</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="buyResource('${resourceType}', 1)" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
+                                    Buy 1
+                                </button>
+                                <button onclick="buyResource('${resourceType}', 5)" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
+                                    Buy 5
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Render sell section
+            const sellContainer = document.getElementById('shopSell');
+            const sellableItems = Object.entries(gameState.items).filter(([itemId, amount]) => amount > 0);
+            
+            sellContainer.innerHTML = sellableItems.map(([itemId, amount]) => {
+                const recipe = recipes[itemId];
+                return `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-red-500/30">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">${recipe.icon}</div>
+                                <div>
+                                    <div class="font-bold">${recipe.name}</div>
+                                    <div class="text-sm text-gray-400">${recipe.sellPrice} gold each (${amount} owned)</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="sellItem('${itemId}', 1)" 
+                                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                                    Sell 1
+                                </button>
+                                ${amount > 1 ? `
+                                    <button onclick="sellItem('${itemId}', ${Math.min(amount, 5)})" 
+                                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                                        Sell ${Math.min(amount, 5)}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<div class="text-center text-gray-400 py-8">No items to sell</div>';
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('gold').textContent = gameState.gold.toLocaleString();
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('exp').textContent = gameState.exp;
+            document.getElementById('expNeeded').textContent = gameState.expNeeded;
+            document.getElementById('craftingSkill').textContent = gameState.craftingSkill;
+            document.getElementById('recipeCount').textContent = gameState.unlockedRecipes.length;
+            document.getElementById('itemsCrafted').textContent = gameState.itemsCrafted;
+            
+            // Update experience bar
+            const expPercentage = (gameState.exp / gameState.expNeeded) * 100;
+            document.getElementById('expBar').style.width = expPercentage + '%';
+            
+            // Update crafter title based on level
+            const titles = [
+                'Apprentice Crafter',
+                'Novice Artisan',
+                'Skilled Craftsman',
+                'Expert Artisan',
+                'Master Crafter',
+                'Grandmaster Smith',
+                'Legendary Artisan',
+                'Mythic Creator'
+            ];
+            const titleIndex = Math.min(Math.floor(gameState.level / 2), titles.length - 1);
+            document.getElementById('crafterTitle').textContent = titles[titleIndex];
+        }
+
+        // Auto-save game state
+        setInterval(() => {
+            localStorage.setItem('craftingRPGSave', JSON.stringify(gameState));
+        }, 10000);
+
+        // Load game state
+        function loadGame() {
+            const saved = localStorage.getItem('craftingRPGSave');
+            if (saved) {
+                gameState = { ...gameState, ...JSON.parse(saved) };
+            }
+        }
+
+        // Initialize game
+        loadGame();
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736f50974a335d6',t:'MTc1NTkxMzgwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

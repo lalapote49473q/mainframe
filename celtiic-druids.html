@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celtic Druid RPG - Path of the Ancient Grove</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a4d3a 0%, #2d5a3d 30%, #0f2419 70%, #1a4d3a 100%);
+            min-height: 100vh;
+            color: #e8f5e8;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="15" cy="25" r="0.3" fill="%2366bb6a" opacity="0.4"><animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/></circle><circle cx="85" cy="15" r="0.2" fill="%2366bb6a" opacity="0.5"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="5s" repeatCount="indefinite"/></circle><circle cx="70" cy="85" r="0.4" fill="%2366bb6a" opacity="0.3"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="6s" repeatCount="indefinite"/></circle><path d="M30,40 Q35,35 40,40 T50,40" stroke="%2366bb6a" stroke-width="0.2" fill="none" opacity="0.2"><animate attributeName="opacity" values="0.2;0.5;0.2" dur="7s" repeatCount="indefinite"/></path></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: #fff;
+            border: 2px solid #81c784;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #66bb6a, #4caf50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #66bb6a;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #66bb6a;
+            background: linear-gradient(45deg, #66bb6a, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            color: #81c784;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .character-panel, .nature-panel {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(102, 187, 106, 0.3);
+            height: fit-content;
+            box-shadow: 0 0 30px rgba(102, 187, 106, 0.1);
+        }
+
+        .game-world {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(102, 187, 106, 0.3);
+            min-height: 700px;
+            position: relative;
+        }
+
+        .druid-avatar {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(102, 187, 106, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(102, 187, 106, 0.3);
+        }
+
+        .avatar-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .druid-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #66bb6a;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #66bb6a;
+        }
+
+        .druid-level {
+            font-size: 1rem;
+            color: #81c784;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #66bb6a;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 0 0 5px #66bb6a;
+        }
+
+        .stat-bar {
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .progress-container {
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            height: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(102, 187, 106, 0.3);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .health-bar { background: linear-gradient(90deg, #4caf50, #388e3c); }
+        .mana-bar { background: linear-gradient(90deg, #2196f3, #1976d2); }
+        .nature-bar { background: linear-gradient(90deg, #66bb6a, #4caf50); }
+        .exp-bar { background: linear-gradient(90deg, #ff9800, #f57c00); }
+
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attribute-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(102, 187, 106, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .attribute-card:hover {
+            border-color: rgba(102, 187, 106, 0.5);
+            background: rgba(102, 187, 106, 0.05);
+        }
+
+        .attribute-name {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .attribute-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #66bb6a;
+        }
+
+        .world-view {
+            background: rgba(45, 90, 61, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #2d5a3d;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="M100,20 Q120,40 140,60 Q120,80 100,100 Q80,80 60,60 Q80,40 100,20 Z" fill="none" stroke="%2366bb6a" stroke-width="1" opacity="0.2"/><circle cx="100" cy="100" r="60" fill="none" stroke="%232d5a3d" stroke-width="0.5" opacity="0.3"/><path d="M50,50 Q100,30 150,50 Q130,100 100,120 Q70,100 50,50 Z" fill="none" stroke="%2366bb6a" stroke-width="0.8" opacity="0.15"/></svg>') center center no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .location-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(102, 187, 106, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 187, 106, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .location-card:hover::before {
+            left: 100%;
+        }
+
+        .location-card:hover {
+            background: rgba(102, 187, 106, 0.1);
+            border-color: #66bb6a;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 187, 106, 0.3);
+        }
+
+        .location-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #7f8c8d;
+        }
+
+        .location-card.locked:hover {
+            transform: none;
+            background: rgba(0, 0, 0, 0.8);
+            border-color: #7f8c8d;
+        }
+
+        .location-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .location-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #66bb6a;
+            font-size: 1.1rem;
+        }
+
+        .location-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .location-difficulty {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .difficulty-peaceful { background: rgba(76, 175, 80, 0.3); color: #4caf50; }
+        .difficulty-wild { background: rgba(255, 152, 0, 0.3); color: #ff9800; }
+        .difficulty-dangerous { background: rgba(244, 67, 54, 0.3); color: #f44336; }
+        .difficulty-mystical { background: rgba(156, 39, 176, 0.3); color: #9c27b0; }
+        .difficulty-ancient { background: linear-gradient(45deg, rgba(255, 215, 0, 0.3), rgba(255, 255, 255, 0.3)); color: #ffd700; }
+
+        .encounter-screen {
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .encounter-screen.active {
+            display: block;
+            animation: encounterStart 0.5s ease-out;
+        }
+
+        @keyframes encounterStart {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .creature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .creature-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid rgba(102, 187, 106, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .creature-card:hover {
+            background: rgba(102, 187, 106, 0.1);
+            border-color: #66bb6a;
+            transform: scale(1.05);
+        }
+
+        .creature-card.defeated {
+            opacity: 0.4;
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+            cursor: not-allowed;
+        }
+
+        .creature-card.selected {
+            border-color: #66bb6a;
+            background: rgba(102, 187, 106, 0.1);
+            box-shadow: 0 0 20px rgba(102, 187, 106, 0.3);
+        }
+
+        .creature-card.friendly {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .creature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .creature-name {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #e8f5e8;
+        }
+
+        .creature-health {
+            font-size: 0.9rem;
+            color: #4caf50;
+            font-weight: 500;
+        }
+
+        .druid-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-button {
+            background: linear-gradient(45deg, #66bb6a, #4caf50);
+            color: #fff;
+            border: none;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-button.nature {
+            background: linear-gradient(45deg, #8bc34a, #689f38);
+        }
+
+        .action-button.nature:hover {
+            background: linear-gradient(45deg, #689f38, #8bc34a);
+        }
+
+        .action-button.spirit {
+            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+        }
+
+        .action-button.spirit:hover {
+            background: linear-gradient(45deg, #7b1fa2, #9c27b0);
+        }
+
+        .action-button.elemental {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+        }
+
+        .action-button.elemental:hover {
+            background: linear-gradient(45deg, #f57c00, #ff9800);
+        }
+
+        .nature-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .spell-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .spell-slot {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(102, 187, 106, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .spell-slot.learned {
+            border-color: #66bb6a;
+            background: rgba(102, 187, 106, 0.1);
+        }
+
+        .grove-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .grove-tab {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(102, 187, 106, 0.3);
+            color: #e8f5e8;
+            padding: 8px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .grove-tab:hover {
+            background: rgba(102, 187, 106, 0.1);
+            border-color: #66bb6a;
+        }
+
+        .grove-tab.active {
+            background: linear-gradient(45deg, #66bb6a, #4caf50);
+            border-color: #4caf50;
+            color: #fff;
+        }
+
+        .grove-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .grove-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .grove-item {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(102, 187, 106, 0.3);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grove-item:hover {
+            background: rgba(102, 187, 106, 0.1);
+            border-color: #66bb6a;
+        }
+
+        .grove-item.affordable {
+            border-color: #4caf50;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .item-description {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: #66bb6a;
+            font-size: 0.9rem;
+        }
+
+        .game-button {
+            background: linear-gradient(45deg, #66bb6a, #4caf50);
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+        }
+
+        .game-button.danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .game-button.danger:hover {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+        }
+
+        .game-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-log {
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(102, 187, 106, 0.3);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(102, 187, 106, 0.1);
+            font-size: 0.9rem;
+            animation: logFadeIn 0.5s ease-out;
+            line-height: 1.4;
+        }
+
+        @keyframes logFadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-combat { color: #f44336; }
+        .log-nature { color: #4caf50; }
+        .log-spirit { color: #9c27b0; }
+        .log-exploration { color: #2196f3; }
+        .log-success { color: #66bb6a; }
+        .log-wisdom { color: #ff9800; }
+
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatText 2s ease-out forwards;
+            z-index: 100;
+        }
+
+        .floating-heal { color: #4caf50; text-shadow: 0 0 10px #4caf50; }
+        .floating-damage { color: #f44336; text-shadow: 0 0 10px #f44336; }
+        .floating-nature { color: #66bb6a; text-shadow: 0 0 10px #66bb6a; }
+        .floating-spirit { color: #9c27b0; text-shadow: 0 0 10px #9c27b0; }
+
+        @keyframes floatText {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        @media (max-width: 1200px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .character-panel, .nature-panel {
+                order: 2;
+            }
+            
+            .game-world {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .creature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .druid-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .attributes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ⬅️ Back to Main
+    </a>
+
+    <div class="header">
+        <h1 class="title">🌿 CELTIC DRUID SAGA</h1>
+        <p class="subtitle">Master the Ancient Ways of Nature and Spirit</p>
+    </div>
+
+    <div class="game-container">
+        <!-- Character Panel -->
+        <div class="character-panel">
+            <div class="druid-avatar">
+                <span class="avatar-icon">🧙‍♂️</span>
+                <div class="druid-name" id="druidName">Aiden Oakenheart</div>
+                <div class="druid-level" id="druidLevel">Level 1 Grove Keeper</div>
+            </div>
+
+            <div class="stats-section">
+                <div class="section-title">🌿 Druidic Essence</div>
+                
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>❤️ Vitality</span>
+                        <span id="healthText">180/180</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar health-bar" id="healthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>🔮 Mana</span>
+                        <span id="manaText">120/120</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar mana-bar" id="manaBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>🌿 Nature Bond</span>
+                        <span id="natureText">60/60</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar nature-bar" id="natureBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>⭐ Experience</span>
+                        <span id="expText">0/300</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar exp-bar" id="expBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attributes-grid">
+                <div class="attribute-card">
+                    <div class="attribute-name">🌳 Wisdom</div>
+                    <div class="attribute-value" id="wisdomValue">22</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🦌 Harmony</div>
+                    <div class="attribute-value" id="harmonyValue">18</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🌿 Nature Lore</div>
+                    <div class="attribute-value" id="natureLoreValue">20</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">👻 Spirit Sight</div>
+                    <div class="attribute-value" id="spiritSightValue">16</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🔥 Elemental</div>
+                    <div class="attribute-value" id="elementalValue">14</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🌰 Acorns</div>
+                    <div class="attribute-value" id="acornsValue">1500</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🏆 Grove Rank</div>
+                    <div class="attribute-value" id="groveRankValue">0</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🌟 Rituals</div>
+                    <div class="attribute-value" id="ritualsValue">0</div>
+                </div>
+            </div>
+
+            <div class="nature-section">
+                <div class="section-title">🌿 Sacred Spells</div>
+                <div class="spell-grid">
+                    <div class="spell-slot learned" id="healingSpell">
+                        🌱 Nature's Touch
+                    </div>
+                    <div class="spell-slot learned" id="thornSpell">
+                        🌹 Thorn Volley
+                    </div>
+                    <div class="spell-slot" id="barkSkinSpell">
+                        🛡️ Bark Skin
+                    </div>
+                    <div class="spell-slot" id="entangleSpell">
+                        🌿 Entangle
+                    </div>
+                    <div class="spell-slot" id="lightningSpell">
+                        ⚡ Call Lightning
+                    </div>
+                    <div class="spell-slot" id="animalSpell">
+                        🐺 Animal Form
+                    </div>
+                    <div class="spell-slot" id="spiritSpell">
+                        👻 Spirit Commune
+                    </div>
+                    <div class="spell-slot" id="groveSpell">
+                        🌳 Grove Guardian
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game World -->
+        <div class="game-world">
+            <div class="world-view" id="worldView">
+                <div class="location-grid" id="locationGrid">
+                    <h3 style="grid-column: 1/-1; text-align: center; margin-bottom: 20px; color: #66bb6a;">🗺️ Choose Your Sacred Path</h3>
+                    
+                    <div class="location-card" onclick="startEncounter('meadow')">
+                        <span class="location-icon">🌸</span>
+                        <div class="location-name">Whispering Meadow</div>
+                        <div class="location-description">Gentle spirits and healing herbs (Lv.1+)</div>
+                        <div class="location-difficulty difficulty-peaceful">Peaceful</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="startEncounter('forest')">
+                        <span class="location-icon">🌲</span>
+                        <div class="location-name">Ancient Forest</div>
+                        <div class="location-description">Wild creatures guard old secrets (Lv.2+)</div>
+                        <div class="location-difficulty difficulty-peaceful">Peaceful</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="startEncounter('grove')" id="groveEncounter">
+                        <span class="location-icon">🌳</span>
+                        <div class="location-name">Sacred Grove</div>
+                        <div class="location-description">Test your druidic knowledge (Lv.4+)</div>
+                        <div class="location-difficulty difficulty-wild">Wild</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startEncounter('swamp')" id="swampEncounter">
+                        <span class="location-icon">🐸</span>
+                        <div class="location-name">Misty Swamplands</div>
+                        <div class="location-description">Dark spirits and bog creatures (Lv.7+)</div>
+                        <div class="location-difficulty difficulty-dangerous">Dangerous</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startEncounter('mountain')" id="mountainEncounter">
+                        <span class="location-icon">⛰️</span>
+                        <div class="location-name">Druid's Peak</div>
+                        <div class="location-description">Elemental guardians of the heights (Lv.10+)</div>
+                        <div class="location-difficulty difficulty-dangerous">Dangerous</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startEncounter('stones')" id="stonesEncounter">
+                        <span class="location-icon">🗿</span>
+                        <div class="location-name">Standing Stones</div>
+                        <div class="location-description">Ancient magic and stone guardians (Lv.13+)</div>
+                        <div class="location-difficulty difficulty-mystical">Mystical</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startEncounter('otherworld')" id="otherworldEncounter">
+                        <span class="location-icon">🌌</span>
+                        <div class="location-name">Otherworld Gate</div>
+                        <div class="location-description">Realm of the Tuatha Dé Danann (Lv.16+)</div>
+                        <div class="location-difficulty difficulty-mystical">Mystical</div>
+                    </div>
+                    
+                    <div class="location-card locked" onclick="startEncounter('worldtree')" id="worldtreeEncounter">
+                        <span class="location-icon">🌍</span>
+                        <div class="location-name">World Tree</div>
+                        <div class="location-description">The source of all druidic power (Lv.20+)</div>
+                        <div class="location-difficulty difficulty-ancient">Ancient</div>
+                    </div>
+                </div>
+
+                <div class="encounter-screen" id="encounterScreen">
+                    <h3 style="text-align: center; margin-bottom: 15px; color: #66bb6a;" id="encounterTitle">🌿 Nature's Challenge</h3>
+                    <div class="creature-grid" id="creatureGrid"></div>
+                    
+                    <div class="druid-actions">
+                        <button class="action-button" onclick="performAction('heal')" id="healBtn">
+                            🌱 Nature's Touch
+                        </button>
+                        <button class="action-button nature" onclick="performAction('thorn')" id="thornBtn">
+                            🌹 Thorn Volley
+                        </button>
+                        <button class="action-button spirit" onclick="performAction('commune')" id="communeBtn">
+                            👻 Spirit Commune
+                        </button>
+                        <button class="action-button elemental" onclick="performAction('lightning')" id="lightningBtn">
+                            ⚡ Call Lightning
+                        </button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="game-button" onclick="completeEncounter()" id="completeBtn" disabled>🌟 Harmony Achieved</button>
+                        <button class="game-button danger" onclick="leaveEncounter()">🏃 Leave Peacefully</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-log" id="gameLog"></div>
+        </div>
+
+        <!-- Nature Panel -->
+        <div class="nature-panel">
+            <div class="nature-section">
+                <div class="section-title">🏪 Grove Market</div>
+                
+                <div class="grove-tabs">
+                    <button class="grove-tab active" onclick="switchGroveTab('herbs')">🌿 Herbs</button>
+                    <button class="grove-tab" onclick="switchGroveTab('tools')">🔮 Tools</button>
+                    <button class="grove-tab" onclick="switchGroveTab('seeds')">🌱 Seeds</button>
+                    <button class="grove-tab" onclick="switchGroveTab('spirits')">👻 Spirits</button>
+                </div>
+
+                <div class="grove-content" id="groveContent">
+                    <!-- Dynamic grove content -->
+                </div>
+            </div>
+
+            <div class="nature-section">
+                <div class="section-title">🌳 Druid Circle</div>
+                <div class="grove-grid">
+                    <div class="grove-item" onclick="trainAttribute('wisdom')">
+                        <div class="item-info">
+                            <div class="item-name">🌳 Wisdom Training</div>
+                            <div class="item-description">+3 Wisdom, +Mana</div>
+                        </div>
+                        <div class="item-price">300a</div>
+                    </div>
+                    <div class="grove-item" onclick="trainAttribute('harmony')">
+                        <div class="item-info">
+                            <div class="item-name">🦌 Harmony Training</div>
+                            <div class="item-description">+3 Harmony, +Health</div>
+                        </div>
+                        <div class="item-price">300a</div>
+                    </div>
+                    <div class="grove-item" onclick="trainAttribute('natureLore')">
+                        <div class="item-info">
+                            <div class="item-name">🌿 Nature Lore</div>
+                            <div class="item-description">+3 Nature Lore</div>
+                        </div>
+                        <div class="item-price">300a</div>
+                    </div>
+                    <div class="grove-item" onclick="trainAttribute('spiritSight')">
+                        <div class="item-info">
+                            <div class="item-name">👻 Spirit Sight</div>
+                            <div class="item-description">+3 Spirit Sight</div>
+                        </div>
+                        <div class="item-price">350a</div>
+                    </div>
+                    <div class="grove-item" onclick="trainAttribute('elemental')">
+                        <div class="item-info">
+                            <div class="item-name">🔥 Elemental Mastery</div>
+                            <div class="item-description">+3 Elemental Power</div>
+                        </div>
+                        <div class="item-price">400a</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nature-section">
+                <div class="section-title">📚 Spell Learning</div>
+                <div class="grove-grid">
+                    <div class="grove-item" onclick="learnSpell('barkSkin')">
+                        <div class="item-info">
+                            <div class="item-name">🛡️ Bark Skin</div>
+                            <div class="item-description">Natural armor protection</div>
+                        </div>
+                        <div class="item-price">500a</div>
+                    </div>
+                    <div class="grove-item" onclick="learnSpell('entangle')">
+                        <div class="item-info">
+                            <div class="item-name">🌿 Entangle</div>
+                            <div class="item-description">Root binding spell</div>
+                        </div>
+                        <div class="item-price">600a</div>
+                    </div>
+                    <div class="grove-item" onclick="learnSpell('lightning')">
+                        <div class="item-info">
+                            <div class="item-name">⚡ Call Lightning</div>
+                            <div class="item-description">Storm magic mastery</div>
+                        </div>
+                        <div class="item-price">800a</div>
+                    </div>
+                    <div class="grove-item" onclick="learnSpell('animalForm')">
+                        <div class="item-info">
+                            <div class="item-name">🐺 Animal Form</div>
+                            <div class="item-description">Shapeshift ability</div>
+                        </div>
+                        <div class="item-price">1000a</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="game-button" onclick="meditateInGrove()">🧘‍♂️ Meditate in Grove</button>
+                <button class="game-button" onclick="saveProgress()">💾 Save Progress</button>
+                <button class="game-button danger" onclick="resetGame()">🔄 New Druid</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            character: {
+                name: "Aiden Oakenheart",
+                level: 1,
+                class: "Grove Keeper",
+                health: 180,
+                maxHealth: 180,
+                mana: 120,
+                maxMana: 120,
+                natureBond: 60,
+                maxNatureBond: 60,
+                experience: 0,
+                expToNext: 300,
+                wisdom: 22,
+                harmony: 18,
+                natureLore: 20,
+                spiritSight: 16,
+                elemental: 14,
+                acorns: 1500,
+                encountersCompleted: 0,
+                groveRank: 0,
+                rituals: 0
+            },
+            spells: {
+                heal: { name: "Nature's Touch", learned: true, manaCost: 25, natureCost: 10 },
+                thorn: { name: "Thorn Volley", learned: true, manaCost: 30, natureCost: 15 },
+                barkSkin: { name: "Bark Skin", learned: false, manaCost: 40, natureCost: 20 },
+                entangle: { name: "Entangle", learned: false, manaCost: 35, natureCost: 25 },
+                lightning: { name: "Call Lightning", learned: false, manaCost: 50, natureCost: 30 },
+                animalForm: { name: "Animal Form", learned: false, manaCost: 60, natureCost: 40 },
+                commune: { name: "Spirit Commune", learned: true, manaCost: 20, natureCost: 5 },
+                grove: { name: "Grove Guardian", learned: false, manaCost: 80, natureCost: 50 }
+            },
+            inventory: {
+                herbs: { "Healing Moss": 3, "Moonleaf": 2, "Thornbark": 1 },
+                tools: {},
+                seeds: {},
+                spirits: {}
+            },
+            currentEncounter: null,
+            creatures: [],
+            selectedCreature: null,
+            unlockedAreas: ['meadow', 'forest', 'grove'],
+            groveTab: 'herbs'
+        };
+
+        // Encounter Data
+        const encounters = {
+            meadow: {
+                name: "Whispering Meadow Harmony",
+                minLevel: 1,
+                creatures: [
+                    { name: "Flower Sprite", icon: "🧚‍♀️", health: 40, maxHealth: 40, type: "friendly", wisdom: 8 },
+                    { name: "Meadow Rabbit", icon: "🐰", health: 30, maxHealth: 30, type: "peaceful", wisdom: 5 },
+                    { name: "Butterfly Spirit", icon: "🦋", health: 25, maxHealth: 25, type: "friendly", wisdom: 6 },
+                    { name: "Singing Bird", icon: "🐦", health: 35, maxHealth: 35, type: "peaceful", wisdom: 7 }
+                ],
+                rewards: { acorns: [200, 400], exp: 100, rank: 10, herbs: ["Healing Moss", "Sunpetal"] }
+            },
+            forest: {
+                name: "Ancient Forest Communion",
+                minLevel: 2,
+                creatures: [
+                    { name: "Tree Shepherd", icon: "🌳", health: 80, maxHealth: 80, type: "neutral", wisdom: 12 },
+                    { name: "Forest Wolf", icon: "🐺", health: 60, maxHealth: 60, type: "wild", wisdom: 10 },
+                    { name: "Dryad", icon: "🧚‍♀️", health: 70, maxHealth: 70, type: "friendly", wisdom: 15 },
+                    { name: "Wise Owl", icon: "🦉", health: 50, maxHealth: 50, type: "neutral", wisdom: 18 }
+                ],
+                rewards: { acorns: [300, 600], exp: 180, rank: 15, herbs: ["Moonleaf", "Oakbark"] }
+            },
+            grove: {
+                name: "Sacred Grove Trial",
+                minLevel: 4,
+                creatures: [
+                    { name: "Grove Guardian", icon: "🌿", health: 120, maxHealth: 120, type: "neutral", wisdom: 20 },
+                    { name: "Ancient Stag", icon: "🦌", health: 100, maxHealth: 100, type: "noble", wisdom: 22 },
+                    { name: "Willow Wisp", icon: "✨", health: 80, maxHealth: 80, type: "mystical", wisdom: 16 },
+                    { name: "Earth Elemental", icon: "🗿", health: 140, maxHealth: 140, type: "elemental", wisdom: 14 }
+                ],
+                rewards: { acorns: [500, 900], exp: 280, rank: 25, herbs: ["Thornbark", "Spiritroot"] }
+            },
+            swamp: {
+                name: "Misty Swampland Challenge",
+                minLevel: 7,
+                creatures: [
+                    { name: "Bog Wraith", icon: "👻", health: 160, maxHealth: 160, type: "hostile", wisdom: 18 },
+                    { name: "Swamp Dragon", icon: "🐉", health: 200, maxHealth: 200, type: "dangerous", wisdom: 16 },
+                    { name: "Marsh Light", icon: "🔥", health: 120, maxHealth: 120, type: "mystical", wisdom: 20 },
+                    { name: "Crocodile King", icon: "🐊", health: 180, maxHealth: 180, type: "wild", wisdom: 12 }
+                ],
+                rewards: { acorns: [800, 1400], exp: 450, rank: 40, herbs: ["Swamproot", "Mistblossom"] }
+            },
+            mountain: {
+                name: "Druid's Peak Ascension",
+                minLevel: 10,
+                creatures: [
+                    { name: "Storm Eagle", icon: "🦅", health: 220, maxHealth: 220, type: "elemental", wisdom: 25 },
+                    { name: "Mountain Bear", icon: "🐻", health: 280, maxHealth: 280, type: "wild", wisdom: 18 },
+                    { name: "Wind Spirit", icon: "💨", health: 180, maxHealth: 180, type: "elemental", wisdom: 30 },
+                    { name: "Stone Giant", icon: "🗿", health: 320, maxHealth: 320, type: "ancient", wisdom: 22 }
+                ],
+                rewards: { acorns: [1200, 2000], exp: 650, rank: 60, herbs: ["Cloudberry", "Stormleaf"] }
+            },
+            stones: {
+                name: "Standing Stones Ritual",
+                minLevel: 13,
+                creatures: [
+                    { name: "Stone Circle", icon: "⭕", health: 300, maxHealth: 300, type: "ancient", wisdom: 35 },
+                    { name: "Rune Guardian", icon: "🗿", health: 250, maxHealth: 250, type: "mystical", wisdom: 32 },
+                    { name: "Ley Line Spirit", icon: "⚡", health: 200, maxHealth: 200, type: "elemental", wisdom: 40 },
+                    { name: "Druid Ancestor", icon: "👴", health: 180, maxHealth: 180, type: "wise", wisdom: 45 }
+                ],
+                rewards: { acorns: [1800, 3000], exp: 900, rank: 80, herbs: ["Runestone Moss", "Ley Crystal"] }
+            },
+            otherworld: {
+                name: "Otherworld Gate Passage",
+                minLevel: 16,
+                creatures: [
+                    { name: "Sidhe Lord", icon: "👑", health: 400, maxHealth: 400, type: "fae", wisdom: 50 },
+                    { name: "Banshee", icon: "👻", health: 320, maxHealth: 320, type: "spirit", wisdom: 45 },
+                    { name: "Wild Hunt", icon: "🐎", health: 360, maxHealth: 360, type: "fae", wisdom: 40 },
+                    { name: "Tuatha Warrior", icon: "⚔️", health: 380, maxHealth: 380, type: "divine", wisdom: 48 }
+                ],
+                rewards: { acorns: [2500, 4500], exp: 1300, rank: 120, herbs: ["Faerie Dust", "Otherworld Bloom"] }
+            },
+            worldtree: {
+                name: "World Tree Communion",
+                minLevel: 20,
+                creatures: [
+                    { name: "World Tree", icon: "🌍", health: 600, maxHealth: 600, type: "divine", wisdom: 70 },
+                    { name: "Cosmic Dragon", icon: "🐲", health: 500, maxHealth: 500, type: "ancient", wisdom: 65 },
+                    { name: "Life Force", icon: "✨", health: 400, maxHealth: 400, type: "pure", wisdom: 80 },
+                    { name: "Primordial Druid", icon: "🧙‍♂️", health: 450, maxHealth: 450, type: "ascended", wisdom: 75 }
+                ],
+                rewards: { acorns: [4000, 8000], exp: 2000, rank: 200, herbs: ["World Seed", "Cosmic Essence"] }
+            }
+        };
+
+        // Grove Market Data
+        const groveMarket = {
+            herbs: [
+                { name: "Healing Moss", icon: "🌿", effect: "health", value: 60, price: 150, description: "Restore 60 HP" },
+                { name: "Mana Mushroom", icon: "🍄", effect: "mana", value: 50, price: 120, description: "Restore 50 MP" },
+                { name: "Nature's Essence", icon: "🌱", effect: "nature", value: 25, price: 180, description: "Restore 25 Nature Bond" },
+                { name: "Wisdom Berry", icon: "🫐", effect: "wisdom", value: 2, price: 400, description: "Permanently +2 Wisdom" },
+                { name: "Harmony Flower", icon: "🌸", effect: "harmony", value: 2, price: 400, description: "Permanently +2 Harmony" },
+                { name: "Greater Healing", icon: "🌿", effect: "health", value: 120, price: 300, description: "Restore 120 HP" }
+            ],
+            tools: [
+                { name: "Druid Staff", icon: "🪄", stat: "wisdom", value: 8, price: 2000, description: "+8 Wisdom when equipped" },
+                { name: "Nature's Crown", icon: "👑", stat: "natureLore", value: 10, price: 2500, description: "+10 Nature Lore" },
+                { name: "Spirit Amulet", icon: "🔮", stat: "spiritSight", value: 12, price: 3000, description: "+12 Spirit Sight" },
+                { name: "Elemental Ring", icon: "💍", stat: "elemental", value: 15, price: 3500, description: "+15 Elemental Power" },
+                { name: "Harmony Cloak", icon: "🧥", stat: "harmony", value: 18, price: 4000, description: "+18 Harmony" }
+            ],
+            seeds: [
+                { name: "Oak Seedling", icon: "🌰", effect: "grove", value: 1, price: 800, description: "Grow a sacred oak" },
+                { name: "Moonflower Seed", icon: "🌙", effect: "mana", value: 20, price: 600, description: "+20 Max Mana" },
+                { name: "Thornvine Seed", icon: "🌹", effect: "defense", value: 15, price: 700, description: "+15 Natural Defense" },
+                { name: "Spiritblossom", icon: "✨", effect: "spirit", value: 10, price: 900, description: "+10 Spirit Connection" }
+            ],
+            spirits: [
+                { name: "Forest Guardian", icon: "🌳", effect: "companion", duration: 10, price: 1500, description: "Ally for 10 encounters" },
+                { name: "Healing Spirit", icon: "🧚‍♀️", effect: "blessing", duration: 5, price: 1200, description: "Auto-heal for 5 encounters" },
+                { name: "Wisdom Spirit", icon: "🦉", effect: "knowledge", multiplier: 1.5, price: 2000, description: "1.5x XP for next encounter" },
+                { name: "Nature's Blessing", icon: "🌿", effect: "power", multiplier: 2, price: 2500, description: "Double spell power for 3 encounters" }
+            ]
+        };
+
+        // Initialize Game
+        function initGame() {
+            updateDisplay();
+            renderGroveMarket();
+            addLogEntry("🌿 Welcome, young druid! The ancient forests call to you.", "nature");
+            addLogEntry("🧙‍♂️ Begin your journey to master the sacred ways of nature and spirit.", "nature");
+        }
+
+        // Switch Grove Tab
+        function switchGroveTab(tab) {
+            gameState.groveTab = tab;
+            document.querySelectorAll('.grove-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderGroveMarket();
+        }
+
+        // Render Grove Market
+        function renderGroveMarket() {
+            const container = document.getElementById('groveContent');
+            container.innerHTML = '';
+
+            const items = groveMarket[gameState.groveTab] || [];
+            const groveGrid = document.createElement('div');
+            groveGrid.className = 'grove-grid';
+
+            items.forEach(item => {
+                if (item.level && item.level > gameState.character.level) return;
+
+                const groveItem = document.createElement('div');
+                groveItem.className = `grove-item ${gameState.character.acorns >= item.price ? 'affordable' : ''}`;
+                groveItem.onclick = () => buyGroveItem(item);
+
+                groveItem.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${item.icon} ${item.name}</div>
+                        <div class="item-description">${item.description}</div>
+                    </div>
+                    <div class="item-price">${item.price}a</div>
+                `;
+
+                groveGrid.appendChild(groveItem);
+            });
+
+            container.appendChild(groveGrid);
+        }
+
+        // Start Encounter
+        function startEncounter(encounterType) {
+            if (!gameState.unlockedAreas.includes(encounterType)) {
+                addLogEntry("🔒 This sacred place is not yet accessible to you!", "combat");
+                return;
+            }
+
+            const encounter = encounters[encounterType];
+            if (!encounter) return;
+
+            if (gameState.character.level < encounter.minLevel) {
+                addLogEntry(`⚠️ You need to be level ${encounter.minLevel} for this encounter!`, "combat");
+                return;
+            }
+
+            gameState.currentEncounter = encounterType;
+            gameState.creatures = encounter.creatures.map(creature => ({
+                ...creature,
+                id: Math.random().toString(36).substr(2, 9),
+                communed: false
+            }));
+            gameState.selectedCreature = null;
+
+            document.getElementById('locationGrid').style.display = 'none';
+            document.getElementById('encounterScreen').classList.add('active');
+            document.getElementById('encounterTitle').textContent = encounter.name;
+
+            renderCreatures();
+            addLogEntry(`🌿 ${encounter.name} begins! Seek harmony with nature.`, "exploration");
+        }
+
+        // Render Creatures
+        function renderCreatures() {
+            const container = document.getElementById('creatureGrid');
+            container.innerHTML = '';
+
+            gameState.creatures.forEach(creature => {
+                const creatureCard = document.createElement('div');
+                creatureCard.className = `creature-card ${creature.communed ? 'defeated' : ''} ${gameState.selectedCreature?.id === creature.id ? 'selected' : ''} ${creature.type === 'friendly' ? 'friendly' : ''}`;
+                creatureCard.onclick = () => selectCreature(creature);
+
+                creatureCard.innerHTML = `
+                    <div class="creature-icon">${creature.icon}</div>
+                    <div class="creature-name">${creature.name}</div>
+                    <div class="creature-health">${creature.health}/${creature.maxHealth} HP</div>
+                `;
+
+                container.appendChild(creatureCard);
+            });
+        }
+
+        // Select Creature
+        function selectCreature(creature) {
+            if (creature.communed) {
+                addLogEntry("🌿 You have already achieved harmony with this being.", "nature");
+                return;
+            }
+
+            gameState.selectedCreature = creature;
+            addLogEntry(`🎯 You focus your attention on the ${creature.name}.`, "exploration");
+            renderCreatures();
+        }
+
+        // Perform Action
+        function performAction(actionType) {
+            if (!gameState.selectedCreature || gameState.selectedCreature.communed) {
+                addLogEntry("⚠️ Select a creature to interact with first!", "combat");
+                return;
+            }
+
+            const target = gameState.selectedCreature;
+            const spell = gameState.spells[actionType];
+
+            if (!spell || !spell.learned) {
+                addLogEntry("❌ You haven't learned this spell yet!", "combat");
+                return;
+            }
+
+            if (gameState.character.mana < spell.manaCost) {
+                addLogEntry("🔮 Not enough mana for this spell!", "combat");
+                return;
+            }
+
+            if (gameState.character.natureBond < spell.natureCost) {
+                addLogEntry("🌿 Not enough nature bond for this spell!", "combat");
+                return;
+            }
+
+            let success = false;
+            let damage = 0;
+            let healing = 0;
+
+            switch (actionType) {
+                case 'heal':
+                    healing = 40 + gameState.character.wisdom;
+                    gameState.character.health = Math.min(gameState.character.maxHealth, gameState.character.health + healing);
+                    addLogEntry(`🌱 Nature's touch heals you for ${healing} health!`, "nature");
+                    showFloatingText(`+${healing}`, 'heal');
+                    success = true;
+                    break;
+
+                case 'thorn':
+                    if (target.type === 'friendly') {
+                        addLogEntry("🌹 You cannot harm a friendly creature with thorns!", "combat");
+                        return;
+                    }
+                    damage = 25 + gameState.character.natureLore;
+                    target.health = Math.max(0, target.health - damage);
+                    addLogEntry(`🌹 Thorns pierce ${target.name} for ${damage} damage!`, "combat");
+                    showFloatingText(`-${damage}`, 'damage');
+                    success = true;
+                    break;
+
+                case 'commune':
+                    const communeChance = Math.min(0.9, (gameState.character.wisdom + gameState.character.spiritSight) / target.wisdom);
+                    if (Math.random() < communeChance) {
+                        target.communed = true;
+                        gameState.character.rituals++;
+                        addLogEntry(`👻 You successfully commune with ${target.name}!`, "spirit");
+                        showFloatingText('Harmony!', 'spirit');
+                        success = true;
+                    } else {
+                        addLogEntry(`👻 ${target.name} resists your communion attempt.`, "spirit");
+                    }
+                    break;
+
+                case 'lightning':
+                    if (!gameState.spells.lightning.learned) {
+                        addLogEntry("⚡ You haven't learned Call Lightning yet!", "combat");
+                        return;
+                    }
+                    damage = 40 + gameState.character.elemental;
+                    target.health = Math.max(0, target.health - damage);
+                    addLogEntry(`⚡ Lightning strikes ${target.name} for ${damage} damage!`, "combat");
+                    showFloatingText(`-${damage}`, 'damage');
+                    success = true;
+                    break;
+            }
+
+            if (success) {
+                gameState.character.mana -= spell.manaCost;
+                gameState.character.natureBond -= spell.natureCost;
+
+                if (target.health <= 0 && !target.communed) {
+                    target.communed = true;
+                    addLogEntry(`🌿 ${target.name} returns to nature's embrace.`, "nature");
+                    gameState.character.experience += 50;
+                    checkLevelUp();
+                }
+            }
+
+            // Check completion
+            const allCommuned = gameState.creatures.every(creature => creature.communed);
+            document.getElementById('completeBtn').disabled = !allCommuned;
+
+            renderCreatures();
+            updateDisplay();
+        }
+
+        // Buy Grove Item
+        function buyGroveItem(item) {
+            if (gameState.character.acorns < item.price) {
+                addLogEntry(`❌ Need ${item.price} acorns for ${item.name}!`, "combat");
+                return;
+            }
+
+            gameState.character.acorns -= item.price;
+
+            switch (item.effect) {
+                case 'health':
+                    gameState.character.health = Math.min(gameState.character.maxHealth, gameState.character.health + item.value);
+                    addLogEntry(`🌿 Used ${item.name} and recovered ${item.value} HP!`, "nature");
+                    showFloatingText(`+${item.value}`, 'heal');
+                    break;
+                case 'mana':
+                    if (item.name === "Moonflower Seed") {
+                        gameState.character.maxMana += item.value;
+                        gameState.character.mana += item.value;
+                        addLogEntry(`🌙 Planted ${item.name} and gained ${item.value} max mana!`, "nature");
+                    } else {
+                        gameState.character.mana = Math.min(gameState.character.maxMana, gameState.character.mana + item.value);
+                        addLogEntry(`🍄 Used ${item.name} and recovered ${item.value} MP!`, "nature");
+                    }
+                    break;
+                case 'nature':
+                    gameState.character.natureBond = Math.min(gameState.character.maxNatureBond, gameState.character.natureBond + item.value);
+                    addLogEntry(`🌱 Used ${item.name} and recovered ${item.value} Nature Bond!`, "nature");
+                    break;
+                case 'wisdom':
+                    gameState.character.wisdom += item.value;
+                    addLogEntry(`🫐 Used ${item.name} and permanently gained ${item.value} Wisdom!`, "wisdom");
+                    break;
+                case 'harmony':
+                    gameState.character.harmony += item.value;
+                    addLogEntry(`🌸 Used ${item.name} and permanently gained ${item.value} Harmony!`, "nature");
+                    break;
+            }
+
+            renderGroveMarket();
+            updateDisplay();
+        }
+
+        // Complete Encounter
+        function completeEncounter() {
+            if (!gameState.creatures.every(creature => creature.communed)) return;
+
+            const encounter = encounters[gameState.currentEncounter];
+            const acornReward = Math.floor(Math.random() * (encounter.rewards.acorns[1] - encounter.rewards.acorns[0] + 1)) + encounter.rewards.acorns[0];
+
+            gameState.character.acorns += acornReward;
+            gameState.character.experience += encounter.rewards.exp;
+            gameState.character.groveRank += encounter.rewards.rank;
+            gameState.character.encountersCompleted++;
+
+            // Add herbs to inventory
+            if (encounter.rewards.herbs) {
+                encounter.rewards.herbs.forEach(herb => {
+                    if (!gameState.inventory.herbs[herb]) {
+                        gameState.inventory.herbs[herb] = 0;
+                    }
+                    gameState.inventory.herbs[herb] += Math.floor(Math.random() * 2) + 1;
+                });
+            }
+
+            addLogEntry(`🌟 Harmony achieved! Earned ${acornReward} acorns, ${encounter.rewards.exp} XP, and ${encounter.rewards.rank} grove rank!`, "success");
+            showFloatingText(`+${acornReward}a`, 'nature');
+
+            // Unlock new areas based on level
+            unlockNewAreas();
+
+            checkLevelUp();
+            endEncounter();
+        }
+
+        // Unlock New Areas
+        function unlockNewAreas() {
+            const level = gameState.character.level;
+            const unlocks = [
+                { level: 7, area: 'swamp', element: 'swampEncounter' },
+                { level: 10, area: 'mountain', element: 'mountainEncounter' },
+                { level: 13, area: 'stones', element: 'stonesEncounter' },
+                { level: 16, area: 'otherworld', element: 'otherworldEncounter' },
+                { level: 20, area: 'worldtree', element: 'worldtreeEncounter' }
+            ];
+
+            unlocks.forEach(unlock => {
+                if (level >= unlock.level && !gameState.unlockedAreas.includes(unlock.area)) {
+                    gameState.unlockedAreas.push(unlock.area);
+                    const element = document.getElementById(unlock.element);
+                    if (element) {
+                        element.classList.remove('locked');
+                        addLogEntry(`🗺️ New area unlocked: ${encounters[unlock.area].name}!`, "success");
+                    }
+                }
+            });
+        }
+
+        // Leave Encounter
+        function leaveEncounter() {
+            addLogEntry("🏃 You leave the area peacefully, respecting nature's balance.", "exploration");
+            endEncounter();
+        }
+
+        // End Encounter
+        function endEncounter() {
+            gameState.currentEncounter = null;
+            gameState.creatures = [];
+            gameState.selectedCreature = null;
+
+            document.getElementById('encounterScreen').classList.remove('active');
+            document.getElementById('locationGrid').style.display = 'grid';
+            document.getElementById('completeBtn').disabled = true;
+
+            updateDisplay();
+        }
+
+        // Check Level Up
+        function checkLevelUp() {
+            if (gameState.character.experience >= gameState.character.expToNext) {
+                levelUp();
+            }
+        }
+
+        // Level Up
+        function levelUp() {
+            gameState.character.level++;
+            gameState.character.experience -= gameState.character.expToNext;
+            gameState.character.expToNext = Math.floor(gameState.character.expToNext * 1.4);
+
+            // Stat increases
+            gameState.character.wisdom += 4;
+            gameState.character.harmony += 3;
+            gameState.character.natureLore += 3;
+            gameState.character.spiritSight += 2;
+            gameState.character.elemental += 2;
+            gameState.character.maxHealth += 25 + (gameState.character.harmony * 2);
+            gameState.character.maxMana += 15 + gameState.character.wisdom;
+            gameState.character.maxNatureBond += 10 + gameState.character.natureLore;
+
+            // Full restoration on level up
+            gameState.character.health = gameState.character.maxHealth;
+            gameState.character.mana = gameState.character.maxMana;
+            gameState.character.natureBond = gameState.character.maxNatureBond;
+
+            addLogEntry(`🌟 Level Up! You are now level ${gameState.character.level}!`, "success");
+            addLogEntry("🌿 Your connection to nature grows stronger! All vitals restored.", "nature");
+
+            // Update class title
+            const classTitles = {
+                1: "Grove Keeper", 5: "Forest Walker", 10: "Nature's Voice",
+                15: "Druid Elder", 20: "Archdruid", 25: "Nature's Avatar"
+            };
+            
+            if (classTitles[gameState.character.level]) {
+                gameState.character.class = classTitles[gameState.character.level];
+            }
+
+            document.getElementById('druidLevel').textContent = `Level ${gameState.character.level} ${gameState.character.class}`;
+            
+            unlockNewAreas();
+        }
+
+        // Train Attribute
+        function trainAttribute(attribute) {
+            const costs = {
+                wisdom: 300, harmony: 300, natureLore: 300,
+                spiritSight: 350, elemental: 400
+            };
+            
+            const cost = costs[attribute] || 300;
+            
+            if (gameState.character.acorns < cost) {
+                addLogEntry(`❌ Need ${cost} acorns for training!`, "combat");
+                return;
+            }
+
+            gameState.character.acorns -= cost;
+            gameState.character[attribute] += 3;
+
+            const messages = {
+                wisdom: "🌳 Wisdom training completed! +3 Wisdom, +10 Max Mana",
+                harmony: "🦌 Harmony training completed! +3 Harmony, +15 Max Health",
+                natureLore: "🌿 Nature Lore training completed! +3 Nature Lore",
+                spiritSight: "👻 Spirit Sight training completed! +3 Spirit Sight",
+                elemental: "🔥 Elemental training completed! +3 Elemental Power"
+            };
+
+            if (attribute === 'wisdom') {
+                gameState.character.maxMana += 10;
+            } else if (attribute === 'harmony') {
+                gameState.character.maxHealth += 15;
+            }
+
+            addLogEntry(messages[attribute], "success");
+            updateDisplay();
+        }
+
+        // Learn Spell
+        function learnSpell(spellKey) {
+            const costs = {
+                barkSkin: 500, entangle: 600, lightning: 800, animalForm: 1000
+            };
+            
+            const cost = costs[spellKey] || 500;
+            
+            if (gameState.character.acorns < cost) {
+                addLogEntry(`❌ Need ${cost} acorns to learn this spell!`, "combat");
+                return;
+            }
+
+            if (gameState.spells[spellKey].learned) {
+                addLogEntry("✨ You already know this spell!", "wisdom");
+                return;
+            }
+
+            gameState.character.acorns -= cost;
+            gameState.spells[spellKey].learned = true;
+
+            const spellSlot = document.getElementById(spellKey + 'Spell');
+            if (spellSlot) {
+                spellSlot.classList.add('learned');
+            }
+
+            addLogEntry(`📚 You have learned ${gameState.spells[spellKey].name}!`, "wisdom");
+            updateDisplay();
+        }
+
+        // Meditate in Grove
+        function meditateInGrove() {
+            gameState.character.health = gameState.character.maxHealth;
+            gameState.character.mana = gameState.character.maxMana;
+            gameState.character.natureBond = gameState.character.maxNatureBond;
+
+            addLogEntry("🧘‍♂️ You meditate in the sacred grove and nature restores your essence!", "nature");
+            updateDisplay();
+        }
+
+        // Save Progress
+        function saveProgress() {
+            localStorage.setItem('celticDruidRPGSave', JSON.stringify(gameState));
+            addLogEntry("💾 Progress saved to the ancient records!", "success");
+        }
+
+        // Reset Game
+        function resetGame() {
+            if (confirm("Are you sure you want to begin a new druidic journey?")) {
+                localStorage.removeItem('celticDruidRPGSave');
+                location.reload();
+            }
+        }
+
+        // Update Display
+        function updateDisplay() {
+            const char = gameState.character;
+
+            // Update stats text
+            document.getElementById('healthText').textContent = `${char.health}/${char.maxHealth}`;
+            document.getElementById('manaText').textContent = `${char.mana}/${char.maxMana}`;
+            document.getElementById('natureText').textContent = `${char.natureBond}/${char.maxNatureBond}`;
+            document.getElementById('expText').textContent = `${char.experience}/${char.expToNext}`;
+
+            // Update progress bars
+            document.getElementById('healthBar').style.width = `${(char.health / char.maxHealth) * 100}%`;
+            document.getElementById('manaBar').style.width = `${(char.mana / char.maxMana) * 100}%`;
+            document.getElementById('natureBar').style.width = `${(char.natureBond / char.maxNatureBond) * 100}%`;
+            document.getElementById('expBar').style.width = `${(char.experience / char.expToNext) * 100}%`;
+
+            // Update attributes
+            document.getElementById('wisdomValue').textContent = char.wisdom;
+            document.getElementById('harmonyValue').textContent = char.harmony;
+            document.getElementById('natureLoreValue').textContent = char.natureLore;
+            document.getElementById('spiritSightValue').textContent = char.spiritSight;
+            document.getElementById('elementalValue').textContent = char.elemental;
+            document.getElementById('acornsValue').textContent = char.acorns;
+            document.getElementById('groveRankValue').textContent = char.groveRank;
+            document.getElementById('ritualsValue').textContent = char.rituals;
+
+            // Update action buttons
+            document.getElementById('healBtn').disabled = char.mana < 25 || char.natureBond < 10;
+            document.getElementById('thornBtn').disabled = char.mana < 30 || char.natureBond < 15;
+            document.getElementById('communeBtn').disabled = char.mana < 20 || char.natureBond < 5;
+            document.getElementById('lightningBtn').disabled = char.mana < 50 || char.natureBond < 30 || !gameState.spells.lightning.learned;
+
+            updateGroveAffordability();
+        }
+
+        // Update Grove Affordability
+        function updateGroveAffordability() {
+            const groveItems = document.querySelectorAll('.grove-item');
+            groveItems.forEach(item => {
+                const priceText = item.querySelector('.item-price').textContent;
+                const price = parseInt(priceText.replace('a', ''));
+                
+                if (gameState.character.acorns >= price) {
+                    item.classList.add('affordable');
+                } else {
+                    item.classList.remove('affordable');
+                }
+            });
+        }
+
+        // Add Log Entry
+        function addLogEntry(message, type) {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 20 entries
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Show Floating Text
+        function showFloatingText(text, type) {
+            const floating = document.createElement('div');
+            floating.className = `floating-text floating-${type}`;
+            floating.textContent = text;
+            floating.style.position = 'fixed';
+            floating.style.left = '50%';
+            floating.style.top = '40%';
+            floating.style.transform = 'translateX(-50%)';
+            floating.style.zIndex = '1000';
+            
+            document.body.appendChild(floating);
+            
+            setTimeout(() => {
+                if (floating.parentNode) {
+                    floating.parentNode.removeChild(floating);
+                }
+            }, 2000);
+        }
+
+        // Load saved game or initialize
+        function loadGame() {
+            const saved = localStorage.getItem('celticDruidRPGSave');
+            if (saved) {
+                try {
+                    gameState = JSON.parse(saved);
+                    
+                    // Update unlocked areas display
+                    gameState.unlockedAreas.forEach(area => {
+                        const element = document.getElementById(area + 'Encounter');
+                        if (element) {
+                            element.classList.remove('locked');
+                        }
+                    });
+                    
+                    // Update learned spells display
+                    Object.keys(gameState.spells).forEach(spellKey => {
+                        if (gameState.spells[spellKey].learned) {
+                            const spellSlot = document.getElementById(spellKey + 'Spell');
+                            if (spellSlot) {
+                                spellSlot.classList.add('learned');
+                            }
+                        }
+                    });
+                    
+                    addLogEntry("💾 Ancient knowledge restored! Welcome back, druid.", "success");
+                } catch (e) {
+                    console.error('Failed to load save:', e);
+                }
+            }
+            initGame();
+        }
+
+        // Start the game
+        loadGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97454abac41c176a',t:'MTc1NjA2NDExNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gladiator RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8b4513 0%, #654321 50%, #3e2723 100%);
+            min-height: 100vh;
+            color: #f4e4c1;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="20" r="0.5" fill="%23ffd700" opacity="0.4"><animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/></circle><circle cx="90" cy="80" r="0.3" fill="%23ffd700" opacity="0.6"><animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/></circle><circle cx="30" cy="70" r="0.4" fill="%23ffd700" opacity="0.5"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="5s" repeatCount="indefinite"/></circle></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #8b0000, #dc143c);
+            color: #f4e4c1;
+            border: 2px solid #ffd700;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #dc143c, #8b0000);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.7);
+            border-bottom: 3px solid #ffd700;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #ffd700;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #daa520;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .gladiator-panel, .training-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            height: fit-content;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+        }
+
+        .arena-area {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            min-height: 600px;
+        }
+
+        .gladiator-stats {
+            margin-bottom: 20px;
+        }
+
+        .gladiator-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .stat-group {
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .health-bar { background: linear-gradient(90deg, #dc143c, #ff6347); }
+        .stamina-bar { background: linear-gradient(90deg, #32cd32, #90ee90); }
+        .exp-bar { background: linear-gradient(90deg, #ffd700, #ffed4e); }
+
+        .attribute-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attribute-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .attribute-name {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .attribute-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .arena-view {
+            background: rgba(139, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #dc143c;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .arena-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%23654321" stroke-width="2" opacity="0.3"/><circle cx="50" cy="50" r="30" fill="none" stroke="%23654321" stroke-width="1" opacity="0.2"/><circle cx="50" cy="50" r="20" fill="none" stroke="%23654321" stroke-width="1" opacity="0.1"/></svg>') center center no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .combat-display {
+            display: none;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .combat-display.active {
+            display: block;
+            animation: combatStart 0.5s ease-out;
+        }
+
+        @keyframes combatStart {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .fighters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .fighter {
+            text-align: center;
+            flex: 1;
+        }
+
+        .fighter-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .fighter-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .fighter-health {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 16px;
+            margin: 0 auto;
+            width: 120px;
+            overflow: hidden;
+            border: 1px solid #dc143c;
+        }
+
+        .fighter-health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6347);
+            transition: width 0.3s ease;
+        }
+
+        .vs-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            margin: 0 20px;
+        }
+
+        .crowd-meter {
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .crowd-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .crowd-bar {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            border: 1px solid #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .crowd-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ffd700, #32cd32);
+            transition: width 0.3s ease;
+        }
+
+        .training-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .training-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .training-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .training-option {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .training-option:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+
+        .option-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .option-cost {
+            font-size: 0.8rem;
+            color: #daa520;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #000;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(45deg, #ffed4e, #ffd700);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #dc143c, #ff6347);
+            color: white;
+        }
+
+        .btn.danger:hover {
+            background: linear-gradient(45deg, #ff6347, #dc143c);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .equipment-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .equipment-slot {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .equipment-slot.equipped {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .game-log {
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            font-size: 0.9rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-entry.combat { color: #ff6347; }
+        .log-entry.victory { color: #32cd32; }
+        .log-entry.training { color: #87ceeb; }
+        .log-entry.gold { color: #ffd700; }
+
+        .floating-damage {
+            position: absolute;
+            color: #ff6347;
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatDamage 2s ease-out forwards;
+            text-shadow: 0 0 5px #ff6347;
+            z-index: 100;
+        }
+
+        .floating-gold {
+            position: absolute;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: floatDamage 2s ease-out forwards;
+            text-shadow: 0 0 5px #ffd700;
+            z-index: 100;
+        }
+
+        @keyframes floatDamage {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        .rank-display {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .rank-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .rank-progress {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .gladiator-panel, .training-panel {
+                order: 2;
+            }
+            
+            .arena-area {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .attribute-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .fighters {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .vs-text {
+                order: 2;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ← Back to Main
+    </a>
+
+    <div class="header">
+        <h1 class="title">⚔️ GLADIATOR RPG</h1>
+        <p class="subtitle">Rise Through the Ranks of the Arena</p>
+    </div>
+
+    <div class="main-container">
+        <div class="gladiator-panel">
+            <div class="gladiator-stats">
+                <div class="gladiator-name" id="gladiatorName">Marcus Maximus</div>
+                
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Health</span>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill health-bar" id="healthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Stamina</span>
+                        <span id="staminaText">100/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill stamina-bar" id="staminaBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Experience</span>
+                        <span id="expText">0/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill exp-bar" id="expBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attribute-stats">
+                <div class="attribute-card">
+                    <div class="attribute-name">Strength</div>
+                    <div class="attribute-value" id="strengthValue">10</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">Agility</div>
+                    <div class="attribute-value" id="agilityValue">10</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">Endurance</div>
+                    <div class="attribute-value" id="enduranceValue">10</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">Gold</div>
+                    <div class="attribute-value" id="goldValue">100</div>
+                </div>
+            </div>
+
+            <div class="rank-display">
+                <div class="rank-title" id="rankTitle">Novice Gladiator</div>
+                <div class="rank-progress" id="rankProgress">Wins: 0/5</div>
+            </div>
+
+            <div class="equipment-section">
+                <div class="training-title">🛡️ Equipment</div>
+                <div class="equipment-grid">
+                    <div class="equipment-slot equipped" id="weaponSlot">
+                        🗡️ Wooden Sword
+                    </div>
+                    <div class="equipment-slot equipped" id="armorSlot">
+                        🛡️ Leather Armor
+                    </div>
+                    <div class="equipment-slot" id="helmetSlot">
+                        No Helmet
+                    </div>
+                    <div class="equipment-slot" id="shieldSlot">
+                        No Shield
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arena-area">
+            <div class="arena-view">
+                <div class="combat-display" id="combatDisplay">
+                    <div class="fighters">
+                        <div class="fighter">
+                            <span class="fighter-icon">🛡️</span>
+                            <div class="fighter-name" id="playerName">Marcus</div>
+                            <div class="fighter-health">
+                                <div class="fighter-health-fill" id="playerHealthBar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="vs-text">VS</div>
+                        <div class="fighter">
+                            <span class="fighter-icon">⚔️</span>
+                            <div class="fighter-name" id="enemyName">Opponent</div>
+                            <div class="fighter-health">
+                                <div class="fighter-health-fill" id="enemyHealthBar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="arenaWelcome" style="text-align: center; padding: 40px;">
+                    <h2 style="color: #ffd700; margin-bottom: 20px;">🏛️ Welcome to the Arena!</h2>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Train your gladiator and enter combat to earn glory and gold!</p>
+                    <p style="opacity: 0.8;">Click "Enter Arena" to begin your first fight.</p>
+                </div>
+            </div>
+
+            <div class="crowd-meter">
+                <div class="crowd-title">🏟️ Crowd Favor</div>
+                <div class="crowd-bar">
+                    <div class="crowd-fill" id="crowdBar" style="width: 50%"></div>
+                </div>
+                <div id="crowdText">Neutral</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <button class="btn" onclick="enterArena()" id="fightBtn">⚔️ Enter Arena</button>
+                <button class="btn" onclick="rest()" id="restBtn">🛏️ Rest (50 Gold)</button>
+            </div>
+
+            <div class="game-log" id="gameLog"></div>
+        </div>
+
+        <div class="training-panel">
+            <div class="training-section">
+                <div class="training-title">💪 Training</div>
+                <div class="training-options">
+                    <div class="training-option" onclick="train('strength')">
+                        <div class="option-name">🏋️ Strength Training</div>
+                        <div class="option-cost">Cost: 30 Gold, 20 Stamina</div>
+                    </div>
+                    <div class="training-option" onclick="train('agility')">
+                        <div class="option-name">🏃 Agility Training</div>
+                        <div class="option-cost">Cost: 30 Gold, 20 Stamina</div>
+                    </div>
+                    <div class="training-option" onclick="train('endurance')">
+                        <div class="option-name">🛡️ Endurance Training</div>
+                        <div class="option-cost">Cost: 30 Gold, 20 Stamina</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="training-section">
+                <div class="training-title">🛒 Equipment Shop</div>
+                <div class="training-options">
+                    <div class="training-option" onclick="buyEquipment('weapon')">
+                        <div class="option-name">⚔️ Iron Sword</div>
+                        <div class="option-cost">Cost: 200 Gold (+5 Attack)</div>
+                    </div>
+                    <div class="training-option" onclick="buyEquipment('armor')">
+                        <div class="option-name">🛡️ Chain Mail</div>
+                        <div class="option-cost">Cost: 250 Gold (+3 Defense)</div>
+                    </div>
+                    <div class="training-option" onclick="buyEquipment('helmet')">
+                        <div class="option-name">⛑️ Bronze Helmet</div>
+                        <div class="option-cost">Cost: 150 Gold (+2 Defense)</div>
+                    </div>
+                    <div class="training-option" onclick="buyEquipment('shield')">
+                        <div class="option-name">🛡️ Round Shield</div>
+                        <div class="option-cost">Cost: 180 Gold (+4 Defense)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn danger" onclick="resetGame()">🔄 New Gladiator</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            gladiator: {
+                name: "Marcus Maximus",
+                health: 100,
+                maxHealth: 100,
+                stamina: 100,
+                maxStamina: 100,
+                experience: 0,
+                expToNext: 100,
+                level: 1,
+                strength: 10,
+                agility: 10,
+                endurance: 10,
+                gold: 100,
+                wins: 0,
+                rank: 0
+            },
+            combat: {
+                active: false,
+                enemy: null,
+                playerHealth: 100,
+                enemyHealth: 100,
+                turn: 'player'
+            },
+            equipment: {
+                weapon: { name: "Wooden Sword", attack: 2, cost: 0 },
+                armor: { name: "Leather Armor", defense: 1, cost: 0 },
+                helmet: null,
+                shield: null
+            },
+            crowdFavor: 50
+        };
+
+        const ranks = [
+            { name: "Novice Gladiator", winsRequired: 5, goldBonus: 1.0 },
+            { name: "Veteran Fighter", winsRequired: 12, goldBonus: 1.2 },
+            { name: "Arena Champion", winsRequired: 25, goldBonus: 1.5 },
+            { name: "Legendary Warrior", winsRequired: 50, goldBonus: 2.0 },
+            { name: "Emperor's Favorite", winsRequired: 100, goldBonus: 3.0 }
+        ];
+
+        const enemies = [
+            { name: "Slave Fighter", health: 60, attack: [8, 15], defense: 2, exp: 20, gold: [30, 60] },
+            { name: "Bandit Warrior", health: 80, attack: [12, 20], defense: 3, exp: 35, gold: [50, 90] },
+            { name: "Veteran Gladiator", health: 100, attack: [15, 25], defense: 4, exp: 50, gold: [70, 120] },
+            { name: "Arena Champion", health: 120, attack: [18, 30], defense: 5, exp: 75, gold: [100, 180] },
+            { name: "Beast Master", health: 140, attack: [22, 35], defense: 6, exp: 100, gold: [150, 250] }
+        ];
+
+        const equipment = {
+            weapon: [
+                { name: "Iron Sword", attack: 5, cost: 200 },
+                { name: "Steel Blade", attack: 8, cost: 500 },
+                { name: "Gladius Maximus", attack: 12, cost: 1000 }
+            ],
+            armor: [
+                { name: "Chain Mail", defense: 3, cost: 250 },
+                { name: "Scale Armor", defense: 5, cost: 600 },
+                { name: "Plate Armor", defense: 8, cost: 1200 }
+            ],
+            helmet: [
+                { name: "Bronze Helmet", defense: 2, cost: 150 },
+                { name: "Iron Helm", defense: 4, cost: 400 },
+                { name: "Champion's Crown", defense: 6, cost: 800 }
+            ],
+            shield: [
+                { name: "Round Shield", defense: 4, cost: 180 },
+                { name: "Tower Shield", defense: 6, cost: 450 },
+                { name: "Aegis Shield", defense: 10, cost: 900 }
+            ]
+        };
+
+        function initGame() {
+            updateDisplay();
+            addLogEntry("🏛️ Welcome to the gladiator arena! Train hard and fight for glory!", "training");
+        }
+
+        function train(attribute) {
+            const cost = 30;
+            const staminaCost = 20;
+
+            if (gameState.gladiator.gold < cost) {
+                addLogEntry("❌ Not enough gold for training!", "training");
+                return;
+            }
+
+            if (gameState.gladiator.stamina < staminaCost) {
+                addLogEntry("❌ Not enough stamina for training!", "training");
+                return;
+            }
+
+            gameState.gladiator.gold -= cost;
+            gameState.gladiator.stamina -= staminaCost;
+            gameState.gladiator[attribute] += 1;
+
+            const attributeNames = {
+                strength: "💪 Strength",
+                agility: "🏃 Agility", 
+                endurance: "🛡️ Endurance"
+            };
+
+            addLogEntry(`${attributeNames[attribute]} increased to ${gameState.gladiator[attribute]}!`, "training");
+            
+            // Endurance training also increases max health and stamina
+            if (attribute === 'endurance') {
+                gameState.gladiator.maxHealth += 5;
+                gameState.gladiator.maxStamina += 5;
+                addLogEntry("💚 Max health and stamina increased!", "training");
+            }
+
+            updateDisplay();
+        }
+
+        function buyEquipment(type) {
+            const currentEquipment = gameState.equipment[type];
+            const availableEquipment = equipment[type];
+            
+            let nextEquipment = availableEquipment[0];
+            
+            // Find next upgrade
+            if (currentEquipment) {
+                const currentIndex = availableEquipment.findIndex(eq => eq.name === currentEquipment.name);
+                if (currentIndex >= 0 && currentIndex < availableEquipment.length - 1) {
+                    nextEquipment = availableEquipment[currentIndex + 1];
+                } else if (currentIndex === availableEquipment.length - 1) {
+                    addLogEntry("❌ You already have the best equipment of this type!", "gold");
+                    return;
+                }
+            }
+
+            if (gameState.gladiator.gold < nextEquipment.cost) {
+                addLogEntry(`❌ Need ${nextEquipment.cost} gold for ${nextEquipment.name}!`, "gold");
+                return;
+            }
+
+            gameState.gladiator.gold -= nextEquipment.cost;
+            gameState.equipment[type] = nextEquipment;
+
+            addLogEntry(`🛒 Purchased ${nextEquipment.name}!`, "gold");
+            updateEquipmentDisplay();
+            updateDisplay();
+        }
+
+        function enterArena() {
+            if (gameState.combat.active) return;
+
+            if (gameState.gladiator.health < 30) {
+                addLogEntry("❌ You're too injured to fight! Rest first.", "combat");
+                return;
+            }
+
+            if (gameState.gladiator.stamina < 40) {
+                addLogEntry("❌ You're too tired to fight! Rest first.", "combat");
+                return;
+            }
+
+            startCombat();
+        }
+
+        function startCombat() {
+            // Select enemy based on gladiator level and wins
+            const enemyLevel = Math.min(enemies.length - 1, Math.floor(gameState.gladiator.wins / 5));
+            const enemy = { ...enemies[enemyLevel] };
+            
+            // Add some randomization
+            enemy.health += Math.floor(Math.random() * 20) - 10;
+            enemy.health = Math.max(30, enemy.health);
+
+            gameState.combat.active = true;
+            gameState.combat.enemy = enemy;
+            gameState.combat.playerHealth = gameState.gladiator.health;
+            gameState.combat.enemyHealth = enemy.health;
+            gameState.combat.turn = 'player';
+
+            document.getElementById('arenaWelcome').style.display = 'none';
+            document.getElementById('combatDisplay').classList.add('active');
+            document.getElementById('enemyName').textContent = enemy.name;
+            document.getElementById('playerName').textContent = gameState.gladiator.name;
+
+            updateCombatDisplay();
+            addLogEntry(`⚔️ Combat begins against ${enemy.name}!`, "combat");
+
+            // Start combat loop
+            setTimeout(combatTurn, 1000);
+        }
+
+        function combatTurn() {
+            if (!gameState.combat.active) return;
+
+            if (gameState.combat.turn === 'player') {
+                playerAttack();
+            } else {
+                enemyAttack();
+            }
+        }
+
+        function playerAttack() {
+            const gladiator = gameState.gladiator;
+            const enemy = gameState.combat.enemy;
+            
+            // Calculate damage
+            let baseDamage = Math.floor(Math.random() * 10) + gladiator.strength;
+            
+            // Add weapon damage
+            if (gameState.equipment.weapon) {
+                baseDamage += gameState.equipment.weapon.attack;
+            }
+
+            // Apply enemy defense
+            let finalDamage = Math.max(1, baseDamage - enemy.defense);
+            
+            // Critical hit chance based on agility
+            if (Math.random() * 100 < gladiator.agility) {
+                finalDamage *= 2;
+                addLogEntry(`💥 Critical hit for ${finalDamage} damage!`, "combat");
+                gameState.crowdFavor = Math.min(100, gameState.crowdFavor + 10);
+            } else {
+                addLogEntry(`⚔️ You attack for ${finalDamage} damage!`, "combat");
+                gameState.crowdFavor = Math.min(100, gameState.crowdFavor + 2);
+            }
+
+            gameState.combat.enemyHealth -= finalDamage;
+            showFloatingDamage(document.getElementById('combatDisplay'), finalDamage, 'damage');
+
+            if (gameState.combat.enemyHealth <= 0) {
+                endCombat(true);
+                return;
+            }
+
+            gameState.combat.turn = 'enemy';
+            updateCombatDisplay();
+            setTimeout(combatTurn, 1500);
+        }
+
+        function enemyAttack() {
+            const gladiator = gameState.gladiator;
+            const enemy = gameState.combat.enemy;
+            
+            // Calculate damage
+            let baseDamage = Math.floor(Math.random() * (enemy.attack[1] - enemy.attack[0] + 1)) + enemy.attack[0];
+            
+            // Calculate defense
+            let defense = Math.floor(gladiator.endurance / 2);
+            if (gameState.equipment.armor) defense += gameState.equipment.armor.defense;
+            if (gameState.equipment.helmet) defense += gameState.equipment.helmet.defense;
+            if (gameState.equipment.shield) defense += gameState.equipment.shield.defense;
+
+            // Dodge chance based on agility
+            if (Math.random() * 100 < gladiator.agility * 2) {
+                addLogEntry("🏃 You dodge the attack!", "combat");
+                gameState.crowdFavor = Math.min(100, gameState.crowdFavor + 5);
+            } else {
+                let finalDamage = Math.max(1, baseDamage - defense);
+                gameState.combat.playerHealth -= finalDamage;
+                gameState.gladiator.health -= finalDamage;
+                
+                addLogEntry(`👹 ${enemy.name} attacks for ${finalDamage} damage!`, "combat");
+                showFloatingDamage(document.getElementById('combatDisplay'), finalDamage, 'damage');
+
+                if (gameState.combat.playerHealth <= 0) {
+                    endCombat(false);
+                    return;
+                }
+            }
+
+            gameState.combat.turn = 'player';
+            updateCombatDisplay();
+            setTimeout(combatTurn, 1500);
+        }
+
+        function endCombat(victory) {
+            gameState.combat.active = false;
+            document.getElementById('combatDisplay').classList.remove('active');
+            document.getElementById('arenaWelcome').style.display = 'block';
+
+            if (victory) {
+                const enemy = gameState.combat.enemy;
+                const baseGold = Math.floor(Math.random() * (enemy.gold[1] - enemy.gold[0] + 1)) + enemy.gold[0];
+                const crowdBonus = gameState.crowdFavor / 100;
+                const rankBonus = ranks[gameState.gladiator.rank].goldBonus;
+                const totalGold = Math.floor(baseGold * crowdBonus * rankBonus);
+
+                gameState.gladiator.gold += totalGold;
+                gameState.gladiator.experience += enemy.exp;
+                gameState.gladiator.wins++;
+                gameState.gladiator.stamina = Math.max(0, gameState.gladiator.stamina - 30);
+
+                addLogEntry(`🏆 Victory! Earned ${totalGold} gold and ${enemy.exp} experience!`, "victory");
+                showFloatingGold(document.getElementById('arenaWelcome'), totalGold);
+
+                // Check for level up
+                if (gameState.gladiator.experience >= gameState.gladiator.expToNext) {
+                    levelUp();
+                }
+
+                // Check for rank up
+                checkRankUp();
+
+            } else {
+                gameState.gladiator.health = Math.max(1, gameState.gladiator.health);
+                gameState.crowdFavor = Math.max(0, gameState.crowdFavor - 20);
+                addLogEntry("💀 Defeat! The crowd is disappointed...", "combat");
+            }
+
+            gameState.combat.enemy = null;
+            updateDisplay();
+        }
+
+        function levelUp() {
+            gameState.gladiator.level++;
+            gameState.gladiator.experience -= gameState.gladiator.expToNext;
+            gameState.gladiator.expToNext = Math.floor(gameState.gladiator.expToNext * 1.4);
+            
+            // Stat increases
+            gameState.gladiator.strength += 2;
+            gameState.gladiator.agility += 2;
+            gameState.gladiator.endurance += 2;
+            gameState.gladiator.maxHealth += 10;
+            gameState.gladiator.maxStamina += 10;
+
+            addLogEntry(`🌟 Level up! You are now level ${gameState.gladiator.level}!`, "victory");
+            addLogEntry("💪 All attributes increased by 2!", "victory");
+        }
+
+        function checkRankUp() {
+            const currentRank = gameState.gladiator.rank;
+            if (currentRank < ranks.length - 1) {
+                const nextRank = ranks[currentRank + 1];
+                if (gameState.gladiator.wins >= nextRank.winsRequired) {
+                    gameState.gladiator.rank++;
+                    addLogEntry(`👑 Rank up! You are now a ${nextRank.name}!`, "victory");
+                    gameState.crowdFavor = Math.min(100, gameState.crowdFavor + 20);
+                }
+            }
+        }
+
+        function rest() {
+            const cost = 50;
+            
+            if (gameState.gladiator.gold < cost) {
+                addLogEntry("❌ Not enough gold to rest!", "training");
+                return;
+            }
+
+            gameState.gladiator.gold -= cost;
+            gameState.gladiator.health = gameState.gladiator.maxHealth;
+            gameState.gladiator.stamina = gameState.gladiator.maxStamina;
+
+            addLogEntry("🛏️ You rest and recover fully!", "training");
+            updateDisplay();
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to start over with a new gladiator?")) {
+                gameState = {
+                    gladiator: {
+                        name: "Marcus Maximus",
+                        health: 100,
+                        maxHealth: 100,
+                        stamina: 100,
+                        maxStamina: 100,
+                        experience: 0,
+                        expToNext: 100,
+                        level: 1,
+                        strength: 10,
+                        agility: 10,
+                        endurance: 10,
+                        gold: 100,
+                        wins: 0,
+                        rank: 0
+                    },
+                    combat: {
+                        active: false,
+                        enemy: null,
+                        playerHealth: 100,
+                        enemyHealth: 100,
+                        turn: 'player'
+                    },
+                    equipment: {
+                        weapon: { name: "Wooden Sword", attack: 2, cost: 0 },
+                        armor: { name: "Leather Armor", defense: 1, cost: 0 },
+                        helmet: null,
+                        shield: null
+                    },
+                    crowdFavor: 50
+                };
+
+                document.getElementById('combatDisplay').classList.remove('active');
+                document.getElementById('arenaWelcome').style.display = 'block';
+                document.getElementById('gameLog').innerHTML = '';
+                
+                initGame();
+            }
+        }
+
+        function updateDisplay() {
+            const gladiator = gameState.gladiator;
+            
+            document.getElementById('healthText').textContent = `${gladiator.health}/${gladiator.maxHealth}`;
+            document.getElementById('staminaText').textContent = `${gladiator.stamina}/${gladiator.maxStamina}`;
+            document.getElementById('expText').textContent = `${gladiator.experience}/${gladiator.expToNext}`;
+            
+            document.getElementById('strengthValue').textContent = gladiator.strength;
+            document.getElementById('agilityValue').textContent = gladiator.agility;
+            document.getElementById('enduranceValue').textContent = gladiator.endurance;
+            document.getElementById('goldValue').textContent = gladiator.gold;
+
+            document.getElementById('healthBar').style.width = `${(gladiator.health / gladiator.maxHealth) * 100}%`;
+            document.getElementById('staminaBar').style.width = `${(gladiator.stamina / gladiator.maxStamina) * 100}%`;
+            document.getElementById('expBar').style.width = `${(gladiator.experience / gladiator.expToNext) * 100}%`;
+
+            // Update rank display
+            const currentRank = ranks[gladiator.rank];
+            const nextRank = ranks[gladiator.rank + 1];
+            document.getElementById('rankTitle').textContent = currentRank.name;
+            
+            if (nextRank) {
+                document.getElementById('rankProgress').textContent = `Wins: ${gladiator.wins}/${nextRank.winsRequired}`;
+            } else {
+                document.getElementById('rankProgress').textContent = `Maximum Rank Achieved!`;
+            }
+
+            // Update crowd favor
+            document.getElementById('crowdBar').style.width = `${gameState.crowdFavor}%`;
+            const crowdText = gameState.crowdFavor >= 80 ? "Adoring" : 
+                             gameState.crowdFavor >= 60 ? "Pleased" :
+                             gameState.crowdFavor >= 40 ? "Neutral" :
+                             gameState.crowdFavor >= 20 ? "Displeased" : "Hostile";
+            document.getElementById('crowdText').textContent = crowdText;
+
+            updateEquipmentDisplay();
+        }
+
+        function updateEquipmentDisplay() {
+            const eq = gameState.equipment;
+            
+            document.getElementById('weaponSlot').innerHTML = eq.weapon ? 
+                `⚔️ ${eq.weapon.name}` : "No Weapon";
+            document.getElementById('armorSlot').innerHTML = eq.armor ? 
+                `🛡️ ${eq.armor.name}` : "No Armor";
+            document.getElementById('helmetSlot').innerHTML = eq.helmet ? 
+                `⛑️ ${eq.helmet.name}` : "No Helmet";
+            document.getElementById('shieldSlot').innerHTML = eq.shield ? 
+                `🛡️ ${eq.shield.name}` : "No Shield";
+        }
+
+        function updateCombatDisplay() {
+            if (!gameState.combat.active) return;
+
+            const playerHealthPercent = (gameState.combat.playerHealth / gameState.gladiator.maxHealth) * 100;
+            const enemyHealthPercent = (gameState.combat.enemyHealth / gameState.combat.enemy.health) * 100;
+
+            document.getElementById('playerHealthBar').style.width = `${playerHealthPercent}%`;
+            document.getElementById('enemyHealthBar').style.width = `${enemyHealthPercent}%`;
+        }
+
+        function addLogEntry(message, type) {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 15 entries
+            while (log.children.length > 15) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function showFloatingDamage(container, amount, type) {
+            const floating = document.createElement('div');
+            floating.className = type === 'gold' ? 'floating-gold' : 'floating-damage';
+            floating.textContent = type === 'gold' ? `+${amount}g` : `-${amount}`;
+            floating.style.left = '50%';
+            floating.style.top = '40%';
+            floating.style.transform = 'translateX(-50%)';
+            
+            container.appendChild(floating);
+            
+            setTimeout(() => {
+                if (floating.parentNode) {
+                    floating.parentNode.removeChild(floating);
+                }
+            }, 2000);
+        }
+
+        function showFloatingGold(container, amount) {
+            showFloatingDamage(container, amount, 'gold');
+        }
+
+        // Initialize game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736e22d86e4a230',t:'MTc1NTkxMzAzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ninja RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="30" r="0.5" fill="%23ffffff" opacity="0.1"><animate attributeName="opacity" values="0.1;0.3;0.1" dur="4s" repeatCount="indefinite"/></circle><circle cx="80" cy="20" r="0.3" fill="%23ffffff" opacity="0.2"><animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite"/></circle><circle cx="60" cy="80" r="0.4" fill="%23ffffff" opacity="0.15"><animate attributeName="opacity" values="0.15;0.35;0.15" dur="5s" repeatCount="indefinite"/></circle></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: #e8e8e8;
+            border: 2px solid #3498db;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.7);
+            border-bottom: 3px solid #3498db;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #3498db;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #74b9ff;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .ninja-panel, .skills-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            height: fit-content;
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.1);
+        }
+
+        .mission-area {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            min-height: 600px;
+        }
+
+        .ninja-stats {
+            margin-bottom: 20px;
+        }
+
+        .ninja-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #3498db;
+        }
+
+        .stat-group {
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .health-bar { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .chakra-bar { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+        .stealth-bar { background: linear-gradient(90deg, #34495e, #2c3e50); }
+        .exp-bar { background: linear-gradient(90deg, #3498db, #2980b9); }
+
+        .ninja-attributes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attribute-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .attribute-name {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .attribute-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .mission-view {
+            background: rgba(44, 62, 80, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #34495e;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="none" stroke="%2334495e" stroke-width="0.5" opacity="0.3"/><rect x="20" y="20" width="60" height="60" fill="none" stroke="%2334495e" stroke-width="0.3" opacity="0.2"/><rect x="30" y="30" width="40" height="40" fill="none" stroke="%2334495e" stroke-width="0.2" opacity="0.1"/></svg>') center center no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .stealth-mission {
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stealth-mission.active {
+            display: block;
+            animation: missionStart 0.5s ease-out;
+        }
+
+        @keyframes missionStart {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+
+        .grid-cell {
+            background: #2c3e50;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .grid-cell:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: scale(1.05);
+        }
+
+        .grid-cell.ninja { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .grid-cell.guard { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .grid-cell.target { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .grid-cell.wall { background: #1a1a1a; }
+        .grid-cell.shadow { background: rgba(52, 152, 219, 0.3); }
+
+        .detection-meter {
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .detection-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .detection-bar {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            border: 1px solid #e74c3c;
+            margin-bottom: 8px;
+        }
+
+        .detection-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+            transition: width 0.3s ease;
+        }
+
+        .skills-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .skills-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .skill-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .skill-button {
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            color: #e8e8e8;
+            border: 2px solid #3498db;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-button:hover {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .skill-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .skill-button.stealth { border-color: #34495e; background: linear-gradient(45deg, #2c3e50, #34495e); }
+        .skill-button.combat { border-color: #e74c3c; background: linear-gradient(45deg, #c0392b, #e74c3c); }
+        .skill-button.mystical { border-color: #9b59b6; background: linear-gradient(45deg, #8e44ad, #9b59b6); }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(45deg, #2980b9, #3498db);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .btn.danger:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .equipment-section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .equipment-slot {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .equipment-slot.equipped {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .mission-log {
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+            font-size: 0.9rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-entry.stealth { color: #74b9ff; }
+        .log-entry.combat { color: #fd79a8; }
+        .log-entry.success { color: #00b894; }
+        .log-entry.failure { color: #e17055; }
+
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: floatText 2s ease-out forwards;
+            z-index: 100;
+        }
+
+        .floating-stealth {
+            color: #74b9ff;
+            text-shadow: 0 0 5px #74b9ff;
+        }
+
+        .floating-damage {
+            color: #fd79a8;
+            text-shadow: 0 0 5px #fd79a8;
+        }
+
+        .floating-gold {
+            color: #fdcb6e;
+            text-shadow: 0 0 5px #fdcb6e;
+        }
+
+        @keyframes floatText {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+        }
+
+        .mission-select {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mission-option {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mission-option:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .mission-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #3498db;
+        }
+
+        .mission-difficulty {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .mission-reward {
+            font-size: 0.8rem;
+            color: #f39c12;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .ninja-panel, .skills-panel {
+                order: 2;
+            }
+            
+            .mission-area {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .ninja-attributes {
+                grid-template-columns: 1fr;
+            }
+            
+            .mission-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ← Back to Main
+    </a>
+
+    <div class="header">
+        <h1 class="title">🥷 NINJA RPG</h1>
+        <p class="subtitle">Master the Way of the Shadow</p>
+    </div>
+
+    <div class="main-container">
+        <div class="ninja-panel">
+            <div class="ninja-stats">
+                <div class="ninja-name" id="ninjaName">Shadow Walker</div>
+                
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Health</span>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill health-bar" id="healthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Chakra</span>
+                        <span id="chakraText">80/80</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill chakra-bar" id="chakraBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Stealth</span>
+                        <span id="stealthText">100/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill stealth-bar" id="stealthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-group">
+                    <div class="stat-label">
+                        <span>Experience</span>
+                        <span id="expText">0/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill exp-bar" id="expBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ninja-attributes">
+                <div class="attribute-card">
+                    <div class="attribute-name">Agility</div>
+                    <div class="attribute-value" id="agilityValue">15</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">Stealth</div>
+                    <div class="attribute-value" id="stealthSkillValue">12</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">Combat</div>
+                    <div class="attribute-value" id="combatValue">10</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">Gold</div>
+                    <div class="attribute-value" id="goldValue">200</div>
+                </div>
+            </div>
+
+            <div class="equipment-section">
+                <div class="skills-title">🗡️ Equipment</div>
+                <div class="equipment-grid">
+                    <div class="equipment-slot equipped" id="weaponSlot">
+                        🗡️ Kunai
+                    </div>
+                    <div class="equipment-slot equipped" id="armorSlot">
+                        🥋 Ninja Gi
+                    </div>
+                    <div class="equipment-slot" id="toolSlot">
+                        No Tools
+                    </div>
+                    <div class="equipment-slot" id="accessorySlot">
+                        No Accessory
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mission-area">
+            <div class="mission-view">
+                <div id="missionSelect" class="mission-select">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #3498db;">🎯 Select Mission</h3>
+                    
+                    <div class="mission-option" onclick="startMission('infiltration')">
+                        <div class="mission-name">🏯 Castle Infiltration</div>
+                        <div class="mission-difficulty">Difficulty: Easy</div>
+                        <div class="mission-reward">Reward: 100-200 Gold, 50 EXP</div>
+                    </div>
+                    
+                    <div class="mission-option" onclick="startMission('assassination')">
+                        <div class="mission-name">🎯 Silent Assassination</div>
+                        <div class="mission-difficulty">Difficulty: Medium</div>
+                        <div class="mission-reward">Reward: 200-350 Gold, 80 EXP</div>
+                    </div>
+                    
+                    <div class="mission-option" onclick="startMission('rescue')">
+                        <div class="mission-name">🚪 Hostage Rescue</div>
+                        <div class="mission-difficulty">Difficulty: Hard</div>
+                        <div class="mission-reward">Reward: 300-500 Gold, 120 EXP</div>
+                    </div>
+                    
+                    <div class="mission-option" onclick="startMission('sabotage')">
+                        <div class="mission-name">💣 Sabotage Mission</div>
+                        <div class="mission-difficulty">Difficulty: Expert</div>
+                        <div class="mission-reward">Reward: 400-700 Gold, 150 EXP</div>
+                    </div>
+                </div>
+
+                <div class="stealth-mission" id="stealthMission">
+                    <h3 style="text-align: center; margin-bottom: 15px; color: #3498db;" id="missionTitle">Mission Area</h3>
+                    <div class="mission-grid" id="missionGrid"></div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn" onclick="completeMission()" id="completeBtn" disabled>✅ Complete</button>
+                        <button class="btn danger" onclick="abortMission()">❌ Abort</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detection-meter">
+                <div class="detection-title">🔍 Detection Level</div>
+                <div class="detection-bar">
+                    <div class="detection-fill" id="detectionBar" style="width: 0%"></div>
+                </div>
+                <div id="detectionText">Hidden</div>
+            </div>
+
+            <div class="mission-log" id="missionLog"></div>
+        </div>
+
+        <div class="skills-panel">
+            <div class="skills-section">
+                <div class="skills-title">🥷 Ninja Techniques</div>
+                <div class="skill-grid">
+                    <button class="skill-button stealth" onclick="useSkill('shadowStep')" id="shadowStep">
+                        👤 Shadow Step<br><small>15 Chakra</small>
+                    </button>
+                    <button class="skill-button combat" onclick="useSkill('kunaiThrow')" id="kunaiThrow">
+                        🗡️ Kunai Throw<br><small>10 Chakra</small>
+                    </button>
+                    <button class="skill-button mystical" onclick="useSkill('shadowClone')" id="shadowClone">
+                        👥 Shadow Clone<br><small>25 Chakra</small>
+                    </button>
+                    <button class="skill-button stealth" onclick="useSkill('smokeBomb')" id="smokeBomb">
+                        💨 Smoke Bomb<br><small>20 Chakra</small>
+                    </button>
+                </div>
+            </div>
+
+            <div class="skills-section">
+                <div class="skills-title">📈 Training</div>
+                <div class="skill-grid">
+                    <button class="skill-button stealth" onclick="trainSkill('stealth')">
+                        🤫 Stealth Training<br><small>50 Gold</small>
+                    </button>
+                    <button class="skill-button combat" onclick="trainSkill('combat')">
+                        ⚔️ Combat Training<br><small>50 Gold</small>
+                    </button>
+                    <button class="skill-button mystical" onclick="trainSkill('agility')">
+                        🏃 Agility Training<br><small>50 Gold</small>
+                    </button>
+                </div>
+            </div>
+
+            <div class="skills-section">
+                <div class="skills-title">🛒 Equipment Shop</div>
+                <div class="skill-grid">
+                    <button class="skill-button combat" onclick="buyEquipment('weapon')">
+                        ⚔️ Katana<br><small>300 Gold</small>
+                    </button>
+                    <button class="skill-button stealth" onclick="buyEquipment('armor')">
+                        🥋 Shadow Suit<br><small>400 Gold</small>
+                    </button>
+                    <button class="skill-button mystical" onclick="buyEquipment('tools')">
+                        🔧 Ninja Tools<br><small>250 Gold</small>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="rest()">🧘 Meditate (Free)</button>
+                <button class="btn danger" onclick="resetGame()">🔄 New Ninja</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            ninja: {
+                name: "Shadow Walker",
+                level: 1,
+                health: 100,
+                maxHealth: 100,
+                chakra: 80,
+                maxChakra: 80,
+                stealth: 100,
+                maxStealth: 100,
+                experience: 0,
+                expToNext: 100,
+                agility: 15,
+                stealthSkill: 12,
+                combat: 10,
+                gold: 200,
+                missionsCompleted: 0
+            },
+            mission: {
+                active: false,
+                type: null,
+                grid: [],
+                ninjaPos: { x: 0, y: 0 },
+                guards: [],
+                targets: [],
+                detection: 0,
+                completed: false
+            },
+            equipment: {
+                weapon: { name: "Kunai", attack: 3, cost: 0 },
+                armor: { name: "Ninja Gi", defense: 2, cost: 0 },
+                tools: null,
+                accessory: null
+            },
+            skills: {
+                shadowStep: { name: "Shadow Step", cost: 15, cooldown: 0 },
+                kunaiThrow: { name: "Kunai Throw", cost: 10, cooldown: 0 },
+                shadowClone: { name: "Shadow Clone", cost: 25, cooldown: 0 },
+                smokeBomb: { name: "Smoke Bomb", cost: 20, cooldown: 0 }
+            }
+        };
+
+        const missions = {
+            infiltration: {
+                name: "Castle Infiltration",
+                difficulty: 1,
+                guards: 3,
+                targets: 1,
+                reward: { gold: [100, 200], exp: 50 }
+            },
+            assassination: {
+                name: "Silent Assassination",
+                difficulty: 2,
+                guards: 4,
+                targets: 2,
+                reward: { gold: [200, 350], exp: 80 }
+            },
+            rescue: {
+                name: "Hostage Rescue",
+                difficulty: 3,
+                guards: 5,
+                targets: 3,
+                reward: { gold: [300, 500], exp: 120 }
+            },
+            sabotage: {
+                name: "Sabotage Mission",
+                difficulty: 4,
+                guards: 6,
+                targets: 4,
+                reward: { gold: [400, 700], exp: 150 }
+            }
+        };
+
+        const equipment = {
+            weapon: [
+                { name: "Katana", attack: 6, cost: 300 },
+                { name: "Ninjato", attack: 9, cost: 600 },
+                { name: "Legendary Blade", attack: 12, cost: 1200 }
+            ],
+            armor: [
+                { name: "Shadow Suit", defense: 4, cost: 400 },
+                { name: "Master's Robes", defense: 6, cost: 800 },
+                { name: "Legendary Armor", defense: 10, cost: 1500 }
+            ],
+            tools: [
+                { name: "Ninja Tools", utility: 3, cost: 250 },
+                { name: "Master Kit", utility: 5, cost: 500 },
+                { name: "Legendary Set", utility: 8, cost: 1000 }
+            ]
+        };
+
+        function initGame() {
+            updateDisplay();
+            updateEquipmentDisplay();
+            addLogEntry("🌙 Welcome, Shadow Walker. Your ninja training begins now.", "stealth");
+        }
+
+        function startMission(missionType) {
+            const mission = missions[missionType];
+            if (!mission) return;
+
+            gameState.mission.active = true;
+            gameState.mission.type = missionType;
+            gameState.mission.detection = 0;
+            gameState.mission.completed = false;
+
+            document.getElementById('missionSelect').style.display = 'none';
+            document.getElementById('stealthMission').classList.add('active');
+            document.getElementById('missionTitle').textContent = mission.name;
+
+            generateMissionGrid(mission);
+            addLogEntry(`🎯 Mission started: ${mission.name}`, "stealth");
+        }
+
+        function generateMissionGrid(mission) {
+            const grid = [];
+            const width = 8;
+            const height = 4;
+
+            // Initialize empty grid
+            for (let i = 0; i < width * height; i++) {
+                grid.push({
+                    type: 'empty',
+                    occupied: false,
+                    visible: true
+                });
+            }
+
+            // Place ninja at start
+            gameState.mission.ninjaPos = { x: 0, y: 0 };
+            grid[0].type = 'ninja';
+            grid[0].occupied = true;
+
+            // Place guards
+            gameState.mission.guards = [];
+            for (let i = 0; i < mission.guards; i++) {
+                let attempts = 0;
+                while (attempts < 20) {
+                    const index = Math.floor(Math.random() * (width * height));
+                    if (!grid[index].occupied && index !== 0) {
+                        grid[index].type = 'guard';
+                        grid[index].occupied = true;
+                        gameState.mission.guards.push({
+                            x: index % width,
+                            y: Math.floor(index / width),
+                            alertLevel: 0
+                        });
+                        break;
+                    }
+                    attempts++;
+                }
+            }
+
+            // Place targets
+            gameState.mission.targets = [];
+            for (let i = 0; i < mission.targets; i++) {
+                let attempts = 0;
+                while (attempts < 20) {
+                    const index = Math.floor(Math.random() * (width * height));
+                    if (!grid[index].occupied) {
+                        grid[index].type = 'target';
+                        grid[index].occupied = true;
+                        gameState.mission.targets.push({
+                            x: index % width,
+                            y: Math.floor(index / width),
+                            collected: false
+                        });
+                        break;
+                    }
+                    attempts++;
+                }
+            }
+
+            // Add some walls
+            const wallCount = Math.floor(Math.random() * 4) + 2;
+            for (let i = 0; i < wallCount; i++) {
+                let attempts = 0;
+                while (attempts < 10) {
+                    const index = Math.floor(Math.random() * (width * height));
+                    if (!grid[index].occupied) {
+                        grid[index].type = 'wall';
+                        grid[index].occupied = true;
+                        break;
+                    }
+                    attempts++;
+                }
+            }
+
+            gameState.mission.grid = grid;
+            renderMissionGrid();
+        }
+
+        function renderMissionGrid() {
+            const gridElement = document.getElementById('missionGrid');
+            gridElement.innerHTML = '';
+
+            gameState.mission.grid.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.className = `grid-cell ${cell.type}`;
+                cellElement.dataset.index = index;
+
+                switch (cell.type) {
+                    case 'ninja':
+                        cellElement.innerHTML = '🥷';
+                        break;
+                    case 'guard':
+                        cellElement.innerHTML = '👮';
+                        break;
+                    case 'target':
+                        cellElement.innerHTML = '🎯';
+                        break;
+                    case 'wall':
+                        cellElement.innerHTML = '🧱';
+                        break;
+                    case 'shadow':
+                        cellElement.innerHTML = '👤';
+                        break;
+                    default:
+                        cellElement.innerHTML = '';
+                }
+
+                cellElement.addEventListener('click', () => moveNinja(index));
+                gridElement.appendChild(cellElement);
+            });
+        }
+
+        function moveNinja(targetIndex) {
+            if (!gameState.mission.active || gameState.mission.completed) return;
+
+            const width = 8;
+            const currentIndex = gameState.mission.ninjaPos.y * width + gameState.mission.ninjaPos.x;
+            const targetCell = gameState.mission.grid[targetIndex];
+
+            // Check if move is valid
+            const currentX = gameState.mission.ninjaPos.x;
+            const currentY = gameState.mission.ninjaPos.y;
+            const targetX = targetIndex % width;
+            const targetY = Math.floor(targetIndex / width);
+
+            const distance = Math.abs(currentX - targetX) + Math.abs(currentY - targetY);
+
+            if (distance !== 1 || targetCell.type === 'wall' || targetCell.type === 'guard') {
+                addLogEntry("❌ Cannot move there!", "failure");
+                return;
+            }
+
+            // Clear current position
+            gameState.mission.grid[currentIndex].type = 'empty';
+            gameState.mission.grid[currentIndex].occupied = false;
+
+            // Move ninja
+            gameState.mission.ninjaPos.x = targetX;
+            gameState.mission.ninjaPos.y = targetY;
+
+            // Handle target collection
+            if (targetCell.type === 'target') {
+                const target = gameState.mission.targets.find(t => t.x === targetX && t.y === targetY);
+                if (target) {
+                    target.collected = true;
+                    addLogEntry("🎯 Target acquired!", "success");
+                    showFloatingText(document.getElementById('missionGrid'), "Target!", "stealth");
+                }
+            }
+
+            // Set new position
+            gameState.mission.grid[targetIndex].type = 'ninja';
+            gameState.mission.grid[targetIndex].occupied = true;
+
+            // Check detection
+            checkDetection();
+
+            // Check if mission can be completed
+            const allTargetsCollected = gameState.mission.targets.every(t => t.collected);
+            document.getElementById('completeBtn').disabled = !allTargetsCollected;
+
+            renderMissionGrid();
+            updateDisplay();
+        }
+
+        function checkDetection() {
+            const ninjaPos = gameState.mission.ninjaPos;
+            let detectionIncrease = 0;
+
+            // Check proximity to guards
+            gameState.mission.guards.forEach(guard => {
+                const distance = Math.abs(ninjaPos.x - guard.x) + Math.abs(ninjaPos.y - guard.y);
+                if (distance <= 1) {
+                    detectionIncrease += 20;
+                } else if (distance <= 2) {
+                    detectionIncrease += 10;
+                }
+            });
+
+            // Apply stealth skill reduction
+            detectionIncrease = Math.max(0, detectionIncrease - gameState.ninja.stealthSkill);
+
+            gameState.mission.detection = Math.min(100, gameState.mission.detection + detectionIncrease);
+
+            // Update detection display
+            const detectionPercent = gameState.mission.detection;
+            document.getElementById('detectionBar').style.width = `${detectionPercent}%`;
+            
+            let detectionText = "Hidden";
+            if (detectionPercent >= 80) detectionText = "Compromised!";
+            else if (detectionPercent >= 60) detectionText = "High Alert";
+            else if (detectionPercent >= 40) detectionText = "Suspicious";
+            else if (detectionPercent >= 20) detectionText = "Noticed";
+
+            document.getElementById('detectionText').textContent = detectionText;
+
+            if (detectionPercent >= 100) {
+                addLogEntry("🚨 Mission compromised! Aborting...", "failure");
+                setTimeout(() => abortMission(), 1000);
+            }
+        }
+
+        function useSkill(skillName) {
+            const skill = gameState.skills[skillName];
+            if (!skill) return;
+
+            if (gameState.ninja.chakra < skill.cost) {
+                addLogEntry("❌ Not enough chakra!", "failure");
+                return;
+            }
+
+            if (skill.cooldown > 0) {
+                addLogEntry("❌ Skill on cooldown!", "failure");
+                return;
+            }
+
+            gameState.ninja.chakra -= skill.cost;
+            skill.cooldown = 3;
+
+            switch (skillName) {
+                case 'shadowStep':
+                    gameState.mission.detection = Math.max(0, gameState.mission.detection - 30);
+                    addLogEntry("👤 Shadow Step used! Detection reduced.", "stealth");
+                    break;
+                case 'kunaiThrow':
+                    // Remove nearest guard
+                    if (gameState.mission.guards.length > 0) {
+                        gameState.mission.guards.pop();
+                        addLogEntry("🗡️ Guard eliminated silently!", "combat");
+                        renderMissionGrid();
+                    }
+                    break;
+                case 'shadowClone':
+                    // Create distraction
+                    gameState.mission.detection = Math.max(0, gameState.mission.detection - 50);
+                    addLogEntry("👥 Shadow clones create distraction!", "stealth");
+                    break;
+                case 'smokeBomb':
+                    gameState.mission.detection = 0;
+                    addLogEntry("💨 Smoke bomb deployed! Completely hidden!", "stealth");
+                    break;
+            }
+
+            updateDisplay();
+            showFloatingText(document.getElementById('missionGrid'), skill.name, "stealth");
+        }
+
+        function trainSkill(skillType) {
+            const cost = 50;
+
+            if (gameState.ninja.gold < cost) {
+                addLogEntry("❌ Not enough gold for training!", "failure");
+                return;
+            }
+
+            gameState.ninja.gold -= cost;
+
+            switch (skillType) {
+                case 'stealth':
+                    gameState.ninja.stealthSkill += 2;
+                    addLogEntry("🤫 Stealth skill improved!", "stealth");
+                    break;
+                case 'combat':
+                    gameState.ninja.combat += 2;
+                    addLogEntry("⚔️ Combat skill improved!", "combat");
+                    break;
+                case 'agility':
+                    gameState.ninja.agility += 2;
+                    addLogEntry("🏃 Agility improved!", "stealth");
+                    break;
+            }
+
+            updateDisplay();
+        }
+
+        function buyEquipment(type) {
+            const currentEquipment = gameState.equipment[type];
+            const availableEquipment = equipment[type];
+            
+            if (!availableEquipment) return;
+
+            let nextEquipment = availableEquipment[0];
+            
+            // Find next upgrade
+            if (currentEquipment) {
+                const currentIndex = availableEquipment.findIndex(eq => eq.name === currentEquipment.name);
+                if (currentIndex >= 0 && currentIndex < availableEquipment.length - 1) {
+                    nextEquipment = availableEquipment[currentIndex + 1];
+                } else if (currentIndex === availableEquipment.length - 1) {
+                    addLogEntry("❌ You already have the best equipment of this type!", "failure");
+                    return;
+                }
+            }
+
+            if (gameState.ninja.gold < nextEquipment.cost) {
+                addLogEntry(`❌ Need ${nextEquipment.cost} gold for ${nextEquipment.name}!`, "failure");
+                return;
+            }
+
+            gameState.ninja.gold -= nextEquipment.cost;
+            gameState.equipment[type] = nextEquipment;
+
+            addLogEntry(`🛒 Purchased ${nextEquipment.name}!`, "success");
+            updateEquipmentDisplay();
+            updateDisplay();
+        }
+
+        function completeMission() {
+            if (!gameState.mission.active || !gameState.mission.targets.every(t => t.collected)) {
+                return;
+            }
+
+            const mission = missions[gameState.mission.type];
+            const detectionPenalty = gameState.mission.detection / 100;
+            const baseGold = Math.floor(Math.random() * (mission.reward.gold[1] - mission.reward.gold[0] + 1)) + mission.reward.gold[0];
+            const finalGold = Math.floor(baseGold * (1 - detectionPenalty * 0.5));
+
+            gameState.ninja.gold += finalGold;
+            gameState.ninja.experience += mission.reward.exp;
+            gameState.ninja.missionsCompleted++;
+
+            addLogEntry(`✅ Mission completed! Earned ${finalGold} gold and ${mission.reward.exp} EXP!`, "success");
+            showFloatingText(document.getElementById('missionGrid'), `+${finalGold}g`, "gold");
+
+            // Check for level up
+            if (gameState.ninja.experience >= gameState.ninja.expToNext) {
+                levelUp();
+            }
+
+            endMission();
+        }
+
+        function abortMission() {
+            addLogEntry("❌ Mission aborted.", "failure");
+            endMission();
+        }
+
+        function endMission() {
+            gameState.mission.active = false;
+            gameState.mission.completed = false;
+            gameState.mission.detection = 0;
+
+            document.getElementById('stealthMission').classList.remove('active');
+            document.getElementById('missionSelect').style.display = 'block';
+            document.getElementById('detectionBar').style.width = '0%';
+            document.getElementById('detectionText').textContent = 'Hidden';
+
+            // Reset skill cooldowns
+            Object.values(gameState.skills).forEach(skill => {
+                skill.cooldown = 0;
+            });
+
+            updateDisplay();
+        }
+
+        function levelUp() {
+            gameState.ninja.level++;
+            gameState.ninja.experience -= gameState.ninja.expToNext;
+            gameState.ninja.expToNext = Math.floor(gameState.ninja.expToNext * 1.4);
+            
+            // Stat increases
+            gameState.ninja.agility += 3;
+            gameState.ninja.stealthSkill += 2;
+            gameState.ninja.combat += 2;
+            gameState.ninja.maxHealth += 15;
+            gameState.ninja.maxChakra += 10;
+            gameState.ninja.maxStealth += 10;
+
+            addLogEntry(`🌟 Level up! You are now level ${gameState.ninja.level}!`, "success");
+            addLogEntry("💪 All skills improved!", "success");
+        }
+
+        function rest() {
+            gameState.ninja.health = gameState.ninja.maxHealth;
+            gameState.ninja.chakra = gameState.ninja.maxChakra;
+            gameState.ninja.stealth = gameState.ninja.maxStealth;
+
+            addLogEntry("🧘 You meditate and restore your energy.", "stealth");
+            updateDisplay();
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to start over with a new ninja?")) {
+                gameState = {
+                    ninja: {
+                        name: "Shadow Walker",
+                        level: 1,
+                        health: 100,
+                        maxHealth: 100,
+                        chakra: 80,
+                        maxChakra: 80,
+                        stealth: 100,
+                        maxStealth: 100,
+                        experience: 0,
+                        expToNext: 100,
+                        agility: 15,
+                        stealthSkill: 12,
+                        combat: 10,
+                        gold: 200,
+                        missionsCompleted: 0
+                    },
+                    mission: {
+                        active: false,
+                        type: null,
+                        grid: [],
+                        ninjaPos: { x: 0, y: 0 },
+                        guards: [],
+                        targets: [],
+                        detection: 0,
+                        completed: false
+                    },
+                    equipment: {
+                        weapon: { name: "Kunai", attack: 3, cost: 0 },
+                        armor: { name: "Ninja Gi", defense: 2, cost: 0 },
+                        tools: null,
+                        accessory: null
+                    },
+                    skills: {
+                        shadowStep: { name: "Shadow Step", cost: 15, cooldown: 0 },
+                        kunaiThrow: { name: "Kunai Throw", cost: 10, cooldown: 0 },
+                        shadowClone: { name: "Shadow Clone", cost: 25, cooldown: 0 },
+                        smokeBomb: { name: "Smoke Bomb", cost: 20, cooldown: 0 }
+                    }
+                };
+
+                document.getElementById('stealthMission').classList.remove('active');
+                document.getElementById('missionSelect').style.display = 'block';
+                document.getElementById('missionLog').innerHTML = '';
+                
+                initGame();
+            }
+        }
+
+        function updateDisplay() {
+            const ninja = gameState.ninja;
+            
+            document.getElementById('healthText').textContent = `${ninja.health}/${ninja.maxHealth}`;
+            document.getElementById('chakraText').textContent = `${ninja.chakra}/${ninja.maxChakra}`;
+            document.getElementById('stealthText').textContent = `${ninja.stealth}/${ninja.maxStealth}`;
+            document.getElementById('expText').textContent = `${ninja.experience}/${ninja.expToNext}`;
+            
+            document.getElementById('agilityValue').textContent = ninja.agility;
+            document.getElementById('stealthSkillValue').textContent = ninja.stealthSkill;
+            document.getElementById('combatValue').textContent = ninja.combat;
+            document.getElementById('goldValue').textContent = ninja.gold;
+
+            document.getElementById('healthBar').style.width = `${(ninja.health / ninja.maxHealth) * 100}%`;
+            document.getElementById('chakraBar').style.width = `${(ninja.chakra / ninja.maxChakra) * 100}%`;
+            document.getElementById('stealthBar').style.width = `${(ninja.stealth / ninja.maxStealth) * 100}%`;
+            document.getElementById('expBar').style.width = `${(ninja.experience / ninja.expToNext) * 100}%`;
+
+            // Update skill button states
+            Object.keys(gameState.skills).forEach(skillName => {
+                const skill = gameState.skills[skillName];
+                const button = document.getElementById(skillName);
+                if (button) {
+                    button.disabled = ninja.chakra < skill.cost || skill.cooldown > 0;
+                    if (skill.cooldown > 0) {
+                        button.innerHTML = button.innerHTML.replace(/<small>.*<\/small>/, `<small>Cooldown: ${skill.cooldown}</small>`);
+                    }
+                }
+            });
+
+            // Reduce cooldowns
+            Object.values(gameState.skills).forEach(skill => {
+                if (skill.cooldown > 0) skill.cooldown--;
+            });
+        }
+
+        function updateEquipmentDisplay() {
+            const eq = gameState.equipment;
+            
+            document.getElementById('weaponSlot').innerHTML = eq.weapon ? 
+                `🗡️ ${eq.weapon.name}` : "No Weapon";
+            document.getElementById('armorSlot').innerHTML = eq.armor ? 
+                `🥋 ${eq.armor.name}` : "No Armor";
+            document.getElementById('toolSlot').innerHTML = eq.tools ? 
+                `🔧 ${eq.tools.name}` : "No Tools";
+            document.getElementById('accessorySlot').innerHTML = eq.accessory ? 
+                `💍 ${eq.accessory.name}` : "No Accessory";
+        }
+
+        function addLogEntry(message, type) {
+            const log = document.getElementById('missionLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 15 entries
+            while (log.children.length > 15) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function showFloatingText(container, text, type) {
+            const floating = document.createElement('div');
+            floating.className = `floating-text floating-${type}`;
+            floating.textContent = text;
+            floating.style.left = '50%';
+            floating.style.top = '30%';
+            floating.style.transform = 'translateX(-50%)';
+            
+            container.appendChild(floating);
+            
+            setTimeout(() => {
+                if (floating.parentNode) {
+                    floating.parentNode.removeChild(floating);
+                }
+            }, 2000);
+        }
+
+        // Initialize game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736f39f568c1758',t:'MTc1NTkxMzc0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legends of the Nile - Egyptian Hero RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Philosopher:wght@400;700&display=swap');
+        body { font-family: 'Philosopher', sans-serif; }
+        .hieroglyph-font { font-family: 'Cinzel', serif; }
+        .desert-bg { 
+            background: linear-gradient(135deg, #8B4513 0%, #CD853F 25%, #DEB887 50%, #F4A460 75%, #FFE4B5 100%);
+        }
+        .golden-glow { 
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00, #DAA520);
+            background-size: 400% 400%;
+            animation: goldenShimmer 3s ease-in-out infinite;
+        }
+        @keyframes goldenShimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .sun-flash { animation: sunFlash 2s ease-in-out infinite; }
+        @keyframes sunFlash { 0%, 90%, 100% { opacity: 1; } 95% { opacity: 0.3; } }
+        .pharaoh-pulse { animation: pharaohPulse 2s ease-in-out infinite; }
+        @keyframes pharaohPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); } 50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); } }
+        .hero-card { transition: all 0.4s ease; backdrop-filter: blur(10px); }
+        .hero-card:hover { transform: translateY(-12px) scale(1.03); box-shadow: 0 30px 60px rgba(255, 215, 0, 0.4); }
+        .egyptian-entrance { animation: egyptianEntrance 1s ease-out; }
+        @keyframes egyptianEntrance { 0% { transform: scale(0) rotate(180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .floating-sand { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .sand-particle { position: absolute; color: rgba(255, 215, 0, 0.3); font-size: 16px; animation: sandFloat 15s linear infinite; }
+        @keyframes sandFloat { 0% { transform: translateX(-50px) translateY(100vh); } 100% { transform: translateX(100vw) translateY(-50px); } }
+        .power-bar { transition: width 0.8s ease-in-out; }
+        .quest-glow { animation: questGlow 3s ease-in-out infinite alternate; }
+        @keyframes questGlow { 0% { box-shadow: 0 0 20px rgba(255, 140, 0, 0.5); } 100% { box-shadow: 0 0 40px rgba(255, 69, 0, 0.8); } }
+        .mystical-sparkle { animation: mysticalSparkle 4s ease-in-out infinite; }
+        @keyframes mysticalSparkle { 0%, 100% { transform: rotate(0deg) scale(1); filter: brightness(1); } 25% { transform: rotate(90deg) scale(1.1); filter: brightness(1.3); } 50% { transform: rotate(180deg) scale(1); filter: brightness(1); } 75% { transform: rotate(270deg) scale(1.1); filter: brightness(1.3); } }
+        .divine-aura { animation: divineAura 5s ease-in-out infinite; }
+        @keyframes divineAura { 0%, 100% { filter: drop-shadow(0 0 10px gold); } 50% { filter: drop-shadow(0 0 30px gold) drop-shadow(0 0 40px orange); } }
+        .egyptian-border { border-image: linear-gradient(45deg, gold, orange, gold) 1; }
+        .hero-selected { animation: heroSelected 0.8s ease-out; }
+        @keyframes heroSelected { 0% { transform: scale(1); } 50% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0deg); } }
+        .pyramid-shadow { 
+            background: linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.3) 50%);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        .ankh-spin { animation: ankhSpin 6s linear infinite; }
+        @keyframes ankhSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .scarab-crawl { animation: scarabCrawl 8s ease-in-out infinite; }
+        @keyframes scarabCrawl { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(20px); } }
+    </style>
+</head>
+<body class="desert-bg min-h-screen text-white overflow-x-hidden">
+    <!-- Floating Sand Particles -->
+    <div class="floating-sand" id="floatingSand"></div>
+
+    <!-- Floating Egyptian Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-10 text-4xl divine-aura" style="animation-delay: 0s;">☀️</div>
+        <div class="absolute top-40 right-20 text-3xl ankh-spin" style="animation-delay: 1s;">☥</div>
+        <div class="absolute bottom-40 left-20 text-3xl pharaoh-pulse" style="animation-delay: 2s;">🏺</div>
+        <div class="absolute top-60 left-1/2 text-2xl divine-aura" style="animation-delay: 1.5s;">🦅</div>
+        <div class="absolute bottom-20 right-10 text-3xl mystical-sparkle" style="animation-delay: 3s;">⭐</div>
+        <div class="absolute top-80 right-1/3 text-2xl scarab-crawl" style="animation-delay: 2.5s;">🪲</div>
+        <div class="absolute top-32 left-1/4 text-3xl sun-flash" style="animation-delay: 4s;">🔺</div>
+        <div class="absolute bottom-60 right-1/4 text-2xl divine-aura" style="animation-delay: 3.5s;">🐍</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/80 backdrop-blur-sm border-b border-yellow-500/50 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="location.href='main.html'" class="bg-orange-600/80 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-orange-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl golden-glow p-2 rounded-full">☀️</div>
+                    <h1 class="text-2xl font-bold hieroglyph-font golden-glow bg-clip-text text-transparent">LEGENDS OF THE NILE</h1>
+                    <div class="text-xs bg-yellow-600 px-2 py-1 rounded hieroglyph-font sun-flash">PHARAOH</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">👑</span>
+                    <span class="text-xl font-bold hieroglyph-font" id="gold">0</span>
+                    <span class="text-sm text-gray-300">GOLD</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">☥</span>
+                    <span class="text-lg hieroglyph-font" id="ka">100</span>
+                    <span class="text-sm text-gray-300">KA ENERGY</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">🏺</span>
+                    <span class="text-lg hieroglyph-font" id="artifacts">0</span>
+                    <span class="text-sm text-gray-300">ARTIFACTS</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Hero Selection -->
+        <div id="heroSelection" class="egyptian-entrance">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-bold hieroglyph-font golden-glow bg-clip-text text-transparent mb-4">Choose Your Egyptian Legend</h2>
+                <p class="text-xl text-orange-200 max-w-3xl mx-auto">Select a mighty pharaoh or deity to lead your journey through the mysteries of ancient Egypt. Each hero possesses unique powers and divine blessings.</p>
+            </div>
+
+            <!-- Heroes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Ramesses II -->
+                <div class="hero-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50 cursor-pointer" onclick="selectHero('ramesses')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 pharaoh-pulse">👑</div>
+                        <h3 class="text-2xl font-bold hieroglyph-font text-yellow-400 mb-2">RAMESSES II</h3>
+                        <p class="text-orange-200 mb-4">The Great Pharaoh, Builder of Monuments</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>👑 Leadership:</span>
+                                <span class="text-yellow-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>⚔️ Military:</span>
+                                <span class="text-red-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🏗️ Construction:</span>
+                                <span class="text-blue-400 font-bold">88</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🛡️ Endurance:</span>
+                                <span class="text-green-400 font-bold">85</span>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-yellow-200"><strong>Royal Ability:</strong> Monument Builder - Construct massive temples and monuments that provide eternal bonuses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cleopatra VII -->
+                <div class="hero-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/50 cursor-pointer" onclick="selectHero('cleopatra')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 mystical-sparkle">💎</div>
+                        <h3 class="text-2xl font-bold hieroglyph-font text-purple-400 mb-2">CLEOPATRA VII</h3>
+                        <p class="text-orange-200 mb-4">Last Pharaoh, Master of Diplomacy</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>🧠 Intelligence:</span>
+                                <span class="text-purple-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>💬 Diplomacy:</span>
+                                <span class="text-blue-400 font-bold">92</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>✨ Charisma:</span>
+                                <span class="text-pink-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>📚 Knowledge:</span>
+                                <span class="text-cyan-400 font-bold">88</span>
+                            </div>
+                        </div>
+                        <div class="bg-purple-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-purple-200"><strong>Royal Ability:</strong> Divine Persuasion - Convert enemies to allies and gain massive diplomatic advantages</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Anubis -->
+                <div class="hero-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/50 cursor-pointer" onclick="selectHero('anubis')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 divine-aura">🐺</div>
+                        <h3 class="text-2xl font-bold hieroglyph-font text-gray-300 mb-2">ANUBIS</h3>
+                        <p class="text-orange-200 mb-4">God of Death and the Afterlife</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>💀 Death Magic:</span>
+                                <span class="text-gray-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>⚖️ Judgment:</span>
+                                <span class="text-yellow-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🔮 Mysticism:</span>
+                                <span class="text-purple-400 font-bold">88</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🛡️ Protection:</span>
+                                <span class="text-blue-400 font-bold">85</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-gray-200"><strong>Divine Ability:</strong> Soul Judgment - Instantly defeat evil enemies and resurrect fallen allies</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horus -->
+                <div class="hero-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/50 cursor-pointer" onclick="selectHero('horus')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 sun-flash">🦅</div>
+                        <h3 class="text-2xl font-bold hieroglyph-font text-blue-400 mb-2">HORUS</h3>
+                        <p class="text-orange-200 mb-4">Sky God, Protector of Pharaohs</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>🦅 Sky Mastery:</span>
+                                <span class="text-blue-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>👁️ Divine Sight:</span>
+                                <span class="text-yellow-400 font-bold">92</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>⚔️ Combat:</span>
+                                <span class="text-red-400 font-bold">88</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🛡️ Protection:</span>
+                                <span class="text-green-400 font-bold">90</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-blue-200"><strong>Divine Ability:</strong> Eye of Horus - See all hidden secrets and strike with divine precision</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Isis -->
+                <div class="hero-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-green-500/50 cursor-pointer" onclick="selectHero('isis')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 golden-glow">🌟</div>
+                        <h3 class="text-2xl font-bold hieroglyph-font text-green-400 mb-2">ISIS</h3>
+                        <p class="text-orange-200 mb-4">Goddess of Magic and Healing</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>✨ Magic:</span>
+                                <span class="text-green-400 font-bold">98</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>💚 Healing:</span>
+                                <span class="text-cyan-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🔮 Wisdom:</span>
+                                <span class="text-purple-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🌱 Nature:</span>
+                                <span class="text-green-400 font-bold">88</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-green-200"><strong>Divine Ability:</strong> Resurrection Magic - Bring back the dead and heal any wound or curse</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thoth -->
+                <div class="hero-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-cyan-500/50 cursor-pointer" onclick="selectHero('thoth')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 ankh-spin">📜</div>
+                        <h3 class="text-2xl font-bold hieroglyph-font text-cyan-400 mb-2">THOTH</h3>
+                        <p class="text-orange-200 mb-4">God of Wisdom and Writing</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>📚 Knowledge:</span>
+                                <span class="text-cyan-400 font-bold">98</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>✍️ Writing:</span>
+                                <span class="text-blue-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🔮 Divination:</span>
+                                <span class="text-purple-400 font-bold">92</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>⚖️ Justice:</span>
+                                <span class="text-yellow-400 font-bold">88</span>
+                            </div>
+                        </div>
+                        <div class="bg-cyan-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-cyan-200"><strong>Divine Ability:</strong> Book of Thoth - Access all knowledge and rewrite reality with divine words</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Profile (Hidden initially) -->
+        <div id="heroProfile" class="hidden">
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/50 pharaoh-pulse">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-6">
+                        <div class="w-24 h-24 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center text-5xl border-4 border-yellow-500 divine-aura" id="heroIcon">
+                            👑
+                        </div>
+                        <div>
+                            <h2 class="text-4xl font-bold hieroglyph-font" id="heroName">RAMESSES II</h2>
+                            <p class="text-yellow-400 hieroglyph-font text-xl" id="heroTitle">The Great Pharaoh</p>
+                            <div class="flex gap-8 mt-3">
+                                <span class="text-sm">👑 Power: <span class="text-yellow-400 font-bold" id="powerStat">95</span></span>
+                                <span class="text-sm">🛡️ Defense: <span class="text-blue-400 font-bold" id="defenseStat">85</span></span>
+                                <span class="text-sm">🧠 Wisdom: <span class="text-purple-400 font-bold" id="wisdomStat">88</span></span>
+                                <span class="text-sm">✨ Magic: <span class="text-green-400 font-bold" id="magicStat">80</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-300">DYNASTY LEVEL</div>
+                        <div class="text-4xl hieroglyph-font text-yellow-400" id="heroLevel">1</div>
+                        <div class="text-sm text-gray-300 mt-2">EXPERIENCE: <span class="text-white font-bold" id="experience">0/100</span></div>
+                        <div class="text-sm text-gray-300">HEALTH: <span class="text-green-400 font-bold" id="health">100%</span></div>
+                    </div>
+                </div>
+                
+                <!-- Status Bars -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-yellow-400">☥ Ka Energy</span>
+                            <span id="kaEnergyPercent">100%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-yellow-400 h-2 rounded-full power-bar" id="kaEnergyBar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-blue-400">🙏 People's Faith</span>
+                            <span id="peopleFaithPercent">75%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-blue-400 h-2 rounded-full power-bar" id="peopleFaithBar" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-purple-400">🏛️ Divine Favor</span>
+                            <span id="divineFavorPercent">50%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-400 h-2 rounded-full power-bar" id="divineFavorBar" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-green-400">🌍 Kingdom Power</span>
+                            <span id="kingdomPowerPercent">60%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-400 h-2 rounded-full power-bar" id="kingdomPowerBar" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Ability -->
+                <div class="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-xl p-4 border border-yellow-500/30">
+                    <h3 class="text-lg font-bold hieroglyph-font text-yellow-400 mb-2">👑 LEGENDARY ABILITY</h3>
+                    <p class="text-white" id="heroAbilityDescription">Monument Builder - Construct massive temples and monuments that provide eternal bonuses</p>
+                    <button onclick="useHeroAbility()" class="mt-3 bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold hieroglyph-font transition-all transform hover:scale-105">
+                        INVOKE POWER
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Quest -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-orange-500/50 quest-glow">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold hieroglyph-font text-orange-400">🏺 ANCIENT QUEST</h2>
+                    <div class="text-sm bg-orange-600/20 px-3 py-1 rounded hieroglyph-font border border-orange-500/50 sun-flash">
+                        ACTIVE
+                    </div>
+                </div>
+                
+                <div id="currentQuest">
+                    <!-- Current quest will be populated here -->
+                </div>
+            </div>
+
+            <!-- Game Management -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Powers & Abilities -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50">
+                    <h2 class="text-2xl font-bold hieroglyph-font text-yellow-400 mb-6">⚡ ANCIENT POWERS</h2>
+                    <div id="powersContainer" class="space-y-4">
+                        <!-- Powers will be populated here -->
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <button onclick="trainStat('power')" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-semibold hieroglyph-font transition-all text-sm">
+                            👑 POWER TRAINING
+                        </button>
+                        <button onclick="trainStat('defense')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold hieroglyph-font transition-all text-sm">
+                            🛡️ DEFENSE TRAINING
+                        </button>
+                        <button onclick="trainStat('wisdom')" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold hieroglyph-font transition-all text-sm">
+                            🧠 WISDOM TRAINING
+                        </button>
+                        <button onclick="trainStat('magic')" class="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold hieroglyph-font transition-all text-sm">
+                            ✨ MAGIC TRAINING
+                        </button>
+                    </div>
+                    <button onclick="showPowersMenu()" class="w-full mt-2 bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold hieroglyph-font transition-all transform hover:scale-105">
+                        ENHANCE ABILITIES
+                    </button>
+                </div>
+
+                <!-- Quests & Adventures -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-orange-500/50">
+                    <h2 class="text-2xl font-bold hieroglyph-font text-orange-400 mb-6">🏺 EPIC ADVENTURES</h2>
+                    <div id="questsContainer" class="space-y-4">
+                        <!-- Quests will be populated here -->
+                    </div>
+                    <button onclick="showQuestsMenu()" class="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-semibold hieroglyph-font transition-all transform hover:scale-105">
+                        BEGIN ADVENTURE
+                    </button>
+                </div>
+
+                <!-- Achievements & Legacy -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/50">
+                    <h2 class="text-2xl font-bold hieroglyph-font text-purple-400 mb-6">🏆 ETERNAL LEGACY</h2>
+                    <div id="achievementsContainer" class="space-y-4">
+                        <!-- Achievements will be populated here -->
+                    </div>
+                    <button onclick="showAchievementsMenu()" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold hieroglyph-font transition-all transform hover:scale-105">
+                        VIEW LEGACY
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kingdom Status -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-cyan-500/50 pharaoh-pulse">
+                <h2 class="text-2xl font-bold hieroglyph-font text-cyan-400 mb-6">🏛️ KINGDOM OF EGYPT</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Cities & Monuments -->
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="text-lg font-bold hieroglyph-font text-cyan-400 mb-3">🏛️ MONUMENTS</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Pyramids:</span>
+                                <span class="font-bold text-yellow-400" id="pyramids">1</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Temples:</span>
+                                <span class="font-bold text-purple-400" id="temples">2</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Cities:</span>
+                                <span class="font-bold text-blue-400" id="cities">3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Population & Resources -->
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="text-lg font-bold hieroglyph-font text-green-400 mb-3">👥 KINGDOM</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Population:</span>
+                                <span class="font-bold text-green-400" id="population">50,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Army:</span>
+                                <span class="font-bold text-red-400" id="army">5,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Priests:</span>
+                                <span class="font-bold text-purple-400" id="priests">500</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Divine Status -->
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="text-lg font-bold hieroglyph-font text-yellow-400 mb-3">☥ DIVINE STATUS</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Mummies Created:</span>
+                                <span class="font-bold text-gray-400" id="mummiesCreated">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Curses Lifted:</span>
+                                <span class="font-bold text-green-400" id="cursesLifted">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Treasures Found:</span>
+                                <span class="font-bold text-yellow-400" id="treasuresFound">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Personal Achievements -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-pink-500/50">
+                    <h2 class="text-xl font-bold hieroglyph-font text-pink-400 mb-4">📈 LEGENDARY DEEDS</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Quests Completed:</span>
+                            <span class="font-bold text-green-400" id="questsCompleted">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Gold Earned:</span>
+                            <span class="font-bold text-yellow-400" id="goldEarned">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Divine Interventions:</span>
+                            <span class="font-bold text-purple-400" id="divineInterventions">0</span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-600 pt-2">
+                            <span class="text-gray-300">Dynasty Rank:</span>
+                            <span class="font-bold text-blue-400" id="dynastyRank">Minor Ruler</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- World Impact -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-teal-500/50">
+                    <h2 class="text-xl font-bold hieroglyph-font text-teal-400 mb-4">🌍 WORLD INFLUENCE</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Monuments Built:</span>
+                            <span class="font-bold text-yellow-400" id="monumentsBuilt">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Battles Won:</span>
+                            <span class="font-bold text-red-400" id="battlesWon">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Mysteries Solved:</span>
+                            <span class="font-bold text-purple-400" id="mysteriesSolved">0</span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-600 pt-2">
+                            <span class="text-gray-300">Historical Impact:</span>
+                            <span class="font-bold text-orange-400" id="historicalImpact">Forgotten</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Powers Menu Modal -->
+    <div id="powersMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-yellow-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold hieroglyph-font text-yellow-400">⚡ ANCIENT POWER ENHANCEMENTS</h2>
+                <button onclick="hidePowersMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availablePowers">
+                <!-- Available powers will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quests Menu Modal -->
+    <div id="questsMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-orange-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold hieroglyph-font text-orange-400">🏺 ANCIENT ADVENTURES</h2>
+                <button onclick="hideQuestsMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableQuests">
+                <!-- Available quests will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quest Result Modal -->
+    <div id="questResultModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-yellow-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4" id="resultIcon">🏺</div>
+                <h2 class="text-2xl font-bold hieroglyph-font mb-4" id="resultTitle">QUEST COMPLETE</h2>
+                <div class="space-y-2 mb-6" id="resultDetails">
+                    <!-- Result details will be populated here -->
+                </div>
+                <button onclick="closeQuestResult()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-semibold hieroglyph-font transition-all">
+                    CONTINUE LEGEND
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Menu Modal -->
+    <div id="achievementsMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-purple-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold hieroglyph-font text-purple-400">🏆 ETERNAL ACHIEVEMENTS</h2>
+                <button onclick="hideAchievementsMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="availableAchievements">
+                <!-- Available achievements will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            selectedHero: null,
+            gold: 0,
+            ka: 100,
+            artifacts: 0,
+            level: 1,
+            experience: 0,
+            health: 100,
+            stats: {
+                power: 0,
+                defense: 0,
+                wisdom: 0,
+                magic: 0
+            },
+            status: {
+                kaEnergy: 100,
+                peopleFaith: 75,
+                divineFavor: 50,
+                kingdomPower: 60
+            },
+            powers: [],
+            quests: [],
+            achievements: [],
+            currentQuest: null,
+            questTimer: 0,
+            questsCompleted: 0,
+            goldEarned: 0,
+            divineInterventions: 0,
+            pyramids: 1,
+            temples: 2,
+            cities: 3,
+            population: 50000,
+            army: 5000,
+            priests: 500,
+            mummiesCreated: 0,
+            cursesLifted: 0,
+            treasuresFound: 0,
+            monumentsBuilt: 0,
+            battlesWon: 0,
+            mysteriesSolved: 0
+        };
+
+        // Hero Data
+        const heroes = {
+            ramesses: {
+                name: 'RAMESSES II',
+                title: 'The Great Pharaoh, Builder of Monuments',
+                icon: '👑',
+                stats: { power: 95, defense: 85, wisdom: 88, magic: 80 },
+                ability: 'Monument Builder - Construct massive temples and monuments that provide eternal bonuses',
+                color: 'yellow'
+            },
+            cleopatra: {
+                name: 'CLEOPATRA VII',
+                title: 'Last Pharaoh, Master of Diplomacy',
+                icon: '💎',
+                stats: { power: 80, defense: 75, wisdom: 95, magic: 88 },
+                ability: 'Divine Persuasion - Convert enemies to allies and gain massive diplomatic advantages',
+                color: 'purple'
+            },
+            anubis: {
+                name: 'ANUBIS',
+                title: 'God of Death and the Afterlife',
+                icon: '🐺',
+                stats: { power: 85, defense: 85, wisdom: 90, magic: 95 },
+                ability: 'Soul Judgment - Instantly defeat evil enemies and resurrect fallen allies',
+                color: 'gray'
+            },
+            horus: {
+                name: 'HORUS',
+                title: 'Sky God, Protector of Pharaohs',
+                icon: '🦅',
+                stats: { power: 88, defense: 90, wisdom: 85, magic: 92 },
+                ability: 'Eye of Horus - See all hidden secrets and strike with divine precision',
+                color: 'blue'
+            },
+            isis: {
+                name: 'ISIS',
+                title: 'Goddess of Magic and Healing',
+                icon: '🌟',
+                stats: { power: 75, defense: 80, wisdom: 90, magic: 98 },
+                ability: 'Resurrection Magic - Bring back the dead and heal any wound or curse',
+                color: 'green'
+            },
+            thoth: {
+                name: 'THOTH',
+                title: 'God of Wisdom and Writing',
+                icon: '📜',
+                stats: { power: 70, defense: 75, wisdom: 98, magic: 92 },
+                ability: 'Book of Thoth - Access all knowledge and rewrite reality with divine words',
+                color: 'cyan'
+            }
+        };
+
+        // Epic Quests
+        const quests = [
+            {
+                id: 'curse_of_pharaoh',
+                title: 'The Pharaoh\'s Curse',
+                description: 'An ancient curse has awakened in the Valley of the Kings, threatening to unleash chaos upon Egypt.',
+                icon: '💀',
+                choices: [
+                    {
+                        text: 'Break the Curse',
+                        requirements: { magic: 80 },
+                        effects: { gold: +300, artifacts: +2, cursesLifted: +1, divineFavor: +20 },
+                        outcome: 'Your powerful magic shatters the ancient curse! The spirits find peace, and the gods smile upon you.'
+                    },
+                    {
+                        text: 'Contain the Curse',
+                        requirements: { wisdom: 75 },
+                        effects: { gold: +200, temples: +1, mysteriesSolved: +1 },
+                        outcome: 'Your wisdom allows you to contain the curse within sacred barriers. A new temple is built to guard against future threats.'
+                    },
+                    {
+                        text: 'Harness the Curse',
+                        requirements: { power: 85 },
+                        effects: { gold: +250, kingdomPower: +25, mummiesCreated: +3 },
+                        outcome: 'You turn the curse into a weapon! Your enemies flee in terror as you command the power of the undead.'
+                    }
+                ]
+            },
+            {
+                id: 'lost_pyramid',
+                title: 'The Lost Pyramid of Khufu',
+                description: 'A hidden pyramid containing unimaginable treasures has been discovered beneath the sands.',
+                icon: '🔺',
+                choices: [
+                    {
+                        text: 'Explore Carefully',
+                        requirements: { wisdom: 70 },
+                        effects: { gold: +500, artifacts: +3, treasuresFound: +5, mysteriesSolved: +1 },
+                        outcome: 'Your careful exploration reveals incredible treasures and ancient knowledge! The pyramid\'s secrets are yours.'
+                    },
+                    {
+                        text: 'Claim by Force',
+                        requirements: { power: 80 },
+                        effects: { gold: +400, army: +1000, battlesWon: +1 },
+                        outcome: 'You storm the pyramid with your army! Though some treasures are lost in the battle, your military might grows.'
+                    },
+                    {
+                        text: 'Seek Divine Guidance',
+                        requirements: { magic: 75 },
+                        effects: { gold: +350, divineFavor: +30, priests: +200 },
+                        outcome: 'The gods guide your steps through the pyramid\'s traps. Your divine connection strengthens significantly.'
+                    }
+                ]
+            },
+            {
+                id: 'sphinx_riddle',
+                title: 'The Great Sphinx\'s Challenge',
+                description: 'The ancient Sphinx has awakened and challenges you to solve its legendary riddles.',
+                icon: '🦁',
+                choices: [
+                    {
+                        text: 'Answer with Wisdom',
+                        requirements: { wisdom: 85 },
+                        effects: { gold: +400, artifacts: +4, mysteriesSolved: +2, divineFavor: +25 },
+                        outcome: 'Your wisdom impresses even the ancient Sphinx! It grants you powerful artifacts and divine knowledge.'
+                    },
+                    {
+                        text: 'Challenge to Combat',
+                        requirements: { power: 90 },
+                        effects: { gold: +300, kingdomPower: +30, battlesWon: +1 },
+                        outcome: 'You defeat the Sphinx in epic combat! Your victory becomes legendary throughout Egypt.'
+                    },
+                    {
+                        text: 'Offer Tribute',
+                        requirements: { gold: 200 },
+                        effects: { artifacts: +2, peopleFaith: +20, temples: +1 },
+                        outcome: 'Your generous tribute pleases the Sphinx. It blesses your kingdom with prosperity and protection.'
+                    }
+                ]
+            },
+            {
+                id: 'nile_flood',
+                title: 'The Great Nile Flood',
+                description: 'The Nile threatens to flood beyond its banks, potentially destroying cities but bringing fertile soil.',
+                icon: '🌊',
+                choices: [
+                    {
+                        text: 'Control the Waters',
+                        requirements: { magic: 80 },
+                        effects: { gold: +250, population: +10000, cities: +1, divineFavor: +20 },
+                        outcome: 'Your magic perfectly controls the flood! Cities are saved and new fertile lands are created.'
+                    },
+                    {
+                        text: 'Build Defenses',
+                        requirements: { wisdom: 75, gold: 150 },
+                        effects: { monumentsBuilt: +2, population: +5000, peopleFaith: +25 },
+                        outcome: 'Your engineering wisdom saves the people! Massive dikes and canals become monuments to your foresight.'
+                    },
+                    {
+                        text: 'Embrace the Flood',
+                        requirements: { power: 70 },
+                        effects: { gold: +400, kingdomPower: +20, mysteriesSolved: +1 },
+                        outcome: 'You harness the flood\'s power! Though some areas are lost, the fertile aftermath brings great prosperity.'
+                    }
+                ]
+            },
+            {
+                id: 'tomb_raiders',
+                title: 'The Tomb Raiders',
+                description: 'Foreign invaders are plundering the sacred tombs of your ancestors, stealing priceless artifacts.',
+                icon: '⚔️',
+                choices: [
+                    {
+                        text: 'Military Strike',
+                        requirements: { power: 85 },
+                        effects: { gold: +300, artifacts: +3, battlesWon: +2, army: +500 },
+                        outcome: 'Your swift military action crushes the raiders! The recovered treasures strengthen your kingdom.'
+                    },
+                    {
+                        text: 'Magical Protection',
+                        requirements: { magic: 80 },
+                        effects: { artifacts: +5, cursesLifted: +2, divineFavor: +25 },
+                        outcome: 'You place powerful protective spells on all tombs! The raiders flee in terror as ancient guardians awaken.'
+                    },
+                    {
+                        text: 'Diplomatic Solution',
+                        requirements: { wisdom: 80 },
+                        effects: { gold: +200, peopleFaith: +30, mysteriesSolved: +1 },
+                        outcome: 'Your diplomatic skills turn enemies into allies! The former raiders now guard the tombs they once plundered.'
+                    }
+                ]
+            },
+            {
+                id: 'gods_trial',
+                title: 'Trial of the Gods',
+                description: 'The gods themselves have summoned you to prove your worthiness through divine trials.',
+                icon: '⚖️',
+                choices: [
+                    {
+                        text: 'Accept All Trials',
+                        requirements: { power: 80, wisdom: 80, magic: 80 },
+                        effects: { gold: +600, artifacts: +5, divineFavor: +40, mummiesCreated: +2 },
+                        outcome: 'You triumph in all divine trials! The gods grant you incredible power and eternal favor.'
+                    },
+                    {
+                        text: 'Choose Wisdom Trial',
+                        requirements: { wisdom: 90 },
+                        effects: { gold: +400, mysteriesSolved: +3, priests: +300 },
+                        outcome: 'Your wisdom impresses the gods! They grant you profound knowledge and expand your priesthood.'
+                    },
+                    {
+                        text: 'Choose Power Trial',
+                        requirements: { power: 90 },
+                        effects: { gold: +350, battlesWon: +2, kingdomPower: +35 },
+                        outcome: 'Your strength amazes the gods! They bless your kingdom with unmatched military might.'
+                    }
+                ]
+            }
+        ];
+
+        // Ancient Powers
+        const powers = [
+            {
+                id: 'pharaohs_crown',
+                name: 'Pharaoh\'s Crown',
+                description: 'Increases leadership and command over your subjects',
+                cost: 200,
+                effects: { power: +25, peopleFaith: +20 },
+                requirements: { level: 2 },
+                icon: '👑'
+            },
+            {
+                id: 'ankh_of_life',
+                name: 'Ankh of Life',
+                description: 'Grants power over life and death',
+                cost: 300,
+                effects: { magic: +30, health: +50 },
+                requirements: { level: 3 },
+                icon: '☥'
+            },
+            {
+                id: 'eye_of_ra',
+                name: 'Eye of Ra',
+                description: 'See through all deceptions and illusions',
+                cost: 250,
+                effects: { wisdom: +25, mysteriesSolved: +2 },
+                requirements: { level: 2 },
+                icon: '👁️'
+            },
+            {
+                id: 'scarab_protection',
+                name: 'Scarab Protection',
+                description: 'Divine protection against curses and evil',
+                cost: 180,
+                effects: { defense: +20, cursesLifted: +1 },
+                requirements: { level: 2 },
+                icon: '🪲'
+            },
+            {
+                id: 'book_of_dead',
+                name: 'Book of the Dead',
+                description: 'Master the secrets of the afterlife',
+                cost: 400,
+                effects: { magic: +35, mummiesCreated: +3 },
+                requirements: { level: 4 },
+                icon: '📜'
+            },
+            {
+                id: 'pyramid_power',
+                name: 'Pyramid Power',
+                description: 'Harness the mystical energy of the pyramids',
+                cost: 350,
+                effects: { power: +20, magic: +20, monumentsBuilt: +1 },
+                requirements: { level: 3 },
+                icon: '🔺'
+            }
+        ];
+
+        // Achievements
+        const achievements = [
+            { id: 'first_quest', name: 'First Adventure', description: 'Complete your first ancient quest', icon: '🏺', unlocked: false },
+            { id: 'pyramid_builder', name: 'Pyramid Builder', description: 'Build 3 pyramids', icon: '🔺', unlocked: false },
+            { id: 'curse_breaker', name: 'Curse Breaker', description: 'Lift 5 ancient curses', icon: '💀', unlocked: false },
+            { id: 'treasure_hunter', name: 'Treasure Hunter', description: 'Find 10 ancient treasures', icon: '💎', unlocked: false },
+            { id: 'god_blessed', name: 'God Blessed', description: 'Gain maximum divine favor', icon: '⚖️', unlocked: false },
+            { id: 'mystery_solver', name: 'Mystery Solver', description: 'Solve 5 ancient mysteries', icon: '🔍', unlocked: false },
+            { id: 'pharaoh_supreme', name: 'Supreme Pharaoh', description: 'Reach maximum kingdom power', icon: '👑', unlocked: false },
+            { id: 'eternal_legend', name: 'Eternal Legend', description: 'Achieve legendary status in all areas', icon: '⭐', unlocked: false }
+        ];
+
+        // Initialize Floating Sand
+        function initFloatingSand() {
+            const sandContainer = document.getElementById('floatingSand');
+            const sandSymbols = ['✨', '⭐', '💫', '🌟'];
+            
+            setInterval(() => {
+                if (Math.random() < 0.4) {
+                    const sand = document.createElement('div');
+                    sand.className = 'sand-particle';
+                    sand.textContent = sandSymbols[Math.floor(Math.random() * sandSymbols.length)];
+                    sand.style.left = Math.random() * 100 + '%';
+                    sand.style.animationDuration = (Math.random() * 8 + 12) + 's';
+                    sandContainer.appendChild(sand);
+                    
+                    setTimeout(() => {
+                        if (sand.parentNode) {
+                            sand.parentNode.removeChild(sand);
+                        }
+                    }, 20000);
+                }
+            }, 1500);
+        }
+
+        // Select Hero
+        function selectHero(heroId) {
+            gameState.selectedHero = heroId;
+            const hero = heroes[heroId];
+            
+            // Apply hero base stats
+            gameState.stats = { ...hero.stats };
+            
+            // Show hero profile
+            document.getElementById('heroSelection').classList.add('hidden');
+            document.getElementById('heroProfile').classList.remove('hidden');
+            
+            // Update hero display
+            updateHeroDisplay();
+            generateNewQuest();
+            
+            // Start game loop
+            setInterval(gameLoop, 3000); // 3 seconds = 1 game hour
+            
+            // Hero selection animation
+            const cards = document.querySelectorAll('.hero-card');
+            cards.forEach(card => {
+                if (card.onclick.toString().includes(heroId)) {
+                    card.classList.add('hero-selected');
+                }
+            });
+            
+            alert(`🏺 You have chosen ${hero.name}! Your legendary journey through ancient Egypt begins now!`);
+        }
+
+        // Game Loop
+        function gameLoop() {
+            // Ka energy regeneration
+            if (gameState.ka < 100) {
+                gameState.ka = Math.min(100, gameState.ka + 5);
+            }
+            
+            // Status changes
+            if (gameState.status.kaEnergy < 100) {
+                gameState.status.kaEnergy = Math.min(100, gameState.status.kaEnergy + 3);
+            }
+            
+            // Population growth
+            if (gameState.temples > 0) {
+                gameState.population += Math.floor(gameState.temples * 100);
+            }
+            
+            // Quest timer
+            if (gameState.questTimer <= 0 && !gameState.currentQuest) {
+                if (Math.random() < 0.6) { // 60% chance per cycle
+                    generateNewQuest();
+                }
+                gameState.questTimer = 4;
+            } else {
+                gameState.questTimer--;
+            }
+            
+            // Health recovery
+            if (gameState.health < 100) {
+                gameState.health = Math.min(100, gameState.health + 5);
+            }
+            
+            // Passive gold income
+            if (gameState.cities > 0) {
+                gameState.gold += gameState.cities * 10;
+            }
+            
+            updateUI();
+        }
+
+        // Generate New Quest
+        function generateNewQuest() {
+            const availableQuests = quests.filter(q => !gameState.currentQuest || q.id !== gameState.currentQuest.id);
+            gameState.currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
+            updateCurrentQuest();
+        }
+
+        // Handle Quest Choice
+        function handleQuestChoice(choiceIndex) {
+            const quest = gameState.currentQuest;
+            const choice = quest.choices[choiceIndex];
+            
+            // Check requirements
+            if (choice.requirements) {
+                for (const [stat, required] of Object.entries(choice.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`This quest requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                    if (stat === 'gold' && gameState.gold < required) {
+                        alert(`This quest requires ${required} gold. You have: ${gameState.gold}`);
+                        return;
+                    }
+                }
+            }
+            
+            // Apply effects
+            for (const [key, value] of Object.entries(choice.effects)) {
+                if (gameState.status[key] !== undefined) {
+                    gameState.status[key] = Math.max(0, Math.min(100, gameState.status[key] + value));
+                } else if (gameState[key] !== undefined) {
+                    gameState[key] = Math.max(0, gameState[key] + value);
+                }
+            }
+            
+            // Update counters
+            gameState.questsCompleted++;
+            if (choice.effects.gold > 0) {
+                gameState.goldEarned += choice.effects.gold;
+            }
+            
+            // Experience gain
+            const expGain = Math.floor((choice.effects.gold || 100) / 10) + 25;
+            gameState.experience += expGain;
+            
+            // Level up check
+            const expNeeded = gameState.level * 100;
+            if (gameState.experience >= expNeeded) {
+                gameState.level++;
+                gameState.experience -= expNeeded;
+                alert(`🌟 DYNASTY RISES! You are now level ${gameState.level}!`);
+            }
+            
+            showQuestResult(choice.outcome);
+            gameState.currentQuest = null;
+            gameState.questTimer = 5;
+            updateCurrentQuest();
+            checkAchievements();
+            updateUI();
+        }
+
+        // Train Stat
+        function trainStat(statName) {
+            const baseCost = 150;
+            const currentLevel = gameState.stats[statName];
+            const cost = baseCost + (currentLevel * 8);
+            
+            if (gameState.gold < cost) {
+                alert(`Insufficient gold for training! Need ${cost} gold.`);
+                return;
+            }
+            
+            if (gameState.ka < 40) {
+                alert('Insufficient Ka energy for training! Rest and meditate first.');
+                return;
+            }
+            
+            if (gameState.stats[statName] >= 100) {
+                alert(`Your ${statName} is already at divine perfection!`);
+                return;
+            }
+            
+            gameState.gold -= cost;
+            gameState.ka -= 40;
+            const improvement = Math.floor(Math.random() * 10) + 6; // 6-15 points per training
+            gameState.stats[statName] = Math.min(100, gameState.stats[statName] + improvement);
+            
+            alert(`Ancient training complete! ${statName.toUpperCase()} increased by ${improvement} points!`);
+            updateUI();
+        }
+
+        // Use Hero Ability
+        function useHeroAbility() {
+            if (gameState.ka < 60) {
+                alert('Insufficient Ka energy to use your legendary ability!');
+                return;
+            }
+            
+            gameState.ka -= 60;
+            gameState.divineInterventions++;
+            
+            const hero = heroes[gameState.selectedHero];
+            const effects = Math.floor(Math.random() * 150) + 100; // 100-249 gold
+            gameState.gold += effects;
+            
+            // Special hero-specific bonuses
+            if (gameState.selectedHero === 'ramesses') {
+                gameState.monumentsBuilt++;
+            } else if (gameState.selectedHero === 'cleopatra') {
+                gameState.status.peopleFaith = Math.min(100, gameState.status.peopleFaith + 15);
+            } else if (gameState.selectedHero === 'anubis') {
+                gameState.mummiesCreated++;
+            } else if (gameState.selectedHero === 'isis') {
+                gameState.cursesLifted++;
+            }
+            
+            alert(`⚡ ${hero.ability}\n\nYour legendary power manifests! Gained ${effects} gold!`);
+            updateUI();
+        }
+
+        // Show/Hide Menus
+        function showPowersMenu() {
+            document.getElementById('powersMenu').classList.remove('hidden');
+            document.getElementById('powersMenu').classList.add('flex');
+            renderAvailablePowers();
+        }
+
+        function hidePowersMenu() {
+            document.getElementById('powersMenu').classList.add('hidden');
+            document.getElementById('powersMenu').classList.remove('flex');
+        }
+
+        function showQuestsMenu() {
+            document.getElementById('questsMenu').classList.remove('hidden');
+            document.getElementById('questsMenu').classList.add('flex');
+            renderAvailableQuests();
+        }
+
+        function hideQuestsMenu() {
+            document.getElementById('questsMenu').classList.add('hidden');
+            document.getElementById('questsMenu').classList.remove('flex');
+        }
+
+        function showAchievementsMenu() {
+            document.getElementById('achievementsMenu').classList.remove('hidden');
+            document.getElementById('achievementsMenu').classList.add('flex');
+            renderAllAchievements();
+        }
+
+        function hideAchievementsMenu() {
+            document.getElementById('achievementsMenu').classList.add('hidden');
+            document.getElementById('achievementsMenu').classList.remove('flex');
+        }
+
+        // Show Quest Result
+        function showQuestResult(outcome) {
+            const modal = document.getElementById('questResultModal');
+            const details = document.getElementById('resultDetails');
+            
+            details.innerHTML = `<p class="text-gray-300">${outcome}</p>`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Quest Result
+        function closeQuestResult() {
+            const modal = document.getElementById('questResultModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Purchase Power
+        function purchasePower(powerId) {
+            const power = powers.find(p => p.id === powerId);
+            if (!power) return;
+            
+            // Check requirements
+            if (power.requirements) {
+                for (const [stat, required] of Object.entries(power.requirements)) {
+                    if (gameState[stat] && gameState[stat] < required) {
+                        alert(`Power requires ${stat}: ${required}. Your current level: ${gameState[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            if (gameState.gold < power.cost) {
+                alert('Insufficient gold for this power!');
+                return;
+            }
+            
+            gameState.gold -= power.cost;
+            gameState.powers.push(powerId);
+            
+            // Apply effects
+            if (power.effects) {
+                for (const [stat, bonus] of Object.entries(power.effects)) {
+                    if (gameState.stats[stat] !== undefined) {
+                        gameState.stats[stat] = Math.min(100, gameState.stats[stat] + bonus);
+                    } else if (gameState.status[stat] !== undefined) {
+                        gameState.status[stat] = Math.max(0, Math.min(100, gameState.status[stat] + bonus));
+                    } else if (gameState[stat] !== undefined) {
+                        gameState[stat] = Math.max(0, gameState[stat] + bonus);
+                    }
+                }
+            }
+            
+            hidePowersMenu();
+            alert(`Successfully acquired ${power.name}!`);
+            updateUI();
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            if (gameState.questsCompleted >= 1) checkAchievementUnlock('first_quest');
+            if (gameState.pyramids >= 3) checkAchievementUnlock('pyramid_builder');
+            if (gameState.cursesLifted >= 5) checkAchievementUnlock('curse_breaker');
+            if (gameState.treasuresFound >= 10) checkAchievementUnlock('treasure_hunter');
+            if (gameState.status.divineFavor >= 100) checkAchievementUnlock('god_blessed');
+            if (gameState.mysteriesSolved >= 5) checkAchievementUnlock('mystery_solver');
+            if (gameState.status.kingdomPower >= 100) checkAchievementUnlock('pharaoh_supreme');
+        }
+
+        function checkAchievementUnlock(id) {
+            const achievement = achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                gameState.achievements.push(id);
+                gameState.artifacts += 1;
+                alert(`🏆 ACHIEVEMENT UNLOCKED: ${achievement.name} - ${achievement.description}`);
+            }
+        }
+
+        // Update Hero Display
+        function updateHeroDisplay() {
+            const hero = heroes[gameState.selectedHero];
+            
+            document.getElementById('heroIcon').textContent = hero.icon;
+            document.getElementById('heroName').textContent = hero.name;
+            document.getElementById('heroTitle').textContent = hero.title;
+            document.getElementById('heroAbilityDescription').textContent = hero.ability;
+        }
+
+        // Update Current Quest Display
+        function updateCurrentQuest() {
+            const container = document.getElementById('currentQuest');
+            
+            if (gameState.currentQuest) {
+                const quest = gameState.currentQuest;
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-6xl">${quest.icon}</div>
+                        <div>
+                            <h3 class="text-2xl font-bold hieroglyph-font">${quest.title}</h3>
+                            <p class="text-gray-300 text-lg">${quest.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-${quest.choices.length} gap-4">
+                        ${quest.choices.map((choice, index) => `
+                            <div class="hero-card bg-gray-800/50 rounded-xl p-4 border border-gray-600">
+                                <h4 class="font-bold hieroglyph-font mb-2">${choice.text}</h4>
+                                ${choice.requirements ? `<p class="text-cyan-400 text-sm mb-2">Requires: ${Object.entries(choice.requirements).map(([stat, val]) => `${stat.toUpperCase()} ${val}`).join(', ')}</p>` : ''}
+                                <button onclick="handleQuestChoice(${index})" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-semibold hieroglyph-font transition-all">
+                                    CHOOSE PATH
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🏺</div>
+                        <p class="hieroglyph-font text-xl">Awaiting ancient wisdom</p>
+                        <p class="text-sm">The sands of time reveal new adventures</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('gold').textContent = gameState.gold.toLocaleString();
+            document.getElementById('ka').textContent = gameState.ka;
+            document.getElementById('artifacts').textContent = gameState.artifacts;
+            document.getElementById('heroLevel').textContent = gameState.level;
+            document.getElementById('experience').textContent = `${gameState.experience}/${gameState.level * 100}`;
+            document.getElementById('health').textContent = gameState.health + '%';
+            
+            // Stats
+            document.getElementById('powerStat').textContent = gameState.stats.power;
+            document.getElementById('defenseStat').textContent = gameState.stats.defense;
+            document.getElementById('wisdomStat').textContent = gameState.stats.wisdom;
+            document.getElementById('magicStat').textContent = gameState.stats.magic;
+            
+            // Status bars
+            for (const [status, value] of Object.entries(gameState.status)) {
+                const element = document.getElementById(status + 'Percent');
+                const bar = document.getElementById(status + 'Bar');
+                if (element) element.textContent = value + '%';
+                if (bar) bar.style.width = value + '%';
+            }
+            
+            // Kingdom stats
+            document.getElementById('pyramids').textContent = gameState.pyramids;
+            document.getElementById('temples').textContent = gameState.temples;
+            document.getElementById('cities').textContent = gameState.cities;
+            document.getElementById('population').textContent = gameState.population.toLocaleString();
+            document.getElementById('army').textContent = gameState.army.toLocaleString();
+            document.getElementById('priests').textContent = gameState.priests.toLocaleString();
+            
+            // Divine status
+            document.getElementById('mummiesCreated').textContent = gameState.mummiesCreated;
+            document.getElementById('cursesLifted').textContent = gameState.cursesLifted;
+            document.getElementById('treasuresFound').textContent = gameState.treasuresFound;
+            
+            // Statistics
+            document.getElementById('questsCompleted').textContent = gameState.questsCompleted;
+            document.getElementById('goldEarned').textContent = gameState.goldEarned.toLocaleString();
+            document.getElementById('divineInterventions').textContent = gameState.divineInterventions;
+            document.getElementById('monumentsBuilt').textContent = gameState.monumentsBuilt;
+            document.getElementById('battlesWon').textContent = gameState.battlesWon;
+            document.getElementById('mysteriesSolved').textContent = gameState.mysteriesSolved;
+            
+            // Dynasty rank
+            const dynastyRank = gameState.level < 3 ? 'Minor Ruler' :
+                               gameState.level < 6 ? 'Regional Pharaoh' :
+                               gameState.level < 10 ? 'Great Pharaoh' : 'Divine Pharaoh';
+            document.getElementById('dynastyRank').textContent = dynastyRank;
+            
+            // Historical impact
+            const historicalImpact = gameState.status.kingdomPower < 25 ? 'Forgotten' :
+                                   gameState.status.kingdomPower < 50 ? 'Remembered' :
+                                   gameState.status.kingdomPower < 75 ? 'Legendary' : 'Eternal';
+            document.getElementById('historicalImpact').textContent = historicalImpact;
+            
+            updatePowersDisplay();
+            updateQuestsDisplay();
+            updateAchievementsDisplay();
+        }
+
+        // Update Powers Display
+        function updatePowersDisplay() {
+            const container = document.getElementById('powersContainer');
+            
+            if (gameState.powers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">⚡</div>
+                        <p class="hieroglyph-font">Basic abilities only</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.powers.map(powerId => {
+                    const power = powers.find(p => p.id === powerId);
+                    if (!power) return '';
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-yellow-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold hieroglyph-font">${power.icon} ${power.name}</h4>
+                                    <p class="text-sm text-gray-400">Active</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-yellow-400">MASTERED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Quests Display
+        function updateQuestsDisplay() {
+            const container = document.getElementById('questsContainer');
+            
+            if (gameState.quests.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏺</div>
+                        <p class="hieroglyph-font">No active quests</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.quests.map(quest => `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-orange-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold hieroglyph-font">${quest.icon} ${quest.name}</h4>
+                                <p class="text-sm text-gray-400">Ancient Quest</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-orange-400">ACTIVE</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update Achievements Display
+        function updateAchievementsDisplay() {
+            const container = document.getElementById('achievementsContainer');
+            
+            if (gameState.achievements.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏆</div>
+                        <p class="hieroglyph-font">No achievements yet</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.achievements.slice(0, 3).map(achievementId => {
+                    const achievement = achievements.find(a => a.id === achievementId);
+                    if (!achievement) return '';
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-purple-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold hieroglyph-font">${achievement.icon} ${achievement.name}</h4>
+                                    <p class="text-sm text-gray-400">${achievement.description}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-purple-400">EARNED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Available Powers
+        function renderAvailablePowers() {
+            const container = document.getElementById('availablePowers');
+            const availablePowers = powers.filter(p => !gameState.powers.includes(p.id));
+            
+            container.innerHTML = availablePowers.map(power => `
+                <div class="hero-card bg-gray-800/50 rounded-xl p-6 border border-yellow-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${power.icon}</div>
+                        <h3 class="text-xl font-bold hieroglyph-font">${power.name}</h3>
+                        <p class="text-gray-400 mb-3">${power.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Cost:</span>
+                            <span class="text-cyan-400">${power.cost} Gold</span>
+                        </div>
+                        ${power.requirements ? Object.entries(power.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${gameState[stat] >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="purchasePower('${power.id}')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold hieroglyph-font transition-all">
+                        ACQUIRE POWER
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render Available Quests
+        function renderAvailableQuests() {
+            const container = document.getElementById('availableQuests');
+            
+            container.innerHTML = quests.map(quest => `
+                <div class="hero-card bg-gray-800/50 rounded-xl p-6 border border-orange-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${quest.icon}</div>
+                        <h3 class="text-xl font-bold hieroglyph-font">${quest.title}</h3>
+                        <p class="text-gray-400 mb-3">${quest.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="text-sm text-center text-cyan-400">Ancient Adventure Available</div>
+                    </div>
+                    
+                    <button onclick="gameState.currentQuest = quests.find(q => q.id === '${quest.id}'); updateCurrentQuest(); hideQuestsMenu();" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-semibold hieroglyph-font transition-all">
+                        BEGIN QUEST
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render All Achievements
+        function renderAllAchievements() {
+            const container = document.getElementById('availableAchievements');
+            container.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-xl ${achievement.unlocked ? 'bg-purple-100/10 border-2 border-purple-400/50' : 'bg-gray-800/30 border-2 border-gray-600'} text-center">
+                    <div class="text-3xl mb-2 ${achievement.unlocked ? 'golden-glow' : 'grayscale opacity-50'}">${achievement.icon}</div>
+                    <h3 class="font-semibold text-sm hieroglyph-font ${achievement.unlocked ? 'text-purple-400' : 'text-gray-400'}">${achievement.name}</h3>
+                    <p class="text-xs ${achievement.unlocked ? 'text-purple-300' : 'text-gray-500'}">${achievement.description}</p>
+                    ${achievement.unlocked ? '<div class="text-xs text-purple-400 font-semibold mt-1 hieroglyph-font">✓ ACHIEVED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Initialize Game
+        function initGame() {
+            initFloatingSand();
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97455863037afb38',t:'MTc1NjA2NDY3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

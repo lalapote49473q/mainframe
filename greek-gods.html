@@ -1,0 +1,1509 @@
+a<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Champions of Olympus - Greek Gods RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Philosopher:wght@400;700&display=swap');
+        body { font-family: 'Philosopher', sans-serif; }
+        .divine-font { font-family: 'Cinzel', serif; }
+        .olympus-bg { 
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 25%, #5c6bc0 50%, #7986cb 75%, #9fa8da 100%);
+        }
+        .divine-glow { 
+            background: linear-gradient(45deg, #ffd700, #ffeb3b, #fff176, #ffee58);
+            background-size: 400% 400%;
+            animation: divineShimmer 3s ease-in-out infinite;
+        }
+        @keyframes divineShimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .lightning-flash { animation: lightningFlash 2s ease-in-out infinite; }
+        @keyframes lightningFlash { 0%, 90%, 100% { opacity: 1; } 95% { opacity: 0.3; } }
+        .godly-pulse { animation: godlyPulse 2s ease-in-out infinite; }
+        @keyframes godlyPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); } 50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); } }
+        .champion-card { transition: all 0.4s ease; backdrop-filter: blur(10px); }
+        .champion-card:hover { transform: translateY(-12px) scale(1.03); box-shadow: 0 30px 60px rgba(255, 215, 0, 0.4); }
+        .divine-entrance { animation: divineEntrance 1s ease-out; }
+        @keyframes divineEntrance { 0% { transform: scale(0) rotate(180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .floating-clouds { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .cloud { position: absolute; color: rgba(255, 255, 255, 0.3); font-size: 24px; animation: cloudFloat 20s linear infinite; }
+        @keyframes cloudFloat { 0% { transform: translateX(-100px); } 100% { transform: translateX(100vw); } }
+        .power-bar { transition: width 0.8s ease-in-out; }
+        .quest-glow { animation: questGlow 3s ease-in-out infinite alternate; }
+        @keyframes questGlow { 0% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.5); } 100% { box-shadow: 0 0 40px rgba(255, 20, 147, 0.8); } }
+        .mythical-sparkle { animation: mythicalSparkle 4s ease-in-out infinite; }
+        @keyframes mythicalSparkle { 0%, 100% { transform: rotate(0deg) scale(1); filter: brightness(1); } 25% { transform: rotate(90deg) scale(1.1); filter: brightness(1.3); } 50% { transform: rotate(180deg) scale(1); filter: brightness(1); } 75% { transform: rotate(270deg) scale(1.1); filter: brightness(1.3); } }
+        .divine-aura { animation: divineAura 5s ease-in-out infinite; }
+        @keyframes divineAura { 0%, 100% { filter: drop-shadow(0 0 10px gold); } 50% { filter: drop-shadow(0 0 30px gold) drop-shadow(0 0 40px orange); } }
+        .olympian-border { border-image: linear-gradient(45deg, gold, orange, gold) 1; }
+        .champion-selected { animation: championSelected 0.8s ease-out; }
+        @keyframes championSelected { 0% { transform: scale(1); } 50% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0deg); } }
+    </style>
+</head>
+<body class="olympus-bg min-h-screen text-white overflow-x-hidden">
+    <!-- Floating Clouds -->
+    <div class="floating-clouds" id="floatingClouds"></div>
+
+    <!-- Floating Divine Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-10 text-4xl divine-aura" style="animation-delay: 0s;">⚡</div>
+        <div class="absolute top-40 right-20 text-3xl mythical-sparkle" style="animation-delay: 1s;">🔱</div>
+        <div class="absolute bottom-40 left-20 text-3xl godly-pulse" style="animation-delay: 2s;">🏛️</div>
+        <div class="absolute top-60 left-1/2 text-2xl divine-aura" style="animation-delay: 1.5s;">🦅</div>
+        <div class="absolute bottom-20 right-10 text-3xl mythical-sparkle" style="animation-delay: 3s;">🌟</div>
+        <div class="absolute top-80 right-1/3 text-2xl lightning-flash" style="animation-delay: 2.5s;">🏺</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/80 backdrop-blur-sm border-b border-yellow-500/50 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="location.href='main.html'" class="bg-purple-600/80 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-purple-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl divine-glow p-2 rounded-full">⚡</div>
+                    <h1 class="text-2xl font-bold divine-font divine-glow bg-clip-text text-transparent">CHAMPIONS OF OLYMPUS</h1>
+                    <div class="text-xs bg-yellow-600 px-2 py-1 rounded divine-font lightning-flash">DIVINE</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">🏆</span>
+                    <span class="text-xl font-bold divine-font" id="glory">0</span>
+                    <span class="text-sm text-gray-300">GLORY</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">🔮</span>
+                    <span class="text-lg divine-font" id="divineEnergy">100</span>
+                    <span class="text-sm text-gray-300">DIVINE ENERGY</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">⭐</span>
+                    <span class="text-lg divine-font" id="favor">0</span>
+                    <span class="text-sm text-gray-300">FAVOR</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Champion Selection -->
+        <div id="championSelection" class="divine-entrance">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-bold divine-font divine-glow bg-clip-text text-transparent mb-4">Choose Your Divine Champion</h2>
+                <p class="text-xl text-blue-200 max-w-3xl mx-auto">Select a mighty god or goddess to represent you in epic quests across the ancient world. Each champion possesses unique powers and abilities.</p>
+            </div>
+
+            <!-- Champions Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Zeus -->
+                <div class="champion-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50 cursor-pointer" onclick="selectChampion('zeus')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 lightning-flash">⚡</div>
+                        <h3 class="text-2xl font-bold divine-font text-yellow-400 mb-2">ZEUS</h3>
+                        <p class="text-blue-200 mb-4">King of the Gods, Master of Thunder</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>⚡ Lightning:</span>
+                                <span class="text-yellow-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>👑 Authority:</span>
+                                <span class="text-purple-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🌪️ Storm Control:</span>
+                                <span class="text-blue-400 font-bold">85</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🛡️ Divine Protection:</span>
+                                <span class="text-green-400 font-bold">80</span>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-yellow-200"><strong>Divine Ability:</strong> Thunderbolt Strike - Devastating lightning attack that can destroy any enemy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Athena -->
+                <div class="champion-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/50 cursor-pointer" onclick="selectChampion('athena')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 mythical-sparkle">🦉</div>
+                        <h3 class="text-2xl font-bold divine-font text-blue-400 mb-2">ATHENA</h3>
+                        <p class="text-blue-200 mb-4">Goddess of Wisdom and Strategic Warfare</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>🧠 Wisdom:</span>
+                                <span class="text-blue-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>⚔️ Strategy:</span>
+                                <span class="text-red-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🛡️ Defense:</span>
+                                <span class="text-green-400 font-bold">85</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🎯 Precision:</span>
+                                <span class="text-yellow-400 font-bold">88</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-blue-200"><strong>Divine Ability:</strong> Aegis Shield - Reflects all attacks and grants perfect tactical insight</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Poseidon -->
+                <div class="champion-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-cyan-500/50 cursor-pointer" onclick="selectChampion('poseidon')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 divine-aura">🔱</div>
+                        <h3 class="text-2xl font-bold divine-font text-cyan-400 mb-2">POSEIDON</h3>
+                        <p class="text-blue-200 mb-4">God of the Seas and Earthquakes</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>🌊 Ocean Power:</span>
+                                <span class="text-cyan-400 font-bold">92</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🌍 Earthquake:</span>
+                                <span class="text-orange-400 font-bold">88</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🐎 Beast Command:</span>
+                                <span class="text-green-400 font-bold">85</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>⚓ Naval Mastery:</span>
+                                <span class="text-blue-400 font-bold">90</span>
+                            </div>
+                        </div>
+                        <div class="bg-cyan-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-cyan-200"><strong>Divine Ability:</strong> Tsunami Wave - Massive tidal wave that overwhelms all enemies</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apollo -->
+                <div class="champion-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50 cursor-pointer" onclick="selectChampion('apollo')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 divine-glow">☀️</div>
+                        <h3 class="text-2xl font-bold divine-font text-yellow-400 mb-2">APOLLO</h3>
+                        <p class="text-blue-200 mb-4">God of Sun, Music, and Prophecy</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>☀️ Solar Power:</span>
+                                <span class="text-yellow-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🏹 Archery:</span>
+                                <span class="text-red-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🔮 Prophecy:</span>
+                                <span class="text-purple-400 font-bold">88</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🎵 Inspiration:</span>
+                                <span class="text-pink-400 font-bold">85</span>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-yellow-200"><strong>Divine Ability:</strong> Solar Flare - Blinding light that purifies and heals allies while burning enemies</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artemis -->
+                <div class="champion-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-green-500/50 cursor-pointer" onclick="selectChampion('artemis')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 mythical-sparkle">🏹</div>
+                        <h3 class="text-2xl font-bold divine-font text-green-400 mb-2">ARTEMIS</h3>
+                        <p class="text-blue-200 mb-4">Goddess of the Hunt and Moon</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>🏹 Hunting:</span>
+                                <span class="text-green-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🌙 Moon Magic:</span>
+                                <span class="text-blue-400 font-bold">88</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🦌 Beast Bond:</span>
+                                <span class="text-yellow-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>👤 Stealth:</span>
+                                <span class="text-purple-400 font-bold">92</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-green-200"><strong>Divine Ability:</strong> Silver Arrow Barrage - Never-missing arrows that pierce any defense</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ares -->
+                <div class="champion-card bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-red-500/50 cursor-pointer" onclick="selectChampion('ares')">
+                    <div class="text-center">
+                        <div class="text-8xl mb-4 lightning-flash">⚔️</div>
+                        <h3 class="text-2xl font-bold divine-font text-red-400 mb-2">ARES</h3>
+                        <p class="text-blue-200 mb-4">God of War and Courage</p>
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span>⚔️ Combat:</span>
+                                <span class="text-red-400 font-bold">98</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>💪 Strength:</span>
+                                <span class="text-orange-400 font-bold">95</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🛡️ Endurance:</span>
+                                <span class="text-green-400 font-bold">90</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>🔥 Battle Fury:</span>
+                                <span class="text-yellow-400 font-bold">92</span>
+                            </div>
+                        </div>
+                        <div class="bg-red-600/20 rounded-lg p-3 mb-4">
+                            <p class="text-xs text-red-200"><strong>Divine Ability:</strong> War Cry - Inspires allies and strikes terror into enemies' hearts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Champion Profile (Hidden initially) -->
+        <div id="championProfile" class="hidden">
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-yellow-500/50 godly-pulse">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-6">
+                        <div class="w-24 h-24 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center text-5xl border-4 border-yellow-500 divine-aura" id="championIcon">
+                            ⚡
+                        </div>
+                        <div>
+                            <h2 class="text-4xl font-bold divine-font" id="championName">ZEUS</h2>
+                            <p class="text-yellow-400 divine-font text-xl" id="championTitle">King of the Gods</p>
+                            <div class="flex gap-8 mt-3">
+                                <span class="text-sm">⚡ Power: <span class="text-yellow-400 font-bold" id="powerStat">95</span></span>
+                                <span class="text-sm">🛡️ Defense: <span class="text-blue-400 font-bold" id="defenseStat">80</span></span>
+                                <span class="text-sm">🎯 Skill: <span class="text-purple-400 font-bold" id="skillStat">85</span></span>
+                                <span class="text-sm">✨ Magic: <span class="text-green-400 font-bold" id="magicStat">90</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-300">CHAMPION LEVEL</div>
+                        <div class="text-4xl divine-font text-yellow-400" id="championLevel">1</div>
+                        <div class="text-sm text-gray-300 mt-2">EXPERIENCE: <span class="text-white font-bold" id="experience">0/100</span></div>
+                        <div class="text-sm text-gray-300">HEALTH: <span class="text-green-400 font-bold" id="health">100%</span></div>
+                    </div>
+                </div>
+                
+                <!-- Power Bars -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-yellow-400">⚡ Divine Power</span>
+                            <span id="divinePowerPercent">100%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-yellow-400 h-2 rounded-full power-bar" id="divinePowerBar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-blue-400">🌟 Mortal Favor</span>
+                            <span id="mortalFavorPercent">50%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-blue-400 h-2 rounded-full power-bar" id="mortalFavorBar" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-purple-400">🏛️ Olympian Standing</span>
+                            <span id="olympianStandingPercent">75%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-400 h-2 rounded-full power-bar" id="olympianStandingBar" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-green-400">🌍 World Influence</span>
+                            <span id="worldInfluencePercent">25%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-400 h-2 rounded-full power-bar" id="worldInfluenceBar" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divine Ability -->
+                <div class="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-xl p-4 border border-yellow-500/30">
+                    <h3 class="text-lg font-bold divine-font text-yellow-400 mb-2">⚡ DIVINE ABILITY</h3>
+                    <p class="text-white" id="divineAbilityDescription">Thunderbolt Strike - Devastating lightning attack that can destroy any enemy</p>
+                    <button onclick="useDivineAbility()" class="mt-3 bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold divine-font transition-all transform hover:scale-105">
+                        UNLEASH POWER
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Quest -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-purple-500/50 quest-glow">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold divine-font text-purple-400">🏛️ DIVINE QUEST</h2>
+                    <div class="text-sm bg-purple-600/20 px-3 py-1 rounded divine-font border border-purple-500/50 lightning-flash">
+                        ACTIVE
+                    </div>
+                </div>
+                
+                <div id="currentQuest">
+                    <!-- Current quest will be populated here -->
+                </div>
+            </div>
+
+            <!-- Game Management -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Divine Powers & Upgrades -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50">
+                    <h2 class="text-2xl font-bold divine-font text-yellow-400 mb-6">⚡ DIVINE POWERS</h2>
+                    <div id="powersContainer" class="space-y-4">
+                        <!-- Powers will be populated here -->
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <button onclick="trainPower('power')" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-semibold divine-font transition-all text-sm">
+                            ⚡ POWER TRAINING
+                        </button>
+                        <button onclick="trainPower('defense')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold divine-font transition-all text-sm">
+                            🛡️ DEFENSE TRAINING
+                        </button>
+                        <button onclick="trainPower('skill')" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold divine-font transition-all text-sm">
+                            🎯 SKILL TRAINING
+                        </button>
+                        <button onclick="trainPower('magic')" class="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold divine-font transition-all text-sm">
+                            ✨ MAGIC TRAINING
+                        </button>
+                    </div>
+                    <button onclick="showPowersMenu()" class="w-full mt-2 bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold divine-font transition-all transform hover:scale-105">
+                        ENHANCE POWERS
+                    </button>
+                </div>
+
+                <!-- Quests & Adventures -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/50">
+                    <h2 class="text-2xl font-bold divine-font text-purple-400 mb-6">🏛️ EPIC QUESTS</h2>
+                    <div id="questsContainer" class="space-y-4">
+                        <!-- Quests will be populated here -->
+                    </div>
+                    <button onclick="showQuestsMenu()" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold divine-font transition-all transform hover:scale-105">
+                        EMBARK ON QUEST
+                    </button>
+                </div>
+
+                <!-- Achievements & Legends -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-green-500/50">
+                    <h2 class="text-2xl font-bold divine-font text-green-400 mb-6">🏆 LEGENDARY DEEDS</h2>
+                    <div id="achievementsContainer" class="space-y-4">
+                        <!-- Achievements will be populated here -->
+                    </div>
+                    <button onclick="showAchievementsMenu()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold divine-font transition-all transform hover:scale-105">
+                        VIEW LEGENDS
+                    </button>
+                </div>
+            </div>
+
+            <!-- Olympian Council -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-blue-500/50 godly-pulse">
+                <h2 class="text-2xl font-bold divine-font text-blue-400 mb-6">🏛️ OLYMPIAN COUNCIL STATUS</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Divine Relations -->
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="text-lg font-bold divine-font text-blue-400 mb-3">👑 DIVINE RELATIONS</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Zeus:</span>
+                                <span class="font-bold text-yellow-400" id="zeusRelation">Neutral</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Hera:</span>
+                                <span class="font-bold text-purple-400" id="heraRelation">Neutral</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Athena:</span>
+                                <span class="font-bold text-blue-400" id="athenaRelation">Neutral</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mortal Worship -->
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="text-lg font-bold divine-font text-green-400 mb-3">🙏 MORTAL WORSHIP</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Temples:</span>
+                                <span class="font-bold text-yellow-400" id="temples">1</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Followers:</span>
+                                <span class="font-bold text-blue-400" id="followers">100</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Sacrifices:</span>
+                                <span class="font-bold text-red-400" id="sacrifices">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legendary Status -->
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="text-lg font-bold divine-font text-purple-400 mb-3">⭐ LEGENDARY STATUS</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Myths Created:</span>
+                                <span class="font-bold text-purple-400" id="mythsCreated">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Heroes Blessed:</span>
+                                <span class="font-bold text-green-400" id="heroesBlessed">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Monsters Defeated:</span>
+                                <span class="font-bold text-red-400" id="monstersDefeated">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Champion Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Personal Achievements -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-cyan-500/50">
+                    <h2 class="text-xl font-bold divine-font text-cyan-400 mb-4">📈 DIVINE ACHIEVEMENTS</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Quests Completed:</span>
+                            <span class="font-bold text-green-400" id="questsCompleted">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Glory Earned:</span>
+                            <span class="font-bold text-yellow-400" id="gloryEarned">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Divine Interventions:</span>
+                            <span class="font-bold text-purple-400" id="divineInterventions">0</span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-600 pt-2">
+                            <span class="text-gray-300">Divine Rank:</span>
+                            <span class="font-bold text-blue-400" id="divineRank">Minor Deity</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- World Impact -->
+                <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-orange-500/50">
+                    <h2 class="text-xl font-bold divine-font text-orange-400 mb-4">🌍 WORLD IMPACT</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Cities Protected:</span>
+                            <span class="font-bold text-green-400" id="citiesProtected">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Natural Disasters:</span>
+                            <span class="font-bold text-red-400" id="naturalDisasters">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Miracles Performed:</span>
+                            <span class="font-bold text-yellow-400" id="miraclesPerformed">0</span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-600 pt-2">
+                            <span class="text-gray-300">Mortal Influence:</span>
+                            <span class="font-bold text-purple-400" id="mortalInfluence">Minimal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Powers Menu Modal -->
+    <div id="powersMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-yellow-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold divine-font text-yellow-400">⚡ DIVINE POWER ENHANCEMENTS</h2>
+                <button onclick="hidePowersMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availablePowers">
+                <!-- Available powers will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quests Menu Modal -->
+    <div id="questsMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-purple-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold divine-font text-purple-400">🏛️ EPIC QUESTS</h2>
+                <button onclick="hideQuestsMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableQuests">
+                <!-- Available quests will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quest Result Modal -->
+    <div id="questResultModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-yellow-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4" id="resultIcon">🏛️</div>
+                <h2 class="text-2xl font-bold divine-font mb-4" id="resultTitle">QUEST COMPLETE</h2>
+                <div class="space-y-2 mb-6" id="resultDetails">
+                    <!-- Result details will be populated here -->
+                </div>
+                <button onclick="closeQuestResult()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold divine-font transition-all">
+                    CONTINUE LEGEND
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Menu Modal -->
+    <div id="achievementsMenu" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-green-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold divine-font text-green-400">🏆 LEGENDARY ACHIEVEMENTS</h2>
+                <button onclick="hideAchievementsMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="availableAchievements">
+                <!-- Available achievements will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            selectedChampion: null,
+            glory: 0,
+            divineEnergy: 100,
+            favor: 0,
+            level: 1,
+            experience: 0,
+            health: 100,
+            stats: {
+                power: 0,
+                defense: 0,
+                skill: 0,
+                magic: 0
+            },
+            status: {
+                divinePower: 100,
+                mortalFavor: 50,
+                olympianStanding: 75,
+                worldInfluence: 25
+            },
+            powers: [],
+            quests: [],
+            achievements: [],
+            currentQuest: null,
+            questTimer: 0,
+            questsCompleted: 0,
+            gloryEarned: 0,
+            divineInterventions: 0,
+            temples: 1,
+            followers: 100,
+            sacrifices: 0,
+            mythsCreated: 0,
+            heroesBlessed: 0,
+            monstersDefeated: 0,
+            citiesProtected: 0,
+            naturalDisasters: 0,
+            miraclesPerformed: 0,
+            relations: {
+                zeus: 'Neutral',
+                hera: 'Neutral',
+                athena: 'Neutral'
+            }
+        };
+
+        // Champion Data
+        const champions = {
+            zeus: {
+                name: 'ZEUS',
+                title: 'King of the Gods, Master of Thunder',
+                icon: '⚡',
+                stats: { power: 95, defense: 80, skill: 85, magic: 90 },
+                ability: 'Thunderbolt Strike - Devastating lightning attack that can destroy any enemy',
+                color: 'yellow'
+            },
+            athena: {
+                name: 'ATHENA',
+                title: 'Goddess of Wisdom and Strategic Warfare',
+                icon: '🦉',
+                stats: { power: 85, defense: 85, skill: 95, magic: 88 },
+                ability: 'Aegis Shield - Reflects all attacks and grants perfect tactical insight',
+                color: 'blue'
+            },
+            poseidon: {
+                name: 'POSEIDON',
+                title: 'God of the Seas and Earthquakes',
+                icon: '🔱',
+                stats: { power: 92, defense: 85, skill: 88, magic: 90 },
+                ability: 'Tsunami Wave - Massive tidal wave that overwhelms all enemies',
+                color: 'cyan'
+            },
+            apollo: {
+                name: 'APOLLO',
+                title: 'God of Sun, Music, and Prophecy',
+                icon: '☀️',
+                stats: { power: 90, defense: 75, skill: 95, magic: 88 },
+                ability: 'Solar Flare - Blinding light that purifies and heals allies while burning enemies',
+                color: 'yellow'
+            },
+            artemis: {
+                name: 'ARTEMIS',
+                title: 'Goddess of the Hunt and Moon',
+                icon: '🏹',
+                stats: { power: 88, defense: 80, skill: 95, magic: 88 },
+                ability: 'Silver Arrow Barrage - Never-missing arrows that pierce any defense',
+                color: 'green'
+            },
+            ares: {
+                name: 'ARES',
+                title: 'God of War and Courage',
+                icon: '⚔️',
+                stats: { power: 98, defense: 90, skill: 85, magic: 75 },
+                ability: 'War Cry - Inspires allies and strikes terror into enemies\' hearts',
+                color: 'red'
+            }
+        };
+
+        // Epic Quests
+        const quests = [
+            {
+                id: 'trojan_war',
+                title: 'The Trojan War',
+                description: 'The greatest conflict in mortal history rages. Your intervention could determine the fate of Troy and Greece.',
+                icon: '🏛️',
+                choices: [
+                    {
+                        text: 'Support the Greeks',
+                        requirements: { power: 70 },
+                        effects: { glory: +200, favor: +30, citiesProtected: +1, heroesBlessed: +3 },
+                        outcome: 'Your divine aid helps the Greeks breach Troy\'s walls! The victory becomes legendary, and your name is sung by bards for generations.'
+                    },
+                    {
+                        text: 'Defend Troy',
+                        requirements: { defense: 80 },
+                        effects: { glory: +150, olympianStanding: +20, temples: +1 },
+                        outcome: 'Your protection allows Troy to withstand the siege! The Trojans build magnificent temples in your honor.'
+                    },
+                    {
+                        text: 'Remain Neutral',
+                        requirements: { skill: 60 },
+                        effects: { favor: +10, worldInfluence: +15, miraclesPerformed: +1 },
+                        outcome: 'Your wisdom prevents greater bloodshed. Both sides respect your neutrality and seek your counsel in future conflicts.'
+                    }
+                ]
+            },
+            {
+                id: 'medusa_curse',
+                title: 'The Medusa Curse',
+                description: 'A mortal woman has been transformed into the terrible Medusa. Her curse spreads fear across the land.',
+                icon: '🐍',
+                choices: [
+                    {
+                        text: 'Lift the Curse',
+                        requirements: { magic: 85 },
+                        effects: { glory: +100, mortalFavor: +25, miraclesPerformed: +1 },
+                        outcome: 'Your divine magic breaks the curse! Medusa is restored to her human form, and mortals praise your mercy.'
+                    },
+                    {
+                        text: 'Empower a Hero',
+                        requirements: { skill: 70 },
+                        effects: { glory: +150, heroesBlessed: +1, mythsCreated: +1 },
+                        outcome: 'You grant Perseus the tools to defeat Medusa! His victory becomes one of the greatest heroic tales ever told.'
+                    },
+                    {
+                        text: 'Use Her Power',
+                        requirements: { power: 60 },
+                        effects: { glory: +80, worldInfluence: +20, monstersDefeated: +1 },
+                        outcome: 'You harness Medusa\'s petrifying gaze as a weapon! Your enemies flee in terror at your newfound power.'
+                    }
+                ]
+            },
+            {
+                id: 'atlantis_rising',
+                title: 'Atlantis Rising',
+                description: 'The lost city of Atlantis stirs beneath the waves. Its return could reshape the world.',
+                icon: '🌊',
+                choices: [
+                    {
+                        text: 'Raise Atlantis',
+                        requirements: { power: 90, magic: 80 },
+                        effects: { glory: +300, worldInfluence: +40, temples: +3, followers: +500 },
+                        outcome: 'Atlantis rises from the depths in all its glory! The advanced civilization becomes your greatest temple, spreading your worship worldwide.'
+                    },
+                    {
+                        text: 'Keep It Hidden',
+                        requirements: { skill: 75 },
+                        effects: { glory: +100, olympianStanding: +15, miraclesPerformed: +1 },
+                        outcome: 'You wisely keep Atlantis hidden, preventing chaos. The other gods respect your restraint and wisdom.'
+                    },
+                    {
+                        text: 'Destroy It Forever',
+                        requirements: { power: 85 },
+                        effects: { glory: +120, naturalDisasters: +1, monstersDefeated: +2 },
+                        outcome: 'You sink Atlantis permanently, preventing its dangerous technology from corrupting the world. The ocean itself becomes your domain.'
+                    }
+                ]
+            },
+            {
+                id: 'golden_fleece',
+                title: 'Quest for the Golden Fleece',
+                description: 'Jason and the Argonauts seek the legendary Golden Fleece. This quest will test heroes and gods alike.',
+                icon: '🐏',
+                choices: [
+                    {
+                        text: 'Guide the Argonauts',
+                        requirements: { skill: 80 },
+                        effects: { glory: +180, heroesBlessed: +5, mythsCreated: +1 },
+                        outcome: 'Your guidance leads the Argonauts to victory! Their successful quest becomes one of the greatest adventure tales ever told.'
+                    },
+                    {
+                        text: 'Protect the Fleece',
+                        requirements: { defense: 85, magic: 70 },
+                        effects: { glory: +120, temples: +2, monstersDefeated: +1 },
+                        outcome: 'You strengthen the fleece\'s guardians! Though the heroes fail, your protective power becomes legendary among mortals.'
+                    },
+                    {
+                        text: 'Claim the Fleece',
+                        requirements: { power: 75 },
+                        effects: { glory: +200, divineEnergy: +50, worldInfluence: +25 },
+                        outcome: 'You seize the Golden Fleece for yourself! Its divine power enhances your abilities and extends your influence across the world.'
+                    }
+                ]
+            },
+            {
+                id: 'titans_return',
+                title: 'Return of the Titans',
+                description: 'Ancient Titans stir in Tartarus, threatening to break free and reclaim their dominion over the world.',
+                icon: '⛰️',
+                choices: [
+                    {
+                        text: 'Reinforce Their Prison',
+                        requirements: { power: 95, magic: 85 },
+                        effects: { glory: +250, olympianStanding: +30, naturalDisasters: -1 },
+                        outcome: 'Your divine power strengthens Tartarus! The Titans remain bound, and Olympus celebrates your crucial intervention.'
+                    },
+                    {
+                        text: 'Negotiate Peace',
+                        requirements: { skill: 90 },
+                        effects: { glory: +200, worldInfluence: +35, miraclesPerformed: +2 },
+                        outcome: 'Your diplomatic skills forge an unprecedented peace! Titans and Olympians coexist, ushering in a new golden age.'
+                    },
+                    {
+                        text: 'Join Their Cause',
+                        requirements: { power: 80 },
+                        effects: { glory: +150, naturalDisasters: +2, monstersDefeated: +3 },
+                        outcome: 'You side with the Titans against Olympus! Though controversial, your rebellion reshapes the divine order forever.'
+                    }
+                ]
+            },
+            {
+                id: 'pandoras_box',
+                title: 'Pandora\'s Box',
+                description: 'Pandora has opened the forbidden box, releasing evils into the world. Only divine intervention can contain the chaos.',
+                icon: '📦',
+                choices: [
+                    {
+                        text: 'Seal the Evils',
+                        requirements: { magic: 90 },
+                        effects: { glory: +220, mortalFavor: +40, miraclesPerformed: +2 },
+                        outcome: 'Your magic seals away the released evils! Mortals worship you as their savior from eternal suffering.'
+                    },
+                    {
+                        text: 'Embrace the Chaos',
+                        requirements: { power: 70 },
+                        effects: { glory: +100, worldInfluence: +30, naturalDisasters: +1 },
+                        outcome: 'You harness the chaotic energies for your own power! Though the world suffers, your influence grows tremendously.'
+                    },
+                    {
+                        text: 'Preserve Hope',
+                        requirements: { skill: 75 },
+                        effects: { glory: +180, heroesBlessed: +4, temples: +2 },
+                        outcome: 'You ensure Hope remains in the box, giving mortals strength to endure! Your wisdom becomes legendary across all lands.'
+                    }
+                ]
+            }
+        ];
+
+        // Divine Powers
+        const powers = [
+            {
+                id: 'divine_strength',
+                name: 'Divine Strength',
+                description: 'Increases physical power and combat effectiveness',
+                cost: 150,
+                effects: { power: +20 },
+                requirements: { level: 2 },
+                icon: '💪'
+            },
+            {
+                id: 'aegis_protection',
+                name: 'Aegis Protection',
+                description: 'Divine shield that deflects attacks and curses',
+                cost: 200,
+                effects: { defense: +25 },
+                requirements: { level: 3 },
+                icon: '🛡️'
+            },
+            {
+                id: 'prophetic_sight',
+                name: 'Prophetic Sight',
+                description: 'Foresee future events and enemy actions',
+                cost: 180,
+                effects: { skill: +20, magic: +10 },
+                requirements: { level: 2 },
+                icon: '👁️'
+            },
+            {
+                id: 'elemental_mastery',
+                name: 'Elemental Mastery',
+                description: 'Command over fire, water, earth, and air',
+                cost: 250,
+                effects: { magic: +30, power: +10 },
+                requirements: { level: 4 },
+                icon: '🌪️'
+            },
+            {
+                id: 'immortal_vigor',
+                name: 'Immortal Vigor',
+                description: 'Enhanced regeneration and divine endurance',
+                cost: 300,
+                effects: { defense: +20, health: +50 },
+                requirements: { level: 5 },
+                icon: '❤️'
+            },
+            {
+                id: 'divine_wisdom',
+                name: 'Divine Wisdom',
+                description: 'Perfect knowledge and strategic insight',
+                cost: 220,
+                effects: { skill: +25, magic: +15 },
+                requirements: { level: 3 },
+                icon: '🧠'
+            }
+        ];
+
+        // Achievements
+        const achievements = [
+            { id: 'first_quest', name: 'First Quest', description: 'Complete your first divine quest', icon: '🏛️', unlocked: false },
+            { id: 'hero_maker', name: 'Hero Maker', description: 'Bless 10 mortal heroes', icon: '⭐', unlocked: false },
+            { id: 'temple_builder', name: 'Temple Builder', description: 'Have 5 temples built in your honor', icon: '🏛️', unlocked: false },
+            { id: 'monster_slayer', name: 'Monster Slayer', description: 'Defeat 5 mythical monsters', icon: '🐉', unlocked: false },
+            { id: 'miracle_worker', name: 'Miracle Worker', description: 'Perform 10 divine miracles', icon: '✨', unlocked: false },
+            { id: 'myth_creator', name: 'Myth Creator', description: 'Create 3 legendary myths', icon: '📜', unlocked: false },
+            { id: 'olympian_favor', name: 'Olympian Favor', description: 'Gain favor with all major gods', icon: '👑', unlocked: false },
+            { id: 'world_shaper', name: 'World Shaper', description: 'Influence major world events', icon: '🌍', unlocked: false }
+        ];
+
+        // Initialize Floating Clouds
+        function initFloatingClouds() {
+            const cloudsContainer = document.getElementById('floatingClouds');
+            const cloudEmojis = ['☁️', '⛅', '🌤️'];
+            
+            setInterval(() => {
+                if (Math.random() < 0.3) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    cloud.textContent = cloudEmojis[Math.floor(Math.random() * cloudEmojis.length)];
+                    cloud.style.top = Math.random() * 80 + '%';
+                    cloud.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                    cloudsContainer.appendChild(cloud);
+                    
+                    setTimeout(() => {
+                        if (cloud.parentNode) {
+                            cloud.parentNode.removeChild(cloud);
+                        }
+                    }, 25000);
+                }
+            }, 2000);
+        }
+
+        // Select Champion
+        function selectChampion(championId) {
+            gameState.selectedChampion = championId;
+            const champion = champions[championId];
+            
+            // Apply champion base stats
+            gameState.stats = { ...champion.stats };
+            
+            // Show champion profile
+            document.getElementById('championSelection').classList.add('hidden');
+            document.getElementById('championProfile').classList.remove('hidden');
+            
+            // Update champion display
+            updateChampionDisplay();
+            generateNewQuest();
+            
+            // Start game loop
+            setInterval(gameLoop, 3000); // 3 seconds = 1 game hour
+            
+            // Champion selection animation
+            const cards = document.querySelectorAll('.champion-card');
+            cards.forEach(card => {
+                if (card.onclick.toString().includes(championId)) {
+                    card.classList.add('champion-selected');
+                }
+            });
+            
+            alert(`🏛️ You have chosen ${champion.name}! Your divine journey begins now!`);
+        }
+
+        // Game Loop
+        function gameLoop() {
+            // Divine energy regeneration
+            if (gameState.divineEnergy < 100) {
+                gameState.divineEnergy = Math.min(100, gameState.divineEnergy + 5);
+            }
+            
+            // Status changes
+            if (gameState.status.divinePower < 100) {
+                gameState.status.divinePower = Math.min(100, gameState.status.divinePower + 2);
+            }
+            
+            // Follower growth
+            if (gameState.temples > 0) {
+                gameState.followers += Math.floor(gameState.temples * 2);
+            }
+            
+            // Quest timer
+            if (gameState.questTimer <= 0 && !gameState.currentQuest) {
+                if (Math.random() < 0.7) { // 70% chance per cycle
+                    generateNewQuest();
+                }
+                gameState.questTimer = 3;
+            } else {
+                gameState.questTimer--;
+            }
+            
+            // Health recovery
+            if (gameState.health < 100) {
+                gameState.health = Math.min(100, gameState.health + 3);
+            }
+            
+            // Passive glory income
+            if (gameState.temples > 0) {
+                gameState.glory += gameState.temples;
+            }
+            
+            updateUI();
+        }
+
+        // Generate New Quest
+        function generateNewQuest() {
+            const availableQuests = quests.filter(q => !gameState.currentQuest || q.id !== gameState.currentQuest.id);
+            gameState.currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
+            updateCurrentQuest();
+        }
+
+        // Handle Quest Choice
+        function handleQuestChoice(choiceIndex) {
+            const quest = gameState.currentQuest;
+            const choice = quest.choices[choiceIndex];
+            
+            // Check requirements
+            if (choice.requirements) {
+                for (const [stat, required] of Object.entries(choice.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`This quest requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            // Apply effects
+            for (const [key, value] of Object.entries(choice.effects)) {
+                if (gameState.status[key] !== undefined) {
+                    gameState.status[key] = Math.max(0, Math.min(100, gameState.status[key] + value));
+                } else if (gameState[key] !== undefined) {
+                    gameState[key] = Math.max(0, gameState[key] + value);
+                }
+            }
+            
+            // Update counters
+            gameState.questsCompleted++;
+            if (choice.effects.glory > 0) {
+                gameState.gloryEarned += choice.effects.glory;
+            }
+            
+            // Experience gain
+            const expGain = Math.floor(choice.effects.glory / 10) || 20;
+            gameState.experience += expGain;
+            
+            // Level up check
+            const expNeeded = gameState.level * 100;
+            if (gameState.experience >= expNeeded) {
+                gameState.level++;
+                gameState.experience -= expNeeded;
+                alert(`🌟 LEVEL UP! You are now level ${gameState.level}!`);
+            }
+            
+            showQuestResult(choice.outcome);
+            gameState.currentQuest = null;
+            gameState.questTimer = 4;
+            updateCurrentQuest();
+            checkAchievements();
+            updateUI();
+        }
+
+        // Train Power
+        function trainPower(statName) {
+            const baseCost = 100;
+            const currentLevel = gameState.stats[statName];
+            const cost = baseCost + (currentLevel * 5);
+            
+            if (gameState.glory < cost) {
+                alert(`Insufficient glory for training! Need ${cost} glory.`);
+                return;
+            }
+            
+            if (gameState.divineEnergy < 30) {
+                alert('Insufficient divine energy for training! Rest and recover first.');
+                return;
+            }
+            
+            if (gameState.stats[statName] >= 100) {
+                alert(`Your ${statName} is already at maximum divine level!`);
+                return;
+            }
+            
+            gameState.glory -= cost;
+            gameState.divineEnergy -= 30;
+            const improvement = Math.floor(Math.random() * 8) + 5; // 5-12 points per training
+            gameState.stats[statName] = Math.min(100, gameState.stats[statName] + improvement);
+            
+            alert(`Divine training complete! ${statName.toUpperCase()} increased by ${improvement} points!`);
+            updateUI();
+        }
+
+        // Use Divine Ability
+        function useDivineAbility() {
+            if (gameState.divineEnergy < 50) {
+                alert('Insufficient divine energy to use your divine ability!');
+                return;
+            }
+            
+            gameState.divineEnergy -= 50;
+            gameState.divineInterventions++;
+            
+            const champion = champions[gameState.selectedChampion];
+            const effects = Math.floor(Math.random() * 100) + 50; // 50-149 glory
+            gameState.glory += effects;
+            
+            alert(`⚡ ${champion.ability}\n\nYour divine power manifests! Gained ${effects} glory!`);
+            updateUI();
+        }
+
+        // Show/Hide Menus
+        function showPowersMenu() {
+            document.getElementById('powersMenu').classList.remove('hidden');
+            document.getElementById('powersMenu').classList.add('flex');
+            renderAvailablePowers();
+        }
+
+        function hidePowersMenu() {
+            document.getElementById('powersMenu').classList.add('hidden');
+            document.getElementById('powersMenu').classList.remove('flex');
+        }
+
+        function showQuestsMenu() {
+            document.getElementById('questsMenu').classList.remove('hidden');
+            document.getElementById('questsMenu').classList.add('flex');
+            renderAvailableQuests();
+        }
+
+        function hideQuestsMenu() {
+            document.getElementById('questsMenu').classList.add('hidden');
+            document.getElementById('questsMenu').classList.remove('flex');
+        }
+
+        function showAchievementsMenu() {
+            document.getElementById('achievementsMenu').classList.remove('hidden');
+            document.getElementById('achievementsMenu').classList.add('flex');
+            renderAllAchievements();
+        }
+
+        function hideAchievementsMenu() {
+            document.getElementById('achievementsMenu').classList.add('hidden');
+            document.getElementById('achievementsMenu').classList.remove('flex');
+        }
+
+        // Show Quest Result
+        function showQuestResult(outcome) {
+            const modal = document.getElementById('questResultModal');
+            const details = document.getElementById('resultDetails');
+            
+            details.innerHTML = `<p class="text-gray-300">${outcome}</p>`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Quest Result
+        function closeQuestResult() {
+            const modal = document.getElementById('questResultModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Purchase Power
+        function purchasePower(powerId) {
+            const power = powers.find(p => p.id === powerId);
+            if (!power) return;
+            
+            // Check requirements
+            if (power.requirements) {
+                for (const [stat, required] of Object.entries(power.requirements)) {
+                    if (gameState[stat] && gameState[stat] < required) {
+                        alert(`Power requires ${stat}: ${required}. Your current level: ${gameState[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            if (gameState.glory < power.cost) {
+                alert('Insufficient glory for this power!');
+                return;
+            }
+            
+            gameState.glory -= power.cost;
+            gameState.powers.push(powerId);
+            
+            // Apply effects
+            if (power.effects) {
+                for (const [stat, bonus] of Object.entries(power.effects)) {
+                    if (gameState.stats[stat] !== undefined) {
+                        gameState.stats[stat] = Math.min(100, gameState.stats[stat] + bonus);
+                    } else if (gameState[stat] !== undefined) {
+                        gameState[stat] = Math.max(0, gameState[stat] + bonus);
+                    }
+                }
+            }
+            
+            hidePowersMenu();
+            alert(`Successfully acquired ${power.name}!`);
+            updateUI();
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            if (gameState.questsCompleted >= 1) checkAchievementUnlock('first_quest');
+            if (gameState.heroesBlessed >= 10) checkAchievementUnlock('hero_maker');
+            if (gameState.temples >= 5) checkAchievementUnlock('temple_builder');
+            if (gameState.monstersDefeated >= 5) checkAchievementUnlock('monster_slayer');
+            if (gameState.miraclesPerformed >= 10) checkAchievementUnlock('miracle_worker');
+            if (gameState.mythsCreated >= 3) checkAchievementUnlock('myth_creator');
+            if (gameState.worldInfluence >= 80) checkAchievementUnlock('world_shaper');
+        }
+
+        function checkAchievementUnlock(id) {
+            const achievement = achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                gameState.achievements.push(id);
+                gameState.favor += 10;
+                alert(`🏆 ACHIEVEMENT UNLOCKED: ${achievement.name} - ${achievement.description}`);
+            }
+        }
+
+        // Update Champion Display
+        function updateChampionDisplay() {
+            const champion = champions[gameState.selectedChampion];
+            
+            document.getElementById('championIcon').textContent = champion.icon;
+            document.getElementById('championName').textContent = champion.name;
+            document.getElementById('championTitle').textContent = champion.title;
+            document.getElementById('divineAbilityDescription').textContent = champion.ability;
+        }
+
+        // Update Current Quest Display
+        function updateCurrentQuest() {
+            const container = document.getElementById('currentQuest');
+            
+            if (gameState.currentQuest) {
+                const quest = gameState.currentQuest;
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-6xl">${quest.icon}</div>
+                        <div>
+                            <h3 class="text-2xl font-bold divine-font">${quest.title}</h3>
+                            <p class="text-gray-300 text-lg">${quest.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-${quest.choices.length} gap-4">
+                        ${quest.choices.map((choice, index) => `
+                            <div class="champion-card bg-gray-800/50 rounded-xl p-4 border border-gray-600">
+                                <h4 class="font-bold divine-font mb-2">${choice.text}</h4>
+                                ${choice.requirements ? `<p class="text-cyan-400 text-sm mb-2">Requires: ${Object.entries(choice.requirements).map(([stat, val]) => `${stat.toUpperCase()} ${val}`).join(', ')}</p>` : ''}
+                                <button onclick="handleQuestChoice(${index})" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold divine-font transition-all">
+                                    CHOOSE PATH
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🏛️</div>
+                        <p class="divine-font text-xl">Awaiting divine inspiration</p>
+                        <p class="text-sm">The fates are weaving your next great quest</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('glory').textContent = gameState.glory.toLocaleString();
+            document.getElementById('divineEnergy').textContent = gameState.divineEnergy;
+            document.getElementById('favor').textContent = gameState.favor;
+            document.getElementById('championLevel').textContent = gameState.level;
+            document.getElementById('experience').textContent = `${gameState.experience}/${gameState.level * 100}`;
+            document.getElementById('health').textContent = gameState.health + '%';
+            
+            // Stats
+            document.getElementById('powerStat').textContent = gameState.stats.power;
+            document.getElementById('defenseStat').textContent = gameState.stats.defense;
+            document.getElementById('skillStat').textContent = gameState.stats.skill;
+            document.getElementById('magicStat').textContent = gameState.stats.magic;
+            
+            // Status bars
+            for (const [status, value] of Object.entries(gameState.status)) {
+                const element = document.getElementById(status + 'Percent');
+                const bar = document.getElementById(status + 'Bar');
+                if (element) element.textContent = value + '%';
+                if (bar) bar.style.width = value + '%';
+            }
+            
+            // Statistics
+            document.getElementById('questsCompleted').textContent = gameState.questsCompleted;
+            document.getElementById('gloryEarned').textContent = gameState.gloryEarned.toLocaleString();
+            document.getElementById('divineInterventions').textContent = gameState.divineInterventions;
+            document.getElementById('temples').textContent = gameState.temples;
+            document.getElementById('followers').textContent = gameState.followers.toLocaleString();
+            document.getElementById('sacrifices').textContent = gameState.sacrifices;
+            document.getElementById('mythsCreated').textContent = gameState.mythsCreated;
+            document.getElementById('heroesBlessed').textContent = gameState.heroesBlessed;
+            document.getElementById('monstersDefeated').textContent = gameState.monstersDefeated;
+            document.getElementById('citiesProtected').textContent = gameState.citiesProtected;
+            document.getElementById('naturalDisasters').textContent = gameState.naturalDisasters;
+            document.getElementById('miraclesPerformed').textContent = gameState.miraclesPerformed;
+            
+            // Relations
+            document.getElementById('zeusRelation').textContent = gameState.relations.zeus;
+            document.getElementById('heraRelation').textContent = gameState.relations.hera;
+            document.getElementById('athenaRelation').textContent = gameState.relations.athena;
+            
+            // Divine rank
+            const divineRank = gameState.level < 3 ? 'Minor Deity' :
+                             gameState.level < 6 ? 'Lesser God' :
+                             gameState.level < 10 ? 'Major God' : 'Olympian';
+            document.getElementById('divineRank').textContent = divineRank;
+            
+            // Mortal influence
+            const mortalInfluence = gameState.worldInfluence < 25 ? 'Minimal' :
+                                  gameState.worldInfluence < 50 ? 'Moderate' :
+                                  gameState.worldInfluence < 75 ? 'Significant' : 'Dominant';
+            document.getElementById('mortalInfluence').textContent = mortalInfluence;
+            
+            updatePowersDisplay();
+            updateQuestsDisplay();
+            updateAchievementsDisplay();
+        }
+
+        // Update Powers Display
+        function updatePowersDisplay() {
+            const container = document.getElementById('powersContainer');
+            
+            if (gameState.powers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">⚡</div>
+                        <p class="divine-font">Basic divine powers only</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.powers.map(powerId => {
+                    const power = powers.find(p => p.id === powerId);
+                    if (!power) return '';
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-yellow-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold divine-font">${power.icon} ${power.name}</h4>
+                                    <p class="text-sm text-gray-400">Active</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-yellow-400">MASTERED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Quests Display
+        function updateQuestsDisplay() {
+            const container = document.getElementById('questsContainer');
+            
+            if (gameState.quests.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏛️</div>
+                        <p class="divine-font">No active quests</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.quests.map(quest => `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-purple-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold divine-font">${quest.icon} ${quest.name}</h4>
+                                <p class="text-sm text-gray-400">Epic Quest</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-purple-400">ACTIVE</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update Achievements Display
+        function updateAchievementsDisplay() {
+            const container = document.getElementById('achievementsContainer');
+            
+            if (gameState.achievements.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏆</div>
+                        <p class="divine-font">No achievements yet</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.achievements.slice(0, 3).map(achievementId => {
+                    const achievement = achievements.find(a => a.id === achievementId);
+                    if (!achievement) return '';
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold divine-font">${achievement.icon} ${achievement.name}</h4>
+                                    <p class="text-sm text-gray-400">${achievement.description}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-green-400">EARNED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Available Powers
+        function renderAvailablePowers() {
+            const container = document.getElementById('availablePowers');
+            const availablePowers = powers.filter(p => !gameState.powers.includes(p.id));
+            
+            container.innerHTML = availablePowers.map(power => `
+                <div class="champion-card bg-gray-800/50 rounded-xl p-6 border border-yellow-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${power.icon}</div>
+                        <h3 class="text-xl font-bold divine-font">${power.name}</h3>
+                        <p class="text-gray-400 mb-3">${power.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Cost:</span>
+                            <span class="text-cyan-400">${power.cost} Glory</span>
+                        </div>
+                        ${power.requirements ? Object.entries(power.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${gameState[stat] >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="purchasePower('${power.id}')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold divine-font transition-all">
+                        ACQUIRE POWER
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render Available Quests
+        function renderAvailableQuests() {
+            const container = document.getElementById('availableQuests');
+            
+            container.innerHTML = quests.map(quest => `
+                <div class="champion-card bg-gray-800/50 rounded-xl p-6 border border-purple-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${quest.icon}</div>
+                        <h3 class="text-xl font-bold divine-font">${quest.title}</h3>
+                        <p class="text-gray-400 mb-3">${quest.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="text-sm text-center text-cyan-400">Epic Quest Available</div>
+                    </div>
+                    
+                    <button onclick="gameState.currentQuest = quests.find(q => q.id === '${quest.id}'); updateCurrentQuest(); hideQuestsMenu();" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold divine-font transition-all">
+                        BEGIN QUEST
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render All Achievements
+        function renderAllAchievements() {
+            const container = document.getElementById('availableAchievements');
+            container.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-xl ${achievement.unlocked ? 'bg-green-100/10 border-2 border-green-400/50' : 'bg-gray-800/30 border-2 border-gray-600'} text-center">
+                    <div class="text-3xl mb-2 ${achievement.unlocked ? 'divine-glow' : 'grayscale opacity-50'}">${achievement.icon}</div>
+                    <h3 class="font-semibold text-sm divine-font ${achievement.unlocked ? 'text-green-400' : 'text-gray-400'}">${achievement.name}</h3>
+                    <p class="text-xs ${achievement.unlocked ? 'text-green-300' : 'text-gray-500'}">${achievement.description}</p>
+                    ${achievement.unlocked ? '<div class="text-xs text-green-400 font-semibold mt-1 divine-font">✓ ACHIEVED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Initialize Game
+        function initGame() {
+            initFloatingClouds();
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974546a713f7cf7e',t:'MTc1NjA2Mzk1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

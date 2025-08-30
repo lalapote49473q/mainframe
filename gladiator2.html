@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcane Colosseum - Dueling Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        .mystical-font { font-family: 'Cinzel', serif; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .arena-glow {
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            animation: arenaGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes arenaGlow {
+            from { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+            to { text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 40px rgba(255, 140, 0, 0.6); }
+        }
+        
+        .spell-blast {
+            animation: spellBlast 0.8s ease-out;
+        }
+        
+        @keyframes spellBlast {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(2) rotate(360deg); opacity: 0; }
+        }
+        
+        .crowd-cheer {
+            animation: crowdCheer 2s ease-in-out infinite;
+        }
+        
+        @keyframes crowdCheer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .arena-bg {
+            background: linear-gradient(135deg, #1a0033 0%, #4a148c 30%, #ff6f00 60%, #ffc107 100%);
+        }
+        
+        .combat-ring {
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, rgba(138, 43, 226, 0.2) 50%, rgba(0, 0, 0, 0.8) 100%);
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        }
+        
+        .spectator-stand {
+            background: linear-gradient(45deg, #2d1b69, #4a148c);
+            border: 2px solid #8d6e63;
+        }
+        
+        .champion-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: championPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes championPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .tournament-bracket {
+            background: linear-gradient(45deg, #1a237e, #3f51b5);
+        }
+        
+        .victory-celebration {
+            animation: victoryCelebration 3s ease-in-out;
+        }
+        
+        @keyframes victoryCelebration {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-20px) scale(1.1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+            75% { transform: translateY(-15px) scale(1.08); }
+        }
+        
+        .magical-particle {
+            animation: magicalParticle 3s ease-out infinite;
+        }
+        
+        @keyframes magicalParticle {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        .arena-entrance {
+            animation: arenaEntrance 2s ease-out;
+        }
+        
+        @keyframes arenaEntrance {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="arena-bg min-h-screen text-white">
+    <!-- Back to Main Button -->
+    <div class="absolute top-4 left-4 z-50">
+        <a href="main.html" class="bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-600 transition-colors flex items-center gap-2">
+            ← Back to Main
+        </a>
+    </div>
+
+    <div class="container mx-auto px-4 py-6">
+        <!-- Arena Header -->
+        <div class="text-center mb-8">
+            <h1 class="mystical-font text-6xl font-bold mb-2 arena-glow">⚔️ ARCANE COLOSSEUM</h1>
+            <p class="text-xl text-yellow-200">Where legends are forged in magical combat</p>
+            <div class="text-sm text-gray-300 mt-2">
+                Current Champion: <span id="currentChampion" class="text-yellow-400 font-bold">🏆 Magnus the Destroyer</span>
+            </div>
+        </div>
+
+        <!-- Main Arena Layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <!-- Arena Controls & Stats -->
+            <div class="spectator-stand rounded-xl p-6">
+                <h3 class="mystical-font text-2xl font-bold mb-4 text-center text-yellow-200">🎮 ARENA CONTROLS</h3>
+                
+                <!-- Player Selection -->
+                <div class="mb-6">
+                    <h4 class="font-bold mb-3 text-purple-200">Choose Your Fighter</h4>
+                    <select id="playerSelect" class="w-full bg-gray-800 border border-purple-500 rounded-lg p-2 text-white">
+                        <option value="0">🧙‍♂️ Merlin - Fire Mage</option>
+                        <option value="1">🧙‍♀️ Morgana - Ice Sorceress</option>
+                        <option value="2">⚡ Gandalf - Storm Wizard</option>
+                        <option value="3">🌟 Celestia - Light Priestess</option>
+                        <option value="4">🌙 Nyx - Shadow Warlock</option>
+                        <option value="5">🔮 Zara - Mystic Oracle</option>
+                    </select>
+                </div>
+
+                <!-- Arena Modes -->
+                <div class="mb-6">
+                    <h4 class="font-bold mb-3 text-purple-200">Arena Modes</h4>
+                    <div class="space-y-2">
+                        <button onclick="startQuickDuel()" class="w-full bg-red-600 hover:bg-red-700 py-2 px-4 rounded-lg font-bold transition-colors">
+                            ⚔️ Quick Duel
+                        </button>
+                        <button onclick="startTournament()" class="w-full bg-purple-600 hover:bg-purple-700 py-2 px-4 rounded-lg font-bold transition-colors">
+                            🏆 Tournament
+                        </button>
+                        <button onclick="challengeChampion()" class="w-full bg-yellow-600 hover:bg-yellow-700 py-2 px-4 rounded-lg font-bold transition-colors">
+                            👑 Challenge Champion
+                        </button>
+                        <button onclick="practiceMode()" class="w-full bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-lg font-bold transition-colors">
+                            🎯 Practice Mode
+                        </button>
+                        <button onclick="restorePlayer()" class="w-full bg-green-600 hover:bg-green-700 py-2 px-4 rounded-lg font-bold transition-colors">
+                            💚 Rest & Restore
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arena Stats -->
+                <div class="mb-6">
+                    <h4 class="font-bold mb-3 text-purple-200">🏟️ Arena Statistics</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Duels Won:</span>
+                            <span id="duelsWon" class="font-bold text-green-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Duels Lost:</span>
+                            <span id="duelsLost" class="font-bold text-red-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Win Streak:</span>
+                            <span id="winStreak" class="font-bold text-yellow-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tournaments Won:</span>
+                            <span id="tournamentsWon" class="font-bold text-purple-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Arena Rank:</span>
+                            <span id="arenaRank" class="font-bold text-cyan-400">Novice</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Betting System -->
+                <div class="mb-6">
+                    <h4 class="font-bold mb-3 text-purple-200">💰 Arena Betting</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>Gold:</span>
+                            <span id="playerGold" class="font-bold text-yellow-400">1000</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="betAmount" min="10" max="500" value="50" class="flex-1 bg-gray-800 border border-purple-500 rounded p-1 text-white text-sm">
+                            <button onclick="placeBet()" class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm font-bold transition-colors">
+                                Bet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crowd Meter -->
+                <div>
+                    <h4 class="font-bold mb-3 text-purple-200">👥 Crowd Excitement</h4>
+                    <div class="bg-gray-700 rounded-full h-4 mb-2">
+                        <div id="crowdMeter" class="bg-gradient-to-r from-blue-500 to-red-500 h-4 rounded-full transition-all duration-1000" style="width: 30%"></div>
+                    </div>
+                    <div class="text-center text-sm" id="crowdStatus">Anticipating...</div>
+                </div>
+            </div>
+
+            <!-- Main Combat Arena -->
+            <div class="xl:col-span-2 space-y-6">
+                <!-- Combat Ring -->
+                <div class="combat-ring rounded-xl p-8 min-h-96">
+                    <div id="arenaWelcome" class="text-center py-16">
+                        <div class="text-8xl mb-4 magical-particle">⚔️</div>
+                        <h2 class="mystical-font text-4xl font-bold mb-4 text-yellow-300">Welcome to the Arena!</h2>
+                        <p class="text-xl text-gray-300 mb-6">Choose your fighter and select a battle mode to begin</p>
+                        <div class="text-6xl crowd-cheer">🏟️</div>
+                    </div>
+
+                    <!-- Active Combat -->
+                    <div id="activeCombat" class="hidden">
+                        <div class="text-center mb-6">
+                            <h3 class="mystical-font text-2xl font-bold text-yellow-300" id="combatTitle">MAGICAL DUEL</h3>
+                            <div class="text-sm text-gray-300" id="combatRound">Round 1</div>
+                        </div>
+
+                        <!-- Fighters -->
+                        <div class="grid grid-cols-2 gap-8 mb-8">
+                            <!-- Player -->
+                            <div class="text-center arena-entrance">
+                                <div class="text-8xl mb-2" id="playerFighter">🧙‍♂️</div>
+                                <div class="font-bold text-xl" id="playerName">Merlin</div>
+                                <div class="text-sm text-gray-300" id="playerClass">Fire Mage</div>
+                                
+                                <!-- Player Health & Mana -->
+                                <div class="mt-4 space-y-2">
+                                    <div class="bg-gray-700 rounded-full h-4">
+                                        <div id="playerHealth" class="bg-red-500 h-4 rounded-full transition-all duration-500" style="width: 100%"></div>
+                                    </div>
+                                    <div class="bg-gray-700 rounded-full h-2">
+                                        <div id="playerMana" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span id="playerHealthText">100/100</span> HP | 
+                                        <span id="playerManaText">100/100</span> MP
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enemy -->
+                            <div class="text-center arena-entrance">
+                                <div class="text-8xl mb-2" id="enemyFighter">🧙‍♀️</div>
+                                <div class="font-bold text-xl" id="enemyName">Morgana</div>
+                                <div class="text-sm text-gray-300" id="enemyClass">Ice Sorceress</div>
+                                
+                                <!-- Enemy Health -->
+                                <div class="mt-4 space-y-2">
+                                    <div class="bg-gray-700 rounded-full h-4">
+                                        <div id="enemyHealth" class="bg-red-500 h-4 rounded-full transition-all duration-500" style="width: 100%"></div>
+                                    </div>
+                                    <div class="bg-gray-700 rounded-full h-2">
+                                        <div id="enemyMana" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span id="enemyHealthText">100/100</span> HP | 
+                                        <span id="enemyManaText">100/100</span> MP
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Combat Actions -->
+                        <div class="grid grid-cols-4 gap-3" id="combatActions">
+                            <button onclick="castCombatSpell('fireball')" class="bg-red-600/80 hover:bg-red-600 py-3 px-2 rounded-lg font-bold transition-colors text-sm">
+                                🔥 Fireball<br><span class="text-xs">25 MP</span>
+                            </button>
+                            <button onclick="castCombatSpell('lightning')" class="bg-yellow-600/80 hover:bg-yellow-600 py-3 px-2 rounded-lg font-bold transition-colors text-sm">
+                                ⚡ Lightning<br><span class="text-xs">30 MP</span>
+                            </button>
+                            <button onclick="castCombatSpell('heal')" class="bg-green-600/80 hover:bg-green-600 py-3 px-2 rounded-lg font-bold transition-colors text-sm">
+                                💚 Heal<br><span class="text-xs">20 MP</span>
+                            </button>
+                            <button onclick="castCombatSpell('shield')" class="bg-blue-600/80 hover:bg-blue-600 py-3 px-2 rounded-lg font-bold transition-colors text-sm">
+                                🛡️ Shield<br><span class="text-xs">25 MP</span>
+                            </button>
+                        </div>
+
+                        <!-- Combat Log -->
+                        <div class="mt-6 bg-black/50 rounded-lg p-4 max-h-32 overflow-y-auto">
+                            <div id="combatLog" class="space-y-1 text-sm">
+                                <div class="text-center text-gray-400">Combat begins!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Victory Screen -->
+                    <div id="victoryScreen" class="hidden text-center py-8">
+                        <div class="victory-celebration">
+                            <div class="text-8xl mb-4" id="victoryEmoji">🏆</div>
+                            <h2 class="mystical-font text-4xl font-bold mb-4" id="victoryTitle">VICTORY!</h2>
+                            <div class="text-xl mb-6" id="victoryMessage">You have triumphed in glorious combat!</div>
+                            <div class="space-y-2 mb-6">
+                                <div class="text-lg">Rewards:</div>
+                                <div id="victoryRewards" class="text-yellow-400 font-bold"></div>
+                            </div>
+                            <button onclick="returnToArena()" class="bg-purple-600 hover:bg-purple-700 py-3 px-6 rounded-lg font-bold transition-colors">
+                                Return to Arena
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tournament Bracket -->
+                <div id="tournamentBracket" class="tournament-bracket rounded-xl p-6 hidden">
+                    <h3 class="mystical-font text-2xl font-bold mb-4 text-center text-purple-200">🏆 TOURNAMENT BRACKET</h3>
+                    <div class="grid grid-cols-4 gap-4 text-center text-sm" id="bracketDisplay">
+                        <!-- Tournament bracket will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spectators & Events -->
+            <div class="space-y-6">
+                <!-- Spectator Stands -->
+                <div class="spectator-stand rounded-xl p-6">
+                    <h3 class="mystical-font text-xl font-bold mb-4 text-yellow-200">👥 SPECTATORS</h3>
+                    <div class="space-y-3" id="spectatorArea">
+                        <div class="flex items-center gap-2 crowd-cheer">
+                            <span class="text-2xl">🧙‍♂️</span>
+                            <div class="text-sm">
+                                <div class="font-bold">Wizard Aldric</div>
+                                <div class="text-gray-300">"Magnificent spellwork!"</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 crowd-cheer">
+                            <span class="text-2xl">👸</span>
+                            <div class="text-sm">
+                                <div class="font-bold">Queen Elara</div>
+                                <div class="text-gray-300">"A worthy champion!"</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 crowd-cheer">
+                            <span class="text-2xl">🧝‍♀️</span>
+                            <div class="text-sm">
+                                <div class="font-bold">Elf Maiden</div>
+                                <div class="text-gray-300">"Such graceful magic!"</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 crowd-cheer">
+                            <span class="text-2xl">🏴‍☠️</span>
+                            <div class="text-sm">
+                                <div class="font-bold">Pirate Captain</div>
+                                <div class="text-gray-300">"Arrr, what a battle!"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arena Leaderboard -->
+                <div class="spectator-stand rounded-xl p-6">
+                    <h3 class="mystical-font text-xl font-bold mb-4 text-yellow-200">🏆 HALL OF CHAMPIONS</h3>
+                    <div class="space-y-2" id="leaderboard">
+                        <div class="flex justify-between items-center champion-glow p-2 rounded">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">👑</span>
+                                <div>
+                                    <div class="font-bold text-yellow-400">Magnus the Destroyer</div>
+                                    <div class="text-xs text-gray-300">127 Wins</div>
+                                </div>
+                            </div>
+                            <div class="text-yellow-400 font-bold">Champion</div>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded bg-black/30">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">🥈</span>
+                                <div>
+                                    <div class="font-bold">Seraphina the Swift</div>
+                                    <div class="text-xs text-gray-300">89 Wins</div>
+                                </div>
+                            </div>
+                            <div class="text-gray-400">2nd</div>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded bg-black/30">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">🥉</span>
+                                <div>
+                                    <div class="font-bold">Theron Stormcaller</div>
+                                    <div class="text-xs text-gray-300">76 Wins</div>
+                                </div>
+                            </div>
+                            <div class="text-gray-400">3rd</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arena Events -->
+                <div class="spectator-stand rounded-xl p-6">
+                    <h3 class="mystical-font text-xl font-bold mb-4 text-yellow-200">📅 UPCOMING EVENTS</h3>
+                    <div class="space-y-3">
+                        <div class="bg-black/30 rounded-lg p-3">
+                            <div class="font-bold text-purple-300">🌟 Grand Tournament</div>
+                            <div class="text-sm text-gray-300">Epic 16-fighter tournament</div>
+                            <div class="text-xs text-cyan-300">Prize: 5000 Gold</div>
+                        </div>
+                        <div class="bg-black/30 rounded-lg p-3">
+                            <div class="font-bold text-purple-300">🔥 Elemental Masters</div>
+                            <div class="text-sm text-gray-300">Fire vs Ice specialists</div>
+                            <div class="text-xs text-cyan-300">Prize: Legendary Staff</div>
+                        </div>
+                        <div class="bg-black/30 rounded-lg p-3">
+                            <div class="font-bold text-purple-300">👑 Champion's Challenge</div>
+                            <div class="text-sm text-gray-300">Face the reigning champion</div>
+                            <div class="text-xs text-cyan-300">Prize: Championship Title</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arena Shop -->
+                <div class="spectator-stand rounded-xl p-6">
+                    <h3 class="mystical-font text-xl font-bold mb-4 text-yellow-200">🛒 ARENA SHOP</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center p-2 rounded bg-black/30 hover:bg-black/50 cursor-pointer" onclick="buyItem('healthPotion')">
+                            <span>🧪 Health Potion</span>
+                            <span class="text-yellow-400">50 Gold</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded bg-black/30 hover:bg-black/50 cursor-pointer" onclick="buyItem('manaPotion')">
+                            <span>🔮 Mana Potion</span>
+                            <span class="text-yellow-400">75 Gold</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded bg-black/30 hover:bg-black/50 cursor-pointer" onclick="buyItem('powerBoost')">
+                            <span>⚡ Power Boost</span>
+                            <span class="text-yellow-400">200 Gold</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded bg-black/30 hover:bg-black/50 cursor-pointer" onclick="buyItem('luckyCharm')">
+                            <span>🍀 Lucky Charm</span>
+                            <span class="text-yellow-400">300 Gold</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let arenaState = {
+            player: {
+                selectedFighter: 0,
+                health: 100,
+                maxHealth: 100,
+                mana: 500,
+                maxMana: 500,
+                gold: 1000,
+                wins: 0,
+                losses: 0,
+                winStreak: 0,
+                tournamentsWon: 0,
+                rank: "Novice",
+                items: {
+                    healthPotions: 0,
+                    manaPotions: 0,
+                    powerBoosts: 0,
+                    luckyCharms: 0
+                }
+            },
+            combat: {
+                active: false,
+                enemy: null,
+                playerHealth: 100,
+                playerMana: 100,
+                enemyHealth: 100,
+                enemyMana: 100,
+                round: 1,
+                shieldActive: false,
+                enemyShieldActive: false
+            },
+            tournament: {
+                active: false,
+                bracket: [],
+                currentRound: 0,
+                playerPosition: 0
+            },
+            crowd: {
+                excitement: 30,
+                status: "Anticipating..."
+            },
+            betting: {
+                currentBet: 0,
+                odds: 1.5
+            }
+        };
+
+        // Fighter Definitions
+        const fighters = [
+            { name: "Merlin", class: "Fire Mage", avatar: "🧙‍♂️", element: "fire", spells: ["fireball", "heal", "shield", "meteor"] },
+            { name: "Morgana", class: "Ice Sorceress", avatar: "🧙‍♀️", element: "ice", spells: ["icebolt", "heal", "shield", "blizzard"] },
+            { name: "Gandalf", class: "Storm Wizard", avatar: "⚡", element: "lightning", spells: ["lightning", "heal", "shield", "storm"] },
+            { name: "Celestia", class: "Light Priestess", avatar: "🌟", element: "light", spells: ["lightray", "heal", "shield", "blessing"] },
+            { name: "Nyx", class: "Shadow Warlock", avatar: "🌙", element: "shadow", spells: ["shadowbolt", "drain", "shield", "curse"] },
+            { name: "Zara", class: "Mystic Oracle", avatar: "🔮", element: "mystic", spells: ["mysticblast", "heal", "shield", "foresight"] }
+        ];
+
+        // Spell Definitions
+        const spells = {
+            fireball: { name: "Fireball", cost: 25, damage: [25, 35], effect: "🔥" },
+            icebolt: { name: "Ice Bolt", cost: 25, damage: [20, 30], effect: "❄️", freeze: true },
+            lightning: { name: "Lightning", cost: 30, damage: [30, 40], effect: "⚡" },
+            lightray: { name: "Light Ray", cost: 25, damage: [22, 32], effect: "✨" },
+            shadowbolt: { name: "Shadow Bolt", cost: 25, damage: [24, 34], effect: "🌑" },
+            mysticblast: { name: "Mystic Blast", cost: 25, damage: [26, 36], effect: "🔮" },
+            heal: { name: "Heal", cost: 20, healing: [30, 50], effect: "💚" },
+            drain: { name: "Life Drain", cost: 20, damage: [15, 25], healing: [10, 20], effect: "🩸" },
+            shield: { name: "Magic Shield", cost: 25, protection: 50, effect: "🛡️" }
+        };
+
+        // Arena Enemies
+        const arenaEnemies = [
+            { name: "Rookie Mage", avatar: "🧙", health: 80, mana: 80, difficulty: 1, reward: 100 },
+            { name: "Veteran Sorcerer", avatar: "🧙‍♀️", health: 120, mana: 120, difficulty: 2, reward: 200 },
+            { name: "Elite Warlock", avatar: "🧙‍♂️", health: 150, mana: 150, difficulty: 3, reward: 350 },
+            { name: "Arena Champion", avatar: "👑", health: 200, mana: 200, difficulty: 4, reward: 500 },
+            { name: "Legendary Master", avatar: "⭐", health: 250, mana: 250, difficulty: 5, reward: 1000 }
+        ];
+
+        // Spectator Comments
+        const spectatorComments = {
+            spell: [
+                "Incredible spellwork!",
+                "What power!",
+                "Magnificent display!",
+                "The crowd goes wild!",
+                "Spectacular magic!"
+            ],
+            damage: [
+                "Ouch, that's gotta hurt!",
+                "What a devastating blow!",
+                "The arena shakes!",
+                "Incredible damage!",
+                "That's championship level!"
+            ],
+            victory: [
+                "What a champion!",
+                "Legendary performance!",
+                "The crowd erupts!",
+                "A new hero is born!",
+                "Absolutely magnificent!"
+            ]
+        };
+
+        // Initialize Arena
+        function initializeArena() {
+            updateDisplay();
+            updateSpectatorComments();
+            addCombatLog("🏟️ Welcome to the Arcane Colosseum! Choose your fighter and begin your legend!");
+        }
+
+        // Start Quick Duel
+        function startQuickDuel() {
+            const enemy = arenaEnemies[Math.floor(Math.random() * 3)]; // Easy to medium enemies
+            startCombat(enemy);
+            increaseCrowdExcitement(20);
+            addCombatLog(`⚔️ Quick Duel begins! Face the ${enemy.name}!`);
+        }
+
+        // Start Tournament
+        function startTournament() {
+            arenaState.tournament.active = true;
+            arenaState.tournament.bracket = generateTournamentBracket();
+            arenaState.tournament.currentRound = 0;
+            arenaState.tournament.playerPosition = 0;
+            
+            document.getElementById('tournamentBracket').classList.remove('hidden');
+            displayTournamentBracket();
+            
+            increaseCrowdExcitement(40);
+            addCombatLog("🏆 Tournament begins! 8 fighters enter, only one will be champion!");
+            
+            // Start first tournament fight
+            setTimeout(() => {
+                const enemy = arenaState.tournament.bracket[0][1];
+                startCombat(enemy);
+            }, 2000);
+        }
+
+        // Challenge Champion
+        function challengeChampion() {
+            if (arenaState.player.wins < 10) {
+                addCombatLog("👑 You need at least 10 wins to challenge the champion!");
+                return;
+            }
+            
+            const champion = arenaEnemies[4]; // Legendary Master
+            startCombat(champion);
+            increaseCrowdExcitement(60);
+            addCombatLog("👑 CHAMPIONSHIP MATCH! Face Magnus the Destroyer!");
+        }
+
+        // Practice Mode
+        function practiceMode() {
+            const dummy = { name: "Training Dummy", avatar: "🎯", health: 50, mana: 50, difficulty: 0, reward: 0 };
+            startCombat(dummy);
+            addCombatLog("🎯 Practice mode activated. Perfect your skills!");
+        }
+
+        // Restore Player
+        function restorePlayer() {
+            arenaState.player.health = arenaState.player.maxHealth;
+            arenaState.player.mana = arenaState.player.maxMana;
+            addCombatLog("💚 You rest at the arena inn. Health and mana fully restored!");
+            updateDisplay();
+        }
+
+        // Start Combat
+        function startCombat(enemy) {
+            const selectedFighter = fighters[arenaState.player.selectedFighter];
+            
+            // Restore player to full health and mana for combat
+            arenaState.player.health = arenaState.player.maxHealth;
+            arenaState.player.mana = arenaState.player.maxMana;
+            
+            arenaState.combat.active = true;
+            arenaState.combat.enemy = { ...enemy };
+            arenaState.combat.playerHealth = arenaState.player.health;
+            arenaState.combat.playerMana = arenaState.player.mana;
+            arenaState.combat.enemyHealth = enemy.health;
+            arenaState.combat.enemyMana = enemy.mana;
+            arenaState.combat.round = 1;
+            arenaState.combat.shieldActive = false;
+            arenaState.combat.enemyShieldActive = false;
+
+            // Hide welcome screen and show combat
+            document.getElementById('arenaWelcome').classList.add('hidden');
+            document.getElementById('activeCombat').classList.remove('hidden');
+            
+            // Update fighter display
+            document.getElementById('playerFighter').textContent = selectedFighter.avatar;
+            document.getElementById('playerName').textContent = selectedFighter.name;
+            document.getElementById('playerClass').textContent = selectedFighter.class;
+            document.getElementById('enemyFighter').textContent = enemy.avatar;
+            document.getElementById('enemyName').textContent = enemy.name;
+            document.getElementById('enemyClass').textContent = enemy.class || "Arena Fighter";
+            
+            updateCombatDisplay();
+            addCombatLog(`⚔️ ${selectedFighter.name} vs ${enemy.name} - FIGHT!`);
+        }
+
+        // Cast Combat Spell
+        function castCombatSpell(spellName) {
+            if (!arenaState.combat.active) return;
+            
+            const spell = spells[spellName];
+            if (!spell || arenaState.combat.playerMana < spell.cost) {
+                addCombatLog("🔮 Not enough mana!");
+                return;
+            }
+
+            arenaState.combat.playerMana -= spell.cost;
+            arenaState.player.mana = arenaState.combat.playerMana;
+
+            // Player spell effect
+            if (spell.damage) {
+                const damage = Math.floor(Math.random() * (spell.damage[1] - spell.damage[0] + 1)) + spell.damage[0];
+                let actualDamage = damage;
+                
+                if (arenaState.combat.enemyShieldActive) {
+                    actualDamage = Math.floor(damage / 2);
+                    arenaState.combat.enemyShieldActive = false;
+                    addCombatLog("🛡️ Enemy shield absorbs some damage!");
+                }
+                
+                arenaState.combat.enemyHealth -= actualDamage;
+                addCombatLog(`${spell.effect} ${spell.name} deals ${actualDamage} damage!`);
+                showSpellEffect('enemy', spell.effect);
+                increaseCrowdExcitement(10);
+                updateSpectatorComments('spell');
+            }
+            
+            if (spell.healing) {
+                const healing = Math.floor(Math.random() * (spell.healing[1] - spell.healing[0] + 1)) + spell.healing[0];
+                arenaState.combat.playerHealth = Math.min(arenaState.player.maxHealth, arenaState.combat.playerHealth + healing);
+                arenaState.player.health = arenaState.combat.playerHealth;
+                addCombatLog(`${spell.effect} Healed for ${healing} health!`);
+            }
+            
+            if (spell.protection) {
+                arenaState.combat.shieldActive = true;
+                addCombatLog(`${spell.effect} Magic shield activated!`);
+            }
+
+            if (arenaState.combat.enemyHealth <= 0) {
+                winCombat();
+                return;
+            }
+
+            // Enemy turn
+            setTimeout(() => {
+                enemyTurn();
+            }, 1500);
+
+            updateCombatDisplay();
+        }
+
+        // Enemy Turn
+        function enemyTurn() {
+            if (!arenaState.combat.active) return;
+
+            const enemy = arenaState.combat.enemy;
+            const enemySpells = ['fireball', 'lightning', 'heal', 'shield'];
+            const chosenSpell = enemySpells[Math.floor(Math.random() * enemySpells.length)];
+            const spell = spells[chosenSpell];
+
+            if (arenaState.combat.enemyMana < spell.cost) {
+                addCombatLog(`${enemy.name} is out of mana and skips their turn!`);
+                return;
+            }
+
+            arenaState.combat.enemyMana -= spell.cost;
+
+            if (spell.damage) {
+                const damage = Math.floor(Math.random() * (spell.damage[1] - spell.damage[0] + 1)) + spell.damage[0];
+                let actualDamage = damage;
+                
+                if (arenaState.combat.shieldActive) {
+                    actualDamage = Math.floor(damage / 2);
+                    arenaState.combat.shieldActive = false;
+                    addCombatLog("🛡️ Your shield absorbs some damage!");
+                }
+                
+                arenaState.combat.playerHealth -= actualDamage;
+                arenaState.player.health = arenaState.combat.playerHealth;
+                addCombatLog(`💥 ${enemy.name} casts ${spell.name} for ${actualDamage} damage!`);
+                showSpellEffect('player', spell.effect);
+                updateSpectatorComments('damage');
+            }
+            
+            if (spell.healing) {
+                const healing = Math.floor(Math.random() * (spell.healing[1] - spell.healing[0] + 1)) + spell.healing[0];
+                arenaState.combat.enemyHealth = Math.min(enemy.health, arenaState.combat.enemyHealth + healing);
+                addCombatLog(`💚 ${enemy.name} heals for ${healing} health!`);
+            }
+            
+            if (spell.protection) {
+                arenaState.combat.enemyShieldActive = true;
+                addCombatLog(`🛡️ ${enemy.name} activates magic shield!`);
+            }
+
+            if (arenaState.combat.playerHealth <= 0) {
+                loseCombat();
+                return;
+            }
+
+            updateCombatDisplay();
+        }
+
+        // Win Combat
+        function winCombat() {
+            const enemy = arenaState.combat.enemy;
+            arenaState.player.wins++;
+            arenaState.player.winStreak++;
+            arenaState.player.gold += enemy.reward;
+            
+            if (arenaState.betting.currentBet > 0) {
+                const winnings = Math.floor(arenaState.betting.currentBet * arenaState.betting.odds);
+                arenaState.player.gold += winnings;
+                addCombatLog(`💰 Betting winnings: ${winnings} gold!`);
+                arenaState.betting.currentBet = 0;
+            }
+
+            increaseCrowdExcitement(30);
+            updateSpectatorComments('victory');
+            updatePlayerRank();
+
+            // Check for tournament progression
+            if (arenaState.tournament.active) {
+                progressTournament();
+            } else {
+                showVictoryScreen(enemy);
+            }
+
+            endCombat();
+        }
+
+        // Lose Combat
+        function loseCombat() {
+            arenaState.player.losses++;
+            arenaState.player.winStreak = 0;
+            arenaState.player.health = Math.floor(arenaState.player.maxHealth * 0.3);
+            
+            if (arenaState.betting.currentBet > 0) {
+                addCombatLog(`💸 Lost bet: ${arenaState.betting.currentBet} gold!`);
+                arenaState.betting.currentBet = 0;
+            }
+
+            decreaseCrowdExcitement(20);
+            addCombatLog("💀 Defeat! You have been bested in combat!");
+            
+            showVictoryScreen(null, false);
+            endCombat();
+        }
+
+        // End Combat
+        function endCombat() {
+            arenaState.combat.active = false;
+            arenaState.combat.enemy = null;
+            updateDisplay();
+        }
+
+        // Show Victory Screen
+        function showVictoryScreen(enemy, victory = true) {
+            document.getElementById('activeCombat').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.remove('hidden');
+            
+            if (victory) {
+                document.getElementById('victoryEmoji').textContent = '🏆';
+                document.getElementById('victoryTitle').textContent = 'VICTORY!';
+                document.getElementById('victoryMessage').textContent = `You have defeated ${enemy.name}!`;
+                document.getElementById('victoryRewards').innerHTML = `
+                    💰 ${enemy.reward} Gold<br>
+                    ⭐ Win Streak: ${arenaState.player.winStreak}
+                `;
+            } else {
+                document.getElementById('victoryEmoji').textContent = '💀';
+                document.getElementById('victoryTitle').textContent = 'DEFEAT';
+                document.getElementById('victoryMessage').textContent = 'You fought valiantly but were overcome!';
+                document.getElementById('victoryRewards').innerHTML = `
+                    💔 Better luck next time!<br>
+                    🏥 Health restored to 30%
+                `;
+            }
+        }
+
+        // Return to Arena
+        function returnToArena() {
+            document.getElementById('victoryScreen').classList.add('hidden');
+            document.getElementById('arenaWelcome').classList.remove('hidden');
+            document.getElementById('tournamentBracket').classList.add('hidden');
+            arenaState.tournament.active = false;
+        }
+
+        // Generate Tournament Bracket
+        function generateTournamentBracket() {
+            const participants = [
+                { name: "You", avatar: fighters[arenaState.player.selectedFighter].avatar, health: 100, mana: 100 },
+                { name: "Fire Mage", avatar: "🔥", health: 120, mana: 120, difficulty: 2, reward: 200 },
+                { name: "Ice Queen", avatar: "❄️", health: 130, mana: 130, difficulty: 2, reward: 250 },
+                { name: "Storm Lord", avatar: "⚡", health: 140, mana: 140, difficulty: 3, reward: 300 },
+                { name: "Shadow Assassin", avatar: "🌑", health: 135, mana: 135, difficulty: 3, reward: 275 },
+                { name: "Light Paladin", avatar: "✨", health: 150, mana: 150, difficulty: 3, reward: 350 },
+                { name: "Earth Shaman", avatar: "🌍", health: 145, mana: 145, difficulty: 3, reward: 325 },
+                { name: "Void Walker", avatar: "🌌", health: 160, mana: 160, difficulty: 4, reward: 400 }
+            ];
+            
+            return [
+                [participants[0], participants[1]],
+                [participants[2], participants[3]],
+                [participants[4], participants[5]],
+                [participants[6], participants[7]]
+            ];
+        }
+
+        // Display Tournament Bracket
+        function displayTournamentBracket() {
+            const container = document.getElementById('bracketDisplay');
+            container.innerHTML = '';
+            
+            arenaState.tournament.bracket.forEach((match, index) => {
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'bg-black/30 rounded-lg p-2';
+                matchDiv.innerHTML = `
+                    <div class="font-bold text-purple-300">Match ${index + 1}</div>
+                    <div class="text-xs">${match[0].name} vs ${match[1].name}</div>
+                    <div class="text-lg">${match[0].avatar} ⚔️ ${match[1].avatar}</div>
+                `;
+                container.appendChild(matchDiv);
+            });
+        }
+
+        // Progress Tournament
+        function progressTournament() {
+            arenaState.tournament.currentRound++;
+            
+            if (arenaState.tournament.currentRound >= 3) {
+                // Tournament won!
+                arenaState.player.tournamentsWon++;
+                arenaState.player.gold += 2000;
+                addCombatLog("🏆 TOURNAMENT CHAMPION! You have won the entire tournament!");
+                showVictoryScreen({ name: "Tournament", reward: 2000 });
+            } else {
+                // Next round
+                const nextEnemy = arenaEnemies[arenaState.tournament.currentRound + 1];
+                addCombatLog(`🏆 Round ${arenaState.tournament.currentRound + 1} begins!`);
+                setTimeout(() => {
+                    startCombat(nextEnemy);
+                }, 2000);
+            }
+        }
+
+        // Place Bet
+        function placeBet() {
+            const betAmount = parseInt(document.getElementById('betAmount').value);
+            
+            if (betAmount > arenaState.player.gold) {
+                addCombatLog("💰 Not enough gold to place that bet!");
+                return;
+            }
+            
+            if (arenaState.combat.active) {
+                addCombatLog("⚔️ Cannot bet during active combat!");
+                return;
+            }
+            
+            arenaState.player.gold -= betAmount;
+            arenaState.betting.currentBet = betAmount;
+            addCombatLog(`💰 Bet placed: ${betAmount} gold at ${arenaState.betting.odds}x odds!`);
+            updateDisplay();
+        }
+
+        // Buy Item
+        function buyItem(itemType) {
+            const prices = {
+                healthPotion: 50,
+                manaPotion: 75,
+                powerBoost: 200,
+                luckyCharm: 300
+            };
+            
+            const price = prices[itemType];
+            
+            if (arenaState.player.gold < price) {
+                addCombatLog("💰 Not enough gold!");
+                return;
+            }
+            
+            arenaState.player.gold -= price;
+            arenaState.player.items[itemType + 's']++;
+            
+            const itemNames = {
+                healthPotion: "Health Potion",
+                manaPotion: "Mana Potion",
+                powerBoost: "Power Boost",
+                luckyCharm: "Lucky Charm"
+            };
+            
+            addCombatLog(`🛒 Purchased ${itemNames[itemType]} for ${price} gold!`);
+            updateDisplay();
+        }
+
+        // Show Spell Effect
+        function showSpellEffect(target, effect) {
+            const targetElement = target === 'player' ? 
+                document.getElementById('playerFighter') : 
+                document.getElementById('enemyFighter');
+            
+            const effectDiv = document.createElement('div');
+            effectDiv.className = 'spell-blast absolute top-0 left-1/2 transform -translate-x-1/2 text-4xl pointer-events-none z-10';
+            effectDiv.textContent = effect;
+            
+            targetElement.style.position = 'relative';
+            targetElement.appendChild(effectDiv);
+            
+            setTimeout(() => {
+                if (effectDiv.parentNode) {
+                    effectDiv.parentNode.removeChild(effectDiv);
+                }
+            }, 800);
+        }
+
+        // Increase Crowd Excitement
+        function increaseCrowdExcitement(amount) {
+            arenaState.crowd.excitement = Math.min(100, arenaState.crowd.excitement + amount);
+            updateCrowdDisplay();
+        }
+
+        // Decrease Crowd Excitement
+        function decreaseCrowdExcitement(amount) {
+            arenaState.crowd.excitement = Math.max(0, arenaState.crowd.excitement - amount);
+            updateCrowdDisplay();
+        }
+
+        // Update Crowd Display
+        function updateCrowdDisplay() {
+            const excitement = arenaState.crowd.excitement;
+            document.getElementById('crowdMeter').style.width = excitement + '%';
+            
+            if (excitement >= 80) {
+                arenaState.crowd.status = "ECSTATIC! 🎉";
+            } else if (excitement >= 60) {
+                arenaState.crowd.status = "Cheering loudly! 📣";
+            } else if (excitement >= 40) {
+                arenaState.crowd.status = "Getting excited! 👏";
+            } else if (excitement >= 20) {
+                arenaState.crowd.status = "Mildly interested 😐";
+            } else {
+                arenaState.crowd.status = "Bored... 😴";
+            }
+            
+            document.getElementById('crowdStatus').textContent = arenaState.crowd.status;
+        }
+
+        // Update Spectator Comments
+        function updateSpectatorComments(type = 'general') {
+            if (type !== 'general') {
+                const comments = spectatorComments[type];
+                const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                
+                // Update a random spectator's comment
+                const spectators = document.querySelectorAll('#spectatorArea .text-gray-300');
+                if (spectators.length > 0) {
+                    const randomSpectator = spectators[Math.floor(Math.random() * spectators.length)];
+                    randomSpectator.textContent = `"${randomComment}"`;
+                }
+            }
+        }
+
+        // Update Player Rank
+        function updatePlayerRank() {
+            const wins = arenaState.player.wins;
+            
+            if (wins >= 50) {
+                arenaState.player.rank = "Grandmaster";
+            } else if (wins >= 30) {
+                arenaState.player.rank = "Master";
+            } else if (wins >= 20) {
+                arenaState.player.rank = "Expert";
+            } else if (wins >= 10) {
+                arenaState.player.rank = "Veteran";
+            } else if (wins >= 5) {
+                arenaState.player.rank = "Adept";
+            } else {
+                arenaState.player.rank = "Novice";
+            }
+        }
+
+        // Add Combat Log
+        function addCombatLog(message) {
+            const combatLog = document.getElementById('combatLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'text-gray-300';
+            logEntry.textContent = message;
+            
+            combatLog.insertBefore(logEntry, combatLog.firstChild);
+            
+            if (combatLog.children.length > 8) {
+                combatLog.removeChild(combatLog.lastChild);
+            }
+        }
+
+        // Update Combat Display
+        function updateCombatDisplay() {
+            if (!arenaState.combat.active) return;
+            
+            const playerHealthPercent = (arenaState.combat.playerHealth / arenaState.player.maxHealth) * 100;
+            const playerManaPercent = (arenaState.combat.playerMana / arenaState.player.maxMana) * 100;
+            const enemyHealthPercent = (arenaState.combat.enemyHealth / arenaState.combat.enemy.health) * 100;
+            const enemyManaPercent = (arenaState.combat.enemyMana / arenaState.combat.enemy.mana) * 100;
+            
+            document.getElementById('playerHealth').style.width = playerHealthPercent + '%';
+            document.getElementById('playerMana').style.width = playerManaPercent + '%';
+            document.getElementById('enemyHealth').style.width = enemyHealthPercent + '%';
+            document.getElementById('enemyMana').style.width = enemyManaPercent + '%';
+            
+            document.getElementById('playerHealthText').textContent = `${arenaState.combat.playerHealth}/${arenaState.player.maxHealth}`;
+            document.getElementById('playerManaText').textContent = `${arenaState.combat.playerMana}/${arenaState.player.maxMana}`;
+            document.getElementById('enemyHealthText').textContent = `${arenaState.combat.enemyHealth}/${arenaState.combat.enemy.health}`;
+            document.getElementById('enemyManaText').textContent = `${arenaState.combat.enemyMana}/${arenaState.combat.enemy.mana}`;
+        }
+
+        // Update Display
+        function updateDisplay() {
+            // Player stats
+            document.getElementById('duelsWon').textContent = arenaState.player.wins;
+            document.getElementById('duelsLost').textContent = arenaState.player.losses;
+            document.getElementById('winStreak').textContent = arenaState.player.winStreak;
+            document.getElementById('tournamentsWon').textContent = arenaState.player.tournamentsWon;
+            document.getElementById('arenaRank').textContent = arenaState.player.rank;
+            document.getElementById('playerGold').textContent = arenaState.player.gold;
+            
+            // Update fighter selection
+            const selectedFighter = fighters[arenaState.player.selectedFighter];
+            document.getElementById('playerSelect').value = arenaState.player.selectedFighter;
+        }
+
+        // Handle fighter selection
+        document.getElementById('playerSelect').addEventListener('change', function() {
+            arenaState.player.selectedFighter = parseInt(this.value);
+            const selectedFighter = fighters[arenaState.player.selectedFighter];
+            addCombatLog(`🧙‍♂️ Selected fighter: ${selectedFighter.name} the ${selectedFighter.class}`);
+        });
+
+        // Auto-save
+        setInterval(() => {
+            localStorage.setItem('arenaStateSave', JSON.stringify(arenaState));
+        }, 30000);
+
+        // Load saved state
+        function loadArenaState() {
+            const saved = localStorage.getItem('arenaStateSave');
+            if (saved) {
+                arenaState = { ...arenaState, ...JSON.parse(saved) };
+            }
+        }
+
+        // Initialize
+        loadArenaState();
+        initializeArena();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9737103173cf15ae',t:'MTc1NTkxNDkxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

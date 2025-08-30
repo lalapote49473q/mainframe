@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Agent - Spy RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .spy-font { font-family: 'Orbitron', monospace; }
+        .spy-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 60%, #475569 100%); }
+        .matrix-bg { 
+            background-image: 
+                radial-gradient(circle at 25% 25%, #10b981 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #3b82f6 0%, transparent 50%),
+                linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .stealth-animation { animation: stealth 3s ease-in-out infinite; }
+        @keyframes stealth { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+        .hack-text { animation: hackGlow 2s ease-in-out infinite alternate; }
+        @keyframes hackGlow { from { text-shadow: 0 0 5px #10b981; } to { text-shadow: 0 0 20px #10b981, 0 0 30px #10b981; } }
+        .mission-card { transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .mission-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .typing-animation { animation: typing 3s steps(30) infinite; }
+        @keyframes typing { 0%, 50% { width: 0; } 100% { width: 100%; } }
+        .scanner-line { animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+        .classified-blur { filter: blur(2px); transition: filter 0.3s ease; }
+        .classified-blur:hover { filter: blur(0); }
+        .agent-pulse { animation: agentPulse 1.5s ease-in-out infinite; }
+        @keyframes agentPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } }
+    </style>
+</head>
+<body class="spy-bg min-h-screen text-white">
+    <!-- Scanner Line Effect -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="scanner-line w-full h-0.5 bg-gradient-to-r from-transparent via-green-400 to-transparent opacity-30"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/30 backdrop-blur-sm border-b border-green-500/30 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='main.html'" class="bg-red-600/80 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-red-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl stealth-animation">🕵️</div>
+                    <h1 class="text-2xl font-bold spy-font hack-text">SHADOW AGENT</h1>
+                    <div class="text-xs bg-red-600 px-2 py-1 rounded spy-font">CLASSIFIED</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-green-400">💰</span>
+                    <span class="text-xl font-bold spy-font" id="credits">50,000</span>
+                    <span class="text-sm text-gray-400">CREDITS</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">⭐</span>
+                    <span class="text-lg spy-font" id="reputation">0</span>
+                    <span class="text-sm text-gray-400">REP</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-red-400">🎯</span>
+                    <span class="text-lg spy-font" id="level">1</span>
+                    <span class="text-sm text-gray-400">LVL</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Agent Profile -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-green-500/30 agent-pulse">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-2xl">
+                        🕴️
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold spy-font" id="agentName">Agent Shadow</h2>
+                        <p class="text-green-400 spy-font" id="agentRank">Rookie Operative</p>
+                        <div class="flex gap-4 mt-2">
+                            <span class="text-sm">🎯 Stealth: <span class="text-green-400 font-bold" id="stealthStat">75</span></span>
+                            <span class="text-sm">💪 Combat: <span class="text-red-400 font-bold" id="combatStat">60</span></span>
+                            <span class="text-sm">🧠 Intelligence: <span class="text-blue-400 font-bold" id="intelligenceStat">85</span></span>
+                            <span class="text-sm">🔧 Tech: <span class="text-purple-400 font-bold" id="techStat">70</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-400">CLEARANCE LEVEL</div>
+                    <div class="text-3xl spy-font text-green-400" id="clearanceLevel">ALPHA</div>
+                    <div class="text-sm text-gray-400 mt-2">MISSIONS COMPLETED: <span class="text-white font-bold" id="missionsCompleted">0</span></div>
+                </div>
+            </div>
+            
+            <!-- Experience Bar -->
+            <div class="mb-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Experience</span>
+                    <span><span id="currentXP">0</span> / <span id="maxXP">1000</span> XP</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-500" id="xpBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission Briefing -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Active Mission -->
+            <div class="lg:col-span-2 bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-red-500/30">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold spy-font text-red-400">🎯 ACTIVE MISSION</h2>
+                    <div class="text-sm bg-red-600/20 px-3 py-1 rounded spy-font border border-red-500/50">
+                        <span id="missionTimer">05:00</span>
+                    </div>
+                </div>
+                
+                <div id="activeMission" class="space-y-4">
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">📋</div>
+                        <p class="spy-font">NO ACTIVE MISSION</p>
+                        <p class="text-sm">Select a mission from the available operations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30">
+                <h2 class="text-xl font-bold spy-font text-blue-400 mb-4">📊 AGENT STATUS</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Health:</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-20 bg-gray-700 rounded-full h-2">
+                                <div class="bg-green-400 h-2 rounded-full" id="healthBar" style="width: 100%"></div>
+                            </div>
+                            <span class="text-sm spy-font" id="healthText">100%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Energy:</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-20 bg-gray-700 rounded-full h-2">
+                                <div class="bg-blue-400 h-2 rounded-full" id="energyBar" style="width: 100%"></div>
+                            </div>
+                            <span class="text-sm spy-font" id="energyText">100%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Cover Status:</span>
+                        <span class="text-green-400 spy-font" id="coverStatus">INTACT</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Heat Level:</span>
+                        <span class="text-yellow-400 spy-font" id="heatLevel">LOW</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-600">
+                    <h3 class="text-lg font-bold spy-font text-purple-400 mb-3">🔧 GADGETS</h3>
+                    <div class="grid grid-cols-2 gap-2" id="gadgetsList">
+                        <div class="bg-gray-800/50 p-2 rounded text-center">
+                            <div class="text-lg">📱</div>
+                            <div class="text-xs spy-font">PHONE</div>
+                        </div>
+                        <div class="bg-gray-800/50 p-2 rounded text-center">
+                            <div class="text-lg">🔍</div>
+                            <div class="text-xs spy-font">SCANNER</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Missions -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-green-500/30">
+            <h2 class="text-2xl font-bold spy-font text-green-400 mb-6">📋 AVAILABLE OPERATIONS</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="missionsContainer">
+                <!-- Missions will be populated here -->
+            </div>
+        </div>
+
+        <!-- Equipment Shop -->
+        <div class="bg-black/40 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-purple-500/30">
+            <h2 class="text-2xl font-bold spy-font text-purple-400 mb-6">🛒 BLACK MARKET</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="shopContainer">
+                <!-- Shop items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Mission Results Modal -->
+        <div id="missionResultModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-green-500/50">
+                <div class="text-center">
+                    <div class="text-6xl mb-4" id="resultIcon">✅</div>
+                    <h2 class="text-2xl font-bold spy-font mb-4" id="resultTitle">MISSION COMPLETE</h2>
+                    <div class="space-y-2 mb-6" id="resultDetails">
+                        <!-- Result details will be populated here -->
+                    </div>
+                    <button onclick="closeMissionResult()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold spy-font transition-all">
+                        CONTINUE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Game State
+        let gameState = {
+            credits: 50000,
+            reputation: 0,
+            level: 1,
+            xp: 0,
+            maxXP: 1000,
+            health: 100,
+            energy: 100,
+            coverStatus: 'INTACT',
+            heatLevel: 'LOW',
+            stats: {
+                stealth: 75,
+                combat: 60,
+                intelligence: 85,
+                tech: 70
+            },
+            gadgets: ['phone', 'scanner'],
+            missionsCompleted: 0,
+            activeMission: null,
+            missionTimer: null
+        };
+
+        // Mission Types
+        const missions = [
+            {
+                id: 'infiltration_1',
+                title: 'Corporate Infiltration',
+                description: 'Infiltrate MegaCorp headquarters and steal classified documents',
+                difficulty: 'Easy',
+                reward: 15000,
+                xpReward: 200,
+                duration: 300, // 5 minutes
+                requirements: { stealth: 70 },
+                icon: '🏢',
+                type: 'stealth'
+            },
+            {
+                id: 'assassination_1',
+                title: 'Silent Elimination',
+                description: 'Eliminate high-value target without raising alarms',
+                difficulty: 'Medium',
+                reward: 25000,
+                xpReward: 350,
+                duration: 420, // 7 minutes
+                requirements: { combat: 65, stealth: 80 },
+                icon: '🎯',
+                type: 'elimination'
+            },
+            {
+                id: 'hacking_1',
+                title: 'Data Breach',
+                description: 'Hack into government servers and extract intelligence',
+                difficulty: 'Medium',
+                reward: 20000,
+                xpReward: 300,
+                duration: 360, // 6 minutes
+                requirements: { tech: 75, intelligence: 80 },
+                icon: '💻',
+                type: 'cyber'
+            },
+            {
+                id: 'rescue_1',
+                title: 'Asset Extraction',
+                description: 'Rescue captured agent from enemy compound',
+                difficulty: 'Hard',
+                reward: 35000,
+                xpReward: 500,
+                duration: 600, // 10 minutes
+                requirements: { combat: 70, stealth: 75 },
+                icon: '🚁',
+                type: 'rescue'
+            },
+            {
+                id: 'surveillance_1',
+                title: 'Deep Cover',
+                description: 'Maintain surveillance on terrorist cell for 48 hours',
+                difficulty: 'Easy',
+                reward: 12000,
+                xpReward: 150,
+                duration: 240, // 4 minutes
+                requirements: { intelligence: 70 },
+                icon: '📷',
+                type: 'surveillance'
+            },
+            {
+                id: 'sabotage_1',
+                title: 'Industrial Sabotage',
+                description: 'Sabotage enemy weapons facility without detection',
+                difficulty: 'Hard',
+                reward: 40000,
+                xpReward: 600,
+                duration: 480, // 8 minutes
+                requirements: { tech: 80, stealth: 85 },
+                icon: '💥',
+                type: 'sabotage'
+            }
+        ];
+
+        // Shop Items
+        const shopItems = [
+            {
+                id: 'lockpick',
+                name: 'Electronic Lockpick',
+                description: '+10 Stealth for infiltration missions',
+                price: 8000,
+                icon: '🔓',
+                effect: { stealth: 10 }
+            },
+            {
+                id: 'silencer',
+                name: 'Silenced Pistol',
+                description: '+15 Combat, +5 Stealth',
+                price: 15000,
+                icon: '🔫',
+                effect: { combat: 15, stealth: 5 }
+            },
+            {
+                id: 'laptop',
+                name: 'Military Laptop',
+                description: '+20 Tech, +10 Intelligence',
+                price: 25000,
+                icon: '💻',
+                effect: { tech: 20, intelligence: 10 }
+            },
+            {
+                id: 'armor',
+                name: 'Kevlar Vest',
+                description: '+25 Combat, +10 Health',
+                price: 20000,
+                icon: '🦺',
+                effect: { combat: 25, health: 10 }
+            },
+            {
+                id: 'drone',
+                name: 'Surveillance Drone',
+                description: '+15 Intelligence, +10 Tech',
+                price: 30000,
+                icon: '🚁',
+                effect: { intelligence: 15, tech: 10 }
+            },
+            {
+                id: 'stimpack',
+                name: 'Energy Stimpack',
+                description: 'Restore 50 Energy instantly',
+                price: 5000,
+                icon: '💉',
+                effect: { energy: 50 },
+                consumable: true
+            },
+            {
+                id: 'medkit',
+                name: 'Advanced Medkit',
+                description: 'Restore 75 Health instantly',
+                price: 7500,
+                icon: '🏥',
+                effect: { health: 75 },
+                consumable: true
+            },
+            {
+                id: 'scrambler',
+                name: 'Signal Scrambler',
+                description: 'Reduce heat level after missions',
+                price: 18000,
+                icon: '📡',
+                effect: { heatReduction: true }
+            }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            updateUI();
+            renderMissions();
+            renderShop();
+            
+            // Start game loop
+            setInterval(gameLoop, 1000);
+        }
+
+        // Game Loop
+        function gameLoop() {
+            if (gameState.activeMission && gameState.missionTimer > 0) {
+                gameState.missionTimer--;
+                updateMissionTimer();
+                
+                if (gameState.missionTimer <= 0) {
+                    completeMission();
+                }
+            }
+            
+            // Slowly recover energy
+            if (gameState.energy < 100 && !gameState.activeMission) {
+                gameState.energy = Math.min(100, gameState.energy + 0.5);
+                updateUI();
+            }
+        }
+
+        // Start Mission
+        function startMission(missionId) {
+            const mission = missions.find(m => m.id === missionId);
+            if (!mission) return;
+            
+            // Check requirements
+            for (const [stat, required] of Object.entries(mission.requirements)) {
+                if (gameState.stats[stat] < required) {
+                    alert(`Mission requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                    return;
+                }
+            }
+            
+            // Check energy
+            if (gameState.energy < 30) {
+                alert('Insufficient energy! Rest or use stimpack.');
+                return;
+            }
+            
+            gameState.activeMission = mission;
+            gameState.missionTimer = mission.duration;
+            gameState.energy -= 30;
+            
+            updateActiveMission();
+            updateUI();
+        }
+
+        // Complete Mission
+        function completeMission() {
+            const mission = gameState.activeMission;
+            if (!mission) return;
+            
+            // Calculate success chance based on stats
+            let successChance = 0.7; // Base 70%
+            
+            for (const [stat, required] of Object.entries(mission.requirements)) {
+                const playerStat = gameState.stats[stat];
+                if (playerStat >= required) {
+                    successChance += (playerStat - required) * 0.01; // +1% per point above requirement
+                }
+            }
+            
+            // Heat level affects success
+            if (gameState.heatLevel === 'HIGH') successChance -= 0.2;
+            else if (gameState.heatLevel === 'MEDIUM') successChance -= 0.1;
+            
+            const success = Math.random() < Math.min(0.95, successChance);
+            
+            if (success) {
+                // Mission success
+                gameState.credits += mission.reward;
+                gameState.xp += mission.xpReward;
+                gameState.reputation += Math.floor(mission.xpReward / 100);
+                gameState.missionsCompleted++;
+                
+                // Increase heat slightly
+                increaseHeat();
+                
+                showMissionResult(true, mission);
+            } else {
+                // Mission failure
+                gameState.health -= 25;
+                gameState.reputation -= 5;
+                increaseHeat(2);
+                
+                showMissionResult(false, mission);
+            }
+            
+            gameState.activeMission = null;
+            gameState.missionTimer = null;
+            
+            checkLevelUp();
+            updateActiveMission();
+            updateUI();
+        }
+
+        // Show Mission Result
+        function showMissionResult(success, mission) {
+            const modal = document.getElementById('missionResultModal');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const details = document.getElementById('resultDetails');
+            
+            if (success) {
+                icon.textContent = '✅';
+                title.textContent = 'MISSION SUCCESS';
+                title.className = 'text-2xl font-bold spy-font mb-4 text-green-400';
+                details.innerHTML = `
+                    <div class="text-green-400">+ ${mission.reward.toLocaleString()} Credits</div>
+                    <div class="text-blue-400">+ ${mission.xpReward} XP</div>
+                    <div class="text-purple-400">+ ${Math.floor(mission.xpReward / 100)} Reputation</div>
+                `;
+            } else {
+                icon.textContent = '❌';
+                title.textContent = 'MISSION FAILED';
+                title.className = 'text-2xl font-bold spy-font mb-4 text-red-400';
+                details.innerHTML = `
+                    <div class="text-red-400">- 25 Health</div>
+                    <div class="text-red-400">- 5 Reputation</div>
+                    <div class="text-yellow-400">Heat Level Increased</div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Mission Result
+        function closeMissionResult() {
+            const modal = document.getElementById('missionResultModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Increase Heat Level
+        function increaseHeat(amount = 1) {
+            const heatLevels = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+            let currentIndex = heatLevels.indexOf(gameState.heatLevel);
+            currentIndex = Math.min(heatLevels.length - 1, currentIndex + amount);
+            gameState.heatLevel = heatLevels[currentIndex];
+        }
+
+        // Check Level Up
+        function checkLevelUp() {
+            while (gameState.xp >= gameState.maxXP) {
+                gameState.xp -= gameState.maxXP;
+                gameState.level++;
+                gameState.maxXP = Math.floor(gameState.maxXP * 1.5);
+                
+                // Stat increases on level up
+                gameState.stats.stealth += 2;
+                gameState.stats.combat += 2;
+                gameState.stats.intelligence += 2;
+                gameState.stats.tech += 2;
+                
+                // Heal on level up
+                gameState.health = Math.min(100, gameState.health + 25);
+                
+                alert(`LEVEL UP! You are now level ${gameState.level}. All stats increased by 2!`);
+            }
+        }
+
+        // Buy Item
+        function buyItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            if (gameState.credits >= item.price) {
+                gameState.credits -= item.price;
+                
+                // Apply item effects
+                for (const [stat, value] of Object.entries(item.effect)) {
+                    if (stat === 'health') {
+                        gameState.health = Math.min(100, gameState.health + value);
+                    } else if (stat === 'energy') {
+                        gameState.energy = Math.min(100, gameState.energy + value);
+                    } else if (stat === 'heatReduction') {
+                        const heatLevels = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+                        let currentIndex = heatLevels.indexOf(gameState.heatLevel);
+                        currentIndex = Math.min(heatLevels.length - 1, currentIndex + 1);
+                        gameState.heatLevel = heatLevels[currentIndex];
+                    } else if (gameState.stats[stat] !== undefined) {
+                        gameState.stats[stat] += value;
+                    }
+                }
+                
+                if (!item.consumable) {
+                    gameState.gadgets.push(item.id);
+                }
+                
+                updateUI();
+                renderShop();
+                
+                alert(`Purchased ${item.name}!`);
+            } else {
+                alert('Insufficient credits!');
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('credits').textContent = gameState.credits.toLocaleString();
+            document.getElementById('reputation').textContent = gameState.reputation;
+            document.getElementById('level').textContent = gameState.level;
+            
+            // Stats
+            document.getElementById('stealthStat').textContent = gameState.stats.stealth;
+            document.getElementById('combatStat').textContent = gameState.stats.combat;
+            document.getElementById('intelligenceStat').textContent = gameState.stats.intelligence;
+            document.getElementById('techStat').textContent = gameState.stats.tech;
+            
+            // Status
+            document.getElementById('healthText').textContent = gameState.health + '%';
+            document.getElementById('healthBar').style.width = gameState.health + '%';
+            document.getElementById('energyText').textContent = Math.floor(gameState.energy) + '%';
+            document.getElementById('energyBar').style.width = gameState.energy + '%';
+            document.getElementById('coverStatus').textContent = gameState.coverStatus;
+            document.getElementById('heatLevel').textContent = gameState.heatLevel;
+            document.getElementById('missionsCompleted').textContent = gameState.missionsCompleted;
+            
+            // XP Bar
+            document.getElementById('currentXP').textContent = gameState.xp;
+            document.getElementById('maxXP').textContent = gameState.maxXP;
+            document.getElementById('xpBar').style.width = (gameState.xp / gameState.maxXP * 100) + '%';
+            
+            // Agent Rank
+            const ranks = ['Rookie Operative', 'Field Agent', 'Senior Agent', 'Elite Operative', 'Master Spy'];
+            const rankIndex = Math.min(ranks.length - 1, Math.floor(gameState.level / 3));
+            document.getElementById('agentRank').textContent = ranks[rankIndex];
+            
+            // Clearance Level
+            const clearanceLevels = ['ALPHA', 'BETA', 'GAMMA', 'DELTA', 'OMEGA'];
+            const clearanceIndex = Math.min(clearanceLevels.length - 1, Math.floor(gameState.level / 2));
+            document.getElementById('clearanceLevel').textContent = clearanceLevels[clearanceIndex];
+        }
+
+        // Update Mission Timer
+        function updateMissionTimer() {
+            const minutes = Math.floor(gameState.missionTimer / 60);
+            const seconds = gameState.missionTimer % 60;
+            document.getElementById('missionTimer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update Active Mission Display
+        function updateActiveMission() {
+            const container = document.getElementById('activeMission');
+            
+            if (gameState.activeMission) {
+                const mission = gameState.activeMission;
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-4xl">${mission.icon}</div>
+                        <div>
+                            <h3 class="text-xl font-bold spy-font">${mission.title}</h3>
+                            <p class="text-gray-400">${mission.description}</p>
+                            <div class="flex gap-4 mt-2">
+                                <span class="text-sm bg-yellow-600/20 px-2 py-1 rounded spy-font">${mission.difficulty}</span>
+                                <span class="text-sm bg-green-600/20 px-2 py-1 rounded spy-font">${mission.reward.toLocaleString()} Credits</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">⏳</div>
+                            <div class="spy-font text-lg">MISSION IN PROGRESS</div>
+                            <div class="text-sm text-gray-400">Agent is currently in the field</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">📋</div>
+                        <p class="spy-font">NO ACTIVE MISSION</p>
+                        <p class="text-sm">Select a mission from the available operations</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render Missions
+        function renderMissions() {
+            const container = document.getElementById('missionsContainer');
+            container.innerHTML = missions.map(mission => {
+                const canStart = !gameState.activeMission && 
+                    Object.entries(mission.requirements).every(([stat, required]) => 
+                        gameState.stats[stat] >= required
+                    );
+                
+                const difficultyColors = {
+                    'Easy': 'text-green-400 border-green-500/30',
+                    'Medium': 'text-yellow-400 border-yellow-500/30',
+                    'Hard': 'text-red-400 border-red-500/30'
+                };
+                
+                return `
+                    <div class="mission-card bg-gray-800/50 rounded-xl p-6 border ${difficultyColors[mission.difficulty]}">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">${mission.icon}</div>
+                            <h3 class="text-lg font-bold spy-font">${mission.title}</h3>
+                            <p class="text-sm text-gray-400 mb-3">${mission.description}</p>
+                            <div class="flex justify-center gap-2 mb-3">
+                                <span class="text-xs bg-gray-700 px-2 py-1 rounded spy-font">${mission.difficulty}</span>
+                                <span class="text-xs bg-green-600/20 px-2 py-1 rounded spy-font">${mission.reward.toLocaleString()}💰</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="text-xs text-gray-400 spy-font">REQUIREMENTS:</div>
+                            ${Object.entries(mission.requirements).map(([stat, required]) => `
+                                <div class="flex justify-between text-sm">
+                                    <span>${stat.toUpperCase()}:</span>
+                                    <span class="${gameState.stats[stat] >= required ? 'text-green-400' : 'text-red-400'}">${required}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <button onclick="startMission('${mission.id}')" 
+                                ${!canStart ? 'disabled' : ''}
+                                class="w-full py-3 rounded-lg font-semibold spy-font transition-all ${
+                                    canStart 
+                                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                }">
+                            ${canStart ? 'START MISSION' : 'REQUIREMENTS NOT MET'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Shop
+        function renderShop() {
+            const container = document.getElementById('shopContainer');
+            container.innerHTML = shopItems.map(item => `
+                <div class="mission-card bg-gray-800/50 rounded-xl p-4 border border-purple-500/30">
+                    <div class="text-center mb-3">
+                        <div class="text-3xl mb-2">${item.icon}</div>
+                        <h3 class="text-sm font-bold spy-font">${item.name}</h3>
+                        <p class="text-xs text-gray-400 mb-2">${item.description}</p>
+                        <div class="text-lg font-bold text-green-400 spy-font">${item.price.toLocaleString()}💰</div>
+                    </div>
+                    
+                    <button onclick="buyItem('${item.id}')" 
+                            ${gameState.credits < item.price ? 'disabled' : ''}
+                            class="w-full py-2 rounded-lg font-semibold spy-font transition-all text-sm ${
+                                gameState.credits >= item.price 
+                                    ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            }">
+                        ${gameState.credits >= item.price ? 'BUY' : 'INSUFFICIENT FUNDS'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736d12c4269ce58',t:'MTc1NTkxMjMzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

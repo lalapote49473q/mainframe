@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Life: Complete College Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One:wght@400&display=swap');
+        .campus-font { font-family: 'Fredoka One', cursive; }
+        body { font-family: 'Poppins', sans-serif; }
+        
+        .campus-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+        }
+        
+        .semester-glow {
+            animation: semesterGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes semesterGlow {
+            from { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+            to { box-shadow: 0 0 30px rgba(118, 75, 162, 0.8); }
+        }
+        
+        .notification-pop {
+            animation: notificationPop 0.5s ease-out;
+        }
+        
+        @keyframes notificationPop {
+            0% { transform: translateY(-20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        .energy-pulse {
+            animation: energyPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes energyPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .grade-celebration {
+            animation: gradeCelebration 1s ease-out;
+        }
+        
+        @keyframes gradeCelebration {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .campus-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .activity-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .semester-progress {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .stress-bar {
+            background: linear-gradient(90deg, #56ab2f 0%, #a8e6cf 50%, #ffd89b 75%, #ff6b6b 100%);
+        }
+        
+        .modal {
+            backdrop-filter: blur(5px);
+        }
+        
+        .skill-tree-node {
+            transition: all 0.3s ease;
+        }
+        
+        .skill-tree-node:hover {
+            transform: scale(1.1);
+        }
+        
+        .relationship-heart {
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .quest-glow {
+            animation: questGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes questGlow {
+            from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            to { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+
+        .stat-critical {
+            animation: criticalPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes criticalPulse {
+            0%, 100% { background-color: rgba(239, 68, 68, 0.1); }
+            50% { background-color: rgba(239, 68, 68, 0.3); }
+        }
+
+        .weather-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .rain {
+            background: linear-gradient(transparent, rgba(255,255,255,0.6), transparent);
+            animation: rain 0.5s linear infinite;
+        }
+
+        @keyframes rain {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .achievement-unlock {
+            animation: achievementUnlock 2s ease-out;
+        }
+
+        @keyframes achievementUnlock {
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .campus-map {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .location-pin {
+            position: absolute;
+            animation: locationPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes locationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .romance-meter {
+            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        }
+
+        .skill-mastery {
+            background: linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .legendary-item {
+            animation: legendaryGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes legendaryGlow {
+            from { box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
+            to { box-shadow: 0 0 25px rgba(255, 215, 0, 1); }
+        }
+
+        .grade-A { color: #10b981; font-weight: bold; }
+        .grade-B { color: #3b82f6; font-weight: bold; }
+        .grade-C { color: #f59e0b; font-weight: bold; }
+        .grade-D { color: #ef4444; font-weight: bold; }
+        .grade-F { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body class="campus-bg">
+    <!-- Weather Effects -->
+    <div id="weatherEffects" class="weather-effect"></div>
+
+    <div class="container mx-auto px-4 py-6 relative z-10">
+        <!-- Enhanced Game Header -->
+        <div class="text-center mb-6">
+            <h1 class="campus-font text-5xl font-bold mb-2 text-white drop-shadow-lg">🎓 CAMPUS LIFE</h1>
+            <p class="text-lg text-white/90 mb-4">Complete College Life Simulation</p>
+            <div class="semester-glow bg-white/20 backdrop-blur-sm rounded-xl p-3 inline-block">
+                <div class="text-white font-bold">📅 <span id="currentSemester">Fall Semester - Week 1</span></div>
+                <div class="bg-white/30 rounded-full h-2 mt-2 w-64">
+                    <div id="semesterProgress" class="semester-progress h-2 rounded-full transition-all duration-500" style="width: 5%"></div>
+                </div>
+                <div class="text-sm text-white/80 mt-1">
+                    <span id="currentTime">Monday 9:00 AM</span> | Weather: <span id="weather">☀️ Sunny</span> | Temp: <span id="temperature">72°F</span>
+                </div>
+                <div class="text-xs text-white/70">
+                    Level <span id="playerLevel">1</span> | XP: <span id="playerXP">0</span>/100 | Credits: <span id="playerCredits">0</span>/120
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Game Layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-6 gap-4">
+            <!-- Character Stats & Profile -->
+            <div class="xl:col-span-2 space-y-4">
+                <!-- Basic Profile -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2" id="playerAvatar">🧑‍🎓</div>
+                        <h3 class="text-lg font-bold text-gray-800" id="playerName">Alex Thompson</h3>
+                        <div class="text-xs text-gray-600" id="playerMajor">📚 Undecided Major</div>
+                        <div class="text-xs text-gray-600" id="playerYear">🎓 Freshman</div>
+                        <div class="text-xs text-purple-600 font-bold" id="playerReputation">Reputation: New Student</div>
+                        <div class="text-xs text-blue-600" id="playerPersonality">Personality: Balanced</div>
+                        <div class="text-xs text-green-600" id="playerMood">Mood: <span id="currentMood">Optimistic</span></div>
+                    </div>
+
+                    <!-- Core Stats -->
+                    <div class="space-y-2 mb-4 text-xs">
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>📚 GPA</span>
+                                <span id="gpaDisplay">2.5</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-1.5">
+                                <div id="gpaBar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 62.5%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>⚡ Energy</span>
+                                <span id="energyDisplay">75/100</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-1.5">
+                                <div id="energyBar" class="bg-green-500 h-1.5 rounded-full transition-all duration-500" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>😰 Stress</span>
+                                <span id="stressDisplay">30/100</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-1.5">
+                                <div id="stressBar" class="stress-bar h-1.5 rounded-full transition-all duration-500" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>💰 Money</span>
+                                <span id="moneyDisplay">$250</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>🏥 Health</span>
+                                <span id="healthDisplay">85/100</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-1.5">
+                                <div id="healthBar" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 85%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>👥 Social</span>
+                                <span id="socialDisplay">40/100</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-1.5">
+                                <div id="socialBar" class="bg-pink-500 h-1.5 rounded-full transition-all duration-500" style="width: 40%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-medium text-gray-700 mb-1">
+                                <span>💪 Fitness</span>
+                                <span id="fitnessDisplay">50/100</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-1.5">
+                                <div id="fitnessBar" class="bg-orange-500 h-1.5 rounded-full transition-all duration-500" style="width: 50%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-2 gap-1 text-xs">
+                        <button onclick="restInDorm()" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            🛏️ Sleep
+                        </button>
+                        <button onclick="eatAtCafeteria()" class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            🍕 Eat
+                        </button>
+                        <button onclick="workOut()" class="bg-orange-500 hover:bg-orange-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            💪 Gym
+                        </button>
+                        <button onclick="drinkCoffee()" class="bg-amber-500 hover:bg-amber-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            ☕ Coffee
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Academic Progress -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm">📚 Academic Progress</h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span>Credits Earned:</span>
+                            <span id="creditsEarned">0/120</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Current Semester:</span>
+                            <span id="currentSemesterNum">1</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Dean's List:</span>
+                            <span id="deansListStatus">No</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Academic Standing:</span>
+                            <span id="academicStanding">Good</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button onclick="openTranscript()" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-xs w-full">
+                            📋 View Transcript
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Skills & Abilities -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm">🎯 Skills & Abilities</h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="text-center">
+                            <div>📖 Study</div>
+                            <div id="studySkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>🎤 Public Speaking</div>
+                            <div id="speakingSkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>💻 Technology</div>
+                            <div id="techSkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>🎨 Creativity</div>
+                            <div id="creativitySkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>👥 Leadership</div>
+                            <div id="leadershipSkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>🏃 Athletics</div>
+                            <div id="athleticsSkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>🎵 Music</div>
+                            <div id="musicSkill" class="font-bold">1</div>
+                        </div>
+                        <div class="text-center">
+                            <div>🍳 Cooking</div>
+                            <div id="cookingSkill" class="font-bold">1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory & Items -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h4 class="font-bold text-gray-800 mb-3 text-sm">🎒 Inventory</h4>
+                    <div class="grid grid-cols-2 gap-1 text-xs">
+                        <div class="flex justify-between">
+                            <span>📚 Textbooks</span>
+                            <span id="textbooksCount">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>💻 Laptop</span>
+                            <span id="laptopQuality">Basic</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>📱 Phone</span>
+                            <span id="phoneQuality">Standard</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🚗 Transportation</span>
+                            <span id="transportation">Walking</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>👕 Clothes</span>
+                            <span id="clothingQuality">Casual</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>☕ Coffee Cups</span>
+                            <span id="coffeeCups">0</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <button onclick="openStore()" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded text-xs w-full">
+                            🛒 Campus Store
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Campus Activities -->
+            <div class="xl:col-span-2 space-y-4">
+                <!-- Campus Map -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 text-center">🏫 Campus Activities</h3>
+                    
+                    <div class="grid grid-cols-6 gap-1">
+                        <!-- Academic Activities -->
+                        <button onclick="attendClass()" class="activity-hover bg-blue-100 hover:bg-blue-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">📚</div>
+                            <div class="font-bold text-blue-800 text-xs">Class</div>
+                        </button>
+                        
+                        <button onclick="studyInLibrary()" class="activity-hover bg-indigo-100 hover:bg-indigo-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">📖</div>
+                            <div class="font-bold text-indigo-800 text-xs">Library</div>
+                        </button>
+                        
+                        <button onclick="doHomework()" class="activity-hover bg-purple-100 hover:bg-purple-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">✏️</div>
+                            <div class="font-bold text-purple-800 text-xs">Homework</div>
+                        </button>
+                        
+                        <button onclick="meetProfessor()" class="activity-hover bg-teal-100 hover:bg-teal-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">👨‍🏫</div>
+                            <div class="font-bold text-teal-800 text-xs">Professor</div>
+                        </button>
+
+                        <button onclick="joinStudyGroup()" class="activity-hover bg-cyan-100 hover:bg-cyan-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">👥</div>
+                            <div class="font-bold text-cyan-800 text-xs">Study Group</div>
+                        </button>
+
+                        <button onclick="takeExam()" class="activity-hover bg-red-100 hover:bg-red-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">📝</div>
+                            <div class="font-bold text-red-800 text-xs">Exam</div>
+                        </button>
+                        
+                        <!-- Social Activities -->
+                        <button onclick="hangWithFriends()" class="activity-hover bg-pink-100 hover:bg-pink-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">👥</div>
+                            <div class="font-bold text-pink-800 text-xs">Friends</div>
+                        </button>
+                        
+                        <button onclick="attendParty()" class="activity-hover bg-red-100 hover:bg-red-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🎉</div>
+                            <div class="font-bold text-red-800 text-xs">Party</div>
+                        </button>
+                        
+                        <button onclick="goOnDate()" class="activity-hover bg-rose-100 hover:bg-rose-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">💕</div>
+                            <div class="font-bold text-rose-800 text-xs">Date</div>
+                        </button>
+
+                        <button onclick="joinClub()" class="activity-hover bg-yellow-100 hover:bg-yellow-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🎭</div>
+                            <div class="font-bold text-yellow-800 text-xs">Club</div>
+                        </button>
+
+                        <button onclick="attendEvent()" class="activity-hover bg-orange-100 hover:bg-orange-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🎪</div>
+                            <div class="font-bold text-orange-800 text-xs">Event</div>
+                        </button>
+
+                        <button onclick="networkWithPeers()" class="activity-hover bg-green-100 hover:bg-green-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🤝</div>
+                            <div class="font-bold text-green-800 text-xs">Network</div>
+                        </button>
+                        
+                        <!-- Health & Wellness -->
+                        <button onclick="workOut()" class="activity-hover bg-orange-100 hover:bg-orange-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">💪</div>
+                            <div class="font-bold text-orange-800 text-xs">Gym</div>
+                        </button>
+
+                        <button onclick="playIntramurals()" class="activity-hover bg-blue-100 hover:bg-blue-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">⚽</div>
+                            <div class="font-bold text-blue-800 text-xs">Sports</div>
+                        </button>
+
+                        <button onclick="visitHealthCenter()" class="activity-hover bg-red-100 hover:bg-red-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🏥</div>
+                            <div class="font-bold text-red-800 text-xs">Health</div>
+                        </button>
+
+                        <button onclick="meditation()" class="activity-hover bg-purple-100 hover:bg-purple-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🧘</div>
+                            <div class="font-bold text-purple-800 text-xs">Meditate</div>
+                        </button>
+
+                        <button onclick="goForWalk()" class="activity-hover bg-green-100 hover:bg-green-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🚶</div>
+                            <div class="font-bold text-green-800 text-xs">Walk</div>
+                        </button>
+
+                        <button onclick="practiceYoga()" class="activity-hover bg-pink-100 hover:bg-pink-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🧘‍♀️</div>
+                            <div class="font-bold text-pink-800 text-xs">Yoga</div>
+                        </button>
+
+                        <!-- Work & Money -->
+                        <button onclick="workPartTime()" class="activity-hover bg-green-100 hover:bg-green-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">💼</div>
+                            <div class="font-bold text-green-800 text-xs">Work</div>
+                        </button>
+
+                        <button onclick="applyForInternship()" class="activity-hover bg-blue-100 hover:bg-blue-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🏢</div>
+                            <div class="font-bold text-blue-800 text-xs">Internship</div>
+                        </button>
+
+                        <button onclick="freelanceWork()" class="activity-hover bg-purple-100 hover:bg-purple-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">💻</div>
+                            <div class="font-bold text-purple-800 text-xs">Freelance</div>
+                        </button>
+
+                        <button onclick="tutorStudents()" class="activity-hover bg-yellow-100 hover:bg-yellow-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">👨‍🏫</div>
+                            <div class="font-bold text-yellow-800 text-xs">Tutor</div>
+                        </button>
+
+                        <button onclick="sellTextbooks()" class="activity-hover bg-orange-100 hover:bg-orange-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">📚</div>
+                            <div class="font-bold text-orange-800 text-xs">Sell Books</div>
+                        </button>
+
+                        <button onclick="applyForScholarship()" class="activity-hover bg-gold-100 hover:bg-gold-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🏆</div>
+                            <div class="font-bold text-gold-800 text-xs">Scholarship</div>
+                        </button>
+
+                        <!-- Creative & Hobbies -->
+                        <button onclick="practiceMusic()" class="activity-hover bg-purple-100 hover:bg-purple-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🎵</div>
+                            <div class="font-bold text-purple-800 text-xs">Music</div>
+                        </button>
+
+                        <button onclick="createArt()" class="activity-hover bg-pink-100 hover:bg-pink-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">🎨</div>
+                            <div class="font-bold text-pink-800 text-xs">Art</div>
+                        </button>
+
+                        <button onclick="writeCreatively()" class="activity-hover bg-blue-100 hover:bg-blue-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">✍️</div>
+                            <div class="font-bold text-blue-800 text-xs">Write</div>
+                        </button>
+
+                        <button onclick="learnNewSkill()" class="activity-hover bg-green-100 hover:bg-green-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">📚</div>
+                            <div class="font-bold text-green-800 text-xs">Learn</div>
+                        </button>
+
+                        <button onclick="volunteerWork()" class="activity-hover bg-red-100 hover:bg-red-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">❤️</div>
+                            <div class="font-bold text-red-800 text-xs">Volunteer</div>
+                        </button>
+
+                        <button onclick="startBlog()" class="activity-hover bg-cyan-100 hover:bg-cyan-200 p-2 rounded-lg text-center transition-all">
+                            <div class="text-lg mb-1">📝</div>
+                            <div class="font-bold text-cyan-800 text-xs">Blog</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Classes -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">📚 Current Classes</h3>
+                    <div id="currentClasses" class="space-y-2 max-h-32 overflow-y-auto text-sm">
+                        <div class="text-gray-600 text-center py-2">No classes enrolled yet. Visit the registrar!</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <button onclick="registerForClasses()" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded text-sm font-medium transition-colors">
+                            📝 Register
+                        </button>
+                        <button onclick="dropClass()" class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded text-sm font-medium transition-colors">
+                            ❌ Drop Class
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">📋 Activity Log</h3>
+                    <div id="activityLog" class="space-y-1 max-h-32 overflow-y-auto text-sm">
+                        <div class="text-gray-600 text-center py-4">Welcome to college life!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social & Relationships Panel -->
+            <div class="xl:col-span-2 space-y-4">
+                <!-- Relationships & Dating -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">💕 Relationships & Dating</h3>
+                    
+                    <!-- Dating Status -->
+                    <div class="mb-3 p-2 bg-pink-50 rounded-lg">
+                        <div class="text-sm font-medium">Dating Status: <span id="datingStatus">Single</span></div>
+                        <div class="text-xs text-gray-600">Attractiveness: <span id="attractiveness">50</span>/100</div>
+                        <div class="text-xs text-gray-600">Dating Confidence: <span id="datingConfidence">40</span>/100</div>
+                    </div>
+                    
+                    <!-- Current Partner (if any) -->
+                    <div id="currentPartner" class="mb-3 p-2 bg-rose-100 rounded-lg border-2 border-rose-300 hidden">
+                        <div class="text-sm font-bold text-rose-800">💖 Current Partner</div>
+                        <div id="partnerInfo" class="text-xs text-rose-700"></div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs">Relationship Health:</span>
+                            <div class="flex-1 mx-2 bg-rose-200 rounded-full h-2">
+                                <div id="relationshipHealth" class="romance-meter h-2 rounded-full" style="width: 70%"></div>
+                            </div>
+                            <span id="relationshipHealthText" class="text-xs">70%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Potential Matches -->
+                    <div class="mb-3">
+                        <div class="text-sm font-medium mb-2">💘 Potential Matches</div>
+                        <div id="potentialMatches" class="space-y-1 max-h-32 overflow-y-auto text-xs">
+                            <div class="text-gray-600 text-center py-2">Use dating apps or meet people to find matches!</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dating Actions -->
+                    <div class="grid grid-cols-2 gap-1 text-xs">
+                        <button onclick="useDatingApp()" class="bg-pink-500 hover:bg-pink-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            📱 Dating App
+                        </button>
+                        <button onclick="askSomeoneOut()" class="bg-rose-500 hover:bg-rose-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            💕 Ask Out
+                        </button>
+                        <button onclick="goOnDate()" class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            🍽️ Go on Date
+                        </button>
+                        <button onclick="improveAppearance()" class="bg-purple-500 hover:bg-purple-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            ✨ Self Care
+                        </button>
+                        <button onclick="practiceFlirting()" class="bg-orange-500 hover:bg-orange-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            😉 Practice Flirting
+                        </button>
+                        <button onclick="relationshipTalk()" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded font-medium transition-colors">
+                            💬 Deep Talk
+                        </button>
+                    </div>
+                    
+                    <!-- All Relationships List -->
+                    <div class="mt-3">
+                        <div class="text-sm font-medium mb-2">👥 All Relationships</div>
+                        <div id="relationshipsList" class="space-y-1 max-h-32 overflow-y-auto text-xs">
+                            <div class="text-gray-600 text-center py-2">No relationships yet. Get out there and socialize!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clubs & Organizations -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">🎭 Clubs & Organizations</h3>
+                    <div id="clubsList" class="space-y-1 max-h-32 overflow-y-auto text-sm">
+                        <div class="text-gray-600 text-center py-2">Not in any clubs yet. Join some!</div>
+                    </div>
+                    <div class="mt-2">
+                        <button onclick="exploreClubs()" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded text-sm w-full">
+                            🔍 Explore Clubs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">🏆 Achievements</h3>
+                    <div id="achievementsList" class="space-y-1 max-h-32 overflow-y-auto text-sm">
+                        <div class="text-gray-600 text-center py-2">No achievements yet. Start your journey!</div>
+                    </div>
+                </div>
+
+                <!-- Weekly Schedule -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">📅 Weekly Schedule</h3>
+                    <div class="grid grid-cols-7 gap-1 text-xs">
+                        <div class="text-center font-bold">Mon</div>
+                        <div class="text-center font-bold">Tue</div>
+                        <div class="text-center font-bold">Wed</div>
+                        <div class="text-center font-bold">Thu</div>
+                        <div class="text-center font-bold">Fri</div>
+                        <div class="text-center font-bold">Sat</div>
+                        <div class="text-center font-bold">Sun</div>
+                    </div>
+                    <div id="weeklySchedule" class="mt-2 text-xs">
+                        <div class="text-gray-600 text-center py-2">No scheduled activities</div>
+                    </div>
+                </div>
+
+                <!-- Campus News & Events -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">📰 Campus News</h3>
+                    <div id="campusNews" class="space-y-2 text-sm max-h-32 overflow-y-auto">
+                        <div class="p-2 bg-blue-50 rounded border-l-4 border-blue-500">
+                            📢 Welcome Week activities start tomorrow!
+                        </div>
+                        <div class="p-2 bg-green-50 rounded border-l-4 border-green-500">
+                            🎓 Fall semester registration is now open
+                        </div>
+                        <div class="p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                            🏀 Basketball tryouts next week
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Aid & Expenses -->
+                <div class="campus-card rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">💰 Finances</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Tuition Due:</span>
+                            <span id="tuitionDue" class="text-red-600">$5,000</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Financial Aid:</span>
+                            <span id="financialAid" class="text-green-600">$2,500</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Monthly Expenses:</span>
+                            <span id="monthlyExpenses" class="text-orange-600">$800</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Savings Goal:</span>
+                            <span id="savingsGoal">$1,000</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <button onclick="manageFinances()" class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded text-sm w-full">
+                            💳 Manage Finances
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notificationArea" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+    <!-- Modals -->
+    <div id="transcriptModal" class="fixed inset-0 bg-black/50 modal hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">📋 Academic Transcript</h2>
+                <button onclick="closeModal('transcriptModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="transcriptContent">
+                <div class="text-center py-8">
+                    <p class="text-gray-600">No completed courses yet. Start taking classes!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="storeModal" class="fixed inset-0 bg-black/50 modal hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">🛒 Campus Store</h2>
+                <button onclick="closeModal('storeModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="storeContent">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="border rounded-lg p-4 text-center">
+                        <div class="text-2xl mb-2">📚</div>
+                        <h3 class="font-bold">Textbook</h3>
+                        <p class="text-sm text-gray-600">$150</p>
+                        <button onclick="buyItem('textbook', 150)" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2">Buy</button>
+                    </div>
+                    <div class="border rounded-lg p-4 text-center">
+                        <div class="text-2xl mb-2">💻</div>
+                        <h3 class="font-bold">Laptop Upgrade</h3>
+                        <p class="text-sm text-gray-600">$800</p>
+                        <button onclick="buyItem('laptop', 800)" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2">Buy</button>
+                    </div>
+                    <div class="border rounded-lg p-4 text-center">
+                        <div class="text-2xl mb-2">🚗</div>
+                        <h3 class="font-bold">Used Car</h3>
+                        <p class="text-sm text-gray-600">$3000</p>
+                        <button onclick="buyItem('car', 3000)" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2">Buy</button>
+                    </div>
+                    <div class="border rounded-lg p-4 text-center">
+                        <div class="text-2xl mb-2">👕</div>
+                        <h3 class="font-bold">Nice Clothes</h3>
+                        <p class="text-sm text-gray-600">$200</p>
+                        <button onclick="buyItem('clothes', 200)" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2">Buy</button>
+                    </div>
+                    <div class="border rounded-lg p-4 text-center">
+                        <div class="text-2xl mb-2">📱</div>
+                        <h3 class="font-bold">Phone Upgrade</h3>
+                        <p class="text-sm text-gray-600">$600</p>
+                        <button onclick="buyItem('phone', 600)" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2">Buy</button>
+                    </div>
+                    <div class="border rounded-lg p-4 text-center">
+                        <div class="text-2xl mb-2">☕</div>
+                        <h3 class="font-bold">Coffee (5 cups)</h3>
+                        <p class="text-sm text-gray-600">$25</p>
+                        <button onclick="buyItem('coffee', 25)" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mt-2">Buy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive Game State
+        let gameState = {
+            player: {
+                name: "Alex Thompson",
+                avatar: "🧑‍🎓",
+                major: "Undecided",
+                year: "Freshman",
+                gpa: 2.5,
+                energy: 75,
+                stress: 30,
+                social: 40,
+                money: 250,
+                health: 85,
+                fitness: 50,
+                level: 1,
+                xp: 0,
+                credits: 0,
+                mood: "Optimistic",
+                reputation: "New Student",
+                skills: {
+                    study: 1, speaking: 1, tech: 1, creativity: 1,
+                    leadership: 1, athletics: 1, music: 1, cooking: 1
+                },
+                inventory: {
+                    textbooks: 0, laptop: "Basic", phone: "Standard",
+                    transportation: "Walking", clothing: "Casual", coffeeCups: 0
+                },
+                academics: {
+                    currentClasses: [],
+                    completedClasses: [],
+                    deansListSemesters: 0,
+                    academicStanding: "Good"
+                },
+                relationships: [],
+                clubs: [],
+                achievements: [],
+                finances: {
+                    tuitionDue: 5000,
+                    financialAid: 2500,
+                    monthlyExpenses: 800,
+                    savingsGoal: 1000
+                },
+                dating: {
+                    status: "Single",
+                    attractiveness: 50,
+                    confidence: 40,
+                    currentPartner: null,
+                    relationshipHealth: 0,
+                    potentialMatches: [],
+                    dateHistory: [],
+                    datingExperience: 0,
+                    romanticSkill: 1
+                }
+            },
+            gameTime: {
+                semester: "Fall",
+                week: 1,
+                day: "Monday",
+                hour: 9,
+                weather: "☀️ Sunny",
+                temperature: "72°F"
+            }
+        };
+
+        // Initialize the game
+        function initializeGame() {
+            updateAllDisplays();
+            showNotification("🎓 Welcome to college! Your journey begins now.", "success");
+            
+            // Add some initial campus news
+            setTimeout(() => {
+                addCampusNews("🎉 New student orientation starts tomorrow!");
+            }, 2000);
+        }
+
+        // Core activity functions
+        function attendClass() {
+            if (gameState.player.energy < 20) {
+                showNotification("😴 Too tired for class! Get some rest first.", "warning");
+                return;
+            }
+
+            if (gameState.player.academics.currentClasses.length === 0) {
+                showNotification("📚 You need to register for classes first!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 20;
+            gameState.player.stress += 10;
+            
+            const classTypes = [
+                "Mathematics", "English Literature", "Biology", "History",
+                "Psychology", "Computer Science", "Chemistry", "Philosophy",
+                "Economics", "Art History", "Physics", "Sociology"
+            ];
+            
+            const classType = classTypes[Math.floor(Math.random() * classTypes.length)];
+            const performance = Math.random();
+            
+            if (performance > 0.7) {
+                gameState.player.gpa += 0.05;
+                gameState.player.skills.study += 0.1;
+                addActivityLog(`📚 Excellent performance in ${classType}! GPA improved.`);
+                showNotification("📚 Great job in class! You're really understanding the material.", "success");
+            } else if (performance > 0.4) {
+                gameState.player.gpa += 0.02;
+                addActivityLog(`📚 Attended ${classType} class and took good notes.`);
+                showNotification("📚 Class attended. Keep up the good work!", "success");
+            } else {
+                gameState.player.stress += 5;
+                addActivityLog(`📚 Struggled a bit in ${classType} class today.`);
+                showNotification("📚 Class was challenging today. Consider studying more.", "warning");
+            }
+            
+            gainXP(15);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function studyInLibrary() {
+            if (gameState.player.energy < 30) {
+                showNotification("😴 Too tired to study effectively!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 30;
+            gameState.player.stress += 15;
+            gameState.player.gpa += 0.08;
+            gameState.player.skills.study += 0.2;
+            
+            const studyOutcomes = [
+                "Found the perfect study spot and got lots done!",
+                "Formed a study group with other students.",
+                "Discovered helpful resources for your research paper.",
+                "Had a breakthrough understanding of difficult concepts.",
+                "Met a helpful librarian who gave you research tips."
+            ];
+            
+            const outcome = studyOutcomes[Math.floor(Math.random() * studyOutcomes.length)];
+            
+            addActivityLog(`📖 Library study session: ${outcome}`);
+            showNotification("📖 Productive study session! Your knowledge is growing.", "success");
+            
+            gainXP(20);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function workPartTime() {
+            if (gameState.player.energy < 40) {
+                showNotification("😴 Too tired to work! Rest first.", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 40;
+            gameState.player.stress += 20;
+            
+            const jobs = [
+                { name: "Campus Coffee Shop", pay: 80, skill: "customer service" },
+                { name: "Library Assistant", pay: 70, skill: "organization" },
+                { name: "Tutoring", pay: 100, skill: "teaching" },
+                { name: "Research Assistant", pay: 90, skill: "research" },
+                { name: "Campus Tour Guide", pay: 75, skill: "speaking" }
+            ];
+            
+            const job = jobs[Math.floor(Math.random() * jobs.length)];
+            gameState.player.money += job.pay;
+            
+            if (job.skill === "speaking") gameState.player.skills.speaking += 0.1;
+            if (job.skill === "teaching") gameState.player.skills.leadership += 0.1;
+            
+            addActivityLog(`💼 Worked at ${job.name} and earned $${job.pay}!`);
+            showNotification(`💼 Work shift complete! Earned $${job.pay}.`, "success");
+            
+            gainXP(25);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function hangWithFriends() {
+            if (gameState.player.energy < 15) {
+                showNotification("😴 Too tired to socialize!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 15;
+            gameState.player.social += 20;
+            gameState.player.stress -= 25;
+            
+            const socialActivities = [
+                "Had a great conversation over coffee",
+                "Played video games in the dorm lounge",
+                "Went to see a movie together",
+                "Had a fun dinner at the cafeteria",
+                "Studied together and made it enjoyable",
+                "Explored the campus and found new spots"
+            ];
+            
+            const activity = socialActivities[Math.floor(Math.random() * socialActivities.length)];
+            
+            // Chance to improve existing relationships or make new ones
+            if (Math.random() > 0.6) {
+                const newFriend = generateRandomPerson();
+                gameState.player.relationships.push(newFriend);
+                addActivityLog(`👥 ${activity} and made a new friend: ${newFriend.name}!`);
+                showNotification(`👥 Great social time! You made a new friend: ${newFriend.name}`, "success");
+            } else {
+                addActivityLog(`👥 ${activity} with friends.`);
+                showNotification("👥 Fun time with friends! Stress relieved.", "success");
+            }
+            
+            gainXP(10);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function workOut() {
+            if (gameState.player.energy < 25) {
+                showNotification("😴 Too tired for a workout!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 25;
+            gameState.player.fitness += 15;
+            gameState.player.health += 10;
+            gameState.player.stress -= 15;
+            gameState.player.skills.athletics += 0.15;
+            
+            const workouts = [
+                "Hit the weights and felt stronger",
+                "Went for a run around campus",
+                "Tried a new fitness class",
+                "Played basketball with other students",
+                "Did yoga and improved flexibility",
+                "Swam laps at the campus pool"
+            ];
+            
+            const workout = workouts[Math.floor(Math.random() * workouts.length)];
+            
+            addActivityLog(`💪 ${workout}!`);
+            showNotification("💪 Great workout! You feel energized and healthy.", "success");
+            
+            // Chance to meet someone at the gym
+            if (Math.random() > 0.7) {
+                const gymBuddy = generateRandomPerson();
+                gameState.player.relationships.push(gymBuddy);
+                showNotification(`💪 Met ${gymBuddy.name} at the gym! New workout buddy acquired.`, "success");
+            }
+            
+            gainXP(15);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function joinClub() {
+            const availableClubs = [
+                { name: "Drama Club", skill: "creativity", benefit: "social" },
+                { name: "Debate Team", skill: "speaking", benefit: "leadership" },
+                { name: "Computer Science Club", skill: "tech", benefit: "networking" },
+                { name: "Student Government", skill: "leadership", benefit: "reputation" },
+                { name: "Music Ensemble", skill: "music", benefit: "creativity" },
+                { name: "Volunteer Club", skill: "leadership", benefit: "community" },
+                { name: "Gaming Club", skill: "tech", benefit: "social" },
+                { name: "Environmental Club", skill: "leadership", benefit: "awareness" }
+            ];
+            
+            const club = availableClubs[Math.floor(Math.random() * availableClubs.length)];
+            
+            // Check if already in this club
+            if (gameState.player.clubs.some(c => c.name === club.name)) {
+                showNotification(`🎭 You're already in ${club.name}!`, "warning");
+                return;
+            }
+            
+            gameState.player.clubs.push(club);
+            gameState.player.social += 15;
+            gameState.player.skills[club.skill] += 0.2;
+            
+            addActivityLog(`🎭 Joined ${club.name}! Met lots of like-minded people.`);
+            showNotification(`🎭 Welcome to ${club.name}! Your ${club.skill} skills improved.`, "success");
+            
+            gainXP(30);
+            updateAllDisplays();
+        }
+
+        function registerForClasses() {
+            const availableClasses = [
+                { name: "Introduction to Psychology", credits: 3, difficulty: "Easy" },
+                { name: "Calculus I", credits: 4, difficulty: "Hard" },
+                { name: "English Composition", credits: 3, difficulty: "Medium" },
+                { name: "Biology 101", credits: 4, difficulty: "Medium" },
+                { name: "World History", credits: 3, difficulty: "Easy" },
+                { name: "Computer Programming", credits: 3, difficulty: "Hard" },
+                { name: "Art Appreciation", credits: 2, difficulty: "Easy" },
+                { name: "Statistics", credits: 3, difficulty: "Medium" }
+            ];
+            
+            if (gameState.player.academics.currentClasses.length >= 5) {
+                showNotification("📚 You're already taking the maximum number of classes!", "warning");
+                return;
+            }
+            
+            const newClass = availableClasses[Math.floor(Math.random() * availableClasses.length)];
+            
+            // Check if already enrolled
+            if (gameState.player.academics.currentClasses.some(c => c.name === newClass.name)) {
+                showNotification(`📚 You're already enrolled in ${newClass.name}!`, "warning");
+                return;
+            }
+            
+            gameState.player.academics.currentClasses.push(newClass);
+            gameState.player.stress += 10;
+            
+            addActivityLog(`📝 Registered for ${newClass.name} (${newClass.credits} credits)`);
+            showNotification(`📝 Successfully registered for ${newClass.name}!`, "success");
+            
+            updateAllDisplays();
+        }
+
+        function takeExam() {
+            if (gameState.player.academics.currentClasses.length === 0) {
+                showNotification("📝 You need to be enrolled in classes to take exams!", "warning");
+                return;
+            }
+            
+            if (gameState.player.energy < 40) {
+                showNotification("😴 Too tired for an exam! Get some rest first.", "warning");
+                return;
+            }
+            
+            gameState.player.energy -= 40;
+            gameState.player.stress += 30;
+            
+            const examClass = gameState.player.academics.currentClasses[
+                Math.floor(Math.random() * gameState.player.academics.currentClasses.length)
+            ];
+            
+            // Performance based on study skill and stress level
+            const studyBonus = gameState.player.skills.study * 0.1;
+            const stressPenalty = gameState.player.stress * 0.002;
+            const performance = Math.random() + studyBonus - stressPenalty;
+            
+            let grade, gpaChange;
+            if (performance > 0.9) {
+                grade = "A+";
+                gpaChange = 0.15;
+            } else if (performance > 0.8) {
+                grade = "A";
+                gpaChange = 0.12;
+            } else if (performance > 0.7) {
+                grade = "B";
+                gpaChange = 0.08;
+            } else if (performance > 0.6) {
+                grade = "C";
+                gpaChange = 0.04;
+            } else if (performance > 0.5) {
+                grade = "D";
+                gpaChange = -0.02;
+            } else {
+                grade = "F";
+                gpaChange = -0.08;
+            }
+            
+            gameState.player.gpa += gpaChange;
+            gameState.player.gpa = Math.max(0, Math.min(4.0, gameState.player.gpa));
+            
+            addActivityLog(`📝 Took ${examClass.name} exam and got a ${grade}!`);
+            
+            if (grade.startsWith('A')) {
+                showNotification(`📝 Excellent! You aced the ${examClass.name} exam with a ${grade}!`, "success");
+                gainXP(40);
+            } else if (grade.startsWith('B')) {
+                showNotification(`📝 Good job! You got a ${grade} on the ${examClass.name} exam.`, "success");
+                gainXP(30);
+            } else if (grade.startsWith('C')) {
+                showNotification(`📝 You passed the ${examClass.name} exam with a ${grade}.`, "success");
+                gainXP(20);
+            } else {
+                showNotification(`📝 The ${examClass.name} exam was tough. You got a ${grade}.`, "warning");
+                gainXP(10);
+            }
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        // Utility functions
+        function generateRandomPerson() {
+            const firstNames = ["Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan", "Sophia", "Mason", "Isabella", "William"];
+            const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
+            const personalities = ["Friendly", "Studious", "Outgoing", "Creative", "Athletic", "Funny", "Ambitious", "Caring"];
+            
+            return {
+                name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
+                personality: personalities[Math.floor(Math.random() * personalities.length)],
+                relationship: "Acquaintance",
+                level: 1
+            };
+        }
+
+        function gainXP(amount) {
+            gameState.player.xp += amount;
+            
+            const xpNeeded = gameState.player.level * 100;
+            if (gameState.player.xp >= xpNeeded) {
+                gameState.player.level++;
+                gameState.player.xp = 0;
+                showNotification(`🎉 Level up! You're now level ${gameState.player.level}!`, "success");
+                
+                // Level up benefits
+                gameState.player.energy = Math.min(100, gameState.player.energy + 20);
+                gameState.player.health = Math.min(100, gameState.player.health + 10);
+            }
+        }
+
+        function addActivityLog(message) {
+            const log = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = 'text-sm p-2 bg-gray-50 rounded border-l-4 border-blue-500';
+            entry.textContent = message;
+            
+            if (log.children.length === 1 && log.children[0].textContent.includes('Welcome')) {
+                log.innerHTML = '';
+            }
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            if (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function showNotification(message, type = "info") {
+            const notification = document.createElement('div');
+            notification.className = `notification-pop p-3 rounded-lg shadow-lg text-white font-medium max-w-sm ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.getElementById('notificationArea').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        function updateAllDisplays() {
+            // Update basic stats
+            document.getElementById('gpaDisplay').textContent = gameState.player.gpa.toFixed(2);
+            document.getElementById('energyDisplay').textContent = `${gameState.player.energy}/100`;
+            document.getElementById('stressDisplay').textContent = `${gameState.player.stress}/100`;
+            document.getElementById('moneyDisplay').textContent = `$${gameState.player.money.toLocaleString()}`;
+            document.getElementById('healthDisplay').textContent = `${gameState.player.health}/100`;
+            document.getElementById('socialDisplay').textContent = `${gameState.player.social}/100`;
+            document.getElementById('fitnessDisplay').textContent = `${gameState.player.fitness}/100`;
+            
+            // Update bars
+            document.getElementById('gpaBar').style.width = `${(gameState.player.gpa / 4) * 100}%`;
+            document.getElementById('energyBar').style.width = `${gameState.player.energy}%`;
+            document.getElementById('stressBar').style.width = `${gameState.player.stress}%`;
+            document.getElementById('healthBar').style.width = `${gameState.player.health}%`;
+            document.getElementById('socialBar').style.width = `${gameState.player.social}%`;
+            document.getElementById('fitnessBar').style.width = `${gameState.player.fitness}%`;
+            
+            // Update level and XP
+            document.getElementById('playerLevel').textContent = gameState.player.level;
+            document.getElementById('playerXP').textContent = gameState.player.xp;
+            document.getElementById('playerCredits').textContent = gameState.player.credits;
+            
+            // Update mood
+            document.getElementById('currentMood').textContent = gameState.player.mood;
+            
+            // Update skills
+            Object.keys(gameState.player.skills).forEach(skill => {
+                const element = document.getElementById(`${skill}Skill`);
+                if (element) {
+                    element.textContent = Math.floor(gameState.player.skills[skill]);
+                }
+            });
+            
+            // Update inventory
+            document.getElementById('textbooksCount').textContent = gameState.player.inventory.textbooks;
+            document.getElementById('laptopQuality').textContent = gameState.player.inventory.laptop;
+            document.getElementById('phoneQuality').textContent = gameState.player.inventory.phone;
+            document.getElementById('transportation').textContent = gameState.player.inventory.transportation;
+            document.getElementById('clothingQuality').textContent = gameState.player.inventory.clothing;
+            document.getElementById('coffeeCups').textContent = gameState.player.inventory.coffeeCups;
+            
+            // Update academic info
+            document.getElementById('creditsEarned').textContent = `${gameState.player.credits}/120`;
+            document.getElementById('academicStanding').textContent = gameState.player.academics.academicStanding;
+            document.getElementById('deansListStatus').textContent = gameState.player.academics.deansListSemesters > 0 ? "Yes" : "No";
+            
+            // Update dating info
+            document.getElementById('datingStatus').textContent = gameState.player.dating.status;
+            document.getElementById('attractiveness').textContent = gameState.player.dating.attractiveness;
+            document.getElementById('datingConfidence').textContent = gameState.player.dating.confidence;
+            
+            // Update current classes
+            updateCurrentClassesDisplay();
+            updateRelationshipsDisplay();
+            updateClubsDisplay();
+            updateAchievementsDisplay();
+            updateDatingDisplay();
+        }
+
+        function updateCurrentClassesDisplay() {
+            const container = document.getElementById('currentClasses');
+            if (gameState.player.academics.currentClasses.length === 0) {
+                container.innerHTML = '<div class="text-gray-600 text-center py-2">No classes enrolled yet. Visit the registrar!</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            gameState.player.academics.currentClasses.forEach(cls => {
+                const div = document.createElement('div');
+                div.className = 'p-2 bg-blue-50 rounded border-l-4 border-blue-500 text-sm';
+                div.innerHTML = `<strong>${cls.name}</strong><br>Credits: ${cls.credits} | Difficulty: ${cls.difficulty}`;
+                container.appendChild(div);
+            });
+        }
+
+        function updateRelationshipsDisplay() {
+            const container = document.getElementById('relationshipsList');
+            if (gameState.player.relationships.length === 0) {
+                container.innerHTML = '<div class="text-gray-600 text-center py-2 text-sm">No relationships yet. Get out there and socialize!</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            gameState.player.relationships.forEach(person => {
+                const div = document.createElement('div');
+                div.className = 'p-2 bg-pink-50 rounded border-l-4 border-pink-500 text-sm';
+                div.innerHTML = `<strong>${person.name}</strong><br>${person.personality} | ${person.relationship}`;
+                container.appendChild(div);
+            });
+        }
+
+        function updateClubsDisplay() {
+            const container = document.getElementById('clubsList');
+            if (gameState.player.clubs.length === 0) {
+                container.innerHTML = '<div class="text-gray-600 text-center py-2">Not in any clubs yet. Join some!</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            gameState.player.clubs.forEach(club => {
+                const div = document.createElement('div');
+                div.className = 'p-2 bg-yellow-50 rounded border-l-4 border-yellow-500 text-sm';
+                div.textContent = club.name;
+                container.appendChild(div);
+            });
+        }
+
+        function updateAchievementsDisplay() {
+            const container = document.getElementById('achievementsList');
+            if (gameState.player.achievements.length === 0) {
+                container.innerHTML = '<div class="text-gray-600 text-center py-2">No achievements yet. Start your journey!</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            gameState.player.achievements.forEach(achievement => {
+                const div = document.createElement('div');
+                div.className = 'p-2 bg-gold-50 rounded border-l-4 border-gold-500 text-sm achievement-unlock';
+                div.textContent = achievement;
+                container.appendChild(div);
+            });
+        }
+
+        function advanceTime() {
+            gameState.player.energy = Math.max(0, gameState.player.energy - 2);
+            
+            if (gameState.player.energy < 20) {
+                showNotification("😴 You're getting tired! Consider getting some rest.", "warning");
+            }
+            
+            // Update mood based on stats
+            if (gameState.player.stress > 80) {
+                gameState.player.mood = "Overwhelmed";
+            } else if (gameState.player.stress > 60) {
+                gameState.player.mood = "Stressed";
+            } else if (gameState.player.social > 70) {
+                gameState.player.mood = "Happy";
+            } else if (gameState.player.gpa > 3.5) {
+                gameState.player.mood = "Confident";
+            } else {
+                gameState.player.mood = "Neutral";
+            }
+        }
+
+        // Basic activity functions
+        function restInDorm() {
+            gameState.player.energy = Math.min(100, gameState.player.energy + 50);
+            gameState.player.stress = Math.max(0, gameState.player.stress - 30);
+            gameState.player.health = Math.min(100, gameState.player.health + 10);
+            addActivityLog("🛏️ Got a good night's sleep and feel refreshed!");
+            showNotification("🛏️ Rest complete! Energy and health restored.", "success");
+            updateAllDisplays();
+        }
+
+        function eatAtCafeteria() {
+            if (gameState.player.money < 10) {
+                showNotification("💰 Not enough money for food!", "warning");
+                return;
+            }
+            gameState.player.money -= 10;
+            gameState.player.energy = Math.min(100, gameState.player.energy + 20);
+            gameState.player.health = Math.min(100, gameState.player.health + 15);
+            addActivityLog("🍕 Had a nutritious meal at the cafeteria!");
+            showNotification("🍕 Meal complete! Health and energy restored.", "success");
+            updateAllDisplays();
+        }
+
+        function meditation() {
+            gameState.player.stress = Math.max(0, gameState.player.stress - 40);
+            gameState.player.health = Math.min(100, gameState.player.health + 10);
+            addActivityLog("🧘 Meditated and found inner peace!");
+            showNotification("🧘 Meditation complete! Stress significantly reduced.", "success");
+            updateAllDisplays();
+        }
+
+        function drinkCoffee() {
+            if (gameState.player.inventory.coffeeCups <= 0) {
+                if (gameState.player.money < 5) {
+                    showNotification("💰 Not enough money for coffee!", "warning");
+                    return;
+                }
+                gameState.player.money -= 5;
+            } else {
+                gameState.player.inventory.coffeeCups--;
+            }
+            
+            gameState.player.energy = Math.min(100, gameState.player.energy + 30);
+            gameState.player.stress = Math.min(100, gameState.player.stress + 10);
+            addActivityLog("☕ Drank coffee and got energized!");
+            showNotification("☕ Coffee consumed! Energy boosted but stress increased slightly.", "success");
+            updateAllDisplays();
+        }
+
+        // Modal functions
+        function openTranscript() {
+            document.getElementById('transcriptModal').classList.remove('hidden');
+        }
+
+        function openStore() {
+            document.getElementById('storeModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function buyItem(item, cost) {
+            if (gameState.player.money < cost) {
+                showNotification(`💰 Not enough money! Need $${cost}.`, "warning");
+                return;
+            }
+            
+            gameState.player.money -= cost;
+            
+            switch(item) {
+                case 'textbook':
+                    gameState.player.inventory.textbooks++;
+                    gameState.player.skills.study += 0.3;
+                    break;
+                case 'laptop':
+                    gameState.player.inventory.laptop = "High-end";
+                    gameState.player.skills.tech += 0.5;
+                    break;
+                case 'car':
+                    gameState.player.inventory.transportation = "Car";
+                    gameState.player.social += 20;
+                    break;
+                case 'clothes':
+                    gameState.player.inventory.clothing = "Stylish";
+                    gameState.player.social += 15;
+                    break;
+                case 'phone':
+                    gameState.player.inventory.phone = "Latest Model";
+                    gameState.player.social += 10;
+                    break;
+                case 'coffee':
+                    gameState.player.inventory.coffeeCups += 5;
+                    break;
+            }
+            
+            showNotification(`🛒 Purchased ${item}! Your capabilities have improved.`, "success");
+            updateAllDisplays();
+        }
+
+        // Dating System Functions
+        function generatePotentialMatch() {
+            const firstNames = ["Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan", "Sophia", "Mason", "Isabella", "William", "Mia", "James", "Charlotte", "Benjamin", "Amelia"];
+            const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
+            const personalities = ["Adventurous", "Intellectual", "Artistic", "Athletic", "Funny", "Caring", "Ambitious", "Laid-back", "Mysterious", "Outgoing"];
+            const interests = ["Reading", "Sports", "Music", "Art", "Gaming", "Cooking", "Travel", "Movies", "Dancing", "Photography"];
+            const majors = ["Psychology", "Engineering", "Art", "Business", "Biology", "English", "Computer Science", "History", "Music", "Economics"];
+            
+            return {
+                name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
+                personality: personalities[Math.floor(Math.random() * personalities.length)],
+                interests: [
+                    interests[Math.floor(Math.random() * interests.length)],
+                    interests[Math.floor(Math.random() * interests.length)]
+                ],
+                major: majors[Math.floor(Math.random() * majors.length)],
+                attractiveness: Math.floor(Math.random() * 40) + 30, // 30-70
+                compatibility: Math.floor(Math.random() * 100),
+                relationshipType: "Potential Match",
+                relationshipLevel: 0,
+                dateHistory: []
+            };
+        }
+
+        function useDatingApp() {
+            if (gameState.player.energy < 10) {
+                showNotification("😴 Too tired to swipe through dating profiles!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 10;
+            gameState.player.dating.confidence += 2;
+            
+            // Generate 1-3 new matches
+            const numMatches = Math.floor(Math.random() * 3) + 1;
+            let newMatches = 0;
+            
+            for (let i = 0; i < numMatches; i++) {
+                if (Math.random() > 0.4) { // 60% chance of match
+                    const match = generatePotentialMatch();
+                    gameState.player.dating.potentialMatches.push(match);
+                    newMatches++;
+                }
+            }
+            
+            if (newMatches > 0) {
+                addActivityLog(`📱 Found ${newMatches} new match${newMatches > 1 ? 'es' : ''} on dating app!`);
+                showNotification(`📱 Great! You got ${newMatches} new match${newMatches > 1 ? 'es' : ''}!`, "success");
+            } else {
+                addActivityLog("📱 Swiped through dating app but no matches today.");
+                showNotification("📱 No matches today, but your confidence improved!", "info");
+            }
+            
+            gainXP(5);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function askSomeoneOut() {
+            if (gameState.player.dating.potentialMatches.length === 0) {
+                showNotification("💕 No potential matches to ask out! Try meeting people first.", "warning");
+                return;
+            }
+
+            if (gameState.player.energy < 20) {
+                showNotification("😴 Too nervous and tired to ask someone out!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 20;
+            gameState.player.stress += 15;
+            
+            const match = gameState.player.dating.potentialMatches[Math.floor(Math.random() * gameState.player.dating.potentialMatches.length)];
+            
+            // Success based on attractiveness, confidence, and compatibility
+            const successChance = (gameState.player.dating.attractiveness + gameState.player.dating.confidence + match.compatibility) / 300;
+            
+            if (Math.random() < successChance) {
+                // Success! They said yes
+                match.relationshipType = "Dating";
+                match.relationshipLevel = 1;
+                gameState.player.relationships.push(match);
+                gameState.player.dating.potentialMatches = gameState.player.dating.potentialMatches.filter(m => m !== match);
+                gameState.player.dating.confidence += 10;
+                gameState.player.social += 15;
+                
+                addActivityLog(`💕 Asked ${match.name} out and they said YES! First date planned.`);
+                showNotification(`💕 Success! ${match.name} said yes to a date!`, "success");
+                gainXP(25);
+            } else {
+                // Rejection
+                gameState.player.dating.confidence -= 5;
+                gameState.player.stress += 10;
+                
+                addActivityLog(`💔 Asked ${match.name} out but they politely declined.`);
+                showNotification(`💔 ${match.name} wasn't interested, but you tried! Confidence will recover.`, "warning");
+                gainXP(10);
+            }
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function goOnDate() {
+            const datingPartners = gameState.player.relationships.filter(r => r.relationshipType === "Dating" || r.relationshipType === "Relationship");
+            
+            if (datingPartners.length === 0) {
+                showNotification("💕 You need someone to date first! Try asking someone out.", "warning");
+                return;
+            }
+
+            if (gameState.player.energy < 30) {
+                showNotification("😴 Too tired for a date! Rest up first.", "warning");
+                return;
+            }
+
+            if (gameState.player.money < 50) {
+                showNotification("💰 Need at least $50 for a date!", "warning");
+                return;
+            }
+
+            const partner = datingPartners[Math.floor(Math.random() * datingPartners.length)];
+            gameState.player.energy -= 30;
+            gameState.player.money -= Math.floor(Math.random() * 80) + 30; // $30-110
+            gameState.player.stress -= 20;
+            gameState.player.social += 10;
+            
+            const dateActivities = [
+                { activity: "dinner at a nice restaurant", cost: 80, romance: 15 },
+                { activity: "coffee and a walk in the park", cost: 20, romance: 10 },
+                { activity: "movie and popcorn", cost: 40, romance: 12 },
+                { activity: "mini golf and ice cream", cost: 35, romance: 14 },
+                { activity: "cooking together at your dorm", cost: 25, romance: 18 },
+                { activity: "campus art gallery opening", cost: 15, romance: 13 },
+                { activity: "study date at the library", cost: 10, romance: 8 },
+                { activity: "hiking and picnic", cost: 30, romance: 16 }
+            ];
+            
+            const dateType = dateActivities[Math.floor(Math.random() * dateActivities.length)];
+            
+            // Date success based on compatibility and player stats
+            const dateSuccess = (gameState.player.dating.confidence + gameState.player.social + partner.compatibility) / 300;
+            
+            if (Math.random() < dateSuccess) {
+                // Great date!
+                partner.relationshipLevel += dateType.romance;
+                gameState.player.dating.confidence += 5;
+                gameState.player.dating.datingExperience += 1;
+                
+                if (partner.relationshipLevel > 50 && partner.relationshipType === "Dating") {
+                    partner.relationshipType = "Relationship";
+                    gameState.player.dating.status = "In a Relationship";
+                    gameState.player.dating.currentPartner = partner;
+                    gameState.player.dating.relationshipHealth = partner.relationshipLevel;
+                    
+                    addActivityLog(`💖 Amazing ${dateType.activity} with ${partner.name}! You're now officially in a relationship!`);
+                    showNotification(`💖 Relationship milestone! You and ${partner.name} are now official!`, "success");
+                    gainXP(50);
+                } else {
+                    addActivityLog(`💕 Had a wonderful ${dateType.activity} with ${partner.name}!`);
+                    showNotification(`💕 Great date! Your bond with ${partner.name} grew stronger.`, "success");
+                    gainXP(30);
+                }
+            } else {
+                // Awkward date
+                partner.relationshipLevel += Math.floor(dateType.romance / 2);
+                gameState.player.stress += 10;
+                
+                addActivityLog(`😅 Had an awkward ${dateType.activity} with ${partner.name}. Could have gone better.`);
+                showNotification(`😅 Date was a bit awkward, but you learned something!`, "warning");
+                gainXP(15);
+            }
+            
+            partner.dateHistory.push({
+                activity: dateType.activity,
+                success: Math.random() < dateSuccess,
+                week: gameState.gameTime.week
+            });
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function improveAppearance() {
+            if (gameState.player.energy < 20) {
+                showNotification("😴 Too tired for self-care!", "warning");
+                return;
+            }
+
+            if (gameState.player.money < 30) {
+                showNotification("💰 Need $30 for self-care activities!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 20;
+            gameState.player.money -= 30;
+            gameState.player.dating.attractiveness += 5;
+            gameState.player.dating.confidence += 8;
+            gameState.player.stress -= 15;
+            gameState.player.health += 10;
+            
+            const selfCareActivities = [
+                "got a fresh haircut and styling",
+                "bought some new trendy clothes",
+                "went to the spa for a relaxing treatment",
+                "started a new skincare routine",
+                "hit the gym and worked on fitness",
+                "practiced good posture and confidence",
+                "learned some new fashion tips online",
+                "got a professional photo taken"
+            ];
+            
+            const activity = selfCareActivities[Math.floor(Math.random() * selfCareActivities.length)];
+            
+            addActivityLog(`✨ Self-care day: ${activity}!`);
+            showNotification("✨ Looking and feeling great! Attractiveness and confidence boosted!", "success");
+            
+            gainXP(20);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function practiceFlirting() {
+            if (gameState.player.energy < 15) {
+                showNotification("😴 Too tired to practice social skills!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 15;
+            gameState.player.dating.confidence += 10;
+            gameState.player.social += 8;
+            gameState.player.skills.speaking += 0.1;
+            gameState.player.dating.romanticSkill += 0.2;
+            
+            const flirtingPractice = [
+                "practiced conversation starters with friends",
+                "watched dating advice videos online",
+                "role-played social scenarios",
+                "learned to read body language better",
+                "practiced active listening skills",
+                "worked on being more charming and witty",
+                "studied the art of compliments",
+                "practiced confident eye contact"
+            ];
+            
+            const practice = flirtingPractice[Math.floor(Math.random() * flirtingPractice.length)];
+            
+            addActivityLog(`😉 Flirting practice: ${practice}!`);
+            showNotification("😉 Social skills improved! You feel more confident in romantic situations.", "success");
+            
+            gainXP(15);
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function relationshipTalk() {
+            if (gameState.player.dating.currentPartner === null) {
+                showNotification("💬 You need to be in a relationship for deep conversations!", "warning");
+                return;
+            }
+
+            if (gameState.player.energy < 25) {
+                showNotification("😴 Too tired for meaningful conversation!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 25;
+            gameState.player.stress -= 10;
+            
+            const partner = gameState.player.dating.currentPartner;
+            const talkSuccess = (gameState.player.skills.speaking + gameState.player.social + partner.compatibility) / 300;
+            
+            if (Math.random() < talkSuccess) {
+                // Great conversation
+                partner.relationshipLevel += 20;
+                gameState.player.dating.relationshipHealth = Math.min(100, partner.relationshipLevel);
+                gameState.player.skills.speaking += 0.2;
+                
+                const deepTopics = [
+                    "shared your dreams and future goals",
+                    "talked about your families and backgrounds",
+                    "discussed your values and beliefs",
+                    "opened up about your fears and insecurities",
+                    "shared funny childhood memories",
+                    "talked about what you love about each other",
+                    "discussed your relationship goals",
+                    "shared your favorite memories together"
+                ];
+                
+                const topic = deepTopics[Math.floor(Math.random() * deepTopics.length)];
+                
+                addActivityLog(`💬 Had a deep conversation with ${partner.name} where you ${topic}.`);
+                showNotification(`💬 Meaningful conversation! Your relationship with ${partner.name} deepened.`, "success");
+                gainXP(25);
+            } else {
+                // Conversation didn't go well
+                partner.relationshipLevel -= 5;
+                gameState.player.stress += 15;
+                
+                addActivityLog(`💬 Tried to have a deep talk with ${partner.name} but it got a bit awkward.`);
+                showNotification("💬 Conversation was a bit awkward. Maybe try again later.", "warning");
+                gainXP(10);
+            }
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function updateDatingDisplay() {
+            // Update current partner display
+            const partnerDiv = document.getElementById('currentPartner');
+            const partnerInfo = document.getElementById('partnerInfo');
+            const relationshipHealthBar = document.getElementById('relationshipHealth');
+            const relationshipHealthText = document.getElementById('relationshipHealthText');
+            
+            if (gameState.player.dating.currentPartner) {
+                partnerDiv.classList.remove('hidden');
+                const partner = gameState.player.dating.currentPartner;
+                partnerInfo.innerHTML = `
+                    <strong>${partner.name}</strong> (${partner.personality})<br>
+                    Major: ${partner.major} | Dates: ${partner.dateHistory.length}<br>
+                    Compatibility: ${partner.compatibility}% | Level: ${partner.relationshipLevel}
+                `;
+                const healthPercent = Math.min(100, partner.relationshipLevel);
+                relationshipHealthBar.style.width = `${healthPercent}%`;
+                relationshipHealthText.textContent = `${healthPercent}%`;
+            } else {
+                partnerDiv.classList.add('hidden');
+            }
+            
+            // Update potential matches
+            const matchesContainer = document.getElementById('potentialMatches');
+            if (gameState.player.dating.potentialMatches.length === 0) {
+                matchesContainer.innerHTML = '<div class="text-gray-600 text-center py-2">Use dating apps or meet people to find matches!</div>';
+            } else {
+                matchesContainer.innerHTML = '';
+                gameState.player.dating.potentialMatches.slice(0, 3).forEach(match => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 bg-pink-50 rounded border-l-4 border-pink-400';
+                    div.innerHTML = `
+                        <strong>${match.name}</strong> (${match.personality})<br>
+                        <span class="text-xs">${match.major} | Likes: ${match.interests.join(', ')}</span>
+                    `;
+                    matchesContainer.appendChild(div);
+                });
+                
+                if (gameState.player.dating.potentialMatches.length > 3) {
+                    const moreDiv = document.createElement('div');
+                    moreDiv.className = 'text-xs text-gray-600 text-center';
+                    moreDiv.textContent = `+${gameState.player.dating.potentialMatches.length - 3} more matches`;
+                    matchesContainer.appendChild(moreDiv);
+                }
+            }
+        }
+
+        // Placeholder functions for other activities
+        function doHomework() { studyInLibrary(); }
+        function meetProfessor() { 
+            gameState.player.gpa += 0.03;
+            gameState.player.skills.speaking += 0.1;
+            addActivityLog("👨‍🏫 Had a productive meeting with professor!");
+            showNotification("👨‍🏫 Great discussion with your professor!", "success");
+            updateAllDisplays();
+        }
+        function joinStudyGroup() { studyInLibrary(); }
+        function attendParty() { hangWithFriends(); }
+        function attendEvent() { hangWithFriends(); }
+        function networkWithPeers() { hangWithFriends(); }
+        function playIntramurals() { workOut(); }
+        function visitHealthCenter() { 
+            gameState.player.health = 100;
+            gameState.player.stress -= 20;
+            showNotification("🏥 Health checkup complete! Feeling great!", "success");
+            updateAllDisplays();
+        }
+        function goForWalk() { workOut(); }
+        function practiceYoga() { workOut(); }
+        function applyForInternship() { workPartTime(); }
+        function freelanceWork() { workPartTime(); }
+        function tutorStudents() { workPartTime(); }
+        function sellTextbooks() {
+            if (gameState.player.inventory.textbooks > 0) {
+                gameState.player.inventory.textbooks--;
+                gameState.player.money += 50;
+                showNotification("📚 Sold textbook for $50!", "success");
+                updateAllDisplays();
+            } else {
+                showNotification("📚 No textbooks to sell!", "warning");
+            }
+        }
+        function applyForScholarship() {
+            if (gameState.player.gpa > 3.0) {
+                gameState.player.money += 1000;
+                showNotification("🏆 Scholarship awarded! $1000 received!", "success");
+                updateAllDisplays();
+            } else {
+                showNotification("🏆 Need higher GPA for scholarship.", "warning");
+            }
+        }
+        function practiceMusic() {
+            gameState.player.skills.music += 0.2;
+            gameState.player.stress -= 15;
+            showNotification("🎵 Music practice was relaxing and skill-building!", "success");
+            updateAllDisplays();
+        }
+        function createArt() {
+            gameState.player.skills.creativity += 0.2;
+            gameState.player.stress -= 20;
+            showNotification("🎨 Created beautiful art! Creativity enhanced.", "success");
+            updateAllDisplays();
+        }
+        function writeCreatively() { createArt(); }
+        function learnNewSkill() {
+            const skills = Object.keys(gameState.player.skills);
+            const randomSkill = skills[Math.floor(Math.random() * skills.length)];
+            gameState.player.skills[randomSkill] += 0.3;
+            showNotification(`📚 Learned new ${randomSkill} techniques!`, "success");
+            updateAllDisplays();
+        }
+        function volunteerWork() {
+            gameState.player.social += 25;
+            gameState.player.skills.leadership += 0.2;
+            showNotification("❤️ Volunteer work was rewarding! Community impact made.", "success");
+            updateAllDisplays();
+        }
+        function startBlog() {
+            gameState.player.skills.creativity += 0.3;
+            gameState.player.skills.tech += 0.2;
+            showNotification("📝 Started a blog! Writing and tech skills improved.", "success");
+            updateAllDisplays();
+        }
+        function meetNewPeople() { 
+            if (gameState.player.energy < 15) {
+                showNotification("😴 Too tired to meet new people!", "warning");
+                return;
+            }
+
+            gameState.player.energy -= 15;
+            gameState.player.social += 10;
+            gameState.player.dating.confidence += 3;
+            
+            // Chance to meet potential romantic interest
+            if (Math.random() > 0.6) {
+                const newMatch = generatePotentialMatch();
+                gameState.player.dating.potentialMatches.push(newMatch);
+                addActivityLog(`👋 Met ${newMatch.name} at a social event! They seem interesting.`);
+                showNotification(`👋 Met ${newMatch.name}! They could be a potential match.`, "success");
+            } else {
+                const newFriend = generateRandomPerson();
+                gameState.player.relationships.push(newFriend);
+                addActivityLog(`👋 Made a new friend: ${newFriend.name}!`);
+                showNotification(`👋 Made a new friend: ${newFriend.name}!`, "success");
+            }
+            
+            gainXP(15);
+            updateAllDisplays();
+            advanceTime();
+        }
+        
+        function improveRelationship() {
+            if (gameState.player.relationships.length > 0) {
+                const person = gameState.player.relationships[Math.floor(Math.random() * gameState.player.relationships.length)];
+                
+                if (person.relationshipLevel !== undefined) {
+                    person.relationshipLevel += 10;
+                } else {
+                    person.level = (person.level || 1) + 1;
+                }
+                
+                gameState.player.social += 5;
+                addActivityLog(`💝 Spent quality time with ${person.name}. Your bond grew stronger!`);
+                showNotification(`💝 Improved relationship with ${person.name}!`, "success");
+                gainXP(10);
+                updateAllDisplays();
+            } else {
+                showNotification("💝 No relationships to improve yet!", "warning");
+            }
+        }
+        function exploreClubs() { joinClub(); }
+        function dropClass() {
+            if (gameState.player.academics.currentClasses.length > 0) {
+                const droppedClass = gameState.player.academics.currentClasses.pop();
+                showNotification(`❌ Dropped ${droppedClass.name}. Stress reduced.`, "success");
+                gameState.player.stress -= 20;
+                updateAllDisplays();
+            } else {
+                showNotification("❌ No classes to drop!", "warning");
+            }
+        }
+        function manageFinances() {
+            showNotification("💳 Reviewed your financial situation. Budget wisely!", "info");
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('load', initializeGame);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97468417126b58ac',t:'MTc1NjA3Njk1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

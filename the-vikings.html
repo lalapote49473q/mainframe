@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valhalla's Call - Viking RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        .viking-font { font-family: 'Cinzel', serif; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .rune-glow {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: runeGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes runeGlow {
+            from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .battle-shake {
+            animation: battleShake 0.5s ease-in-out;
+        }
+        
+        @keyframes battleShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .health-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .damage-text {
+            animation: damageFloat 1.5s ease-out forwards;
+        }
+        
+        @keyframes damageFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-30px) scale(1.2); opacity: 0; }
+        }
+        
+        .loot-sparkle {
+            animation: sparkle 1s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+        
+        .viking-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        
+        .scroll-bg {
+            background: linear-gradient(45deg, #8b4513, #a0522d);
+            border: 3px solid #654321;
+        }
+    </style>
+</head>
+<body class="viking-bg min-h-screen text-white">
+    <!-- Back to Main Button -->
+    <div class="absolute top-4 left-4 z-50">
+        <a href="main.html" class="bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-600 transition-colors flex items-center gap-2">
+            ← Back to Main
+        </a>
+    </div>
+
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="viking-font text-6xl font-bold mb-2 rune-glow">⚔️ VALHALLA'S CALL</h1>
+            <p class="text-xl text-blue-200">Forge your legend in the frozen northlands</p>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <!-- Character Panel -->
+            <div class="scroll-bg rounded-xl p-6 border-4 border-yellow-600">
+                <h3 class="viking-font text-2xl font-bold mb-4 text-center text-yellow-200">🛡️ WARRIOR</h3>
+                
+                <!-- Character Avatar -->
+                <div class="text-center mb-6">
+                    <div class="text-8xl mb-2" id="characterAvatar">🧔</div>
+                    <div class="viking-font text-xl font-bold" id="characterName">Bjorn Ironbeard</div>
+                    <div class="text-sm text-gray-300">Level <span id="playerLevel">1</span> Viking</div>
+                </div>
+
+                <!-- Stats -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold text-red-300">❤️ Health</span>
+                            <span id="healthText">100/100</span>
+                        </div>
+                        <div class="bg-gray-700 rounded-full h-3">
+                            <div id="healthBar" class="health-bar bg-red-500 h-3 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold text-blue-300">⚡ Stamina</span>
+                            <span id="staminaText">50/50</span>
+                        </div>
+                        <div class="bg-gray-700 rounded-full h-3">
+                            <div id="staminaBar" class="health-bar bg-blue-500 h-3 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold text-purple-300">🔮 Experience</span>
+                            <span id="expText">0/100</span>
+                        </div>
+                        <div class="bg-gray-700 rounded-full h-3">
+                            <div id="expBar" class="health-bar bg-purple-500 h-3 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attributes -->
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-400" id="attackStat">10</div>
+                        <div class="text-sm">⚔️ Attack</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-400" id="defenseStat">8</div>
+                        <div class="text-sm">🛡️ Defense</div>
+                    </div>
+                </div>
+
+                <!-- Inventory -->
+                <div class="mt-6">
+                    <h4 class="viking-font font-bold mb-3 text-yellow-200">💰 INVENTORY</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>🪙 Gold</span>
+                            <span id="goldAmount" class="font-bold text-yellow-400">50</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🍖 Food</span>
+                            <span id="foodAmount" class="font-bold">3</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>⚔️ Weapon</span>
+                            <span id="currentWeapon" class="font-bold text-orange-400">Iron Sword</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🛡️ Armor</span>
+                            <span id="currentArmor" class="font-bold text-blue-400">Leather Vest</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Game Area -->
+            <div class="xl:col-span-2 space-y-6">
+                <!-- Current Location -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-blue-500/30">
+                    <div class="text-center mb-4">
+                        <h3 class="viking-font text-3xl font-bold mb-2" id="locationName">🏔️ FROZEN PEAKS</h3>
+                        <p class="text-gray-300" id="locationDesc">Snow-capped mountains stretch endlessly before you. The wind howls with ancient secrets.</p>
+                    </div>
+                    
+                    <!-- Location Image -->
+                    <div class="text-center text-8xl mb-6" id="locationImage">🏔️</div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-2 gap-4" id="actionButtons">
+                        <button onclick="exploreArea()" class="bg-green-600 hover:bg-green-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            🗺️ Explore
+                        </button>
+                        <button onclick="restAtCamp()" class="bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            🏕️ Rest
+                        </button>
+                        <button onclick="huntForFood()" class="bg-orange-600 hover:bg-orange-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            🏹 Hunt
+                        </button>
+                        <button onclick="visitShop()" class="bg-purple-600 hover:bg-purple-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            🏪 Trade
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Battle Area -->
+                <div id="battleArea" class="bg-red-900/30 backdrop-blur-sm rounded-xl p-6 border border-red-500/50 hidden">
+                    <h3 class="viking-font text-2xl font-bold mb-4 text-center text-red-300">⚔️ BATTLE!</h3>
+                    
+                    <div class="grid grid-cols-2 gap-8 mb-6">
+                        <!-- Player -->
+                        <div class="text-center">
+                            <div class="text-6xl mb-2" id="playerBattleAvatar">🧔</div>
+                            <div class="font-bold">You</div>
+                            <div class="bg-gray-700 rounded-full h-4 mt-2">
+                                <div id="playerBattleHealth" class="health-bar bg-red-500 h-4 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Enemy -->
+                        <div class="text-center">
+                            <div class="text-6xl mb-2" id="enemyAvatar">🐺</div>
+                            <div class="font-bold" id="enemyName">Frost Wolf</div>
+                            <div class="bg-gray-700 rounded-full h-4 mt-2">
+                                <div id="enemyHealth" class="health-bar bg-red-500 h-4 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Battle Actions -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <button onclick="attackEnemy()" class="bg-red-600 hover:bg-red-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            ⚔️ Attack
+                        </button>
+                        <button onclick="defendAction()" class="bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            🛡️ Defend
+                        </button>
+                        <button onclick="useItem()" class="bg-green-600 hover:bg-green-700 py-3 px-4 rounded-lg font-bold transition-colors">
+                            🍖 Use Food
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Shop Area -->
+                <div id="shopArea" class="bg-purple-900/30 backdrop-blur-sm rounded-xl p-6 border border-purple-500/50 hidden">
+                    <h3 class="viking-font text-2xl font-bold mb-4 text-center text-purple-300">🏪 TRADER'S POST</h3>
+                    <p class="text-center text-gray-300 mb-6">A weathered merchant offers his wares...</p>
+                    
+                    <div class="grid grid-cols-2 gap-4" id="shopItems">
+                        <!-- Shop items will be generated here -->
+                    </div>
+                    
+                    <div class="text-center mt-6">
+                        <button onclick="closeShop()" class="bg-gray-600 hover:bg-gray-700 py-2 px-6 rounded-lg font-bold transition-colors">
+                            Close Shop
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events & Log -->
+            <div class="space-y-6">
+                <!-- Quest Log -->
+                <div class="scroll-bg rounded-xl p-6 border-4 border-yellow-600">
+                    <h3 class="viking-font text-xl font-bold mb-4 text-yellow-200">📜 QUEST LOG</h3>
+                    <div class="space-y-3" id="questLog">
+                        <div class="bg-black/30 rounded-lg p-3 border border-yellow-500/30">
+                            <div class="font-semibold text-yellow-300">🎯 Prove Your Worth</div>
+                            <div class="text-sm text-gray-300">Defeat 5 enemies to gain recognition</div>
+                            <div class="text-xs text-blue-300">Progress: <span id="enemiesDefeated">0</span>/5</div>
+                        </div>
+                        <div class="bg-black/30 rounded-lg p-3 border border-yellow-500/30">
+                            <div class="font-semibold text-yellow-300">💰 Gather Wealth</div>
+                            <div class="text-sm text-gray-300">Collect 500 gold pieces</div>
+                            <div class="text-xs text-blue-300">Progress: <span id="goldProgress">50</span>/500</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Log -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-gray-500/30">
+                    <h3 class="viking-font text-xl font-bold mb-4 text-gray-300">📰 EVENT LOG</h3>
+                    <div class="space-y-2 max-h-64 overflow-y-auto" id="eventLog">
+                        <div class="text-center text-gray-400 py-4">
+                            Your saga begins...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="bg-black/50 backdrop-blur-sm rounded-xl p-6 border border-green-500/30">
+                    <h3 class="viking-font text-xl font-bold mb-4 text-green-300">📊 ACHIEVEMENTS</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>🗡️ Battles Won</span>
+                            <span id="battlesWon" class="font-bold text-green-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🗺️ Areas Explored</span>
+                            <span id="areasExplored" class="font-bold text-blue-400">1</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🏹 Successful Hunts</span>
+                            <span id="successfulHunts" class="font-bold text-orange-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>💎 Rare Items Found</span>
+                            <span id="rareItems" class="font-bold text-purple-400">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            player: {
+                name: "Bjorn Ironbeard",
+                level: 1,
+                health: 100,
+                maxHealth: 100,
+                stamina: 50,
+                maxStamina: 50,
+                experience: 0,
+                expToNext: 100,
+                attack: 10,
+                defense: 8,
+                gold: 50,
+                food: 3,
+                weapon: "Iron Sword",
+                armor: "Leather Vest"
+            },
+            location: {
+                name: "Frozen Peaks",
+                description: "Snow-capped mountains stretch endlessly before you. The wind howls with ancient secrets.",
+                image: "🏔️"
+            },
+            battle: {
+                active: false,
+                enemy: null,
+                playerHealth: 100,
+                enemyHealth: 100
+            },
+            stats: {
+                battlesWon: 0,
+                areasExplored: 1,
+                successfulHunts: 0,
+                rareItems: 0,
+                enemiesDefeated: 0
+            },
+            shop: {
+                active: false
+            }
+        };
+
+        // Locations
+        const locations = [
+            {
+                name: "Frozen Peaks",
+                description: "Snow-capped mountains stretch endlessly before you. The wind howls with ancient secrets.",
+                image: "🏔️"
+            },
+            {
+                name: "Dark Forest",
+                description: "Ancient trees tower above, their branches blocking out the sun. Strange sounds echo in the darkness.",
+                image: "🌲"
+            },
+            {
+                name: "Viking Village",
+                description: "A bustling settlement with longhouses and smoke rising from chimneys. Warriors sharpen their weapons.",
+                image: "🏘️"
+            },
+            {
+                name: "Stormy Seas",
+                description: "Rough waters crash against rocky shores. Viking longships brave the treacherous waves.",
+                image: "🌊"
+            },
+            {
+                name: "Ancient Ruins",
+                description: "Crumbling stone structures hint at a forgotten civilization. Runes glow with mysterious power.",
+                image: "🏛️"
+            }
+        ];
+
+        // Enemies
+        const enemies = [
+            { name: "Frost Wolf", avatar: "🐺", health: 40, attack: 8, defense: 3, gold: 15, exp: 25 },
+            { name: "Ice Troll", avatar: "🧌", health: 80, attack: 12, defense: 6, gold: 35, exp: 50 },
+            { name: "Skeleton Warrior", avatar: "💀", health: 60, attack: 10, defense: 4, gold: 25, exp: 40 },
+            { name: "Fire Drake", avatar: "🐉", health: 120, attack: 18, defense: 8, gold: 75, exp: 100 },
+            { name: "Berserker", avatar: "🪓", health: 70, attack: 15, defense: 5, gold: 40, exp: 60 }
+        ];
+
+        // Shop Items
+        const shopItems = [
+            { name: "Steel Sword", type: "weapon", price: 150, attack: 15, description: "A sharp blade forged by master smiths" },
+            { name: "Battle Axe", type: "weapon", price: 200, attack: 18, description: "Heavy weapon that cleaves through armor" },
+            { name: "Chain Mail", type: "armor", price: 120, defense: 12, description: "Interlocked rings provide excellent protection" },
+            { name: "Viking Shield", type: "armor", price: 180, defense: 15, description: "Reinforced wooden shield with iron boss" },
+            { name: "Health Potion", type: "consumable", price: 30, healing: 50, description: "Restores health instantly" },
+            { name: "Food Rations", type: "consumable", price: 20, food: 3, description: "Dried meat and bread for sustenance" }
+        ];
+
+        // Initialize game
+        function initializeGame() {
+            updateDisplay();
+            addEvent("🌟 Welcome to Valhalla's Call! Your Viking adventure begins in the Frozen Peaks.");
+            addEvent("⚔️ Explore the world, battle enemies, and forge your legend!");
+        }
+
+        // Explore area
+        function exploreArea() {
+            if (gameState.player.stamina < 10) {
+                addEvent("😴 You're too tired to explore. Rest first!");
+                return;
+            }
+
+            gameState.player.stamina -= 10;
+            
+            const events = [
+                { type: "enemy", chance: 0.4 },
+                { type: "treasure", chance: 0.2 },
+                { type: "location", chance: 0.2 },
+                { type: "nothing", chance: 0.2 }
+            ];
+
+            const randomEvent = getRandomEvent(events);
+
+            switch (randomEvent.type) {
+                case "enemy":
+                    startBattle();
+                    break;
+                case "treasure":
+                    findTreasure();
+                    break;
+                case "location":
+                    discoverLocation();
+                    break;
+                case "nothing":
+                    addEvent("🌫️ You wander through the area but find nothing of interest.");
+                    break;
+            }
+
+            updateDisplay();
+        }
+
+        // Start battle
+        function startBattle() {
+            const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+            gameState.battle.active = true;
+            gameState.battle.enemy = { ...enemy };
+            gameState.battle.playerHealth = gameState.player.health;
+            gameState.battle.enemyHealth = enemy.health;
+
+            document.getElementById('battleArea').classList.remove('hidden');
+            document.getElementById('enemyAvatar').textContent = enemy.avatar;
+            document.getElementById('enemyName').textContent = enemy.name;
+
+            addEvent(`⚔️ A wild ${enemy.name} appears! Battle begins!`);
+            updateBattleDisplay();
+        }
+
+        // Attack enemy
+        function attackEnemy() {
+            if (!gameState.battle.active) return;
+
+            const enemy = gameState.battle.enemy;
+            const playerDamage = Math.max(1, gameState.player.attack - enemy.defense + Math.floor(Math.random() * 5));
+            const enemyDamage = Math.max(1, enemy.attack - gameState.player.defense + Math.floor(Math.random() * 3));
+
+            // Player attacks
+            gameState.battle.enemyHealth -= playerDamage;
+            addEvent(`⚔️ You deal ${playerDamage} damage to the ${enemy.name}!`);
+            showDamageText('enemy', playerDamage);
+
+            if (gameState.battle.enemyHealth <= 0) {
+                winBattle();
+                return;
+            }
+
+            // Enemy attacks back
+            setTimeout(() => {
+                gameState.battle.playerHealth -= enemyDamage;
+                gameState.player.health = gameState.battle.playerHealth;
+                addEvent(`💥 The ${enemy.name} deals ${enemyDamage} damage to you!`);
+                showDamageText('player', enemyDamage);
+
+                if (gameState.battle.playerHealth <= 0) {
+                    loseBattle();
+                    return;
+                }
+
+                updateBattleDisplay();
+                updateDisplay();
+            }, 1000);
+
+            updateBattleDisplay();
+        }
+
+        // Defend action
+        function defendAction() {
+            if (!gameState.battle.active) return;
+
+            const enemy = gameState.battle.enemy;
+            const reducedDamage = Math.max(1, Math.floor((enemy.attack - gameState.player.defense) / 2));
+
+            gameState.battle.playerHealth -= reducedDamage;
+            gameState.player.health = gameState.battle.playerHealth;
+            
+            addEvent(`🛡️ You defend! Damage reduced to ${reducedDamage}.`);
+            
+            if (gameState.battle.playerHealth <= 0) {
+                loseBattle();
+                return;
+            }
+
+            updateBattleDisplay();
+            updateDisplay();
+        }
+
+        // Use item in battle
+        function useItem() {
+            if (!gameState.battle.active || gameState.player.food <= 0) {
+                addEvent("🍖 No food available!");
+                return;
+            }
+
+            gameState.player.food--;
+            const healing = 30;
+            gameState.battle.playerHealth = Math.min(gameState.player.maxHealth, gameState.battle.playerHealth + healing);
+            gameState.player.health = gameState.battle.playerHealth;
+
+            addEvent(`🍖 You eat food and recover ${healing} health!`);
+            updateBattleDisplay();
+            updateDisplay();
+        }
+
+        // Win battle
+        function winBattle() {
+            const enemy = gameState.battle.enemy;
+            gameState.player.gold += enemy.gold;
+            gameState.player.experience += enemy.exp;
+            gameState.stats.battlesWon++;
+            gameState.stats.enemiesDefeated++;
+
+            addEvent(`🏆 Victory! You defeated the ${enemy.name}!`);
+            addEvent(`💰 Gained ${enemy.gold} gold and ${enemy.exp} experience!`);
+
+            checkLevelUp();
+            endBattle();
+        }
+
+        // Lose battle
+        function loseBattle() {
+            addEvent("💀 You have been defeated! You retreat to safety.");
+            gameState.player.health = Math.floor(gameState.player.maxHealth * 0.1);
+            gameState.battle.playerHealth = gameState.player.health;
+            endBattle();
+        }
+
+        // End battle
+        function endBattle() {
+            gameState.battle.active = false;
+            gameState.battle.enemy = null;
+            document.getElementById('battleArea').classList.add('hidden');
+            updateDisplay();
+        }
+
+        // Check level up
+        function checkLevelUp() {
+            if (gameState.player.experience >= gameState.player.expToNext) {
+                gameState.player.level++;
+                gameState.player.experience -= gameState.player.expToNext;
+                gameState.player.expToNext = Math.floor(gameState.player.expToNext * 1.5);
+                
+                // Stat increases
+                gameState.player.maxHealth += 20;
+                gameState.player.health = gameState.player.maxHealth;
+                gameState.player.maxStamina += 10;
+                gameState.player.stamina = gameState.player.maxStamina;
+                gameState.player.attack += 3;
+                gameState.player.defense += 2;
+
+                addEvent(`🌟 LEVEL UP! You are now level ${gameState.player.level}!`);
+                addEvent(`📈 Your stats have increased!`);
+            }
+        }
+
+        // Find treasure
+        function findTreasure() {
+            const treasures = [
+                { name: "Gold Coins", gold: Math.floor(Math.random() * 50 + 20) },
+                { name: "Ancient Rune", gold: Math.floor(Math.random() * 100 + 50), rare: true },
+                { name: "Food Cache", food: Math.floor(Math.random() * 3 + 1) },
+                { name: "Weapon Fragment", gold: Math.floor(Math.random() * 30 + 15) }
+            ];
+
+            const treasure = treasures[Math.floor(Math.random() * treasures.length)];
+            
+            if (treasure.gold) {
+                gameState.player.gold += treasure.gold;
+                addEvent(`💰 Found ${treasure.name}! Gained ${treasure.gold} gold.`);
+            }
+            
+            if (treasure.food) {
+                gameState.player.food += treasure.food;
+                addEvent(`🍖 Found ${treasure.name}! Gained ${treasure.food} food.`);
+            }
+
+            if (treasure.rare) {
+                gameState.stats.rareItems++;
+                addEvent(`✨ This is a rare find!`);
+            }
+        }
+
+        // Discover new location
+        function discoverLocation() {
+            const newLocation = locations[Math.floor(Math.random() * locations.length)];
+            
+            if (newLocation.name !== gameState.location.name) {
+                gameState.location = { ...newLocation };
+                gameState.stats.areasExplored++;
+                
+                document.getElementById('locationName').textContent = `🗺️ ${newLocation.name.toUpperCase()}`;
+                document.getElementById('locationDesc').textContent = newLocation.description;
+                document.getElementById('locationImage').textContent = newLocation.image;
+                
+                addEvent(`🗺️ You discovered a new area: ${newLocation.name}!`);
+            } else {
+                addEvent("🌫️ You wander in circles and end up where you started.");
+            }
+        }
+
+        // Rest at camp
+        function restAtCamp() {
+            if (gameState.player.health === gameState.player.maxHealth && gameState.player.stamina === gameState.player.maxStamina) {
+                addEvent("😌 You're already well rested!");
+                return;
+            }
+
+            gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + 30);
+            gameState.player.stamina = gameState.player.maxStamina;
+            
+            addEvent("🏕️ You rest by the campfire and recover health and stamina.");
+            updateDisplay();
+        }
+
+        // Hunt for food
+        function huntForFood() {
+            if (gameState.player.stamina < 15) {
+                addEvent("😴 You're too tired to hunt. Rest first!");
+                return;
+            }
+
+            gameState.player.stamina -= 15;
+            
+            if (Math.random() < 0.7) {
+                const foodGained = Math.floor(Math.random() * 3 + 1);
+                gameState.player.food += foodGained;
+                gameState.stats.successfulHunts++;
+                addEvent(`🏹 Successful hunt! You caught ${foodGained} food.`);
+            } else {
+                addEvent("🏹 Your hunt was unsuccessful. The prey escaped.");
+            }
+            
+            updateDisplay();
+        }
+
+        // Visit shop
+        function visitShop() {
+            gameState.shop.active = true;
+            document.getElementById('shopArea').classList.remove('hidden');
+            generateShopItems();
+        }
+
+        // Generate shop items
+        function generateShopItems() {
+            const container = document.getElementById('shopItems');
+            container.innerHTML = '';
+            
+            const availableItems = shopItems.slice(0, 4); // Show 4 random items
+            
+            availableItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bg-black/30 rounded-lg p-4 border border-purple-500/30 hover:border-purple-400 transition-colors cursor-pointer';
+                itemDiv.innerHTML = `
+                    <div class="font-bold text-purple-300">${item.name}</div>
+                    <div class="text-sm text-gray-300 mb-2">${item.description}</div>
+                    <div class="text-yellow-400 font-bold">💰 ${item.price} gold</div>
+                `;
+                itemDiv.onclick = () => buyItem(item);
+                container.appendChild(itemDiv);
+            });
+        }
+
+        // Buy item
+        function buyItem(item) {
+            if (gameState.player.gold < item.price) {
+                addEvent("💰 Not enough gold!");
+                return;
+            }
+
+            gameState.player.gold -= item.price;
+            
+            switch (item.type) {
+                case 'weapon':
+                    gameState.player.weapon = item.name;
+                    gameState.player.attack += (item.attack - 10); // Assuming base weapon is 10 attack
+                    addEvent(`⚔️ Purchased ${item.name}! Attack increased!`);
+                    break;
+                case 'armor':
+                    gameState.player.armor = item.name;
+                    gameState.player.defense += (item.defense - 8); // Assuming base armor is 8 defense
+                    addEvent(`🛡️ Purchased ${item.name}! Defense increased!`);
+                    break;
+                case 'consumable':
+                    if (item.healing) {
+                        gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + item.healing);
+                        addEvent(`🧪 Used ${item.name}! Restored ${item.healing} health!`);
+                    }
+                    if (item.food) {
+                        gameState.player.food += item.food;
+                        addEvent(`🍖 Purchased ${item.name}! Gained ${item.food} food!`);
+                    }
+                    break;
+            }
+            
+            updateDisplay();
+        }
+
+        // Close shop
+        function closeShop() {
+            gameState.shop.active = false;
+            document.getElementById('shopArea').classList.add('hidden');
+        }
+
+        // Show damage text
+        function showDamageText(target, damage) {
+            const targetElement = target === 'player' ? document.getElementById('playerBattleAvatar') : document.getElementById('enemyAvatar');
+            const damageDiv = document.createElement('div');
+            damageDiv.className = 'damage-text absolute top-0 left-1/2 transform -translate-x-1/2 font-bold text-red-400 text-xl pointer-events-none z-10';
+            damageDiv.textContent = `-${damage}`;
+            
+            targetElement.style.position = 'relative';
+            targetElement.appendChild(damageDiv);
+            targetElement.classList.add('battle-shake');
+            
+            setTimeout(() => {
+                if (damageDiv.parentNode) {
+                    damageDiv.parentNode.removeChild(damageDiv);
+                }
+                targetElement.classList.remove('battle-shake');
+            }, 1500);
+        }
+
+        // Get random event
+        function getRandomEvent(events) {
+            const random = Math.random();
+            let cumulative = 0;
+            
+            for (const event of events) {
+                cumulative += event.chance;
+                if (random <= cumulative) {
+                    return event;
+                }
+            }
+            
+            return events[events.length - 1];
+        }
+
+        // Add event to log
+        function addEvent(message) {
+            const eventLog = document.getElementById('eventLog');
+            const event = document.createElement('div');
+            event.className = 'bg-white/5 rounded-lg p-3 border border-white/10 text-sm';
+            event.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <span>${message}</span>
+                    <span class="text-xs text-gray-400">${new Date().toLocaleTimeString()}</span>
+                </div>
+            `;
+            
+            if (eventLog.children[0]?.textContent.includes('Your saga begins...')) {
+                eventLog.innerHTML = '';
+            }
+            
+            eventLog.insertBefore(event, eventLog.firstChild);
+            
+            if (eventLog.children.length > 10) {
+                eventLog.removeChild(eventLog.lastChild);
+            }
+        }
+
+        // Update battle display
+        function updateBattleDisplay() {
+            if (!gameState.battle.active) return;
+            
+            const playerHealthPercent = (gameState.battle.playerHealth / gameState.player.maxHealth) * 100;
+            const enemyHealthPercent = (gameState.battle.enemyHealth / gameState.battle.enemy.health) * 100;
+            
+            document.getElementById('playerBattleHealth').style.width = playerHealthPercent + '%';
+            document.getElementById('enemyHealth').style.width = enemyHealthPercent + '%';
+        }
+
+        // Update display
+        function updateDisplay() {
+            // Player stats
+            document.getElementById('playerLevel').textContent = gameState.player.level;
+            document.getElementById('healthText').textContent = `${gameState.player.health}/${gameState.player.maxHealth}`;
+            document.getElementById('staminaText').textContent = `${gameState.player.stamina}/${gameState.player.maxStamina}`;
+            document.getElementById('expText').textContent = `${gameState.player.experience}/${gameState.player.expToNext}`;
+            
+            // Health bars
+            const healthPercent = (gameState.player.health / gameState.player.maxHealth) * 100;
+            const staminaPercent = (gameState.player.stamina / gameState.player.maxStamina) * 100;
+            const expPercent = (gameState.player.experience / gameState.player.expToNext) * 100;
+            
+            document.getElementById('healthBar').style.width = healthPercent + '%';
+            document.getElementById('staminaBar').style.width = staminaPercent + '%';
+            document.getElementById('expBar').style.width = expPercent + '%';
+            
+            // Attributes
+            document.getElementById('attackStat').textContent = gameState.player.attack;
+            document.getElementById('defenseStat').textContent = gameState.player.defense;
+            
+            // Inventory
+            document.getElementById('goldAmount').textContent = gameState.player.gold;
+            document.getElementById('foodAmount').textContent = gameState.player.food;
+            document.getElementById('currentWeapon').textContent = gameState.player.weapon;
+            document.getElementById('currentArmor').textContent = gameState.player.armor;
+            
+            // Achievements
+            document.getElementById('battlesWon').textContent = gameState.stats.battlesWon;
+            document.getElementById('areasExplored').textContent = gameState.stats.areasExplored;
+            document.getElementById('successfulHunts').textContent = gameState.stats.successfulHunts;
+            document.getElementById('rareItems').textContent = gameState.stats.rareItems;
+            
+            // Quest progress
+            document.getElementById('enemiesDefeated').textContent = gameState.stats.enemiesDefeated;
+            document.getElementById('goldProgress').textContent = gameState.player.gold;
+        }
+
+        // Auto-save game state
+        setInterval(() => {
+            localStorage.setItem('vikingRPGSave', JSON.stringify(gameState));
+        }, 30000);
+
+        // Load game state
+        function loadGame() {
+            const saved = localStorage.getItem('vikingRPGSave');
+            if (saved) {
+                gameState = { ...gameState, ...JSON.parse(saved) };
+                addEvent("💾 Game loaded from previous session!");
+            }
+        }
+
+        // Initialize the game
+        loadGame();
+        initializeGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9736d3c6423e22ba',t:'MTc1NTkxMjQ0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

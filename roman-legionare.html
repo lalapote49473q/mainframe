@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legio Gloria - Roman Legionnaire RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .roman-font { font-family: 'Cinzel', serif; }
+        .roman-bg { 
+            background: linear-gradient(135deg, #8B4513 0%, #CD853F 20%, #DAA520 40%, #B8860B 60%, #8B4513 100%);
+        }
+        .legion-bg { 
+            background-image: 
+                radial-gradient(circle at 25% 25%, #DC143C 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #B8860B 0%, transparent 50%),
+                linear-gradient(135deg, #2F1B14 0%, #1A1A1A 100%);
+        }
+        .eagle-soar { animation: eagleSoar 6s ease-in-out infinite; }
+        @keyframes eagleSoar { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-15px) rotate(5deg); } 66% { transform: translateY(-5px) rotate(-3deg); } }
+        .shield-shine { animation: shieldShine 4s ease-in-out infinite; }
+        @keyframes shieldShine { 0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); } 50% { transform: scale(1.05) rotate(2deg); filter: brightness(1.2); } }
+        .sword-gleam { animation: swordGleam 3s linear infinite; }
+        @keyframes swordGleam { 0% { transform: rotate(0deg); filter: brightness(1); } 50% { filter: brightness(1.3); } 100% { transform: rotate(360deg); filter: brightness(1); } }
+        .legion-card { transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .legion-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px rgba(220, 20, 60, 0.4); }
+        .centurion-glow { animation: centurionGlow 3s ease-in-out infinite alternate; }
+        @keyframes centurionGlow { from { box-shadow: 0 0 20px rgba(184, 134, 11, 0.5); } to { box-shadow: 0 0 40px rgba(184, 134, 11, 0.8); } }
+        .honor-pulse { animation: honorPulse 2s ease-in-out infinite; }
+        @keyframes honorPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
+        .scroll-unfurl { animation: scrollUnfurl 1s ease-out; }
+        @keyframes scrollUnfurl { 0% { transform: scaleY(0); opacity: 0; } 100% { transform: scaleY(1); opacity: 1; } }
+        .banner-wave { animation: bannerWave 4s ease-in-out infinite; }
+        @keyframes bannerWave { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3) drop-shadow(0 0 10px #DAA520); } }
+        .battle-ready { animation: battleReady 2s ease-in-out; }
+        @keyframes battleReady { 0% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } 100% { transform: rotateY(0deg); } }
+        .laurel-crown { animation: laurelCrown 3s ease-in-out infinite; }
+        @keyframes laurelCrown { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(5deg); } }
+    </style>
+</head>
+<body class="roman-bg min-h-screen text-white">
+    <!-- Floating Roman Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-10 text-4xl eagle-soar" style="animation-delay: 0s;">🦅</div>
+        <div class="absolute top-40 right-20 text-3xl shield-shine" style="animation-delay: 1s;">🛡️</div>
+        <div class="absolute bottom-40 left-20 text-3xl sword-gleam" style="animation-delay: 2s;">⚔️</div>
+        <div class="absolute top-60 left-1/2 text-2xl shield-shine" style="animation-delay: 1.5s;">🏛️</div>
+        <div class="absolute bottom-20 right-10 text-3xl eagle-soar" style="animation-delay: 3s;">🏺</div>
+        <div class="absolute top-80 right-1/3 text-2xl laurel-crown" style="animation-delay: 2.5s;">🌿</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/50 backdrop-blur-sm border-b border-yellow-500/30 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="location.href='main.html'" class="bg-red-600/80 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-red-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl shield-shine banner-wave">🦅</div>
+                    <h1 class="text-2xl font-bold roman-font">LEGIO GLORIA</h1>
+                    <div class="text-xs bg-red-600 px-2 py-1 rounded roman-font">SPQR</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">🪙</span>
+                    <span class="text-xl font-bold roman-font" id="denarii">500</span>
+                    <span class="text-sm text-gray-300">DENARII</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-red-400">🏆</span>
+                    <span class="text-lg roman-font" id="honor">50</span>
+                    <span class="text-sm text-gray-300">HONOR</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">⚔️</span>
+                    <span class="text-lg roman-font" id="experience">0</span>
+                    <span class="text-sm text-gray-300">XP</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Legionnaire Profile -->
+        <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-yellow-500/30 centurion-glow">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 bg-gradient-to-br from-yellow-600 to-red-600 rounded-full flex items-center justify-center text-3xl border-4 border-yellow-500 honor-pulse">
+                        🛡️
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold roman-font" id="legionnaireName">Marcus Aurelius</h2>
+                        <p class="text-yellow-400 roman-font text-lg" id="rank">Tirocinium (Recruit)</p>
+                        <div class="flex gap-6 mt-2">
+                            <span class="text-sm">⚔️ Combat: <span class="text-red-400 font-bold" id="combatStat">25</span></span>
+                            <span class="text-sm">🛡️ Defense: <span class="text-blue-400 font-bold" id="defenseStat">20</span></span>
+                            <span class="text-sm">🧠 Tactics: <span class="text-purple-400 font-bold" id="tacticsStat">15</span></span>
+                            <span class="text-sm">👑 Leadership: <span class="text-yellow-400 font-bold" id="leadershipStat">10</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-300">CAMPAIGN YEAR</div>
+                    <div class="text-4xl roman-font text-yellow-400" id="campaignYear">1</div>
+                    <div class="text-sm text-gray-300 mt-2">LEGION: <span class="text-white font-bold" id="legionName">X Fretensis</span></div>
+                    <div class="text-sm text-gray-300">HEALTH: <span class="text-green-400 font-bold" id="health">100%</span></div>
+                </div>
+            </div>
+            
+            <!-- Status Bars -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-red-400">⚔️ Battle Readiness</span>
+                        <span id="battleReadiness">75%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-red-400 h-2 rounded-full transition-all duration-500" id="battleBar" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-blue-400">🏛️ Senate Favor</span>
+                        <span id="senateFavor">30%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-400 h-2 rounded-full transition-all duration-500" id="senateBar" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-green-400">👥 Troop Morale</span>
+                        <span id="troopMorale">60%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full transition-all duration-500" id="moraleBar" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-yellow-400">🌟 Reputation</span>
+                        <span id="reputation">40%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" id="reputationBar" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Mission -->
+        <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-red-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold roman-font text-red-400">📜 CURRENT ORDERS</h2>
+                <div class="text-sm bg-red-600/20 px-3 py-1 rounded roman-font border border-red-500/50">
+                    AWAITING DECISION
+                </div>
+            </div>
+            
+            <div id="currentMission" class="scroll-unfurl">
+                <!-- Current mission will be populated here -->
+            </div>
+        </div>
+
+        <!-- Legion Management -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Equipment & Training -->
+            <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30">
+                <h2 class="text-2xl font-bold roman-font text-purple-400 mb-6">⚔️ EQUIPMENT & TRAINING</h2>
+                <div id="equipmentContainer" class="space-y-4">
+                    <!-- Equipment will be populated here -->
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="trainStat('combat')" class="bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold roman-font transition-all text-sm">
+                        ⚔️ TRAIN COMBAT
+                    </button>
+                    <button onclick="trainStat('defense')" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold roman-font transition-all text-sm">
+                        🛡️ TRAIN DEFENSE
+                    </button>
+                    <button onclick="trainStat('tactics')" class="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold roman-font transition-all text-sm">
+                        🧠 TRAIN TACTICS
+                    </button>
+                    <button onclick="trainStat('leadership')" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-semibold roman-font transition-all text-sm">
+                        👑 TRAIN LEADERSHIP
+                    </button>
+                </div>
+                <button onclick="showEquipmentMenu()" class="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                    UPGRADE EQUIPMENT
+                </button>
+            </div>
+
+            <!-- Campaigns -->
+            <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-green-500/30">
+                <h2 class="text-2xl font-bold roman-font text-green-400 mb-6">🗺️ ACTIVE CAMPAIGNS</h2>
+                <div id="campaignsContainer" class="space-y-4">
+                    <!-- Campaigns will be populated here -->
+                </div>
+                <button onclick="showCampaignMenu()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                    JOIN CAMPAIGN
+                </button>
+            </div>
+
+            <!-- Achievements -->
+            <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30">
+                <h2 class="text-2xl font-bold roman-font text-blue-400 mb-6">🏆 HONORS & DECORATIONS</h2>
+                <div id="honorsContainer" class="space-y-4">
+                    <!-- Honors will be populated here -->
+                </div>
+                <button onclick="showHonorsMenu()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold roman-font transition-all transform hover:scale-105">
+                    VIEW ALL HONORS
+                </button>
+            </div>
+        </div>
+
+        <!-- Legion Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <!-- Military Status -->
+            <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-red-500/30">
+                <h2 class="text-xl font-bold roman-font text-red-400 mb-4">⚔️ MILITARY STATUS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Battles Won:</span>
+                        <span class="font-bold text-green-400" id="battlesWon">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Enemies Defeated:</span>
+                        <span class="font-bold text-red-400" id="enemiesDefeated">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Wounds Received:</span>
+                        <span class="font-bold text-yellow-400" id="woundsReceived">0</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-600 pt-2">
+                        <span class="text-gray-300">Combat Rating:</span>
+                        <span class="font-bold text-purple-400" id="combatRating">Novice</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Political Status -->
+            <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30">
+                <h2 class="text-xl font-bold roman-font text-blue-400 mb-4">🏛️ POLITICAL STATUS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Senate Standing:</span>
+                        <span class="font-bold text-white" id="senateStanding">Unknown</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Patron:</span>
+                        <span class="font-bold text-yellow-400" id="patron">None</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Political Missions:</span>
+                        <span class="font-bold text-green-400" id="politicalMissions">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Citizenship Status:</span>
+                        <span class="font-bold text-blue-400" id="citizenship">Citizen</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Economic Status -->
+            <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/30">
+                <h2 class="text-xl font-bold roman-font text-yellow-400 mb-4">🪙 ECONOMIC STATUS</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Monthly Salary:</span>
+                        <span class="font-bold text-green-400" id="monthlySalary">225 Denarii</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Loot Acquired:</span>
+                        <span class="font-bold text-yellow-400" id="lootAcquired">0 Denarii</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-300">Equipment Value:</span>
+                        <span class="font-bold text-purple-400" id="equipmentValue">150 Denarii</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-600 pt-2">
+                        <span class="text-gray-300">Total Worth:</span>
+                        <span class="font-bold text-white" id="totalWorth">650 Denarii</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legion Achievements -->
+        <div class="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/30">
+            <h2 class="text-2xl font-bold roman-font text-yellow-400 mb-6">🌿 LEGION ACHIEVEMENTS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="achievementsContainer">
+                <!-- Achievements will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Equipment Menu Modal -->
+    <div id="equipmentMenu" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-purple-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold roman-font text-purple-400">⚔️ EQUIPMENT UPGRADES</h2>
+                <button onclick="hideEquipmentMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableEquipment">
+                <!-- Available equipment will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Menu Modal -->
+    <div id="campaignMenu" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-green-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold roman-font text-green-400">🗺️ AVAILABLE CAMPAIGNS</h2>
+                <button onclick="hideCampaignMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="availableCampaigns">
+                <!-- Available campaigns will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission Result Modal -->
+    <div id="missionResultModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-red-500/50">
+            <div class="text-center">
+                <div class="text-6xl mb-4" id="resultIcon">🦅</div>
+                <h2 class="text-2xl font-bold roman-font mb-4" id="resultTitle">MISSION COMPLETE</h2>
+                <div class="space-y-2 mb-6" id="resultDetails">
+                    <!-- Result details will be populated here -->
+                </div>
+                <button onclick="closeMissionResult()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold roman-font transition-all">
+                    CONTINUE SERVICE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Honors Menu Modal -->
+    <div id="honorsMenu" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-blue-500/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold roman-font text-blue-400">🏆 HONORS & DECORATIONS</h2>
+                <button onclick="hideHonorsMenu()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="availableHonors">
+                <!-- Available honors will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            denarii: 200,
+            honor: 25,
+            experience: 0,
+            campaignYear: 1,
+            health: 100,
+            stats: {
+                combat: 25,
+                defense: 20,
+                tactics: 15,
+                leadership: 10
+            },
+            status: {
+                battleReadiness: 50,
+                senateFavor: 20,
+                troopMorale: 40,
+                reputation: 25
+            },
+            equipment: ['gladius', 'scutum'],
+            campaigns: [],
+            honors: [],
+            currentMission: null,
+            missionTimer: 0,
+            rank: 'tirocinium',
+            battlesWon: 0,
+            enemiesDefeated: 0,
+            woundsReceived: 0,
+            lootAcquired: 0,
+            monthlySalary: 150
+        };
+
+        // Roman Missions
+        const missions = [
+            {
+                id: 'barbarian_raid',
+                title: 'Barbarian Raid Defense',
+                description: 'Germanic tribes are attacking our frontier settlements. The centurion orders you to lead a patrol to drive them back.',
+                icon: '⚔️',
+                choices: [
+                    {
+                        text: 'Lead Frontal Assault',
+                        requirements: { combat: 20 },
+                        effects: { honor: +15, experience: +25, denarii: +200, battlesWon: +1, enemiesDefeated: +8 },
+                        outcome: 'Your bold charge breaks the barbarian line! The settlement is saved and your courage is noted.'
+                    },
+                    {
+                        text: 'Use Tactical Flanking',
+                        requirements: { tactics: 15 },
+                        effects: { honor: +10, experience: +20, troopMorale: +15, battlesWon: +1 },
+                        outcome: 'Your clever maneuver catches the barbarians off-guard. Victory with minimal casualties!'
+                    },
+                    {
+                        text: 'Defensive Formation',
+                        requirements: { defense: 15 },
+                        effects: { honor: +5, experience: +15, health: +10 },
+                        outcome: 'Your testudo formation holds firm. The barbarians retreat after failing to break your lines.'
+                    }
+                ]
+            },
+            {
+                id: 'senate_mission',
+                title: 'Senate Diplomatic Mission',
+                description: 'A senator requires escort to negotiate with a local tribal chief. This could advance your political standing.',
+                icon: '🏛️',
+                choices: [
+                    {
+                        text: 'Ensure Safe Passage',
+                        requirements: { leadership: 20 },
+                        effects: { senateFavor: +20, denarii: +300, honor: +10 },
+                        outcome: 'The senator arrives safely and speaks highly of your professionalism to his colleagues.'
+                    },
+                    {
+                        text: 'Gather Intelligence',
+                        requirements: { tactics: 30 },
+                        effects: { senateFavor: +15, experience: +15, reputation: +10 },
+                        outcome: 'You learn valuable information about tribal movements while protecting the senator.'
+                    },
+                    {
+                        text: 'Focus on Military Discipline',
+                        effects: { troopMorale: +10, battleReadiness: +15 },
+                        outcome: 'Your men perform flawlessly, impressing the senator with Roman military precision.'
+                    }
+                ]
+            },
+            {
+                id: 'gladiator_revolt',
+                title: 'Gladiator Uprising',
+                description: 'Escaped gladiators led by a former champion are terrorizing the countryside. The praetor demands swift action.',
+                icon: '🏟️',
+                choices: [
+                    {
+                        text: 'Hunt Them Down',
+                        requirements: { combat: 40, tactics: 35 },
+                        effects: { honor: +20, experience: +30, denarii: +400, enemiesDefeated: +12 },
+                        outcome: 'You track down and defeat the gladiators in pitched battle. Their leader falls to your blade!'
+                    },
+                    {
+                        text: 'Offer Negotiation',
+                        requirements: { leadership: 30 },
+                        effects: { senateFavor: +25, reputation: +20, troopMorale: +10 },
+                        outcome: 'Your diplomatic approach ends the revolt peacefully. The Senate praises your wisdom.'
+                    },
+                    {
+                        text: 'Set Ambush',
+                        requirements: { tactics: 40 },
+                        effects: { honor: +15, experience: +25, battleReadiness: +20 },
+                        outcome: 'Your trap works perfectly. The gladiators are captured with minimal Roman casualties.'
+                    }
+                ]
+            },
+            {
+                id: 'pirate_fleet',
+                title: 'Pirate Fleet Threat',
+                description: 'Pirates are disrupting grain shipments from Egypt. The admiral requests marine support for a naval operation.',
+                icon: '🚢',
+                choices: [
+                    {
+                        text: 'Board Enemy Ships',
+                        requirements: { combat: 45 },
+                        effects: { honor: +25, experience: +35, denarii: +600, lootAcquired: +600 },
+                        outcome: 'Your marines storm the pirate flagship! The enemy fleet scatters and rich plunder is yours.'
+                    },
+                    {
+                        text: 'Coordinate Naval Tactics',
+                        requirements: { tactics: 50, leadership: 35 },
+                        effects: { senateFavor: +30, experience: +30, reputation: +25 },
+                        outcome: 'Your tactical coordination leads to a decisive naval victory. The grain routes are secure!'
+                    },
+                    {
+                        text: 'Secure the Harbor',
+                        requirements: { defense: 40 },
+                        effects: { honor: +15, troopMorale: +20, battleReadiness: +15 },
+                        outcome: 'Your defensive preparations prevent pirate raids on the harbor. Trade resumes safely.'
+                    }
+                ]
+            },
+            {
+                id: 'gallic_chieftain',
+                title: 'Gallic Chieftain Challenge',
+                description: 'A powerful Gallic chieftain challenges Roman authority. He offers single combat to settle territorial disputes.',
+                icon: '🗡️',
+                choices: [
+                    {
+                        text: 'Accept Single Combat',
+                        requirements: { combat: 60, honor: 75 },
+                        effects: { honor: +30, experience: +40, reputation: +30, senateFavor: +20 },
+                        outcome: 'You defeat the chieftain in honorable combat! The Gallic tribes submit to Roman rule.'
+                    },
+                    {
+                        text: 'Propose Alternative Contest',
+                        requirements: { leadership: 45, tactics: 40 },
+                        effects: { senateFavor: +25, troopMorale: +25, reputation: +20 },
+                        outcome: 'Your proposal for a military demonstration impresses the Gauls without bloodshed.'
+                    },
+                    {
+                        text: 'Decline and Attack',
+                        requirements: { combat: 35 },
+                        effects: { honor: -10, experience: +20, battlesWon: +1, enemiesDefeated: +15 },
+                        outcome: 'You reject the challenge and attack with your legion. Victory, but at the cost of honor.'
+                    }
+                ]
+            },
+            {
+                id: 'egyptian_rebellion',
+                title: 'Egyptian Provincial Rebellion',
+                description: 'Egyptian nobles are stirring rebellion against Roman tax collectors. The governor needs this handled delicately.',
+                icon: '🏺',
+                choices: [
+                    {
+                        text: 'Crush the Rebellion',
+                        requirements: { combat: 50, leadership: 30 },
+                        effects: { honor: +20, experience: +30, denarii: +500, battlesWon: +1 },
+                        outcome: 'Your swift military action ends the rebellion. Egyptian gold flows to Rome once more.'
+                    },
+                    {
+                        text: 'Negotiate with Nobles',
+                        requirements: { leadership: 50, senateFavor: 60 },
+                        effects: { senateFavor: +35, reputation: +30, denarii: +800 },
+                        outcome: 'Your diplomatic skills resolve the crisis. The nobles agree to increased tribute.'
+                    },
+                    {
+                        text: 'Reform Tax System',
+                        requirements: { tactics: 45, leadership: 40 },
+                        effects: { senateFavor: +40, reputation: +35, troopMorale: +20 },
+                        outcome: 'Your administrative reforms satisfy both Romans and Egyptians. A lasting peace is achieved.'
+                    }
+                ]
+            },
+            {
+                id: 'praetorian_conspiracy',
+                title: 'Praetorian Conspiracy',
+                description: 'You discover evidence of a plot against the Emperor among the Praetorian Guard. This knowledge is dangerous.',
+                icon: '👑',
+                choices: [
+                    {
+                        text: 'Report to Emperor',
+                        requirements: { honor: 80, leadership: 45 },
+                        effects: { senateFavor: +50, honor: +25, denarii: +1000, reputation: +40 },
+                        outcome: 'The Emperor rewards your loyalty handsomely. The conspirators are executed and you are promoted!'
+                    },
+                    {
+                        text: 'Confront Conspirators',
+                        requirements: { combat: 55, tactics: 50 },
+                        effects: { honor: +15, experience: +35, battleReadiness: +25 },
+                        outcome: 'You face down the conspirators directly. They abandon their plot rather than fight you.'
+                    },
+                    {
+                        text: 'Stay Silent',
+                        effects: { honor: -20, denarii: +500 },
+                        outcome: 'You keep the secret but accept a bribe for your silence. Your conscience weighs heavy.'
+                    }
+                ]
+            },
+            {
+                id: 'britannia_invasion',
+                title: 'Invasion of Britannia',
+                description: 'The Emperor orders the conquest of Britannia. You are selected for the invasion force crossing the channel.',
+                icon: '🌊',
+                choices: [
+                    {
+                        text: 'Lead the Landing',
+                        requirements: { combat: 45, leadership: 40 },
+                        effects: { honor: +30, experience: +45, battlesWon: +1, enemiesDefeated: +20 },
+                        outcome: 'You are first ashore on British beaches! Your courage inspires the entire invasion force.'
+                    },
+                    {
+                        text: 'Secure Supply Lines',
+                        requirements: { tactics: 55, defense: 45 },
+                        effects: { senateFavor: +25, troopMorale: +30, battleReadiness: +20 },
+                        outcome: 'Your logistical expertise ensures the invasion succeeds. The army is well-supplied throughout.'
+                    },
+                    {
+                        text: 'Diplomatic Mission to Tribes',
+                        requirements: { leadership: 50, reputation: 60 },
+                        effects: { senateFavor: +35, reputation: +25, honor: +20 },
+                        outcome: 'You convince several British tribes to ally with Rome, dividing the enemy.'
+                    }
+                ]
+            },
+            {
+                id: 'dacian_gold_mines',
+                title: 'Dacian Gold Mine Expedition',
+                description: 'Rich gold deposits have been discovered in Dacia. You must secure the mines against fierce Dacian resistance.',
+                icon: '⛏️',
+                choices: [
+                    {
+                        text: 'Storm the Mines',
+                        requirements: { combat: 50, tactics: 40 },
+                        effects: { honor: +25, experience: +35, denarii: +800, lootAcquired: +800 },
+                        outcome: 'Your assault captures the gold mines! Dacian gold will fund Roman expansion for years.'
+                    },
+                    {
+                        text: 'Siege Warfare',
+                        requirements: { defense: 50, leadership: 35 },
+                        effects: { experience: +30, troopMorale: +20, battlesWon: +1 },
+                        outcome: 'Your patient siege starves out the Dacians. The mines fall with minimal Roman losses.'
+                    },
+                    {
+                        text: 'Engineer Underground Assault',
+                        requirements: { tactics: 60 },
+                        effects: { honor: +20, experience: +40, reputation: +25 },
+                        outcome: 'Your innovative tunnel attack surprises the enemy. Military engineers praise your ingenuity.'
+                    }
+                ]
+            },
+            {
+                id: 'parthian_embassy',
+                title: 'Parthian Embassy Crisis',
+                description: 'Parthian ambassadors have been murdered on Roman soil. War looms unless this diplomatic crisis is resolved.',
+                icon: '🏺',
+                choices: [
+                    {
+                        text: 'Hunt the Assassins',
+                        requirements: { tactics: 45, combat: 40 },
+                        effects: { honor: +20, experience: +25, senateFavor: +20 },
+                        outcome: 'You track down and capture the assassins. Evidence proves they were hired by Roman enemies.'
+                    },
+                    {
+                        text: 'Escort New Embassy',
+                        requirements: { leadership: 45, defense: 40 },
+                        effects: { senateFavor: +30, reputation: +25, troopMorale: +15 },
+                        outcome: 'Your protection ensures safe passage for replacement ambassadors. Diplomacy prevails over war.'
+                    },
+                    {
+                        text: 'Prepare for War',
+                        requirements: { combat: 45, battleReadiness: 70 },
+                        effects: { battleReadiness: +25, experience: +20, honor: +15 },
+                        outcome: 'Your military preparations convince Parthia that Rome is ready for war. They seek peace instead.'
+                    }
+                ]
+            }
+        ];
+
+        // Equipment
+        const equipment = [
+            {
+                id: 'lorica_hamata',
+                name: 'Lorica Hamata',
+                description: 'Chain mail armor providing excellent protection',
+                cost: 400,
+                effects: { defense: +10, battleReadiness: +15 },
+                requirements: { rank: 'hastatus' },
+                icon: '🛡️'
+            },
+            {
+                id: 'lorica_segmentata',
+                name: 'Lorica Segmentata',
+                description: 'Segmented plate armor - the finest Roman protection',
+                cost: 800,
+                effects: { defense: +20, reputation: +10 },
+                requirements: { rank: 'princeps' },
+                icon: '⚔️'
+            },
+            {
+                id: 'spatha',
+                name: 'Spatha',
+                description: 'Longer cavalry sword for mounted combat',
+                cost: 300,
+                effects: { combat: +8, leadership: +5 },
+                requirements: { combat: 35 },
+                icon: '🗡️'
+            },
+            {
+                id: 'pilum_set',
+                name: 'Pilum Set',
+                description: 'Heavy javelins designed to penetrate shields',
+                cost: 200,
+                effects: { combat: +5, tactics: +5 },
+                requirements: { tactics: 20 },
+                icon: '🏹'
+            },
+            {
+                id: 'centurion_crest',
+                name: 'Centurion Crest',
+                description: 'Distinctive helmet crest marking officer rank',
+                cost: 600,
+                effects: { leadership: +15, troopMorale: +20 },
+                requirements: { rank: 'centurion' },
+                icon: '🪶'
+            },
+            {
+                id: 'war_horse',
+                name: 'War Horse',
+                description: 'Trained cavalry mount for mobile warfare',
+                cost: 1200,
+                effects: { combat: +15, tactics: +10, reputation: +15 },
+                requirements: { leadership: 40, denarii: 1200 },
+                icon: '🐎'
+            }
+        ];
+
+        // Campaigns
+        const campaigns = [
+            {
+                id: 'gallic_wars',
+                name: 'Gallic Wars',
+                description: 'Join Caesar\'s conquest of Gaul',
+                duration: 8,
+                rewards: { honor: +40, experience: +60, denarii: +1500 },
+                requirements: { combat: 30, tactics: 25 },
+                icon: '⚔️'
+            },
+            {
+                id: 'civil_war',
+                name: 'Civil War Campaign',
+                description: 'Choose a side in the Roman civil war',
+                duration: 12,
+                rewards: { senateFavor: +50, honor: +30, denarii: +2000 },
+                requirements: { leadership: 35, reputation: 50 },
+                icon: '🏛️'
+            },
+            {
+                id: 'german_frontier',
+                name: 'Germanic Frontier',
+                description: 'Defend the Rhine frontier against barbarian tribes',
+                duration: 6,
+                rewards: { combat: +15, battleReadiness: +30, denarii: +800 },
+                requirements: { defense: 30 },
+                icon: '🌲'
+            }
+        ];
+
+        // Honors and Achievements
+        const honors = [
+            { id: 'first_blood', name: 'First Blood', description: 'Win your first battle', icon: '⚔️', unlocked: false },
+            { id: 'centurion_rank', name: 'Centurion', description: 'Achieve the rank of Centurion', icon: '👑', unlocked: false },
+            { id: 'senate_favor', name: 'Senate Favorite', description: 'Gain high favor with the Senate', icon: '🏛️', unlocked: false },
+            { id: 'veteran_warrior', name: 'Veteran Warrior', description: 'Defeat 100 enemies in combat', icon: '🗡️', unlocked: false },
+            { id: 'diplomatic_genius', name: 'Diplomatic Genius', description: 'Resolve 5 conflicts through negotiation', icon: '📜', unlocked: false },
+            { id: 'golden_eagle', name: 'Golden Eagle', description: 'Achieve maximum honor', icon: '🦅', unlocked: false },
+            { id: 'legion_commander', name: 'Legion Commander', description: 'Lead an entire legion', icon: '🏺', unlocked: false },
+            { id: 'emperor_champion', name: 'Emperor\'s Champion', description: 'Become the Emperor\'s personal champion', icon: '👑', unlocked: false }
+        ];
+
+        // Rank progression
+        const ranks = [
+            { id: 'tirocinium', name: 'Tirocinium (Recruit)', salaryMultiplier: 1.0 },
+            { id: 'hastatus', name: 'Hastatus (Spearman)', salaryMultiplier: 1.2 },
+            { id: 'princeps', name: 'Princeps (Main Fighter)', salaryMultiplier: 1.5 },
+            { id: 'triarius', name: 'Triarius (Veteran)', salaryMultiplier: 1.8 },
+            { id: 'centurion', name: 'Centurion (Officer)', salaryMultiplier: 3.0 },
+            { id: 'tribune', name: 'Tribune (Senior Officer)', salaryMultiplier: 5.0 },
+            { id: 'legate', name: 'Legate (Legion Commander)', salaryMultiplier: 10.0 }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            updateUI();
+            renderHonors();
+            generateNewMission();
+            
+            // Start game loop
+            setInterval(gameLoop, 4000); // 4 seconds = 1 game month
+            setInterval(yearlyUpdate, 48000); // 48 seconds = 1 game year
+        }
+
+        // Game Loop
+        function gameLoop() {
+            // Monthly salary (reduced)
+            const currentRank = ranks.find(r => r.id === gameState.rank);
+            const salary = Math.floor(gameState.monthlySalary * currentRank.salaryMultiplier * 0.7); // 30% less salary
+            gameState.denarii += salary;
+            
+            // Slower automatic stat improvements
+            if (Math.random() < 0.3) { // Only 30% chance per month
+                const statGrowth = Math.floor(Math.random() * 2) + 1; // 1-2 points per month
+                
+                // Rotate which stat gets improved
+                const statNames = ['combat', 'defense', 'tactics', 'leadership'];
+                const randomStat = statNames[Math.floor(Math.random() * statNames.length)];
+                
+                if (gameState.stats[randomStat] < 100) {
+                    gameState.stats[randomStat] = Math.min(100, gameState.stats[randomStat] + statGrowth);
+                }
+            }
+            
+            // Experience-based bonus improvements (harder to get)
+            if (gameState.experience >= 100) {
+                const bonusGrowth = Math.floor(Math.random() * 3) + 2; // 2-4 bonus points
+                const bonusStat = statNames[Math.floor(Math.random() * statNames.length)];
+                
+                if (gameState.stats[bonusStat] < 100) {
+                    gameState.stats[bonusStat] = Math.min(100, gameState.stats[bonusStat] + bonusGrowth);
+                }
+                gameState.experience -= 100;
+            }
+            
+            // Random events and missions
+            if (gameState.missionTimer <= 0 && !gameState.currentMission) {
+                if (Math.random() < 0.7) { // 70% chance per month
+                    generateNewMission();
+                }
+                gameState.missionTimer = 1;
+            } else {
+                gameState.missionTimer--;
+            }
+            
+            // Status decay (requires maintenance)
+            if (gameState.status.troopMorale > 40) {
+                gameState.status.troopMorale = Math.max(40, gameState.status.troopMorale - 1);
+            }
+            
+            // Health recovery
+            if (gameState.health < 100) {
+                gameState.health = Math.min(100, gameState.health + 5);
+            }
+            
+            // Check for rank promotion
+            checkRankPromotion();
+            
+            updateUI();
+        }
+
+        // Yearly Update
+        function yearlyUpdate() {
+            gameState.campaignYear++;
+            
+            // Annual bonuses based on performance
+            if (gameState.honor > 100) {
+                gameState.denarii += 500; // Honor bonus
+            }
+            
+            if (gameState.status.senateFavor > 80) {
+                gameState.denarii += 1000; // Political bonus
+            }
+            
+            checkHonors();
+            updateUI();
+        }
+
+        // Generate New Mission
+        function generateNewMission() {
+            const availableMissions = missions.filter(m => !gameState.currentMission || m.id !== gameState.currentMission.id);
+            gameState.currentMission = availableMissions[Math.floor(Math.random() * availableMissions.length)];
+            updateCurrentMission();
+        }
+
+        // Handle Mission Choice
+        function handleMissionChoice(choiceIndex) {
+            const mission = gameState.currentMission;
+            const choice = mission.choices[choiceIndex];
+            
+            // Check requirements
+            if (choice.requirements) {
+                for (const [stat, required] of Object.entries(choice.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`This choice requires ${stat.toUpperCase()}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                    if (gameState.status[stat] && gameState.status[stat] < required) {
+                        alert(`This choice requires ${stat}: ${required}%. Your current level: ${gameState.status[stat]}%`);
+                        return;
+                    }
+                }
+            }
+            
+            // Apply effects
+            for (const [key, value] of Object.entries(choice.effects)) {
+                if (gameState.status[key] !== undefined) {
+                    gameState.status[key] = Math.max(0, Math.min(100, gameState.status[key] + value));
+                } else if (gameState[key] !== undefined) {
+                    gameState[key] += value;
+                } else if (gameState.stats[key] !== undefined) {
+                    gameState.stats[key] += value;
+                }
+            }
+            
+            // Random chance of injury or setbacks in dangerous missions
+            if (Math.random() < 0.25) { // 25% chance of complications
+                const complications = [
+                    { type: 'injury', effect: () => { gameState.health -= 15; gameState.woundsReceived++; }, message: 'You were wounded in the mission!' },
+                    { type: 'equipment_loss', effect: () => { gameState.denarii -= 100; }, message: 'Some equipment was damaged or lost!' },
+                    { type: 'morale_hit', effect: () => { gameState.status.troopMorale -= 10; }, message: 'The mission was harder than expected - troop morale suffers!' },
+                    { type: 'political_cost', effect: () => { gameState.status.senateFavor -= 5; }, message: 'Your methods drew criticism from political observers!' }
+                ];
+                
+                const complication = complications[Math.floor(Math.random() * complications.length)];
+                complication.effect();
+                setTimeout(() => alert(`Complication: ${complication.message}`), 500);
+            }
+            
+            showMissionResult(choice.outcome);
+            gameState.currentMission = null;
+            gameState.missionTimer = 2; // 2 months cooldown
+            updateCurrentMission();
+            updateUI();
+        }
+
+        // Check Rank Promotion
+        function checkRankPromotion() {
+            const currentRankIndex = ranks.findIndex(r => r.id === gameState.rank);
+            if (currentRankIndex < ranks.length - 1) {
+                const nextRank = ranks[currentRankIndex + 1];
+                
+                // Much easier promotion requirements
+                let canPromote = false;
+                switch (nextRank.id) {
+                    case 'hastatus':
+                        canPromote = gameState.experience >= 25 && gameState.honor >= 40;
+                        break;
+                    case 'princeps':
+                        canPromote = gameState.stats.combat >= 30 && gameState.battlesWon >= 1;
+                        break;
+                    case 'triarius':
+                        canPromote = gameState.stats.defense >= 35 && gameState.honor >= 80;
+                        break;
+                    case 'centurion':
+                        canPromote = gameState.stats.leadership >= 40 && gameState.status.troopMorale >= 60;
+                        break;
+                    case 'tribune':
+                        canPromote = gameState.status.senateFavor >= 50 && gameState.honor >= 150;
+                        break;
+                    case 'legate':
+                        canPromote = gameState.stats.leadership >= 60 && gameState.status.senateFavor >= 70;
+                        break;
+                }
+                
+                if (canPromote) {
+                    gameState.rank = nextRank.id;
+                    alert(`Promotion! You have been promoted to ${nextRank.name}!`);
+                    checkHonor('centurion_rank');
+                }
+            }
+        }
+
+        // Training Function
+        function trainStat(statName) {
+            const baseCost = 100;
+            const currentLevel = gameState.stats[statName];
+            const cost = baseCost + (currentLevel * 5); // Gets more expensive as you improve
+            
+            if (gameState.denarii < cost) {
+                alert(`Insufficient denarii for training! Need ${cost} denarii.`);
+                return;
+            }
+            
+            if (gameState.stats[statName] >= 100) {
+                alert(`Your ${statName} is already at maximum level!`);
+                return;
+            }
+            
+            gameState.denarii -= cost;
+            const improvement = Math.floor(Math.random() * 4) + 2; // 2-5 points per training
+            gameState.stats[statName] = Math.min(100, gameState.stats[statName] + improvement);
+            gameState.experience += 5; // Less bonus experience
+            
+            alert(`Training complete! ${statName.toUpperCase()} increased by ${improvement} points!`);
+            updateUI();
+        }
+
+        // Equipment Management
+        function purchaseEquipment(equipmentId) {
+            const item = equipment.find(e => e.id === equipmentId);
+            if (!item) return;
+            
+            // Check requirements
+            if (item.requirements) {
+                for (const [stat, required] of Object.entries(item.requirements)) {
+                    if (stat === 'rank' && gameState.rank !== required) {
+                        alert(`Equipment requires rank: ${required}`);
+                        return;
+                    } else if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`Equipment requires ${stat}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    }
+                }
+            }
+            
+            if (gameState.denarii < item.cost) {
+                alert('Insufficient denarii for this equipment!');
+                return;
+            }
+            
+            gameState.denarii -= item.cost;
+            gameState.equipment.push(equipmentId);
+            
+            // Apply effects
+            if (item.effects) {
+                for (const [stat, bonus] of Object.entries(item.effects)) {
+                    if (gameState.stats[stat] !== undefined) {
+                        gameState.stats[stat] += bonus;
+                    } else if (gameState.status[stat] !== undefined) {
+                        gameState.status[stat] = Math.min(100, gameState.status[stat] + bonus);
+                    }
+                }
+            }
+            
+            hideEquipmentMenu();
+            alert(`Successfully purchased ${item.name}!`);
+            updateUI();
+        }
+
+        // Campaign Management
+        function joinCampaign(campaignId) {
+            const campaign = campaigns.find(c => c.id === campaignId);
+            if (!campaign) return;
+            
+            // Check requirements
+            if (campaign.requirements) {
+                for (const [stat, required] of Object.entries(campaign.requirements)) {
+                    if (gameState.stats[stat] && gameState.stats[stat] < required) {
+                        alert(`Campaign requires ${stat}: ${required}. Your current level: ${gameState.stats[stat]}`);
+                        return;
+                    } else if (gameState.status[stat] && gameState.status[stat] < required) {
+                        alert(`Campaign requires ${stat}: ${required}%. Your current level: ${gameState.status[stat]}%`);
+                        return;
+                    }
+                }
+            }
+            
+            gameState.campaigns.push({
+                ...campaign,
+                timeRemaining: campaign.duration
+            });
+            
+            hideCampaignMenu();
+            alert(`Joined ${campaign.name}! Duration: ${campaign.duration} months.`);
+            updateUI();
+        }
+
+        // Show/Hide Menus
+        function showEquipmentMenu() {
+            document.getElementById('equipmentMenu').classList.remove('hidden');
+            document.getElementById('equipmentMenu').classList.add('flex');
+            renderAvailableEquipment();
+        }
+
+        function hideEquipmentMenu() {
+            document.getElementById('equipmentMenu').classList.add('hidden');
+            document.getElementById('equipmentMenu').classList.remove('flex');
+        }
+
+        function showCampaignMenu() {
+            document.getElementById('campaignMenu').classList.remove('hidden');
+            document.getElementById('campaignMenu').classList.add('flex');
+            renderAvailableCampaigns();
+        }
+
+        function hideCampaignMenu() {
+            document.getElementById('campaignMenu').classList.add('hidden');
+            document.getElementById('campaignMenu').classList.remove('flex');
+        }
+
+        function showHonorsMenu() {
+            document.getElementById('honorsMenu').classList.remove('hidden');
+            document.getElementById('honorsMenu').classList.add('flex');
+            renderAllHonors();
+        }
+
+        function hideHonorsMenu() {
+            document.getElementById('honorsMenu').classList.add('hidden');
+            document.getElementById('honorsMenu').classList.remove('flex');
+        }
+
+        // Show Mission Result
+        function showMissionResult(outcome) {
+            const modal = document.getElementById('missionResultModal');
+            const details = document.getElementById('resultDetails');
+            
+            details.innerHTML = `<p class="text-gray-300">${outcome}</p>`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Mission Result
+        function closeMissionResult() {
+            const modal = document.getElementById('missionResultModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Check Honors
+        function checkHonors() {
+            if (gameState.battlesWon >= 1) checkHonor('first_blood');
+            if (gameState.rank === 'centurion') checkHonor('centurion_rank');
+            if (gameState.status.senateFavor >= 90) checkHonor('senate_favor');
+            if (gameState.enemiesDefeated >= 100) checkHonor('veteran_warrior');
+            if (gameState.honor >= 500) checkHonor('golden_eagle');
+            if (gameState.rank === 'legate') checkHonor('legion_commander');
+        }
+
+        function checkHonor(id) {
+            const honor = honors.find(h => h.id === id);
+            if (honor && !honor.unlocked) {
+                honor.unlocked = true;
+                gameState.honors.push(id);
+                alert(`Honor Earned: ${honor.name} - ${honor.description}`);
+                renderHonors();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('denarii').textContent = gameState.denarii.toLocaleString();
+            document.getElementById('honor').textContent = gameState.honor;
+            document.getElementById('experience').textContent = gameState.experience;
+            document.getElementById('campaignYear').textContent = gameState.campaignYear;
+            document.getElementById('health').textContent = gameState.health + '%';
+            
+            // Update rank display
+            const currentRank = ranks.find(r => r.id === gameState.rank);
+            document.getElementById('rank').textContent = currentRank.name;
+            
+            // Stats
+            document.getElementById('combatStat').textContent = gameState.stats.combat;
+            document.getElementById('defenseStat').textContent = gameState.stats.defense;
+            document.getElementById('tacticsStat').textContent = gameState.stats.tactics;
+            document.getElementById('leadershipStat').textContent = gameState.stats.leadership;
+            
+            // Status bars
+            for (const [status, value] of Object.entries(gameState.status)) {
+                const element = document.getElementById(status);
+                const bar = document.getElementById(status.replace('Favor', '').replace('Readiness', '').replace('Morale', '') + 'Bar');
+                if (element) element.textContent = value + '%';
+                if (bar) bar.style.width = value + '%';
+            }
+            
+            // Military stats
+            document.getElementById('battlesWon').textContent = gameState.battlesWon;
+            document.getElementById('enemiesDefeated').textContent = gameState.enemiesDefeated;
+            document.getElementById('woundsReceived').textContent = gameState.woundsReceived;
+            document.getElementById('lootAcquired').textContent = gameState.lootAcquired + ' Denarii';
+            
+            // Combat rating
+            const combatRating = gameState.stats.combat < 30 ? 'Novice' :
+                               gameState.stats.combat < 50 ? 'Trained' :
+                               gameState.stats.combat < 70 ? 'Veteran' : 'Elite';
+            document.getElementById('combatRating').textContent = combatRating;
+            
+            // Update displays
+            updateEquipmentDisplay();
+            updateCampaignsDisplay();
+            updateHonorsDisplay();
+        }
+
+        // Update Current Mission Display
+        function updateCurrentMission() {
+            const container = document.getElementById('currentMission');
+            
+            if (gameState.currentMission) {
+                const mission = gameState.currentMission;
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="text-6xl">${mission.icon}</div>
+                        <div>
+                            <h3 class="text-2xl font-bold roman-font">${mission.title}</h3>
+                            <p class="text-gray-300 text-lg">${mission.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-${mission.choices.length} gap-4">
+                        ${mission.choices.map((choice, index) => `
+                            <div class="legion-card bg-gray-800/50 rounded-xl p-4 border border-gray-600">
+                                <h4 class="font-bold roman-font mb-2">${choice.text}</h4>
+                                ${choice.requirements ? `<p class="text-yellow-400 text-sm mb-2">Requires: ${Object.entries(choice.requirements).map(([stat, val]) => `${stat.toUpperCase()} ${val}`).join(', ')}</p>` : ''}
+                                <button onclick="handleMissionChoice(${index})" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold roman-font transition-all">
+                                    EXECUTE ORDER
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🦅</div>
+                        <p class="roman-font text-xl">Legion stands ready</p>
+                        <p class="text-sm">Awaiting orders from command, Legionnaire</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update Equipment Display
+        function updateEquipmentDisplay() {
+            const container = document.getElementById('equipmentContainer');
+            
+            if (gameState.equipment.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">⚔️</div>
+                        <p class="roman-font">Basic equipment only</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.equipment.map(equipmentId => {
+                    const item = equipment.find(e => e.id === equipmentId) || 
+                        { name: equipmentId.charAt(0).toUpperCase() + equipmentId.slice(1), icon: '⚔️' };
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-purple-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold roman-font">${item.icon} ${item.name}</h4>
+                                    <p class="text-sm text-gray-400">Standard Issue</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-purple-400">EQUIPPED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Campaigns Display
+        function updateCampaignsDisplay() {
+            const container = document.getElementById('campaignsContainer');
+            
+            if (gameState.campaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🗺️</div>
+                        <p class="roman-font">No active campaigns</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.campaigns.map(campaign => `
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold roman-font">${campaign.icon} ${campaign.name}</h4>
+                                <p class="text-sm text-gray-400">Active Campaign</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold">${campaign.timeRemaining}</div>
+                                <div class="text-xs text-gray-400">months remaining</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update Honors Display
+        function updateHonorsDisplay() {
+            const container = document.getElementById('honorsContainer');
+            
+            if (gameState.honors.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏆</div>
+                        <p class="roman-font">No honors earned</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = gameState.honors.slice(0, 3).map(honorId => {
+                    const honor = honors.find(h => h.id === honorId);
+                    if (!honor) return '';
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-blue-500/30">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold roman-font">${honor.icon} ${honor.name}</h4>
+                                    <p class="text-sm text-gray-400">${honor.description}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-blue-400">EARNED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Available Equipment
+        function renderAvailableEquipment() {
+            const container = document.getElementById('availableEquipment');
+            const availableEquipment = equipment.filter(e => !gameState.equipment.includes(e.id));
+            
+            container.innerHTML = availableEquipment.map(item => `
+                <div class="legion-card bg-gray-800/50 rounded-xl p-6 border border-purple-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${item.icon}</div>
+                        <h3 class="text-xl font-bold roman-font">${item.name}</h3>
+                        <p class="text-gray-400 mb-3">${item.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Cost:</span>
+                            <span class="text-yellow-400">${item.cost} Denarii</span>
+                        </div>
+                        ${item.requirements ? Object.entries(item.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${(gameState.stats[stat] || gameState.rank === val) ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="purchaseEquipment('${item.id}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold roman-font transition-all">
+                        PURCHASE EQUIPMENT
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render Available Campaigns
+        function renderAvailableCampaigns() {
+            const container = document.getElementById('availableCampaigns');
+            const availableCampaigns = campaigns.filter(c => !gameState.campaigns.find(gc => gc.id === c.id));
+            
+            container.innerHTML = availableCampaigns.map(campaign => `
+                <div class="legion-card bg-gray-800/50 rounded-xl p-6 border border-green-500/30">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">${campaign.icon}</div>
+                        <h3 class="text-xl font-bold roman-font">${campaign.name}</h3>
+                        <p class="text-gray-400 mb-3">${campaign.description}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span>Duration:</span>
+                            <span class="text-yellow-400">${campaign.duration} months</span>
+                        </div>
+                        ${campaign.requirements ? Object.entries(campaign.requirements).map(([stat, val]) => `
+                            <div class="flex justify-between text-sm">
+                                <span>${stat.toUpperCase()}:</span>
+                                <span class="${(gameState.stats[stat] || gameState.status[stat]) >= val ? 'text-green-400' : 'text-red-400'}">${val}</span>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <button onclick="joinCampaign('${campaign.id}')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold roman-font transition-all">
+                        JOIN CAMPAIGN
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render All Honors
+        function renderAllHonors() {
+            const container = document.getElementById('availableHonors');
+            container.innerHTML = honors.map(honor => `
+                <div class="p-4 rounded-xl ${honor.unlocked ? 'bg-yellow-100/10 border-2 border-yellow-400/50' : 'bg-gray-800/30 border-2 border-gray-600'} text-center">
+                    <div class="text-3xl mb-2 ${honor.unlocked ? 'banner-wave' : 'grayscale opacity-50'}">${honor.icon}</div>
+                    <h3 class="font-semibold text-sm roman-font ${honor.unlocked ? 'text-yellow-400' : 'text-gray-400'}">${honor.name}</h3>
+                    <p class="text-xs ${honor.unlocked ? 'text-yellow-300' : 'text-gray-500'}">${honor.description}</p>
+                    ${honor.unlocked ? '<div class="text-xs text-yellow-400 font-semibold mt-1 roman-font">✓ EARNED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Render Honors
+        function renderHonors() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = honors.map(honor => `
+                <div class="p-4 rounded-xl ${honor.unlocked ? 'bg-yellow-100/10 border-2 border-yellow-400/50' : 'bg-gray-800/30 border-2 border-gray-600'} text-center">
+                    <div class="text-3xl mb-2 ${honor.unlocked ? 'banner-wave' : 'grayscale opacity-50'}">${honor.icon}</div>
+                    <h3 class="font-semibold text-sm roman-font ${honor.unlocked ? 'text-yellow-400' : 'text-gray-400'}">${honor.name}</h3>
+                    <p class="text-xs ${honor.unlocked ? 'text-yellow-300' : 'text-gray-500'}">${honor.description}</p>
+                    ${honor.unlocked ? '<div class="text-xs text-yellow-400 font-semibold mt-1 roman-font">✓ EARNED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9744ef488330faec',t:'MTc1NjA2MDM3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

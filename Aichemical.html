@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystic Potion Brewer - Alchemical Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d1b69 0%, #11998e 50%, #38ef7d 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="%23ffffff" opacity="0.1"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite"/></circle><circle cx="80" cy="30" r="0.8" fill="%23ffffff" opacity="0.15"><animate attributeName="opacity" values="0.15;0.5;0.15" dur="4s" repeatCount="indefinite"/></circle><circle cx="60" cy="80" r="1.2" fill="%23ffffff" opacity="0.12"><animate attributeName="opacity" values="0.12;0.45;0.12" dur="5s" repeatCount="indefinite"/></circle><circle cx="40" cy="60" r="0.6" fill="%23ffffff" opacity="0.2"><animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.5s" repeatCount="indefinite"/></circle></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: 2px solid #667eea;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.95);
+            border-bottom: 3px solid #2d1b69;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #2d1b69, #11998e, #38ef7d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .alchemist-panel, .inventory-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(45, 27, 105, 0.3);
+            height: fit-content;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .brewing-world {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(45, 27, 105, 0.3);
+            min-height: 700px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .alchemist-avatar {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2d1b69, #11998e);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .avatar-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .alchemist-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .alchemist-title {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d1b69;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #2d1b69;
+            padding-bottom: 5px;
+        }
+
+        .stat-bar {
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 14px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .mana-bar { background: linear-gradient(90deg, #667eea, #764ba2); }
+        .health-bar { background: linear-gradient(90deg, #4CAF50, #45a049); }
+        .experience-bar { background: linear-gradient(90deg, #FF9800, #F57C00); }
+        .reputation-bar { background: linear-gradient(90deg, #9C27B0, #7B1FA2); }
+        .gold-bar { background: linear-gradient(90deg, #FFD700, #FFA500); }
+
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attribute-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .attribute-card:hover {
+            border-color: #2d1b69;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            transform: translateY(-2px);
+        }
+
+        .attribute-name {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .attribute-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d1b69;
+        }
+
+        .brewing-view {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #4CAF50;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brewing-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="none" stroke="%232d1b69" stroke-width="2" opacity="0.1"/><path d="M60,60 Q100,40 140,60 Q160,100 140,140 Q100,160 60,140 Q40,100 60,60" fill="none" stroke="%2311998e" stroke-width="1" opacity="0.15"/><circle cx="50" cy="50" r="3" fill="%2338ef7d" opacity="0.2"/><circle cx="150" cy="150" r="2" fill="%2338ef7d" opacity="0.3"/></svg>') center center no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .location-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(45, 27, 105, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(45, 27, 105, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .location-card:hover::before {
+            left: 100%;
+        }
+
+        .location-card:hover {
+            background: rgba(45, 27, 105, 0.1);
+            border-color: #2d1b69;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(45, 27, 105, 0.3);
+        }
+
+        .location-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .location-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2d1b69;
+            font-size: 1rem;
+        }
+
+        .location-description {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .activity-screen {
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .activity-screen.active {
+            display: block;
+            animation: activityStart 0.5s ease-out;
+        }
+
+        @keyframes activityStart {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .activity-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .activity-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(45, 27, 105, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-card:hover {
+            background: rgba(45, 27, 105, 0.1);
+            border-color: #2d1b69;
+            transform: scale(1.05);
+        }
+
+        .activity-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .activity-card.disabled:hover {
+            transform: none;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .activity-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .activity-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .activity-cost {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .activity-description {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.3;
+        }
+
+        .game-button {
+            background: linear-gradient(45deg, #2d1b69, #11998e);
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(45, 27, 105, 0.3);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 27, 105, 0.4);
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+        }
+
+        .game-button.danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .game-button.danger:hover {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+        }
+
+        .game-button.success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .game-button.success:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+        }
+
+        .game-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-log {
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid rgba(45, 27, 105, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(45, 27, 105, 0.1);
+            font-size: 0.9rem;
+            animation: logFadeIn 0.5s ease-out;
+            line-height: 1.4;
+        }
+
+        @keyframes logFadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-brewing { color: #2d1b69; }
+        .log-ingredient { color: #11998e; }
+        .log-success { color: #4CAF50; }
+        .log-warning { color: #FF9800; }
+        .log-error { color: #f44336; }
+        .log-gold { color: #FFD700; }
+        .log-magic { color: #9C27B0; }
+
+        .inventory-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #dee2e6;
+        }
+
+        .ingredient-list, .potion-list {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .ingredient-card, .potion-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-card:hover, .potion-card:hover {
+            background: rgba(45, 27, 105, 0.1);
+            border-color: #2d1b69;
+        }
+
+        .ingredient-info, .potion-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ingredient-name, .potion-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .ingredient-rarity, .potion-effect {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .ingredient-quantity, .potion-quantity {
+            font-weight: bold;
+            color: #2d1b69;
+            font-size: 1rem;
+        }
+
+        .brewing-station {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #FF9800;
+            position: relative;
+        }
+
+        .cauldron {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #424242, #616161);
+            border-radius: 50% 50% 40% 40%;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .cauldron::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 60%;
+            background: linear-gradient(135deg, #2d1b69, #11998e, #38ef7d);
+            border-radius: 50%;
+            animation: bubbling 3s ease-in-out infinite;
+        }
+
+        @keyframes bubbling {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .recipe-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .recipe-slot {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recipe-slot:hover {
+            border-color: #2d1b69;
+            background: rgba(45, 27, 105, 0.1);
+        }
+
+        .recipe-slot.filled {
+            border-style: solid;
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatText 2s ease-out forwards;
+            z-index: 100;
+        }
+
+        .floating-positive { color: #4CAF50; text-shadow: 0 0 10px #4CAF50; }
+        .floating-negative { color: #f44336; text-shadow: 0 0 10px #f44336; }
+        .floating-gold { color: #FFD700; text-shadow: 0 0 10px #FFD700; }
+        .floating-magic { color: #9C27B0; text-shadow: 0 0 10px #9C27B0; }
+
+        @keyframes floatText {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            0% { opacity: 0; transform: translateY(-50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2d1b69;
+            text-align: center;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .rarity-common { color: #666; }
+        .rarity-uncommon { color: #4CAF50; }
+        .rarity-rare { color: #2196F3; }
+        .rarity-epic { color: #9C27B0; }
+        .rarity-legendary { color: #FF9800; }
+        .rarity-mythic { color: #f44336; }
+
+        @media (max-width: 1200px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .alchemist-panel, .inventory-panel {
+                order: 2;
+            }
+            
+            .brewing-world {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .location-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .activity-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .attributes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="main.html" class="back-button">
+        ⬅️ Back to Main
+    </a>
+
+    <div class="header">
+        <h1 class="title">🧪 MYSTIC POTION BREWER</h1>
+        <p class="subtitle">Master the Ancient Arts of Alchemy and Brew Magical Potions!</p>
+    </div>
+
+    <div class="game-container">
+        <!-- Alchemist Panel -->
+        <div class="alchemist-panel">
+            <div class="alchemist-avatar">
+                <span class="avatar-icon">🧙‍♂️</span>
+                <div class="alchemist-name" id="alchemistName">Merlin Brewmaster</div>
+                <div class="alchemist-title" id="alchemistTitle">Novice Alchemist</div>
+            </div>
+
+            <div class="stats-section">
+                <div class="section-title">🔮 Alchemist Stats</div>
+                
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>💙 Mana</span>
+                        <span id="manaText">100/100</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar mana-bar" id="manaBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>❤️ Health</span>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar health-bar" id="healthBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>⭐ Experience</span>
+                        <span id="experienceText">0/100</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar experience-bar" id="experienceBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>🏆 Reputation</span>
+                        <span id="reputationText">0/100</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar reputation-bar" id="reputationBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>💰 Gold</span>
+                        <span id="goldText">100</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar gold-bar" id="goldBar" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attributes-grid">
+                <div class="attribute-card">
+                    <div class="attribute-name">🧠 Alchemy</div>
+                    <div class="attribute-value" id="alchemyValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🌿 Herbalism</div>
+                    <div class="attribute-value" id="herbalismValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🔍 Discovery</div>
+                    <div class="attribute-value" id="discoveryValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">💎 Transmutation</div>
+                    <div class="attribute-value" id="transmutationValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">⚡ Enchanting</div>
+                    <div class="attribute-value" id="enchantingValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🎯 Precision</div>
+                    <div class="attribute-value" id="precisionValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">🍀 Luck</div>
+                    <div class="attribute-value" id="luckValue">1</div>
+                </div>
+                <div class="attribute-card">
+                    <div class="attribute-name">📚 Knowledge</div>
+                    <div class="attribute-value" id="knowledgeValue">1</div>
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <div class="section-title">📊 Level Progress</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">
+                        <span id="currentLevel">1</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        Level <span id="levelDisplay">1</span> Alchemist
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brewing World -->
+        <div class="brewing-world">
+            <div class="brewing-view" id="brewingView">
+                <div class="location-grid" id="locationGrid">
+                    <h3 style="grid-column: 1/-1; text-align: center; margin-bottom: 20px; color: #2d1b69;">🗺️ Choose Your Destination</h3>
+                    
+                    <div class="location-card" onclick="visitLocation('laboratory')">
+                        <span class="location-icon">🧪</span>
+                        <div class="location-name">Alchemy Laboratory</div>
+                        <div class="location-description">Brew potions and conduct experiments</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('garden')">
+                        <span class="location-icon">🌿</span>
+                        <div class="location-name">Herb Garden</div>
+                        <div class="location-description">Gather magical plants and ingredients</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('forest')">
+                        <span class="location-icon">🌲</span>
+                        <div class="location-name">Enchanted Forest</div>
+                        <div class="location-description">Hunt for rare magical components</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('market')">
+                        <span class="location-icon">🏪</span>
+                        <div class="location-name">Mystic Market</div>
+                        <div class="location-description">Buy and sell ingredients and potions</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('library')">
+                        <span class="location-icon">📚</span>
+                        <div class="location-name">Ancient Library</div>
+                        <div class="location-description">Study recipes and magical knowledge</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('dungeon')">
+                        <span class="location-icon">🏰</span>
+                        <div class="location-name">Mystic Dungeon</div>
+                        <div class="location-description">Explore dangerous depths for treasures</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('tower')">
+                        <span class="location-icon">🗼</span>
+                        <div class="location-name">Wizard's Tower</div>
+                        <div class="location-description">Learn advanced magical techniques</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('cave')">
+                        <span class="location-icon">🕳️</span>
+                        <div class="location-name">Crystal Caves</div>
+                        <div class="location-description">Mine precious gems and crystals</div>
+                    </div>
+                    
+                    <div class="location-card" onclick="visitLocation('guild')">
+                        <span class="location-icon">🏛️</span>
+                        <div class="location-name">Alchemist Guild</div>
+                        <div class="location-description">Take on quests and earn reputation</div>
+                    </div>
+                </div>
+
+                <div class="activity-screen" id="activityScreen">
+                    <h3 style="text-align: center; margin-bottom: 15px; color: #2d1b69;" id="activityTitle">🧪 Laboratory Activities</h3>
+                    <div class="activity-options" id="activityOptions"></div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="game-button success" onclick="restoreEnergy()" id="restBtn">🛌 Rest (Restore Mana)</button>
+                        <button class="game-button danger" onclick="leaveLocation()">🚪 Leave Location</button>
+                    </div>
+                </div>
+
+                <div class="brewing-station" id="brewingStation" style="display: none;">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #2d1b69;">🧪 Brewing Station</h3>
+                    
+                    <div class="cauldron"></div>
+                    
+                    <div class="recipe-slots" id="recipeSlots">
+                        <div class="recipe-slot" onclick="selectIngredient(0)">
+                            <div>Ingredient 1</div>
+                            <div style="font-size: 0.8rem; color: #666;">Click to add</div>
+                        </div>
+                        <div class="recipe-slot" onclick="selectIngredient(1)">
+                            <div>Ingredient 2</div>
+                            <div style="font-size: 0.8rem; color: #666;">Click to add</div>
+                        </div>
+                        <div class="recipe-slot" onclick="selectIngredient(2)">
+                            <div>Ingredient 3</div>
+                            <div style="font-size: 0.8rem; color: #666;">Click to add</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <button class="game-button" onclick="brewPotion()">🔥 Brew Potion</button>
+                        <button class="game-button" onclick="clearRecipe()">🗑️ Clear Recipe</button>
+                        <button class="game-button danger" onclick="closeBrewing()">❌ Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-log" id="gameLog"></div>
+        </div>
+
+        <!-- Inventory Panel -->
+        <div class="inventory-panel">
+            <div class="inventory-section">
+                <div class="section-title">🌿 Ingredients</div>
+                <div class="ingredient-list" id="ingredientList">
+                    <!-- Dynamic ingredient content -->
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <div class="section-title">🧪 Potions</div>
+                <div class="potion-list" id="potionList">
+                    <!-- Dynamic potion content -->
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <div class="section-title">📜 Known Recipes</div>
+                <div class="potion-list" id="recipeList">
+                    <!-- Dynamic recipe content -->
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="game-button" onclick="openSpellbook()">📖 Spellbook</button>
+                <button class="game-button" onclick="openAchievements()">🏆 Achievements</button>
+                <button class="game-button" onclick="openQuests()">📋 Quests</button>
+                <button class="game-button" onclick="openShop()">🛒 Quick Shop</button>
+                <button class="game-button" onclick="openStats()">📊 Statistics</button>
+                <button class="game-button" onclick="saveGame()">💾 Save Game</button>
+                <button class="game-button danger" onclick="resetGame()">🔄 New Alchemist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">Modal Title</div>
+            <div class="modal-body" id="modalBody">Modal content goes here.</div>
+            <div class="modal-buttons" id="modalButtons">
+                <button class="game-button" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            alchemist: {
+                name: "Merlin Brewmaster",
+                title: "Novice Alchemist",
+                level: 1,
+                experience: 0,
+                maxExperience: 100,
+                mana: 100,
+                maxMana: 100,
+                health: 100,
+                maxHealth: 100,
+                reputation: 0,
+                gold: 100,
+                alchemy: 1,
+                herbalism: 1,
+                discovery: 1,
+                transmutation: 1,
+                enchanting: 1,
+                precision: 1,
+                luck: 1,
+                knowledge: 1
+            },
+            ingredients: {
+                "Red Mushroom": { quantity: 3, rarity: "common", value: 5, effect: "healing" },
+                "Blue Herb": { quantity: 2, rarity: "common", value: 8, effect: "mana" },
+                "Spider Silk": { quantity: 1, rarity: "uncommon", value: 15, effect: "binding" }
+            },
+            potions: {
+                "Health Potion": { quantity: 1, effect: "Restores 50 health", value: 25, rarity: "common" }
+            },
+            recipes: {
+                "Health Potion": {
+                    ingredients: ["Red Mushroom", "Spring Water", "Honey"],
+                    effect: "Restores 50 health",
+                    difficulty: 1,
+                    known: true
+                },
+                "Mana Potion": {
+                    ingredients: ["Blue Herb", "Moonstone Dust", "Crystal Water"],
+                    effect: "Restores 50 mana",
+                    difficulty: 1,
+                    known: false
+                },
+                "Strength Potion": {
+                    ingredients: ["Bear Claw", "Iron Ore", "Fire Essence"],
+                    effect: "Increases strength for 10 minutes",
+                    difficulty: 2,
+                    known: false
+                }
+            },
+            currentRecipe: [null, null, null],
+            currentLocation: null,
+            quests: [
+                {
+                    name: "First Brew",
+                    description: "Brew your first potion",
+                    progress: 0,
+                    target: 1,
+                    reward: { gold: 50, experience: 25 },
+                    completed: false
+                },
+                {
+                    name: "Herb Collector",
+                    description: "Collect 10 different ingredients",
+                    progress: 3,
+                    target: 10,
+                    reward: { gold: 100, experience: 50 },
+                    completed: false
+                }
+            ],
+            achievements: [
+                { name: "First Steps", description: "Brew your first potion", unlocked: false },
+                { name: "Herb Master", description: "Collect 50 ingredients", unlocked: false },
+                { name: "Potion Seller", description: "Sell 25 potions", unlocked: false },
+                { name: "Master Alchemist", description: "Reach level 10", unlocked: false }
+            ],
+            stats: {
+                potionsBrewed: 0,
+                ingredientsGathered: 0,
+                goldEarned: 0,
+                questsCompleted: 0,
+                recipesDiscovered: 1
+            },
+            flags: {
+                tutorialCompleted: false,
+                hasVisitedForest: false,
+                hasMetMerchant: false
+            }
+        };
+
+        // Location Activities
+        const locationActivities = {
+            laboratory: [
+                { name: "Brew Potion", icon: "🧪", cost: { mana: 20 }, benefit: { experience: 15 }, description: "Create magical potions from ingredients", action: "brewing" },
+                { name: "Experiment", icon: "⚗️", cost: { mana: 30 }, benefit: { experience: 25, discovery: 1 }, description: "Try new ingredient combinations" },
+                { name: "Study Formulas", icon: "📋", cost: { mana: 15 }, benefit: { knowledge: 2, experience: 10 }, description: "Learn about potion recipes" },
+                { name: "Purify Ingredients", icon: "✨", cost: { mana: 25 }, benefit: { precision: 1, experience: 12 }, description: "Enhance ingredient quality" },
+                { name: "Enchant Equipment", icon: "🔮", cost: { mana: 40, gold: 20 }, benefit: { enchanting: 2, experience: 20 }, description: "Improve your brewing tools" },
+                { name: "Meditate", icon: "🧘‍♂️", cost: {}, benefit: { mana: 30, experience: 5 }, description: "Restore mana and focus" }
+            ],
+            garden: [
+                { name: "Harvest Herbs", icon: "🌿", cost: { mana: 10 }, benefit: { herbalism: 1, experience: 8 }, description: "Gather common magical plants", reward: "herbs" },
+                { name: "Plant Seeds", icon: "🌱", cost: { mana: 15, gold: 10 }, benefit: { herbalism: 2, experience: 12 }, description: "Grow your own ingredients" },
+                { name: "Tend Garden", icon: "🪴", cost: { mana: 20 }, benefit: { herbalism: 1, luck: 1, experience: 10 }, description: "Care for growing plants" },
+                { name: "Identify Plants", icon: "🔍", cost: { mana: 12 }, benefit: { discovery: 1, knowledge: 1, experience: 8 }, description: "Learn about new species" },
+                { name: "Commune with Nature", icon: "🦋", cost: { mana: 25 }, benefit: { herbalism: 2, mana: 20, experience: 15 }, description: "Connect with natural magic" }
+            ],
+            forest: [
+                { name: "Forage for Ingredients", icon: "🍄", cost: { mana: 15, health: 5 }, benefit: { discovery: 1, experience: 12 }, description: "Search for rare forest ingredients", reward: "rare_herbs" },
+                { name: "Hunt Magical Creatures", icon: "🐺", cost: { mana: 30, health: 15 }, benefit: { experience: 25, gold: 30 }, description: "Dangerous but rewarding", reward: "creature_parts" },
+                { name: "Explore Ruins", icon: "🏛️", cost: { mana: 25, health: 10 }, benefit: { discovery: 2, knowledge: 1, experience: 20 }, description: "Ancient secrets await" },
+                { name: "Gather Moonlight", icon: "🌙", cost: { mana: 20 }, benefit: { enchanting: 1, experience: 15 }, description: "Collect lunar essence (night only)" },
+                { name: "Find Hidden Grove", icon: "🌺", cost: { mana: 35 }, benefit: { herbalism: 3, luck: 2, experience: 30 }, description: "Discover secret magical locations" }
+            ],
+            market: [
+                { name: "Buy Ingredients", icon: "🛒", cost: { gold: 50 }, benefit: { experience: 5 }, description: "Purchase common ingredients", action: "shop" },
+                { name: "Sell Potions", icon: "💰", cost: {}, benefit: { gold: 100, reputation: 5, experience: 10 }, description: "Trade your creations for gold", action: "sell" },
+                { name: "Negotiate Prices", icon: "🤝", cost: { mana: 10 }, benefit: { gold: 20, reputation: 2, experience: 8 }, description: "Get better deals" },
+                { name: "Gather Information", icon: "👂", cost: { gold: 10 }, benefit: { knowledge: 2, discovery: 1, experience: 5 }, description: "Learn market rumors" },
+                { name: "Commission Work", icon: "📜", cost: {}, benefit: { gold: 75, reputation: 8, experience: 15 }, description: "Take on brewing contracts" }
+            ],
+            library: [
+                { name: "Study Ancient Texts", icon: "📚", cost: { mana: 20 }, benefit: { knowledge: 3, experience: 20 }, description: "Learn forgotten recipes" },
+                { name: "Research Ingredients", icon: "🔬", cost: { mana: 15 }, benefit: { discovery: 2, knowledge: 1, experience: 12 }, description: "Understand ingredient properties" },
+                { name: "Copy Recipes", icon: "✍️", cost: { mana: 25, gold: 15 }, benefit: { knowledge: 2, experience: 18 }, description: "Add recipes to your collection" },
+                { name: "Consult Sage", icon: "👴", cost: { gold: 30 }, benefit: { knowledge: 4, experience: 25 }, description: "Gain wisdom from experts" },
+                { name: "Decipher Runes", icon: "🗿", cost: { mana: 30 }, benefit: { knowledge: 3, discovery: 2, experience: 22 }, description: "Unlock ancient knowledge" }
+            ],
+            dungeon: [
+                { name: "Explore Chambers", icon: "🗝️", cost: { mana: 25, health: 20 }, benefit: { experience: 30, gold: 50 }, description: "Dangerous but profitable exploration", reward: "treasure" },
+                { name: "Fight Monsters", icon: "⚔️", cost: { mana: 40, health: 30 }, benefit: { experience: 40, gold: 75 }, description: "Battle for rare materials", reward: "monster_parts" },
+                { name: "Solve Puzzles", icon: "🧩", cost: { mana: 30 }, benefit: { knowledge: 3, experience: 35 }, description: "Use intelligence to progress" },
+                { name: "Loot Treasure", icon: "💎", cost: { mana: 15 }, benefit: { gold: 100, luck: 1, experience: 20 }, description: "Find valuable items" },
+                { name: "Escape Traps", icon: "🕳️", cost: { mana: 20, health: 10 }, benefit: { precision: 2, experience: 25 }, description: "Navigate dangerous mechanisms" }
+            ],
+            tower: [
+                { name: "Learn Spells", icon: "📜", cost: { mana: 35, gold: 50 }, benefit: { enchanting: 3, experience: 30 }, description: "Master advanced magic" },
+                { name: "Practice Transmutation", icon: "🔄", cost: { mana: 40 }, benefit: { transmutation: 3, experience: 35 }, description: "Transform base materials" },
+                { name: "Meditate on Elements", icon: "🌊", cost: { mana: 25 }, benefit: { mana: 40, enchanting: 1, experience: 20 }, description: "Understand elemental forces" },
+                { name: "Consult Crystal Ball", icon: "🔮", cost: { mana: 30, gold: 25 }, benefit: { discovery: 3, luck: 2, experience: 25 }, description: "Divine future knowledge" },
+                { name: "Ascend Tower", icon: "⬆️", cost: { mana: 50, health: 15 }, benefit: { experience: 50, knowledge: 2 }, description: "Reach higher levels of understanding" }
+            ],
+            cave: [
+                { name: "Mine Crystals", icon: "💎", cost: { mana: 20, health: 10 }, benefit: { experience: 15, gold: 40 }, description: "Extract valuable gems", reward: "crystals" },
+                { name: "Collect Minerals", icon: "⛏️", cost: { mana: 15, health: 5 }, benefit: { transmutation: 1, experience: 10 }, description: "Gather raw materials", reward: "minerals" },
+                { name: "Explore Deep Caves", icon: "🕳️", cost: { mana: 30, health: 20 }, benefit: { discovery: 2, experience: 25 }, description: "Venture into the depths", reward: "rare_minerals" },
+                { name: "Study Formations", icon: "🪨", cost: { mana: 18 }, benefit: { knowledge: 2, discovery: 1, experience: 12 }, description: "Learn about geological magic" },
+                { name: "Harvest Cave Moss", icon: "🌿", cost: { mana: 12 }, benefit: { herbalism: 1, experience: 8 }, description: "Collect unique cave plants", reward: "cave_herbs" }
+            ],
+            guild: [
+                { name: "Accept Quest", icon: "📋", cost: {}, benefit: { reputation: 10, experience: 20 }, description: "Take on guild missions", action: "quest" },
+                { name: "Report Progress", icon: "📊", cost: {}, benefit: { reputation: 5, gold: 25, experience: 10 }, description: "Complete quest objectives" },
+                { name: "Train with Masters", icon: "🎓", cost: { gold: 100 }, benefit: { alchemy: 2, experience: 40 }, description: "Learn from experienced alchemists" },
+                { name: "Share Knowledge", icon: "🤝", cost: { mana: 20 }, benefit: { reputation: 8, knowledge: 1, experience: 15 }, description: "Teach other guild members" },
+                { name: "Guild Tournament", icon: "🏆", cost: { mana: 50 }, benefit: { reputation: 20, gold: 200, experience: 60 }, description: "Compete against other alchemists" }
+            ]
+        };
+
+        // Ingredient rewards for different activities
+        const ingredientRewards = {
+            herbs: ["Green Leaf", "Healing Root", "Mint Sprig", "Lavender", "Sage"],
+            rare_herbs: ["Moonflower", "Dragon Grass", "Phoenix Feather", "Unicorn Hair", "Starlight Moss"],
+            creature_parts: ["Wolf Fang", "Bear Claw", "Raven Feather", "Snake Scale", "Spider Venom"],
+            treasure: ["Ancient Coin", "Magic Gem", "Enchanted Ring", "Golden Chalice", "Mystic Orb"],
+            monster_parts: ["Troll Blood", "Goblin Ear", "Orc Tusk", "Skeleton Bone", "Ghost Essence"],
+            crystals: ["Amethyst", "Ruby", "Sapphire", "Emerald", "Diamond"],
+            minerals: ["Iron Ore", "Silver Dust", "Gold Nugget", "Copper Wire", "Lead Bar"],
+            rare_minerals: ["Mithril", "Adamantine", "Orichalcum", "Celestial Stone", "Void Crystal"],
+            cave_herbs: ["Glowshroom", "Cave Moss", "Underground Vine", "Stone Flower", "Crystal Herb"]
+        };
+
+        // Initialize Game
+        function initGame() {
+            updateDisplay();
+            renderIngredients();
+            renderPotions();
+            renderRecipes();
+            addLogEntry("🧙‍♂️ Welcome to your alchemical journey! Your adventure begins now.", "success");
+            addLogEntry("🧪 Visit the laboratory to start brewing your first potions.", "brewing");
+        }
+
+        // Visit Location
+        function visitLocation(location) {
+            gameState.currentLocation = location;
+            
+            document.getElementById('locationGrid').style.display = 'none';
+            document.getElementById('activityScreen').classList.add('active');
+            
+            const locationNames = {
+                laboratory: "🧪 Alchemy Laboratory",
+                garden: "🌿 Herb Garden",
+                forest: "🌲 Enchanted Forest",
+                market: "🏪 Mystic Market",
+                library: "📚 Ancient Library",
+                dungeon: "🏰 Mystic Dungeon",
+                tower: "🗼 Wizard's Tower",
+                cave: "🕳️ Crystal Caves",
+                guild: "🏛️ Alchemist Guild"
+            };
+            
+            document.getElementById('activityTitle').textContent = locationNames[location];
+            renderActivities(location);
+            
+            addLogEntry(`📍 You arrive at the ${locationNames[location].split(' ').slice(1).join(' ').toLowerCase()}.`, "brewing");
+        }
+
+        // Render Activities
+        function renderActivities(location) {
+            const container = document.getElementById('activityOptions');
+            container.innerHTML = '';
+            
+            const activities = locationActivities[location] || [];
+            
+            activities.forEach(activity => {
+                const canAfford = checkActivityRequirements(activity);
+                
+                const activityCard = document.createElement('div');
+                activityCard.className = `activity-card ${!canAfford ? 'disabled' : ''}`;
+                if (canAfford) {
+                    activityCard.onclick = () => performActivity(activity);
+                }
+                
+                const costText = Object.entries(activity.cost)
+                    .map(([key, value]) => `${value} ${key}`)
+                    .join(', ') || 'Free';
+                
+                activityCard.innerHTML = `
+                    <div class="activity-icon">${activity.icon}</div>
+                    <div class="activity-name">${activity.name}</div>
+                    <div class="activity-cost">Cost: ${costText}</div>
+                    <div class="activity-description">${activity.description}</div>
+                `;
+                
+                container.appendChild(activityCard);
+            });
+        }
+
+        // Check Activity Requirements
+        function checkActivityRequirements(activity) {
+            const alchemist = gameState.alchemist;
+            
+            if (activity.cost.mana && alchemist.mana < activity.cost.mana) return false;
+            if (activity.cost.health && alchemist.health < activity.cost.health) return false;
+            if (activity.cost.gold && alchemist.gold < activity.cost.gold) return false;
+            
+            return true;
+        }
+
+        // Perform Activity
+        function performActivity(activity) {
+            if (!checkActivityRequirements(activity)) {
+                addLogEntry("❌ You don't meet the requirements for this activity!", "error");
+                return;
+            }
+            
+            const alchemist = gameState.alchemist;
+            
+            // Apply costs
+            Object.entries(activity.cost).forEach(([key, value]) => {
+                if (key in alchemist) {
+                    alchemist[key] = Math.max(0, alchemist[key] - value);
+                }
+            });
+            
+            // Apply benefits
+            Object.entries(activity.benefit).forEach(([key, value]) => {
+                if (key in alchemist) {
+                    if (key === 'mana') {
+                        alchemist[key] = Math.min(alchemist.maxMana, alchemist[key] + value);
+                    } else if (key === 'health') {
+                        alchemist[key] = Math.min(alchemist.maxHealth, alchemist[key] + value);
+                    } else {
+                        alchemist[key] = Math.max(0, alchemist[key] + value);
+                    }
+                }
+            });
+            
+            // Handle special actions
+            if (activity.action === "brewing") {
+                openBrewing();
+                return;
+            } else if (activity.action === "shop") {
+                openShop();
+                return;
+            } else if (activity.action === "sell") {
+                sellPotions();
+                return;
+            } else if (activity.action === "quest") {
+                acceptQuest();
+                return;
+            }
+            
+            // Handle rewards
+            if (activity.reward) {
+                giveReward(activity.reward);
+            }
+            
+            // Show floating text for major benefits
+            Object.entries(activity.benefit).forEach(([key, value]) => {
+                if (value >= 10) {
+                    showFloatingText(`+${value} ${key}`, getFloatingTextType(key));
+                }
+            });
+            
+            addLogEntry(`✅ ${activity.name} completed! ${activity.description}`, "success");
+            
+            // Check for level up
+            checkLevelUp();
+            
+            // Update quest progress
+            updateQuestProgress(activity);
+            
+            updateDisplay();
+            renderActivities(gameState.currentLocation);
+        }
+
+        // Give Reward
+        function giveReward(rewardType) {
+            const rewards = ingredientRewards[rewardType];
+            if (!rewards) return;
+            
+            const numRewards = Math.floor(Math.random() * 3) + 1; // 1-3 items
+            
+            for (let i = 0; i < numRewards; i++) {
+                const ingredient = rewards[Math.floor(Math.random() * rewards.length)];
+                const quantity = Math.floor(Math.random() * 3) + 1; // 1-3 quantity
+                
+                if (gameState.ingredients[ingredient]) {
+                    gameState.ingredients[ingredient].quantity += quantity;
+                } else {
+                    gameState.ingredients[ingredient] = {
+                        quantity: quantity,
+                        rarity: getRarity(),
+                        value: Math.floor(Math.random() * 20) + 5,
+                        effect: getRandomEffect()
+                    };
+                }
+                
+                addLogEntry(`🎁 Found ${quantity}x ${ingredient}!`, "ingredient");
+            }
+            
+            gameState.stats.ingredientsGathered += numRewards;
+            renderIngredients();
+        }
+
+        // Get Random Rarity
+        function getRarity() {
+            const rand = Math.random();
+            if (rand < 0.5) return "common";
+            if (rand < 0.75) return "uncommon";
+            if (rand < 0.9) return "rare";
+            if (rand < 0.97) return "epic";
+            if (rand < 0.995) return "legendary";
+            return "mythic";
+        }
+
+        // Get Random Effect
+        function getRandomEffect() {
+            const effects = ["healing", "mana", "strength", "speed", "protection", "luck", "wisdom", "fire", "ice", "lightning"];
+            return effects[Math.floor(Math.random() * effects.length)];
+        }
+
+        // Get Floating Text Type
+        function getFloatingTextType(key) {
+            if (key === 'gold') return 'gold';
+            if (key === 'experience') return 'positive';
+            if (key === 'mana' || key === 'health') return 'positive';
+            return 'magic';
+        }
+
+        // Check Level Up
+        function checkLevelUp() {
+            const alchemist = gameState.alchemist;
+            
+            while (alchemist.experience >= alchemist.maxExperience) {
+                alchemist.experience -= alchemist.maxExperience;
+                alchemist.level++;
+                alchemist.maxExperience = Math.floor(alchemist.maxExperience * 1.5);
+                alchemist.maxMana += 20;
+                alchemist.maxHealth += 15;
+                alchemist.mana = alchemist.maxMana;
+                alchemist.health = alchemist.maxHealth;
+                
+                // Update title based on level
+                if (alchemist.level >= 10) alchemist.title = "Master Alchemist";
+                else if (alchemist.level >= 7) alchemist.title = "Expert Alchemist";
+                else if (alchemist.level >= 5) alchemist.title = "Skilled Alchemist";
+                else if (alchemist.level >= 3) alchemist.title = "Apprentice Alchemist";
+                
+                showFloatingText(`LEVEL UP! ${alchemist.level}`, 'magic');
+                addLogEntry(`🎉 Level Up! You are now level ${alchemist.level}!`, "success");
+                
+                // Check achievements
+                checkAchievements();
+            }
+        }
+
+        // Update Quest Progress
+        function updateQuestProgress(activity) {
+            gameState.quests.forEach(quest => {
+                if (quest.completed) return;
+                
+                if (quest.name === "First Brew" && activity.name === "Brew Potion") {
+                    quest.progress = Math.min(quest.target, quest.progress + 1);
+                }
+                
+                if (quest.progress >= quest.target && !quest.completed) {
+                    completeQuest(quest);
+                }
+            });
+        }
+
+        // Complete Quest
+        function completeQuest(quest) {
+            quest.completed = true;
+            gameState.stats.questsCompleted++;
+            
+            // Give rewards
+            Object.entries(quest.reward).forEach(([key, value]) => {
+                if (key in gameState.alchemist) {
+                    gameState.alchemist[key] += value;
+                }
+            });
+            
+            addLogEntry(`🎯 Quest Complete: ${quest.name}! Reward: ${Object.entries(quest.reward).map(([k,v]) => `${v} ${k}`).join(', ')}`, "success");
+            showFloatingText("QUEST COMPLETE!", 'magic');
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            gameState.achievements.forEach(achievement => {
+                if (achievement.unlocked) return;
+                
+                let unlock = false;
+                
+                switch (achievement.name) {
+                    case "First Steps":
+                        unlock = gameState.stats.potionsBrewed >= 1;
+                        break;
+                    case "Herb Master":
+                        unlock = gameState.stats.ingredientsGathered >= 50;
+                        break;
+                    case "Potion Seller":
+                        unlock = gameState.stats.goldEarned >= 500;
+                        break;
+                    case "Master Alchemist":
+                        unlock = gameState.alchemist.level >= 10;
+                        break;
+                }
+                
+                if (unlock) {
+                    achievement.unlocked = true;
+                    addLogEntry(`🏆 Achievement Unlocked: ${achievement.name}!`, "success");
+                    showFloatingText("ACHIEVEMENT!", 'gold');
+                }
+            });
+        }
+
+        // Open Brewing Station
+        function openBrewing() {
+            document.getElementById('activityScreen').style.display = 'none';
+            document.getElementById('brewingStation').style.display = 'block';
+            addLogEntry("🧪 You approach the brewing station. Select ingredients to create potions.", "brewing");
+        }
+
+        // Close Brewing Station
+        function closeBrewing() {
+            document.getElementById('brewingStation').style.display = 'none';
+            document.getElementById('activityScreen').style.display = 'block';
+            clearRecipe();
+        }
+
+        // Select Ingredient for Recipe
+        function selectIngredient(slotIndex) {
+            const ingredients = Object.keys(gameState.ingredients).filter(name => 
+                gameState.ingredients[name].quantity > 0
+            );
+            
+            if (ingredients.length === 0) {
+                addLogEntry("❌ You have no ingredients to use!", "error");
+                return;
+            }
+            
+            let content = "Select an ingredient:\n\n";
+            ingredients.forEach((ingredient, index) => {
+                const data = gameState.ingredients[ingredient];
+                content += `${index + 1}. ${ingredient} (${data.quantity}x) - ${data.effect}\n`;
+            });
+            
+            const choice = prompt(content + "\nEnter the number of your choice:");
+            const choiceIndex = parseInt(choice) - 1;
+            
+            if (choiceIndex >= 0 && choiceIndex < ingredients.length) {
+                const selectedIngredient = ingredients[choiceIndex];
+                gameState.currentRecipe[slotIndex] = selectedIngredient;
+                updateRecipeDisplay();
+                addLogEntry(`✅ Added ${selectedIngredient} to recipe slot ${slotIndex + 1}.`, "brewing");
+            }
+        }
+
+        // Update Recipe Display
+        function updateRecipeDisplay() {
+            const slots = document.querySelectorAll('.recipe-slot');
+            
+            slots.forEach((slot, index) => {
+                if (gameState.currentRecipe[index]) {
+                    slot.classList.add('filled');
+                    slot.innerHTML = `
+                        <div>${gameState.currentRecipe[index]}</div>
+                        <div style="font-size: 0.8rem; color: #4CAF50;">Ready</div>
+                    `;
+                } else {
+                    slot.classList.remove('filled');
+                    slot.innerHTML = `
+                        <div>Ingredient ${index + 1}</div>
+                        <div style="font-size: 0.8rem; color: #666;">Click to add</div>
+                    `;
+                }
+            });
+        }
+
+        // Clear Recipe
+        function clearRecipe() {
+            gameState.currentRecipe = [null, null, null];
+            updateRecipeDisplay();
+            addLogEntry("🗑️ Recipe cleared.", "brewing");
+        }
+
+        // Brew Potion
+        function brewPotion() {
+            const recipe = gameState.currentRecipe.filter(ingredient => ingredient !== null);
+            
+            if (recipe.length === 0) {
+                addLogEntry("❌ You need at least one ingredient to brew a potion!", "error");
+                return;
+            }
+            
+            if (gameState.alchemist.mana < 20) {
+                addLogEntry("❌ You don't have enough mana to brew!", "error");
+                return;
+            }
+            
+            // Check if we have the ingredients
+            for (let ingredient of recipe) {
+                if (!gameState.ingredients[ingredient] || gameState.ingredients[ingredient].quantity <= 0) {
+                    addLogEntry(`❌ You don't have enough ${ingredient}!`, "error");
+                    return;
+                }
+            }
+            
+            // Consume ingredients
+            recipe.forEach(ingredient => {
+                gameState.ingredients[ingredient].quantity--;
+            });
+            
+            // Consume mana
+            gameState.alchemist.mana -= 20;
+            
+            // Determine potion result
+            const potionResult = determinePotionResult(recipe);
+            
+            // Add potion to inventory
+            if (gameState.potions[potionResult.name]) {
+                gameState.potions[potionResult.name].quantity++;
+            } else {
+                gameState.potions[potionResult.name] = {
+                    quantity: 1,
+                    effect: potionResult.effect,
+                    value: potionResult.value,
+                    rarity: potionResult.rarity
+                };
+            }
+            
+            // Update stats
+            gameState.stats.potionsBrewed++;
+            gameState.alchemist.experience += 20;
+            gameState.alchemist.alchemy += 1;
+            
+            addLogEntry(`🧪 Successfully brewed ${potionResult.name}! ${potionResult.effect}`, "success");
+            showFloatingText(`+1 ${potionResult.name}`, 'magic');
+            
+            clearRecipe();
+            checkLevelUp();
+            updateDisplay();
+            renderIngredients();
+            renderPotions();
+        }
+
+        // Determine Potion Result
+        function determinePotionResult(ingredients) {
+            // Check for known recipes first
+            for (let recipeName in gameState.recipes) {
+                const recipe = gameState.recipes[recipeName];
+                if (recipe.known && arraysEqual(ingredients.sort(), recipe.ingredients.sort())) {
+                    return {
+                        name: recipeName,
+                        effect: recipe.effect,
+                        value: 50,
+                        rarity: "common"
+                    };
+                }
+            }
+            
+            // Create random potion based on ingredients
+            const effects = ingredients.map(ing => gameState.ingredients[ing].effect);
+            const primaryEffect = effects[0];
+            
+            const potionNames = {
+                healing: ["Healing Elixir", "Life Potion", "Restoration Brew"],
+                mana: ["Mana Elixir", "Magic Potion", "Arcane Brew"],
+                strength: ["Strength Potion", "Power Elixir", "Might Brew"],
+                speed: ["Speed Potion", "Haste Elixir", "Swift Brew"],
+                protection: ["Shield Potion", "Guard Elixir", "Defense Brew"]
+            };
+            
+            const names = potionNames[primaryEffect] || ["Mystery Potion", "Unknown Brew", "Experimental Elixir"];
+            const name = names[Math.floor(Math.random() * names.length)];
+            
+            return {
+                name: name,
+                effect: `Provides ${primaryEffect} effect`,
+                value: Math.floor(Math.random() * 30) + 20,
+                rarity: getRarity()
+            };
+        }
+
+        // Arrays Equal Helper
+        function arraysEqual(a, b) {
+            return a.length === b.length && a.every((val, i) => val === b[i]);
+        }
+
+        // Sell Potions
+        function sellPotions() {
+            const potions = Object.keys(gameState.potions).filter(name => 
+                gameState.potions[name].quantity > 0
+            );
+            
+            if (potions.length === 0) {
+                addLogEntry("❌ You have no potions to sell!", "error");
+                return;
+            }
+            
+            let totalGold = 0;
+            let potionsSold = 0;
+            
+            potions.forEach(potionName => {
+                const potion = gameState.potions[potionName];
+                const sellPrice = potion.value;
+                const quantity = potion.quantity;
+                
+                totalGold += sellPrice * quantity;
+                potionsSold += quantity;
+                potion.quantity = 0;
+            });
+            
+            gameState.alchemist.gold += totalGold;
+            gameState.alchemist.reputation += potionsSold * 2;
+            gameState.stats.goldEarned += totalGold;
+            
+            addLogEntry(`💰 Sold ${potionsSold} potions for ${totalGold} gold!`, "gold");
+            showFloatingText(`+${totalGold} Gold`, 'gold');
+            
+            updateDisplay();
+            renderPotions();
+        }
+
+        // Accept Quest
+        function acceptQuest() {
+            const availableQuests = gameState.quests.filter(q => !q.completed);
+            
+            if (availableQuests.length === 0) {
+                addLogEntry("📋 No quests available at the moment.", "brewing");
+                return;
+            }
+            
+            const quest = availableQuests[0];
+            addLogEntry(`📋 Accepted quest: ${quest.name} - ${quest.description}`, "success");
+        }
+
+        // Restore Energy
+        function restoreEnergy() {
+            gameState.alchemist.mana = gameState.alchemist.maxMana;
+            gameState.alchemist.health = gameState.alchemist.maxHealth;
+            addLogEntry("🛌 You rest and restore your mana and health.", "success");
+            showFloatingText("Fully Restored!", 'positive');
+            updateDisplay();
+        }
+
+        // Leave Location
+        function leaveLocation() {
+            gameState.currentLocation = null;
+            
+            document.getElementById('activityScreen').classList.remove('active');
+            document.getElementById('brewingStation').style.display = 'none';
+            document.getElementById('locationGrid').style.display = 'grid';
+            
+            addLogEntry("🚪 You leave and return to the main area.", "brewing");
+        }
+
+        // Update Display
+        function updateDisplay() {
+            const alchemist = gameState.alchemist;
+            
+            // Update basic info
+            document.getElementById('alchemistName').textContent = alchemist.name;
+            document.getElementById('alchemistTitle').textContent = alchemist.title;
+            
+            // Update stats text
+            document.getElementById('manaText').textContent = `${alchemist.mana}/${alchemist.maxMana}`;
+            document.getElementById('healthText').textContent = `${alchemist.health}/${alchemist.maxHealth}`;
+            document.getElementById('experienceText').textContent = `${alchemist.experience}/${alchemist.maxExperience}`;
+            document.getElementById('reputationText').textContent = `${alchemist.reputation}/100`;
+            document.getElementById('goldText').textContent = alchemist.gold;
+            
+            // Update progress bars
+            document.getElementById('manaBar').style.width = `${(alchemist.mana / alchemist.maxMana) * 100}%`;
+            document.getElementById('healthBar').style.width = `${(alchemist.health / alchemist.maxHealth) * 100}%`;
+            document.getElementById('experienceBar').style.width = `${(alchemist.experience / alchemist.maxExperience) * 100}%`;
+            document.getElementById('reputationBar').style.width = `${Math.min(100, alchemist.reputation)}%`;
+            document.getElementById('goldBar').style.width = `${Math.min(100, (alchemist.gold / 1000) * 100)}%`;
+            
+            // Update attributes
+            document.getElementById('alchemyValue').textContent = alchemist.alchemy;
+            document.getElementById('herbalismValue').textContent = alchemist.herbalism;
+            document.getElementById('discoveryValue').textContent = alchemist.discovery;
+            document.getElementById('transmutationValue').textContent = alchemist.transmutation;
+            document.getElementById('enchantingValue').textContent = alchemist.enchanting;
+            document.getElementById('precisionValue').textContent = alchemist.precision;
+            document.getElementById('luckValue').textContent = alchemist.luck;
+            document.getElementById('knowledgeValue').textContent = alchemist.knowledge;
+            
+            // Update level display
+            document.getElementById('currentLevel').textContent = alchemist.level;
+            document.getElementById('levelDisplay').textContent = alchemist.level;
+        }
+
+        // Render Ingredients
+        function renderIngredients() {
+            const container = document.getElementById('ingredientList');
+            container.innerHTML = '';
+            
+            Object.entries(gameState.ingredients).forEach(([name, data]) => {
+                if (data.quantity <= 0) return;
+                
+                const ingredientCard = document.createElement('div');
+                ingredientCard.className = 'ingredient-card';
+                
+                ingredientCard.innerHTML = `
+                    <div class="ingredient-info">
+                        <div class="ingredient-name">${name}</div>
+                        <div class="ingredient-rarity rarity-${data.rarity}">${data.rarity} - ${data.effect}</div>
+                    </div>
+                    <div class="ingredient-quantity">${data.quantity}x</div>
+                `;
+                
+                container.appendChild(ingredientCard);
+            });
+        }
+
+        // Render Potions
+        function renderPotions() {
+            const container = document.getElementById('potionList');
+            container.innerHTML = '';
+            
+            Object.entries(gameState.potions).forEach(([name, data]) => {
+                if (data.quantity <= 0) return;
+                
+                const potionCard = document.createElement('div');
+                potionCard.className = 'potion-card';
+                
+                potionCard.innerHTML = `
+                    <div class="potion-info">
+                        <div class="potion-name">${name}</div>
+                        <div class="potion-effect">${data.effect}</div>
+                    </div>
+                    <div class="potion-quantity">${data.quantity}x</div>
+                `;
+                
+                container.appendChild(potionCard);
+            });
+        }
+
+        // Render Recipes
+        function renderRecipes() {
+            const container = document.getElementById('recipeList');
+            container.innerHTML = '';
+            
+            Object.entries(gameState.recipes).forEach(([name, data]) => {
+                if (!data.known) return;
+                
+                const recipeCard = document.createElement('div');
+                recipeCard.className = 'potion-card';
+                
+                recipeCard.innerHTML = `
+                    <div class="potion-info">
+                        <div class="potion-name">${name}</div>
+                        <div class="potion-effect">${data.ingredients.join(', ')}</div>
+                    </div>
+                    <div class="potion-quantity">Lv.${data.difficulty}</div>
+                `;
+                
+                container.appendChild(recipeCard);
+            });
+        }
+
+        // Show Modal
+        function showModal(title, content, buttons = null) {
+            document.getElementById('modalHeader').textContent = title;
+            document.getElementById('modalBody').textContent = content;
+            
+            const buttonContainer = document.getElementById('modalButtons');
+            buttonContainer.innerHTML = '';
+            
+            if (buttons) {
+                buttons.forEach(button => {
+                    const btn = document.createElement('button');
+                    btn.className = 'game-button';
+                    btn.textContent = button.text;
+                    btn.onclick = button.action;
+                    buttonContainer.appendChild(btn);
+                });
+            } else {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'game-button';
+                closeBtn.textContent = 'Close';
+                closeBtn.onclick = closeModal;
+                buttonContainer.appendChild(closeBtn);
+            }
+            
+            document.getElementById('gameModal').style.display = 'block';
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('gameModal').style.display = 'none';
+        }
+
+        // UI Functions
+        function openSpellbook() {
+            let content = "📖 Alchemist's Spellbook\n\n";
+            content += "Known Recipes:\n";
+            
+            Object.entries(gameState.recipes).forEach(([name, data]) => {
+                if (data.known) {
+                    content += `• ${name}: ${data.ingredients.join(' + ')}\n`;
+                    content += `  Effect: ${data.effect}\n`;
+                    content += `  Difficulty: ${data.difficulty}\n\n`;
+                }
+            });
+            
+            showModal("📖 Spellbook", content);
+        }
+
+        function openAchievements() {
+            let content = "🏆 Achievements\n\n";
+            
+            gameState.achievements.forEach(achievement => {
+                const status = achievement.unlocked ? "✅" : "🔒";
+                content += `${status} ${achievement.name}\n`;
+                content += `${achievement.description}\n\n`;
+            });
+            
+            showModal("🏆 Achievements", content);
+        }
+
+        function openQuests() {
+            let content = "📋 Active Quests\n\n";
+            
+            gameState.quests.forEach(quest => {
+                const status = quest.completed ? "✅" : "⏳";
+                content += `${status} ${quest.name}\n`;
+                content += `${quest.description}\n`;
+                content += `Progress: ${quest.progress}/${quest.target}\n`;
+                content += `Reward: ${Object.entries(quest.reward).map(([k,v]) => `${v} ${k}`).join(', ')}\n\n`;
+            });
+            
+            showModal("📋 Quests", content);
+        }
+
+        function openShop() {
+            let content = "🛒 Mystic Market\n\n";
+            content += "Available Ingredients:\n";
+            content += "• Red Mushroom - 10 gold\n";
+            content += "• Blue Herb - 15 gold\n";
+            content += "• Spring Water - 5 gold\n";
+            content += "• Honey - 8 gold\n";
+            content += "• Moonstone Dust - 25 gold\n\n";
+            content += "What would you like to buy?";
+            
+            const buttons = [
+                { text: "Buy Red Mushroom (10g)", action: () => buyIngredient("Red Mushroom", 10) },
+                { text: "Buy Blue Herb (15g)", action: () => buyIngredient("Blue Herb", 15) },
+                { text: "Buy Spring Water (5g)", action: () => buyIngredient("Spring Water", 5) },
+                { text: "Close", action: () => closeModal() }
+            ];
+            
+            showModal("🛒 Mystic Market", content, buttons);
+        }
+
+        function buyIngredient(name, cost) {
+            if (gameState.alchemist.gold < cost) {
+                addLogEntry("❌ You don't have enough gold!", "error");
+                return;
+            }
+            
+            gameState.alchemist.gold -= cost;
+            
+            if (gameState.ingredients[name]) {
+                gameState.ingredients[name].quantity += 1;
+            } else {
+                gameState.ingredients[name] = {
+                    quantity: 1,
+                    rarity: "common",
+                    value: cost,
+                    effect: "basic"
+                };
+            }
+            
+            addLogEntry(`🛒 Bought ${name} for ${cost} gold!`, "gold");
+            updateDisplay();
+            renderIngredients();
+            closeModal();
+        }
+
+        function openStats() {
+            const stats = gameState.stats;
+            let content = "📊 Your Statistics\n\n";
+            content += `Potions Brewed: ${stats.potionsBrewed}\n`;
+            content += `Ingredients Gathered: ${stats.ingredientsGathered}\n`;
+            content += `Gold Earned: ${stats.goldEarned}\n`;
+            content += `Quests Completed: ${stats.questsCompleted}\n`;
+            content += `Recipes Discovered: ${stats.recipesDiscovered}\n`;
+            
+            showModal("📊 Statistics", content);
+        }
+
+        function saveGame() {
+            localStorage.setItem('potionBrewerSave', JSON.stringify(gameState));
+            addLogEntry("💾 Game saved successfully!", "success");
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to start a new alchemical journey?")) {
+                localStorage.removeItem('potionBrewerSave');
+                location.reload();
+            }
+        }
+
+        // Add Log Entry
+        function addLogEntry(message, type) {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 15 entries
+            while (log.children.length > 15) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Show Floating Text
+        function showFloatingText(text, type) {
+            const floating = document.createElement('div');
+            floating.className = `floating-text floating-${type}`;
+            floating.textContent = text;
+            floating.style.position = 'fixed';
+            floating.style.left = '50%';
+            floating.style.top = '40%';
+            floating.style.transform = 'translateX(-50%)';
+            floating.style.zIndex = '1000';
+            
+            document.body.appendChild(floating);
+            
+            setTimeout(() => {
+                if (floating.parentNode) {
+                    floating.parentNode.removeChild(floating);
+                }
+            }, 2000);
+        }
+
+        // Load saved game or initialize
+        function loadGame() {
+            const saved = localStorage.getItem('potionBrewerSave');
+            if (saved) {
+                try {
+                    gameState = JSON.parse(saved);
+                    addLogEntry("💾 Welcome back, master alchemist! Your journey continues.", "success");
+                } catch (e) {
+                    console.error('Failed to load save:', e);
+                }
+            }
+            initGame();
+        }
+
+        // Start the game
+        loadGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97576b11c7301566',t:'MTc1NjI1NDE4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
