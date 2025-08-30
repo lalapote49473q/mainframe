@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortress Siege Commander</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Roboto:wght@300;400;500;600&display=swap');
+        
+        .medieval-font { font-family: 'Cinzel', serif; }
+        body { font-family: 'Roboto', sans-serif; }
+        
+        .battlefield-bg {
+            background: linear-gradient(135deg, #2D5016 0%, #4A7C59 25%, #8FBC8F 50%, #A0522D 75%, #8B4513 100%);
+            min-height: 100vh;
+        }
+        
+        .stone-panel {
+            background: linear-gradient(145deg, #696969, #808080);
+            border: 3px solid #2F4F4F;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .parchment {
+            background: linear-gradient(145deg, #F5E6D3, #E8D5B7);
+            border: 2px solid #8B7355;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .castle-wall {
+            background: linear-gradient(145deg, #708090, #2F4F4F);
+            border: 2px solid #1C1C1C;
+        }
+        
+        .gold-text { color: #FFD700; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .blood-text { color: #8B0000; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .steel-text { color: #C0C0C0; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        
+        .battle-glow {
+            animation: battleGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes battleGlow {
+            from { box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+            to { box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
+        }
+        
+        .siege-shake {
+            animation: siegeShake 0.5s ease-in-out;
+        }
+        
+        @keyframes siegeShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .unit-march {
+            animation: unitMarch 3s ease-in-out infinite;
+        }
+        
+        @keyframes unitMarch {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        .catapult-fire {
+            animation: catapultFire 2s ease-out;
+        }
+        
+        @keyframes catapultFire {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-10deg) scale(1.1); }
+            50% { transform: rotate(5deg) scale(0.9); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+        
+        .wall-damage {
+            animation: wallDamage 1s ease-out;
+        }
+        
+        @keyframes wallDamage {
+            0% { background-color: #708090; }
+            50% { background-color: #8B0000; }
+            100% { background-color: #696969; }
+        }
+        
+        .morale-boost {
+            animation: moraleBoost 2s ease-in-out;
+        }
+        
+        @keyframes moraleBoost {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #32CD32; }
+        }
+        
+        .weather-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .rain-drop {
+            position: absolute;
+            background: linear-gradient(transparent, rgba(173, 216, 230, 0.8), transparent);
+            width: 2px;
+            height: 15px;
+            animation: rainFall 1s linear infinite;
+        }
+        
+        @keyframes rainFall {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .fire-effect {
+            animation: fireFlicker 1.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes fireFlicker {
+            from { color: #FF4500; text-shadow: 0 0 10px #FF6347; }
+            to { color: #FF6347; text-shadow: 0 0 15px #FF4500; }
+        }
+        
+        .victory-shine {
+            animation: victoryShine 3s ease-in-out infinite;
+        }
+        
+        @keyframes victoryShine {
+            0%, 100% { text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 1), 1px 1px 2px rgba(0,0,0,0.5); }
+        }
+        
+        .unit-selected {
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+        
+        .siege-progress {
+            background: linear-gradient(90deg, #8B0000 0%, #FF4500 50%, #FFD700 100%);
+        }
+        
+        .castle-burning {
+            animation: castleBurn 2s ease-in-out infinite;
+        }
+        
+        @keyframes castleBurn {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3) hue-rotate(20deg); }
+        }
+    </style>
+</head>
+<body class="battlefield-bg">
+    <!-- Weather Effects -->
+    <div id="weatherEffects" class="weather-rain"></div>
+
+    <div class="container mx-auto px-4 py-6 relative z-10">
+        <!-- Game Header -->
+        <div class="text-center mb-6">
+            <h1 class="medieval-font text-6xl font-bold mb-2 gold-text battle-glow">⚔️ FORTRESS SIEGE COMMANDER</h1>
+            <p class="text-xl text-amber-100 mb-4 medieval-font">🏰 Master the Art of Medieval Warfare 🏰</p>
+            <div class="stone-panel rounded-xl p-4 inline-block">
+                <div class="text-amber-100 font-bold medieval-font text-lg">
+                    📅 <span id="campaignDay">Day 1 of Campaign</span> | 🕐 <span id="currentPhase">Dawn</span>
+                </div>
+                <div class="text-sm text-amber-200 mt-1">
+                    Weather: <span id="weather">☀️ Clear</span> | Season: <span id="season">Summer</span>
+                </div>
+                <div class="text-sm text-amber-200">
+                    Battle Status: <span id="battleStatus">Preparing for Siege</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Game Layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-6 gap-4">
+            <!-- Commander Profile & Resources -->
+            <div class="xl:col-span-2 space-y-4">
+                <!-- Commander Profile -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2" id="commanderAvatar">👑</div>
+                        <h3 class="text-lg font-bold text-amber-900 medieval-font" id="commanderName">Lord Commander</h3>
+                        <div class="text-sm text-amber-700" id="commanderTitle">Siege Master</div>
+                        <div class="text-xs text-amber-600" id="commanderExperience">Battles Won: 0</div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="space-y-2 mb-4 text-sm">
+                        <div>
+                            <div class="flex justify-between font-medium text-amber-800 mb-1">
+                                <span>💰 Gold</span>
+                                <span id="goldDisplay" class="gold-text">1000</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-amber-800 mb-1">
+                                <span>🍞 Food Supplies</span>
+                                <span id="foodDisplay">500</span>
+                            </div>
+                            <div class="bg-amber-200 rounded-full h-2">
+                                <div id="foodBar" class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-amber-800 mb-1">
+                                <span>🪨 Stone</span>
+                                <span id="stoneDisplay">200</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-amber-800 mb-1">
+                                <span>🪵 Wood</span>
+                                <span id="woodDisplay">300</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-medium text-amber-800 mb-1">
+                                <span>😤 Army Morale</span>
+                                <span id="moraleDisplay">75%</span>
+                            </div>
+                            <div class="bg-amber-200 rounded-full h-2">
+                                <div id="moraleBar" class="bg-gradient-to-r from-red-400 via-yellow-400 to-green-600 h-2 rounded-full transition-all duration-500" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button onclick="restArmy()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded font-medium transition-colors">
+                            😴 Rest Army
+                        </button>
+                        <button onclick="gatherSupplies()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded font-medium transition-colors">
+                            📦 Gather Supplies
+                        </button>
+                        <button onclick="trainTroops()" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-3 rounded font-medium transition-colors">
+                            🎯 Train Troops
+                        </button>
+                        <button onclick="scoutEnemy()" class="bg-amber-600 hover:bg-amber-700 text-white py-2 px-3 rounded font-medium transition-colors">
+                            🔍 Scout Enemy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Army Composition -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h4 class="font-bold text-amber-900 mb-3 text-sm medieval-font">⚔️ Army Composition</h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span>🛡️ Knights:</span>
+                            <span id="knightsCount">20</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>⚔️ Men-at-Arms:</span>
+                            <span id="menAtArmsCount">50</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🏹 Archers:</span>
+                            <span id="archersCount">40</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🔱 Pikemen:</span>
+                            <span id="pikemenCount">30</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🔨 Engineers:</span>
+                            <span id="engineersCount">10</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>⛏️ Sappers:</span>
+                            <span id="sappersCount">5</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <div class="text-sm font-bold text-amber-800">
+                            Total Army: <span id="totalArmy">155</span> soldiers
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Siege Equipment -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h4 class="font-bold text-amber-900 mb-3 text-sm medieval-font">🏗️ Siege Equipment</h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span>🎯 Catapults:</span>
+                            <span id="catapultsCount">3</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🏰 Trebuchets:</span>
+                            <span id="trebuchetsCount">1</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🚪 Battering Rams:</span>
+                            <span id="ramsCount">2</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🗼 Siege Towers:</span>
+                            <span id="towersCount">1</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>🪜 Ladders:</span>
+                            <span id="laddersCount">10</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <button onclick="buildSiegeEquipment()" class="bg-amber-600 hover:bg-amber-700 text-white py-2 px-3 rounded text-xs w-full">
+                            🔨 Build Equipment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Battle Statistics -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h4 class="font-bold text-amber-900 mb-3 text-sm medieval-font">📊 Campaign Stats</h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span>Castles Captured:</span>
+                            <span id="castlesCaptured">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Battles Won:</span>
+                            <span id="battlesWon">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Enemies Defeated:</span>
+                            <span id="enemiesDefeated">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Siege Days:</span>
+                            <span id="siegeDays">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Gold Spent:</span>
+                            <span id="goldSpent" class="gold-text">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battlefield & Castle -->
+            <div class="xl:col-span-2 space-y-4">
+                <!-- Castle View -->
+                <div class="stone-panel rounded-xl p-4 shadow-xl">
+                    <h3 class="text-xl font-bold text-amber-100 mb-4 text-center medieval-font">🏰 Target Castle</h3>
+                    
+                    <!-- Castle Visualization -->
+                    <div class="relative bg-gradient-to-b from-blue-200 to-green-300 rounded-lg p-4 mb-4" style="height: 200px;">
+                        <!-- Castle Structure -->
+                        <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2">
+                            <!-- Main Keep -->
+                            <div class="castle-wall rounded-t-lg" style="width: 80px; height: 120px; position: relative;">
+                                <div class="absolute top-2 left-1/2 transform -translate-x-1/2 text-2xl">🏰</div>
+                                <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-white font-bold">
+                                    <span id="castleHealth">100%</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Left Tower -->
+                            <div class="castle-wall rounded-t-lg absolute" style="width: 40px; height: 80px; left: -45px; bottom: 0;">
+                                <div class="absolute top-1 left-1/2 transform -translate-x-1/2 text-lg">🗼</div>
+                            </div>
+                            
+                            <!-- Right Tower -->
+                            <div class="castle-wall rounded-t-lg absolute" style="width: 40px; height: 80px; right: -45px; bottom: 0;">
+                                <div class="absolute top-1 left-1/2 transform -translate-x-1/2 text-lg">🗼</div>
+                            </div>
+                            
+                            <!-- Gate -->
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-2xl" id="castleGate">🚪</div>
+                        </div>
+                        
+                        <!-- Siege Equipment Positions -->
+                        <div class="absolute bottom-4 left-4 text-2xl unit-march" id="siegePosition1">🎯</div>
+                        <div class="absolute bottom-4 right-4 text-2xl unit-march" id="siegePosition2">🏰</div>
+                        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl" id="siegePosition3">🚪</div>
+                    </div>
+
+                    <!-- Castle Info -->
+                    <div class="grid grid-cols-3 gap-2 text-xs text-amber-100">
+                        <div class="text-center">
+                            <div class="font-bold">Wall Strength</div>
+                            <div id="wallStrength" class="steel-text">Strong</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold">Garrison</div>
+                            <div id="garrisonSize" class="blood-text">200</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold">Supplies</div>
+                            <div id="castleSupplies" class="gold-text">High</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Battle Actions -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">⚔️ Battle Commands</h3>
+                    
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <!-- Assault Actions -->
+                        <button onclick="directAssault()" class="stone-panel hover:bg-red-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">⚔️</div>
+                            <div class="font-bold text-xs">Direct Assault</div>
+                        </button>
+                        
+                        <button onclick="siegeBombardment()" class="stone-panel hover:bg-orange-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🎯</div>
+                            <div class="font-bold text-xs">Bombardment</div>
+                        </button>
+                        
+                        <button onclick="undermineWalls()" class="stone-panel hover:bg-yellow-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">⛏️</div>
+                            <div class="font-bold text-xs">Undermine</div>
+                        </button>
+                        
+                        <button onclick="scaleWalls()" class="stone-panel hover:bg-green-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🪜</div>
+                            <div class="font-bold text-xs">Scale Walls</div>
+                        </button>
+                        
+                        <button onclick="ramGate()" class="stone-panel hover:bg-blue-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🚪</div>
+                            <div class="font-bold text-xs">Ram Gate</div>
+                        </button>
+                        
+                        <button onclick="siegeTower()" class="stone-panel hover:bg-purple-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🗼</div>
+                            <div class="font-bold text-xs">Siege Tower</div>
+                        </button>
+                        
+                        <!-- Strategic Actions -->
+                        <button onclick="blockadeSupplies()" class="stone-panel hover:bg-indigo-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🚫</div>
+                            <div class="font-bold text-xs">Blockade</div>
+                        </button>
+                        
+                        <button onclick="negotiateSurrender()" class="stone-panel hover:bg-teal-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🤝</div>
+                            <div class="font-bold text-xs">Negotiate</div>
+                        </button>
+                        
+                        <button onclick="nightRaid()" class="stone-panel hover:bg-gray-700 p-3 rounded-lg text-center transition-all text-white">
+                            <div class="text-2xl mb-1">🌙</div>
+                            <div class="font-bold text-xs">Night Raid</div>
+                        </button>
+                    </div>
+
+                    <!-- Siege Progress -->
+                    <div class="mb-3">
+                        <div class="flex justify-between text-sm font-medium text-amber-800 mb-1">
+                            <span>Siege Progress</span>
+                            <span id="siegeProgress">0%</span>
+                        </div>
+                        <div class="bg-amber-200 rounded-full h-3">
+                            <div id="siegeProgressBar" class="siege-progress h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Battle Log -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">📜 Battle Chronicle</h3>
+                    <div id="battleLog" class="space-y-1 max-h-40 overflow-y-auto text-sm">
+                        <div class="text-amber-600 text-center py-4">The siege begins... Choose your strategy wisely!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intelligence & Strategy Panel -->
+            <div class="xl:col-span-2 space-y-4">
+                <!-- Enemy Intelligence -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">🔍 Enemy Intelligence</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Castle Name:</span>
+                            <span id="castleName" class="font-bold">Ironhold Keep</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Defender:</span>
+                            <span id="defenderName" class="font-bold">Lord Blackstone</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Garrison Strength:</span>
+                            <span id="garrisonStrength" class="blood-text">200 soldiers</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Wall Condition:</span>
+                            <span id="wallCondition" class="steel-text">Excellent</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Supply Status:</span>
+                            <span id="supplyStatus" class="gold-text">Well Stocked</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Morale:</span>
+                            <span id="enemyMorale">High</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button onclick="gatherIntelligence()" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-3 rounded text-sm w-full">
+                            🕵️ Gather Intelligence
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Weather & Conditions -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">🌤️ Battle Conditions</h3>
+                    <div class="text-sm text-amber-700">
+                        <div id="weatherEffect" class="mb-2">Clear weather favors siege operations.</div>
+                        <div class="flex justify-between">
+                            <span>Visibility:</span>
+                            <span id="visibility">Excellent</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Ground Condition:</span>
+                            <span id="groundCondition">Firm</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Wind:</span>
+                            <span id="windCondition">Light</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tactical Options -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">🎯 Tactical Options</h3>
+                    <div class="space-y-2 text-sm">
+                        <button onclick="deployArchers()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded transition-colors">
+                            🏹 Deploy Archers
+                        </button>
+                        <button onclick="positionCatapults()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-3 rounded transition-colors">
+                            🎯 Position Catapults
+                        </button>
+                        <button onclick="formShieldWall()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded transition-colors">
+                            🛡️ Form Shield Wall
+                        </button>
+                        <button onclick="flankingManeuver()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-3 rounded transition-colors">
+                            🔄 Flanking Maneuver
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Diplomacy -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">🤝 Diplomacy</h3>
+                    <div class="space-y-2 text-sm">
+                        <button onclick="demandSurrender()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded transition-colors">
+                            ⚡ Demand Surrender
+                        </button>
+                        <button onclick="offerTerms()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-3 rounded transition-colors">
+                            📜 Offer Terms
+                        </button>
+                        <button onclick="sendEnvoy()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded transition-colors">
+                            👤 Send Envoy
+                        </button>
+                        <button onclick="threatenVillagers()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded transition-colors">
+                            😨 Threaten Civilians
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Supply Lines -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">🚛 Supply Management</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Daily Food Consumption:</span>
+                            <span id="dailyConsumption">25 units</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Days of Supplies:</span>
+                            <span id="daysOfSupplies">20 days</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Supply Line Status:</span>
+                            <span id="supplyLineStatus" class="text-green-600">Secure</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button onclick="requestSupplies()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded text-sm w-full">
+                            📦 Request Supplies
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Victory Conditions -->
+                <div class="parchment rounded-xl p-4 shadow-xl">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 medieval-font">🏆 Victory Conditions</h3>
+                    <div class="space-y-1 text-sm text-amber-700">
+                        <div class="flex items-center">
+                            <span class="mr-2">⭕</span>
+                            <span>Breach the walls</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">⭕</span>
+                            <span>Capture the keep</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">⭕</span>
+                            <span>Force surrender</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">⭕</span>
+                            <span>Starve out defenders</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notificationArea" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+    <!-- Victory/Defeat Modal -->
+    <div id="endGameModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center">
+        <div class="parchment rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div id="endGameIcon" class="text-6xl mb-4">🏆</div>
+                <h2 id="endGameTitle" class="text-2xl font-bold medieval-font text-amber-900 mb-4">Victory!</h2>
+                <p id="endGameMessage" class="text-amber-700 mb-4">The castle has fallen to your superior tactics!</p>
+                <div id="endGameStats" class="text-sm text-amber-600 mb-4"></div>
+                <button onclick="nextBattle()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-medium">
+                    ⚔️ Next Battle
+                </button>
+                <button onclick="restartCampaign()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded font-medium ml-2">
+                    🔄 New Campaign
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            commander: {
+                name: "Lord Commander",
+                title: "Siege Master",
+                battlesWon: 0,
+                level: 1
+            },
+            resources: {
+                gold: 1000,
+                food: 500,
+                stone: 200,
+                wood: 300,
+                morale: 75
+            },
+            army: {
+                knights: 20,
+                menAtArms: 50,
+                archers: 40,
+                pikemen: 30,
+                engineers: 10,
+                sappers: 5,
+                total: 155
+            },
+            siegeEquipment: {
+                catapults: 3,
+                trebuchets: 1,
+                rams: 2,
+                towers: 1,
+                ladders: 10
+            },
+            battle: {
+                day: 1,
+                phase: "Dawn",
+                weather: "Clear",
+                season: "Summer",
+                siegeProgress: 0,
+                castleHealth: 100,
+                status: "Preparing for Siege"
+            },
+            enemy: {
+                castleName: "Ironhold Keep",
+                defenderName: "Lord Blackstone",
+                garrison: 200,
+                wallStrength: "Strong",
+                supplies: "High",
+                morale: "High"
+            },
+            stats: {
+                castlesCaptured: 0,
+                battlesWon: 0,
+                enemiesDefeated: 0,
+                siegeDays: 0,
+                goldSpent: 0
+            }
+        };
+
+        // Initialize the game
+        function initializeGame() {
+            updateAllDisplays();
+            showNotification("⚔️ Welcome, Commander! Your siege campaign begins!", "success");
+            
+            // Start weather system
+            setInterval(changeWeather, 45000); // Change weather every 45 seconds
+            
+            // Daily events
+            setInterval(dailyEvents, 20000); // Daily events every 20 seconds
+            
+            // Generate initial castle
+            generateNewCastle();
+        }
+
+        // Core Battle Actions
+        function directAssault() {
+            if (gameState.army.total < 50) {
+                showNotification("⚔️ Need at least 50 soldiers for direct assault!", "warning");
+                return;
+            }
+
+            const casualties = Math.floor(Math.random() * 20) + 10;
+            const damage = Math.floor(Math.random() * 15) + 10;
+            
+            gameState.army.total -= casualties;
+            gameState.army.menAtArms -= Math.min(casualties, gameState.army.menAtArms);
+            gameState.battle.siegeProgress += damage;
+            gameState.battle.castleHealth -= damage;
+            gameState.resources.morale -= 5;
+            gameState.stats.enemiesDefeated += Math.floor(Math.random() * 15) + 5;
+
+            addBattleLog(`⚔️ Direct assault launched! Lost ${casualties} soldiers but dealt ${damage}% damage to walls!`);
+            showNotification(`⚔️ Assault complete! ${damage}% damage dealt.`, "success");
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function siegeBombardment() {
+            if (gameState.siegeEquipment.catapults === 0 && gameState.siegeEquipment.trebuchets === 0) {
+                showNotification("🎯 No siege engines available for bombardment!", "warning");
+                return;
+            }
+
+            const damage = (gameState.siegeEquipment.catapults * 5) + (gameState.siegeEquipment.trebuchets * 12);
+            const actualDamage = Math.floor(damage * (0.8 + Math.random() * 0.4));
+            
+            gameState.battle.siegeProgress += actualDamage;
+            gameState.battle.castleHealth -= actualDamage;
+            gameState.resources.stone -= 5;
+
+            // Chance to damage siege equipment
+            if (Math.random() > 0.8) {
+                if (gameState.siegeEquipment.catapults > 0) {
+                    gameState.siegeEquipment.catapults--;
+                    addBattleLog("🎯 Enemy counter-fire destroyed one of our catapults!");
+                }
+            }
+
+            addBattleLog(`🎯 Bombardment successful! Dealt ${actualDamage}% damage to castle walls!`);
+            showNotification(`🎯 Bombardment effective! ${actualDamage}% damage dealt.`, "success");
+            
+            // Add visual effect
+            document.getElementById('siegePosition1').classList.add('catapult-fire');
+            setTimeout(() => {
+                document.getElementById('siegePosition1').classList.remove('catapult-fire');
+            }, 2000);
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function undermineWalls() {
+            if (gameState.army.sappers === 0) {
+                showNotification("⛏️ No sappers available for undermining!", "warning");
+                return;
+            }
+
+            const damage = gameState.army.sappers * 8;
+            const risk = Math.random();
+            
+            if (risk > 0.7) {
+                const casualties = Math.floor(gameState.army.sappers / 2);
+                gameState.army.sappers -= casualties;
+                gameState.army.total -= casualties;
+                addBattleLog(`⛏️ Tunnel collapsed! Lost ${casualties} sappers but walls are weakened!`);
+            }
+            
+            gameState.battle.siegeProgress += damage;
+            gameState.battle.castleHealth -= damage;
+            gameState.resources.wood -= 10;
+
+            addBattleLog(`⛏️ Sappers undermined the walls! Dealt ${damage}% structural damage!`);
+            showNotification(`⛏️ Undermining successful! ${damage}% damage dealt.`, "success");
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function scaleWalls() {
+            if (gameState.siegeEquipment.ladders === 0) {
+                showNotification("🪜 No ladders available for scaling!", "warning");
+                return;
+            }
+
+            const attackers = Math.min(gameState.army.menAtArms, gameState.siegeEquipment.ladders * 5);
+            const casualties = Math.floor(attackers * (0.2 + Math.random() * 0.3));
+            const damage = Math.floor(attackers * 0.3);
+            
+            gameState.army.menAtArms -= casualties;
+            gameState.army.total -= casualties;
+            gameState.battle.siegeProgress += damage;
+            gameState.resources.morale -= 3;
+
+            if (Math.random() > 0.6) {
+                gameState.siegeEquipment.ladders -= 1;
+                addBattleLog("🪜 Defenders destroyed one of our ladders!");
+            }
+
+            addBattleLog(`🪜 Scaling assault! Lost ${casualties} men but gained ${damage}% progress!`);
+            showNotification(`🪜 Scaling attack launched! Progress made.`, "success");
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function ramGate() {
+            if (gameState.siegeEquipment.rams === 0) {
+                showNotification("🚪 No battering rams available!", "warning");
+                return;
+            }
+
+            const damage = gameState.siegeEquipment.rams * 15;
+            const casualties = Math.floor(Math.random() * 10) + 5;
+            
+            gameState.army.menAtArms -= casualties;
+            gameState.army.total -= casualties;
+            gameState.battle.siegeProgress += damage;
+            gameState.battle.castleHealth -= damage;
+
+            // Special gate damage
+            if (gameState.battle.siegeProgress > 60) {
+                document.getElementById('castleGate').textContent = '💥';
+                addBattleLog("🚪 The gate is breached! Victory is within reach!");
+            }
+
+            addBattleLog(`🚪 Battering ram attack! Gate takes ${damage}% damage, lost ${casualties} men!`);
+            showNotification(`🚪 Ram attack successful! Gate damaged.`, "success");
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function siegeTower() {
+            if (gameState.siegeEquipment.towers === 0) {
+                showNotification("🗼 No siege towers available!", "warning");
+                return;
+            }
+
+            const attackers = Math.min(gameState.army.knights + gameState.army.menAtArms, 50);
+            const damage = Math.floor(attackers * 0.5);
+            const casualties = Math.floor(attackers * 0.15);
+            
+            gameState.army.total -= casualties;
+            gameState.battle.siegeProgress += damage;
+            gameState.resources.morale += 5; // Morale boost from successful tower assault
+
+            addBattleLog(`🗼 Siege tower assault! ${attackers} men stormed the walls, ${damage}% progress made!`);
+            showNotification(`🗼 Tower assault successful! Major progress made.`, "success");
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        // Strategic Actions
+        function blockadeSupplies() {
+            gameState.enemy.supplies = "Low";
+            gameState.enemy.morale = "Declining";
+            gameState.battle.siegeProgress += 5;
+            
+            addBattleLog("🚫 Supply lines cut! Enemy morale declining from hunger!");
+            showNotification("🚫 Blockade established! Enemy supplies cut.", "success");
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function negotiateSurrender() {
+            const success = Math.random();
+            
+            if (gameState.battle.siegeProgress > 70 || gameState.enemy.morale === "Broken") {
+                // High chance of success
+                if (success > 0.3) {
+                    gameState.battle.siegeProgress = 100;
+                    addBattleLog("🤝 Successful negotiation! The castle surrenders!");
+                    showNotification("🤝 Negotiation successful! Castle surrenders!", "success");
+                    checkBattleEnd();
+                } else {
+                    addBattleLog("🤝 Negotiation failed. The defenders refuse to surrender.");
+                    showNotification("🤝 Negotiation failed. They refuse to yield.", "warning");
+                }
+            } else {
+                addBattleLog("🤝 Negotiation rejected. The defenders are still confident.");
+                showNotification("🤝 Negotiation rejected. Continue the siege.", "info");
+            }
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function nightRaid() {
+            if (gameState.battle.phase !== "Night") {
+                showNotification("🌙 Night raids can only be conducted at night!", "warning");
+                return;
+            }
+
+            const raiders = Math.min(gameState.army.knights, 15);
+            const success = Math.random();
+            
+            if (success > 0.4) {
+                const damage = raiders * 3;
+                gameState.battle.siegeProgress += damage;
+                gameState.enemy.morale = "Shaken";
+                addBattleLog(`🌙 Night raid successful! ${raiders} knights dealt ${damage}% damage!`);
+                showNotification("🌙 Night raid successful! Enemy morale shaken.", "success");
+            } else {
+                const casualties = Math.floor(raiders / 2);
+                gameState.army.knights -= casualties;
+                gameState.army.total -= casualties;
+                addBattleLog(`🌙 Night raid failed! Lost ${casualties} knights to enemy patrols.`);
+                showNotification("🌙 Night raid failed! Heavy casualties.", "error");
+            }
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        // Tactical Functions
+        function deployArchers() {
+            if (gameState.army.archers === 0) {
+                showNotification("🏹 No archers available to deploy!", "warning");
+                return;
+            }
+
+            const damage = gameState.army.archers * 2;
+            gameState.battle.siegeProgress += damage;
+            gameState.enemy.morale = "Suppressed";
+            
+            addBattleLog(`🏹 Archers deployed! Suppressing enemy defenders with ${damage}% effectiveness!`);
+            showNotification("🏹 Archers positioned! Enemy suppressed.", "success");
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function positionCatapults() {
+            if (gameState.siegeEquipment.catapults === 0) {
+                showNotification("🎯 No catapults to position!", "warning");
+                return;
+            }
+
+            gameState.resources.stone -= 10;
+            addBattleLog("🎯 Catapults repositioned for maximum effectiveness!");
+            showNotification("🎯 Catapults repositioned! Next bombardment will be more effective.", "success");
+            
+            updateAllDisplays();
+        }
+
+        function formShieldWall() {
+            if (gameState.army.pikemen < 20) {
+                showNotification("🛡️ Need at least 20 pikemen for shield wall!", "warning");
+                return;
+            }
+
+            gameState.resources.morale += 10;
+            addBattleLog("🛡️ Shield wall formed! Army morale boosted by defensive formation!");
+            showNotification("🛡️ Shield wall formed! Morale boosted.", "success");
+            
+            updateAllDisplays();
+        }
+
+        function flankingManeuver() {
+            if (gameState.army.knights < 10) {
+                showNotification("🔄 Need at least 10 knights for flanking!", "warning");
+                return;
+            }
+
+            const damage = gameState.army.knights * 4;
+            gameState.battle.siegeProgress += damage;
+            
+            addBattleLog(`🔄 Flanking maneuver executed! Knights dealt ${damage}% damage from the rear!`);
+            showNotification("🔄 Flanking successful! Significant damage dealt.", "success");
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        // Diplomacy Functions
+        function demandSurrender() {
+            const intimidation = gameState.army.total + (gameState.battle.siegeProgress * 2);
+            
+            if (intimidation > 300 || gameState.enemy.morale === "Broken") {
+                gameState.battle.siegeProgress += 20;
+                addBattleLog("⚡ Demand accepted! Enemy morale cracking under pressure!");
+                showNotification("⚡ Demand effective! Enemy morale breaking.", "success");
+            } else {
+                addBattleLog("⚡ Demand rejected with defiance! Enemy morale remains strong.");
+                showNotification("⚡ Demand rejected. They remain defiant.", "info");
+            }
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function offerTerms() {
+            if (gameState.resources.gold < 200) {
+                showNotification("📜 Need at least 200 gold to offer terms!", "warning");
+                return;
+            }
+
+            gameState.resources.gold -= 200;
+            
+            if (Math.random() > 0.6) {
+                gameState.battle.siegeProgress += 30;
+                addBattleLog("📜 Terms accepted! Partial surrender negotiated for 200 gold!");
+                showNotification("📜 Terms accepted! Significant progress made.", "success");
+            } else {
+                addBattleLog("📜 Terms rejected. The 200 gold was returned as an insult.");
+                gameState.resources.gold += 200;
+                showNotification("📜 Terms rejected and gold returned.", "warning");
+            }
+            
+            checkBattleEnd();
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function sendEnvoy() {
+            const diplomacy = Math.random();
+            
+            if (diplomacy > 0.7) {
+                gameState.battle.siegeProgress += 10;
+                addBattleLog("👤 Envoy successful! Gathered intelligence and sowed discord!");
+                showNotification("👤 Envoy mission successful! Intelligence gathered.", "success");
+            } else if (diplomacy < 0.3) {
+                addBattleLog("👤 Envoy captured! Enemy morale boosted by our failed diplomacy.");
+                gameState.enemy.morale = "High";
+                showNotification("👤 Envoy captured! Mission failed.", "error");
+            } else {
+                addBattleLog("👤 Envoy returned with neutral intelligence.");
+                showNotification("👤 Envoy returned safely with basic information.", "info");
+            }
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        function threatenVillagers() {
+            gameState.resources.morale -= 10; // Affects your own morale
+            gameState.enemy.morale = "Desperate";
+            gameState.battle.siegeProgress += 15;
+            
+            addBattleLog("😨 Threats made against civilians! Enemy desperate but your army's morale suffers.");
+            showNotification("😨 Threats effective but army morale damaged.", "warning");
+            
+            updateAllDisplays();
+            advanceTime();
+        }
+
+        // Utility Functions
+        function generateNewCastle() {
+            const castleNames = [
+                "Ironhold Keep", "Stormwatch Tower", "Ravenshollow", "Goldspire Castle",
+                "Blackstone Fortress", "Dragonmere Keep", "Thornwall Castle", "Shadowmere"
+            ];
+            
+            const defenderNames = [
+                "Lord Blackstone", "Sir Ironwall", "Lady Stormwind", "Baron Goldhelm",
+                "Count Ravencrest", "Duke Thornfield", "Lord Commander Steel", "Sir Dragonbane"
+            ];
+            
+            gameState.enemy.castleName = castleNames[Math.floor(Math.random() * castleNames.length)];
+            gameState.enemy.defenderName = defenderNames[Math.floor(Math.random() * defenderNames.length)];
+            gameState.enemy.garrison = Math.floor(Math.random() * 200) + 150;
+            gameState.enemy.wallStrength = ["Weak", "Average", "Strong", "Excellent"][Math.floor(Math.random() * 4)];
+            gameState.enemy.supplies = ["Low", "Average", "High", "Abundant"][Math.floor(Math.random() * 4)];
+            gameState.enemy.morale = ["Broken", "Low", "Average", "High", "Fanatical"][Math.floor(Math.random() * 5)];
+            
+            // Reset battle state
+            gameState.battle.siegeProgress = 0;
+            gameState.battle.castleHealth = 100;
+            gameState.battle.status = "Preparing for Siege";
+            
+            document.getElementById('castleGate').textContent = '🚪';
+        }
+
+        function changeWeather() {
+            const weatherTypes = [
+                { type: "Clear", icon: "☀️", effect: "Perfect conditions for siege operations." },
+                { type: "Rainy", icon: "🌧️", effect: "Rain hampers siege engines and visibility." },
+                { type: "Stormy", icon: "⛈️", effect: "Storm prevents most siege activities." },
+                { type: "Foggy", icon: "🌫️", effect: "Fog provides cover for night operations." },
+                { type: "Windy", icon: "💨", effect: "Strong winds affect projectile accuracy." },
+                { type: "Snow", icon: "❄️", effect: "Snow slows movement but preserves food." }
+            ];
+            
+            const newWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+            gameState.battle.weather = newWeather.type;
+            
+            document.getElementById('weather').textContent = `${newWeather.icon} ${newWeather.type}`;
+            document.getElementById('weatherEffect').textContent = newWeather.effect;
+            
+            applyWeatherEffects(newWeather);
+        }
+
+        function applyWeatherEffects(weather) {
+            const weatherEffects = document.getElementById('weatherEffects');
+            weatherEffects.innerHTML = '';
+            
+            if (weather.type === "Rainy" || weather.type === "Stormy") {
+                for (let i = 0; i < 15; i++) {
+                    const rainDrop = document.createElement('div');
+                    rainDrop.className = 'rain-drop';
+                    rainDrop.style.left = Math.random() * 100 + '%';
+                    rainDrop.style.animationDelay = Math.random() * 1 + 's';
+                    rainDrop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                    weatherEffects.appendChild(rainDrop);
+                }
+            }
+        }
+
+        function dailyEvents() {
+            // Consume food
+            const dailyConsumption = Math.floor(gameState.army.total * 0.2);
+            gameState.resources.food -= dailyConsumption;
+            
+            if (gameState.resources.food <= 0) {
+                gameState.resources.food = 0;
+                gameState.resources.morale -= 15;
+                addBattleLog("🍞 Army is starving! Morale plummeting without food!");
+                showNotification("🍞 Critical: Army is starving!", "error");
+            }
+            
+            // Random events
+            if (Math.random() > 0.7) {
+                const events = [
+                    "🦅 Scout reports enemy reinforcements approaching in 3 days!",
+                    "💰 Local merchants offer supplies at reduced prices!",
+                    "🏹 Enemy archer takes a lucky shot, wounds one of your knights!",
+                    "🌟 Your engineers discover a weak point in the castle wall!",
+                    "🐎 Cavalry patrol returns with captured enemy supplies!"
+                ];
+                
+                const event = events[Math.floor(Math.random() * events.length)];
+                addBattleLog(event);
+                
+                // Apply event effects
+                if (event.includes("reinforcements")) {
+                    gameState.enemy.garrison += 50;
+                } else if (event.includes("merchants")) {
+                    gameState.resources.gold += 100;
+                } else if (event.includes("weak point")) {
+                    gameState.battle.siegeProgress += 10;
+                }
+            }
+            
+            updateAllDisplays();
+        }
+
+        function checkBattleEnd() {
+            if (gameState.battle.siegeProgress >= 100 || gameState.battle.castleHealth <= 0) {
+                // Victory!
+                gameState.stats.castlesCaptured++;
+                gameState.stats.battlesWon++;
+                gameState.commander.battlesWon++;
+                
+                const goldReward = Math.floor(Math.random() * 500) + 300;
+                gameState.resources.gold += goldReward;
+                
+                showEndGameModal(true, goldReward);
+            } else if (gameState.army.total <= 10 || gameState.resources.food <= 0) {
+                // Defeat!
+                showEndGameModal(false, 0);
+            }
+        }
+
+        function showEndGameModal(victory, goldReward) {
+            const modal = document.getElementById('endGameModal');
+            const icon = document.getElementById('endGameIcon');
+            const title = document.getElementById('endGameTitle');
+            const message = document.getElementById('endGameMessage');
+            const stats = document.getElementById('endGameStats');
+            
+            if (victory) {
+                icon.textContent = '🏆';
+                title.textContent = 'Victory!';
+                title.className = 'text-2xl font-bold medieval-font text-green-600 mb-4 victory-shine';
+                message.textContent = `${gameState.enemy.castleName} has fallen to your superior tactics!`;
+                stats.innerHTML = `
+                    <div>Gold Reward: <span class="gold-text">${goldReward}</span></div>
+                    <div>Siege Duration: ${gameState.stats.siegeDays} days</div>
+                    <div>Casualties: ${155 - gameState.army.total}</div>
+                    <div>Total Castles: ${gameState.stats.castlesCaptured}</div>
+                `;
+            } else {
+                icon.textContent = '💀';
+                title.textContent = 'Defeat!';
+                title.className = 'text-2xl font-bold medieval-font text-red-600 mb-4';
+                message.textContent = 'Your army has been defeated. The siege has failed.';
+                stats.innerHTML = `
+                    <div>Army Lost: ${155 - gameState.army.total} soldiers</div>
+                    <div>Siege Duration: ${gameState.stats.siegeDays} days</div>
+                    <div>Progress Made: ${gameState.battle.siegeProgress}%</div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function nextBattle() {
+            document.getElementById('endGameModal').classList.add('hidden');
+            
+            // Reset for next battle
+            generateNewCastle();
+            gameState.battle.day = 1;
+            gameState.stats.siegeDays = 0;
+            
+            // Replenish some forces
+            gameState.army.total = Math.min(155, gameState.army.total + 20);
+            gameState.army.menAtArms = Math.min(50, gameState.army.menAtArms + 10);
+            
+            updateAllDisplays();
+            addBattleLog(`🏰 New target acquired: ${gameState.enemy.castleName}!`);
+            showNotification("🏰 New siege target selected! Prepare for battle!", "success");
+        }
+
+        function restartCampaign() {
+            document.getElementById('endGameModal').classList.add('hidden');
+            
+            // Reset everything
+            gameState = {
+                commander: {
+                    name: "Lord Commander",
+                    title: "Siege Master",
+                    battlesWon: 0,
+                    level: 1
+                },
+                resources: {
+                    gold: 1000,
+                    food: 500,
+                    stone: 200,
+                    wood: 300,
+                    morale: 75
+                },
+                army: {
+                    knights: 20,
+                    menAtArms: 50,
+                    archers: 40,
+                    pikemen: 30,
+                    engineers: 10,
+                    sappers: 5,
+                    total: 155
+                },
+                siegeEquipment: {
+                    catapults: 3,
+                    trebuchets: 1,
+                    rams: 2,
+                    towers: 1,
+                    ladders: 10
+                },
+                battle: {
+                    day: 1,
+                    phase: "Dawn",
+                    weather: "Clear",
+                    season: "Summer",
+                    siegeProgress: 0,
+                    castleHealth: 100,
+                    status: "Preparing for Siege"
+                },
+                enemy: {
+                    castleName: "Ironhold Keep",
+                    defenderName: "Lord Blackstone",
+                    garrison: 200,
+                    wallStrength: "Strong",
+                    supplies: "High",
+                    morale: "High"
+                },
+                stats: {
+                    castlesCaptured: 0,
+                    battlesWon: 0,
+                    enemiesDefeated: 0,
+                    siegeDays: 0,
+                    goldSpent: 0
+                }
+            };
+            
+            generateNewCastle();
+            updateAllDisplays();
+            document.getElementById('battleLog').innerHTML = '<div class="text-amber-600 text-center py-4">The siege begins... Choose your strategy wisely!</div>';
+            showNotification("🔄 New campaign started! Good luck, Commander!", "success");
+        }
+
+        function addBattleLog(message) {
+            const log = document.getElementById('battleLog');
+            const entry = document.createElement('div');
+            entry.className = 'text-sm p-2 bg-amber-100 rounded border-l-4 border-amber-500';
+            entry.textContent = message;
+            
+            if (log.children.length === 1 && log.children[0].textContent.includes('siege begins')) {
+                log.innerHTML = '';
+            }
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            if (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function showNotification(message, type = "info") {
+            const notification = document.createElement('div');
+            notification.className = `siege-shake p-3 rounded-lg shadow-lg text-white font-medium max-w-sm ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'warning' ? 'bg-yellow-600' : 
+                type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            }`;
+            notification.textContent = message;
+            
+            document.getElementById('notificationArea').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function updateAllDisplays() {
+            // Update resources
+            document.getElementById('goldDisplay').textContent = gameState.resources.gold;
+            document.getElementById('foodDisplay').textContent = gameState.resources.food;
+            document.getElementById('stoneDisplay').textContent = gameState.resources.stone;
+            document.getElementById('woodDisplay').textContent = gameState.resources.wood;
+            document.getElementById('moraleDisplay').textContent = `${gameState.resources.morale}%`;
+            
+            // Update bars
+            document.getElementById('foodBar').style.width = `${Math.min(100, (gameState.resources.food / 500) * 100)}%`;
+            document.getElementById('moraleBar').style.width = `${gameState.resources.morale}%`;
+            
+            // Update army
+            document.getElementById('knightsCount').textContent = gameState.army.knights;
+            document.getElementById('menAtArmsCount').textContent = gameState.army.menAtArms;
+            document.getElementById('archersCount').textContent = gameState.army.archers;
+            document.getElementById('pikemenCount').textContent = gameState.army.pikemen;
+            document.getElementById('engineersCount').textContent = gameState.army.engineers;
+            document.getElementById('sappersCount').textContent = gameState.army.sappers;
+            document.getElementById('totalArmy').textContent = gameState.army.total;
+            
+            // Update siege equipment
+            document.getElementById('catapultsCount').textContent = gameState.siegeEquipment.catapults;
+            document.getElementById('trebuchetsCount').textContent = gameState.siegeEquipment.trebuchets;
+            document.getElementById('ramsCount').textContent = gameState.siegeEquipment.rams;
+            document.getElementById('towersCount').textContent = gameState.siegeEquipment.towers;
+            document.getElementById('laddersCount').textContent = gameState.siegeEquipment.ladders;
+            
+            // Update battle info
+            document.getElementById('campaignDay').textContent = `Day ${gameState.battle.day} of Campaign`;
+            document.getElementById('currentPhase').textContent = gameState.battle.phase;
+            document.getElementById('battleStatus').textContent = gameState.battle.status;
+            document.getElementById('siegeProgress').textContent = `${Math.floor(gameState.battle.siegeProgress)}%`;
+            document.getElementById('siegeProgressBar').style.width = `${Math.min(100, gameState.battle.siegeProgress)}%`;
+            document.getElementById('castleHealth').textContent = `${Math.max(0, Math.floor(gameState.battle.castleHealth))}%`;
+            
+            // Update enemy info
+            document.getElementById('castleName').textContent = gameState.enemy.castleName;
+            document.getElementById('defenderName').textContent = gameState.enemy.defenderName;
+            document.getElementById('garrisonSize').textContent = gameState.enemy.garrison;
+            document.getElementById('garrisonStrength').textContent = `${gameState.enemy.garrison} soldiers`;
+            document.getElementById('wallStrength').textContent = gameState.enemy.wallStrength;
+            document.getElementById('wallCondition').textContent = gameState.enemy.wallStrength;
+            document.getElementById('castleSupplies').textContent = gameState.enemy.supplies;
+            document.getElementById('supplyStatus').textContent = gameState.enemy.supplies;
+            document.getElementById('enemyMorale').textContent = gameState.enemy.morale;
+            
+            // Update statistics
+            document.getElementById('castlesCaptured').textContent = gameState.stats.castlesCaptured;
+            document.getElementById('battlesWon').textContent = gameState.stats.battlesWon;
+            document.getElementById('enemiesDefeated').textContent = gameState.stats.enemiesDefeated;
+            document.getElementById('siegeDays').textContent = gameState.stats.siegeDays;
+            document.getElementById('goldSpent').textContent = gameState.stats.goldSpent;
+            
+            // Update supply calculations
+            const dailyConsumption = Math.floor(gameState.army.total * 0.2);
+            const daysOfSupplies = Math.floor(gameState.resources.food / dailyConsumption);
+            document.getElementById('dailyConsumption').textContent = `${dailyConsumption} units`;
+            document.getElementById('daysOfSupplies').textContent = `${daysOfSupplies} days`;
+            
+            // Update commander experience
+            document.getElementById('commanderExperience').textContent = `Battles Won: ${gameState.commander.battlesWon}`;
+        }
+
+        function advanceTime() {
+            const phases = ["Dawn", "Morning", "Afternoon", "Evening", "Night"];
+            const currentIndex = phases.indexOf(gameState.battle.phase);
+            
+            if (currentIndex < phases.length - 1) {
+                gameState.battle.phase = phases[currentIndex + 1];
+            } else {
+                gameState.battle.phase = "Dawn";
+                gameState.battle.day++;
+                gameState.stats.siegeDays++;
+            }
+            
+            document.getElementById('currentPhase').textContent = gameState.battle.phase;
+            document.getElementById('campaignDay').textContent = `Day ${gameState.battle.day} of Campaign`;
+        }
+
+        // Placeholder functions for other actions
+        function restArmy() {
+            gameState.resources.morale = Math.min(100, gameState.resources.morale + 15);
+            showNotification("😴 Army rested and morale restored!", "success");
+            updateAllDisplays();
+        }
+
+        function gatherSupplies() {
+            if (gameState.resources.gold >= 100) {
+                gameState.resources.gold -= 100;
+                gameState.resources.food += 100;
+                gameState.resources.stone += 20;
+                gameState.resources.wood += 30;
+                showNotification("📦 Supplies gathered from local area!", "success");
+                updateAllDisplays();
+            } else {
+                showNotification("💰 Need 100 gold to gather supplies!", "warning");
+            }
+        }
+
+        function trainTroops() {
+            if (gameState.resources.gold >= 150) {
+                gameState.resources.gold -= 150;
+                gameState.army.menAtArms += 10;
+                gameState.army.total += 10;
+                gameState.resources.morale += 5;
+                showNotification("🎯 New troops trained and ready for battle!", "success");
+                updateAllDisplays();
+            } else {
+                showNotification("💰 Need 150 gold to train troops!", "warning");
+            }
+        }
+
+        function scoutEnemy() {
+            gameState.enemy.garrison = Math.floor(Math.random() * 200) + 150;
+            gameState.enemy.morale = ["Broken", "Low", "Average", "High", "Fanatical"][Math.floor(Math.random() * 5)];
+            showNotification("🔍 Enemy scouted! Intelligence updated.", "success");
+            updateAllDisplays();
+        }
+
+        function buildSiegeEquipment() {
+            if (gameState.resources.wood >= 50 && gameState.resources.gold >= 100) {
+                gameState.resources.wood -= 50;
+                gameState.resources.gold -= 100;
+                
+                const equipment = ["catapults", "rams", "ladders", "towers"];
+                const chosen = equipment[Math.floor(Math.random() * equipment.length)];
+                gameState.siegeEquipment[chosen]++;
+                
+                showNotification(`🔨 Built new ${chosen.slice(0, -1)}! Ready for siege.`, "success");
+                updateAllDisplays();
+            } else {
+                showNotification("🔨 Need 50 wood and 100 gold to build equipment!", "warning");
+            }
+        }
+
+        function gatherIntelligence() {
+            const intel = [
+                "Enemy has secret tunnel entrance on the east side!",
+                "Garrison is running low on arrows!",
+                "Castle well is nearly dry!",
+                "Reinforcements expected in 5 days!",
+                "Lord's family is in the keep - negotiation possible!"
+            ];
+            
+            const info = intel[Math.floor(Math.random() * intel.length)];
+            addBattleLog(`🕵️ Intelligence gathered: ${info}`);
+            showNotification("🕵️ Valuable intelligence obtained!", "success");
+        }
+
+        function requestSupplies() {
+            if (gameState.resources.gold >= 200) {
+                gameState.resources.gold -= 200;
+                gameState.resources.food += 200;
+                gameState.resources.stone += 50;
+                gameState.resources.wood += 75;
+                showNotification("📦 Supply convoy arrived with provisions!", "success");
+                updateAllDisplays();
+            } else {
+                showNotification("💰 Need 200 gold to request supply convoy!", "warning");
+            }
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('load', initializeGame);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'975797038250cf2e',t:'MTc1NjI1NTk4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
