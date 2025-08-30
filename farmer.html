@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer RPG - Harvest Your Dreams</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .title-font { font-family: 'Poppins', sans-serif; }
+        .farm-bg { 
+            background: linear-gradient(135deg, #065f46 0%, #059669 25%, #10b981 50%, #34d399 75%, #6ee7b7 100%);
+            background-size: 400% 400%;
+            animation: farmGradient 25s ease infinite;
+        }
+        @keyframes farmGradient { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .crop-grow { 
+            background: linear-gradient(45deg, #22c55e, #16a34a, #15803d, #166534);
+            background-size: 400% 400%;
+            animation: cropShimmer 3s ease-in-out infinite;
+        }
+        @keyframes cropShimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .farm-float { animation: farmFloat 4s ease-in-out infinite; }
+        @keyframes farmFloat { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+        .harvest-pulse { animation: harvestPulse 2.5s ease-in-out infinite; }
+        @keyframes harvestPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); } 50% { transform: scale(1.08); box-shadow: 0 0 40px rgba(34, 197, 94, 0.8); } }
+        .crop-card { transition: all 0.4s ease; backdrop-filter: blur(10px); }
+        .crop-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 30px 60px rgba(34, 197, 94, 0.3); }
+        .farmer-entrance { animation: farmerEntrance 1.2s ease-out; }
+        @keyframes farmerEntrance { 0% { transform: scale(0) rotate(180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .floating-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .farm-element { position: absolute; color: rgba(255, 255, 255, 0.15); font-size: 28px; animation: elementFloat 25s linear infinite; }
+        @keyframes elementFloat { 0% { transform: translateX(-60px) translateY(100vh) rotate(0deg); } 100% { transform: translateX(100vw) translateY(-60px) rotate(360deg); } }
+        .stat-bar { transition: width 1.2s ease-in-out; }
+        .notification-slide { animation: notificationSlide 0.6s ease-out; }
+        @keyframes notificationSlide { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+        .money-glow { animation: moneyGlow 3s ease-in-out infinite alternate; }
+        @keyframes moneyGlow { 0% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); } 100% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.8); } }
+        .weather-warning { animation: weatherWarning 1.5s ease-in-out infinite; }
+        @keyframes weatherWarning { 0%, 100% { background-color: rgba(239, 68, 68, 0.2); } 50% { background-color: rgba(239, 68, 68, 0.4); } }
+        .level-unlock { animation: levelUnlock 1s ease-out; }
+        @keyframes levelUnlock { 0% { transform: scale(0) rotate(180deg); } 60% { transform: scale(1.3) rotate(0deg); } 100% { transform: scale(1) rotate(0deg); } }
+        .crop-planting { animation: cropPlanting 2.5s ease-in-out; }
+        @keyframes cropPlanting { 0% { transform: scale(0.7) rotateY(90deg); opacity: 0.4; } 100% { transform: scale(1) rotateY(0deg); opacity: 1; } }
+        .harvest-celebration { animation: harvestCelebration 2s ease-out; }
+        @keyframes harvestCelebration { 0% { transform: scale(1); } 25% { transform: scale(1.2) rotate(5deg); } 50% { transform: scale(1.1) rotate(-3deg); } 75% { transform: scale(1.15) rotate(2deg); } 100% { transform: scale(1) rotate(0deg); } }
+        .coin-counter { animation: coinCounter 2.5s ease-in-out infinite; }
+        @keyframes coinCounter { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
+        .season-progress { animation: seasonProgress 5s ease-in-out infinite; }
+        @keyframes seasonProgress { 0%, 100% { filter: drop-shadow(0 0 15px #22c55e); } 50% { filter: drop-shadow(0 0 30px #22c55e) drop-shadow(0 0 40px #16a34a); } }
+        .animal-card { transition: all 0.3s ease; }
+        .animal-card:hover { transform: translateY(-6px); box-shadow: 0 18px 35px rgba(34, 197, 94, 0.25); }
+        .growth-animation { animation: growthAnimation 3s ease-in-out; }
+        @keyframes growthAnimation { 0% { transform: scale(0.5); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        .weather-icon { animation: weatherFloat 6s ease-in-out infinite; }
+        @keyframes weatherFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        .farm-building { animation: buildingConstruct 2.5s ease-in-out; }
+        @keyframes buildingConstruct { 0% { transform: scale(0.6) rotateX(90deg); opacity: 0.3; } 100% { transform: scale(1) rotateX(0deg); opacity: 1; } }
+    </style>
+</head>
+<body class="farm-bg min-h-screen text-white overflow-x-hidden">
+    <!-- Floating Farm Elements -->
+    <div class="floating-elements" id="floatingElements"></div>
+
+    <!-- Fixed Farm Background Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute top-20 left-12 text-4xl farm-float" style="animation-delay: 0s;">🚜</div>
+        <div class="absolute top-40 right-20 text-3xl farm-float" style="animation-delay: 1.5s;">🌾</div>
+        <div class="absolute bottom-40 left-20 text-3xl harvest-pulse" style="animation-delay: 2s;">🐄</div>
+        <div class="absolute top-60 left-1/2 text-2xl farm-float" style="animation-delay: 1s;">🌽</div>
+        <div class="absolute bottom-20 right-12 text-3xl crop-grow" style="animation-delay: 3s;">🌳</div>
+        <div class="absolute top-80 right-1/3 text-2xl farm-float" style="animation-delay: 2.5s;">🐔</div>
+        <div class="absolute top-32 left-1/4 text-3xl harvest-pulse" style="animation-delay: 4s;">🏠</div>
+        <div class="absolute bottom-60 right-1/4 text-2xl money-glow" style="animation-delay: 3.5s;">🌻</div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black/80 backdrop-blur-sm border-b border-green-500/50 py-4 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='main.html'" class="bg-green-600/80 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 border border-green-500/50">
+                    ← Back to Main
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl crop-grow p-2 rounded-full">🚜</div>
+                    <h1 class="text-2xl font-bold title-font crop-grow bg-clip-text text-transparent">FARMER RPG</h1>
+                    <div class="text-xs bg-green-600 px-2 py-1 rounded title-font farm-float">FARMER</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">💰</span>
+                    <span class="text-xl font-bold title-font coin-counter" id="money">500</span>
+                    <span class="text-sm text-gray-300">COINS</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-400">⭐</span>
+                    <span class="text-lg title-font level-unlock" id="level">1</span>
+                    <span class="text-sm text-gray-300">LEVEL</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-green-400">🌱</span>
+                    <span class="text-lg title-font harvest-pulse" id="experience">0</span>
+                    <span class="text-sm text-gray-300">EXP</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400 weather-icon" id="weatherIcon">☀️</span>
+                    <span class="text-lg title-font season-progress" id="season">Spring</span>
+                    <span class="text-sm text-gray-300">DAY <span id="day">1</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8 relative z-10">
+        <!-- Farmer Profile -->
+        <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-green-500/50 harvest-pulse">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-6">
+                    <div class="w-24 h-24 bg-gradient-to-br from-green-600 to-yellow-600 rounded-full flex items-center justify-center text-5xl border-4 border-green-500 money-glow">
+                        👨‍🌾
+                    </div>
+                    <div>
+                        <h2 class="text-4xl font-bold title-font" id="farmerName">Farmer Joe</h2>
+                        <p class="text-green-400 title-font text-xl" id="farmName">Green Valley Farm</p>
+                        <div class="flex gap-8 mt-3">
+                            <span class="text-sm">🌾 Crops: <span class="text-green-400 font-bold" id="cropsStat">5</span></span>
+                            <span class="text-sm">🐄 Animals: <span class="text-yellow-400 font-bold" id="animalsStat">2</span></span>
+                            <span class="text-sm">🏠 Buildings: <span class="text-blue-400 font-bold" id="buildingsStat">1</span></span>
+                            <span class="text-sm">🏆 Achievements: <span class="text-purple-400 font-bold" id="achievementsStat">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-300">FARM STATUS</div>
+                    <div class="text-3xl title-font text-green-400" id="farmStatus">GROWING</div>
+                    <div class="text-sm text-gray-300 mt-2">Energy: <span class="text-white font-bold" id="energy">100</span>/100</div>
+                    <div class="text-sm text-gray-300">Happiness: <span class="text-yellow-400 font-bold" id="happiness">85</span>%</div>
+                </div>
+            </div>
+            
+            <!-- Experience Progress Bar -->
+            <div class="bg-gray-800/50 rounded-lg p-3 mb-6">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-green-400">🌱 Experience Progress</span>
+                    <span id="expProgress">0 / 100 XP</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="bg-green-400 h-3 rounded-full stat-bar" id="expBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-gradient-to-r from-green-600/20 to-yellow-600/20 rounded-xl p-4 border border-green-500/30">
+                <h3 class="text-lg font-bold title-font text-green-400 mb-2">🚜 QUICK ACTIONS</h3>
+                <p class="text-white mb-3">Manage your farm efficiently with these quick actions</p>
+                <div class="flex gap-3">
+                    <button onclick="harvestAll()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold title-font transition-all transform hover:scale-105">
+                        🌾 HARVEST ALL
+                    </button>
+                    <button onclick="feedAnimals()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-semibold title-font transition-all transform hover:scale-105">
+                        🥕 FEED ANIMALS
+                    </button>
+                    <button onclick="advanceDay()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold title-font transition-all transform hover:scale-105">
+                        🌅 NEXT DAY
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather & Season Info -->
+        <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-blue-500/50 harvest-pulse">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold title-font text-blue-400">🌤️ WEATHER & SEASON</h2>
+                <div class="text-sm bg-blue-600/20 px-3 py-1 rounded title-font border border-blue-500/50 farm-float">
+                    CURRENT
+                </div>
+            </div>
+            
+            <div id="weatherInfo">
+                <!-- Weather info will be populated here -->
+            </div>
+        </div>
+
+        <!-- Farm Management Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Crop Management -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-green-500/50">
+                <h2 class="text-2xl font-bold title-font text-green-400 mb-6">🌾 CROP MANAGEMENT</h2>
+                <div class="space-y-4">
+                    <button onclick="plantCrop('wheat')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🌾 Plant Wheat (10 coins)
+                    </button>
+                    <button onclick="plantCrop('corn')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🌽 Plant Corn (15 coins)
+                    </button>
+                    <button onclick="plantCrop('tomato')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🍅 Plant Tomatoes (20 coins)
+                    </button>
+                    <button onclick="plantCrop('carrot')" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🥕 Plant Carrots (12 coins)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Animal Care -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50">
+                <h2 class="text-2xl font-bold title-font text-yellow-400 mb-6">🐄 ANIMAL CARE</h2>
+                <div class="space-y-4">
+                    <button onclick="buyAnimal('chicken')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🐔 Buy Chicken (50 coins)
+                    </button>
+                    <button onclick="buyAnimal('cow')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🐄 Buy Cow (200 coins)
+                    </button>
+                    <button onclick="buyAnimal('pig')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🐷 Buy Pig (150 coins)
+                    </button>
+                    <button onclick="buyAnimal('sheep')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🐑 Buy Sheep (120 coins)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Farm Buildings -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/50">
+                <h2 class="text-2xl font-bold title-font text-blue-400 mb-6">🏠 FARM BUILDINGS</h2>
+                <div class="space-y-4">
+                    <button onclick="buildStructure('barn')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🏚️ Build Barn (300 coins)
+                    </button>
+                    <button onclick="buildStructure('coop')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🏠 Build Coop (150 coins)
+                    </button>
+                    <button onclick="buildStructure('silo')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🗼 Build Silo (250 coins)
+                    </button>
+                    <button onclick="buildStructure('greenhouse')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold title-font transition-all transform hover:scale-105">
+                        🏡 Build Greenhouse (500 coins)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Crops & Animals -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Active Crops -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-green-500/50">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold title-font text-green-400">🌱 ACTIVE CROPS</h2>
+                    <button onclick="showCropDetails()" class="bg-green-600/20 hover:bg-green-600/40 text-green-300 px-3 py-1 rounded-lg text-sm transition-all">
+                        VIEW ALL
+                    </button>
+                </div>
+                <div id="activeCropsContainer" class="space-y-3">
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🌱</div>
+                        <p class="title-font">No crops planted</p>
+                        <p class="text-sm">Plant some seeds to get started!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farm Animals -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/50">
+                <h2 class="text-xl font-bold title-font text-yellow-400 mb-4">🐄 FARM ANIMALS</h2>
+                <div id="farmAnimalsContainer" class="space-y-3">
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🐄</div>
+                        <p class="title-font">No animals yet</p>
+                        <p class="text-sm">Buy some animals to start producing!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Farm Statistics -->
+        <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-cyan-500/50 money-glow">
+            <h2 class="text-2xl font-bold title-font text-cyan-400 mb-6">📊 FARM STATISTICS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Production Stats -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold title-font text-green-400 mb-3">🌾 PRODUCTION</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Total Harvests:</span>
+                            <span class="font-bold text-green-400" id="totalHarvests">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Daily Income:</span>
+                            <span class="font-bold text-yellow-400" id="dailyIncome">$0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Crop Yield:</span>
+                            <span class="font-bold text-green-400" id="cropYield">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Animal Stats -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold title-font text-yellow-400 mb-3">🐄 LIVESTOCK</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Total Animals:</span>
+                            <span class="font-bold text-yellow-400" id="totalAnimals">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Animal Products:</span>
+                            <span class="font-bold text-blue-400" id="animalProducts">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Happiness Avg:</span>
+                            <span class="font-bold text-green-400" id="animalHappiness">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Farm Stats -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold title-font text-blue-400 mb-3">🏠 FARM</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Farm Size:</span>
+                            <span class="font-bold text-blue-400" id="farmSize">Small</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Buildings:</span>
+                            <span class="font-bold text-purple-400" id="totalBuildings">1</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Efficiency:</span>
+                            <span class="font-bold text-green-400" id="farmEfficiency">75%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Stats -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <h3 class="text-lg font-bold title-font text-purple-400 mb-3">🏆 PROGRESS</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Days Played:</span>
+                            <span class="font-bold text-purple-400" id="daysPlayed">1</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Achievements:</span>
+                            <span class="font-bold text-yellow-400" id="totalAchievements">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Farm Rating:</span>
+                            <span class="font-bold text-green-400" id="farmRating">⭐⭐⭐</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities & Achievements -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Achievements -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/50">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold title-font text-purple-400">🏆 ACHIEVEMENTS</h2>
+                    <button onclick="showAchievementDetails()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 px-3 py-1 rounded-lg text-sm transition-all">
+                        VIEW ALL
+                    </button>
+                </div>
+                <div id="achievementsContainer" class="space-y-3">
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏆</div>
+                        <p class="title-font">No achievements yet</p>
+                        <p class="text-sm">Start farming to unlock achievements!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farm Log -->
+            <div class="bg-black/70 backdrop-blur-sm rounded-2xl p-6 border border-orange-500/50">
+                <h2 class="text-xl font-bold title-font text-orange-400 mb-4">📝 FARM LOG</h2>
+                <div id="farmLogContainer" class="space-y-3">
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">📝</div>
+                        <p class="title-font">Welcome to your farm!</p>
+                        <p class="text-sm">Your farming activities will be logged here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification System -->
+    <div id="notificationContainer" class="fixed top-20 right-6 z-50 space-y-2">
+        <!-- Notifications will appear here -->
+    </div>
+
+    <!-- Crop Details Modal -->
+    <div id="cropModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-2xl w-full mx-4 border border-green-500/50 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold title-font text-green-400">🌾 CROP DETAILS</h2>
+                <button onclick="closeCropModal()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+            </div>
+            
+            <div id="cropModalContent">
+                <!-- Crop details will be populated here -->
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button onclick="closeCropModal()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold title-font transition-all">
+                    CLOSE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Details Modal -->
+    <div id="achievementModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-2xl w-full mx-4 border border-purple-500/50 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold title-font text-purple-400">🏆 FARM ACHIEVEMENTS</h2>
+                <button onclick="closeAchievementModal()" class="text-gray-400 hover:text-white text-2xl">✕</button>
+            </div>
+            
+            <div id="achievementModalContent">
+                <!-- Achievement details will be populated here -->
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button onclick="closeAchievementModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold title-font transition-all">
+                    CLOSE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Farmer RPG Game State
+        let gameState = {
+            money: 500,
+            level: 1,
+            experience: 0,
+            experienceToNext: 100,
+            day: 1,
+            season: 'Spring',
+            energy: 100,
+            happiness: 85,
+            
+            // Farm Stats
+            stats: {
+                crops: 0,
+                animals: 0,
+                buildings: 1,
+                achievements: 0
+            },
+            
+            // Detailed Stats
+            detailedStats: {
+                totalHarvests: 0,
+                dailyIncome: 0,
+                cropYield: 100,
+                totalAnimals: 0,
+                animalProducts: 0,
+                animalHappiness: 100,
+                farmSize: 'Small',
+                totalBuildings: 1,
+                farmEfficiency: 75,
+                daysPlayed: 1,
+                totalAchievements: 0,
+                farmRating: '⭐⭐⭐'
+            },
+            
+            // Game Progress
+            achievements: [],
+            farmLog: [],
+            weather: 'sunny',
+            
+            // Crops and Animals
+            activeCrops: [],
+            farmAnimals: [],
+            buildings: ['farmhouse'],
+            
+            // Crop and Animal Counters
+            cropCounter: 0,
+            animalCounter: 0
+        };
+
+        // Crop Types Configuration
+        const cropTypes = {
+            wheat: {
+                name: 'Wheat',
+                icon: '🌾',
+                cost: 10,
+                sellPrice: 25,
+                growthTime: 3,
+                experience: 5,
+                description: 'Basic grain crop, reliable income'
+            },
+            corn: {
+                name: 'Corn',
+                icon: '🌽',
+                cost: 15,
+                sellPrice: 35,
+                growthTime: 4,
+                experience: 8,
+                description: 'Versatile crop with good profit margins'
+            },
+            tomato: {
+                name: 'Tomatoes',
+                icon: '🍅',
+                cost: 20,
+                sellPrice: 45,
+                growthTime: 5,
+                experience: 12,
+                description: 'High-value crop requiring more care'
+            },
+            carrot: {
+                name: 'Carrots',
+                icon: '🥕',
+                cost: 12,
+                sellPrice: 28,
+                growthTime: 3,
+                experience: 6,
+                description: 'Root vegetable, grows quickly'
+            }
+        };
+
+        // Animal Types Configuration
+        const animalTypes = {
+            chicken: {
+                name: 'Chicken',
+                icon: '🐔',
+                cost: 50,
+                dailyIncome: 8,
+                product: 'Eggs',
+                productIcon: '🥚',
+                experience: 3,
+                description: 'Produces eggs daily, low maintenance'
+            },
+            cow: {
+                name: 'Cow',
+                icon: '🐄',
+                cost: 200,
+                dailyIncome: 25,
+                product: 'Milk',
+                productIcon: '🥛',
+                experience: 10,
+                description: 'Produces milk daily, high income'
+            },
+            pig: {
+                name: 'Pig',
+                icon: '🐷',
+                cost: 150,
+                dailyIncome: 18,
+                product: 'Truffles',
+                productIcon: '🍄',
+                experience: 8,
+                description: 'Finds truffles, good profit'
+            },
+            sheep: {
+                name: 'Sheep',
+                icon: '🐑',
+                cost: 120,
+                dailyIncome: 15,
+                product: 'Wool',
+                productIcon: '🧶',
+                experience: 6,
+                description: 'Produces wool, steady income'
+            }
+        };
+
+        // Building Types Configuration
+        const buildingTypes = {
+            barn: {
+                name: 'Barn',
+                icon: '🏚️',
+                cost: 300,
+                benefit: 'Increases animal capacity and happiness',
+                effect: { animalCapacity: +5, animalHappiness: +10 }
+            },
+            coop: {
+                name: 'Chicken Coop',
+                icon: '🏠',
+                cost: 150,
+                benefit: 'Increases chicken egg production',
+                effect: { chickenIncome: +5 }
+            },
+            silo: {
+                name: 'Silo',
+                icon: '🗼',
+                cost: 250,
+                benefit: 'Increases crop storage and yield',
+                effect: { cropYield: +15, storage: +20 }
+            },
+            greenhouse: {
+                name: 'Greenhouse',
+                icon: '🏡',
+                cost: 500,
+                benefit: 'Crops grow faster and weather-resistant',
+                effect: { growthSpeed: +25, weatherResistance: true }
+            }
+        };
+
+        // Weather Types
+        const weatherTypes = {
+            sunny: { icon: '☀️', name: 'Sunny', effect: 'Normal growth, +10% crop yield' },
+            rainy: { icon: '🌧️', name: 'Rainy', effect: '+20% growth speed, animals less happy' },
+            cloudy: { icon: '☁️', name: 'Cloudy', effect: 'Normal conditions' },
+            stormy: { icon: '⛈️', name: 'Stormy', effect: '-25% growth speed, risk of crop damage' }
+        };
+
+        // Achievements System
+        const achievements = [
+            {
+                id: 'first_harvest',
+                name: 'First Harvest',
+                description: 'Harvest your first crop',
+                icon: '🌾',
+                condition: () => gameState.detailedStats.totalHarvests >= 1
+            },
+            {
+                id: 'animal_lover',
+                name: 'Animal Lover',
+                description: 'Own 5 different animals',
+                icon: '🐄',
+                condition: () => gameState.detailedStats.totalAnimals >= 5
+            },
+            {
+                id: 'wealthy_farmer',
+                name: 'Wealthy Farmer',
+                description: 'Accumulate 1000 coins',
+                icon: '💰',
+                condition: () => gameState.money >= 1000
+            },
+            {
+                id: 'level_up',
+                name: 'Experienced Farmer',
+                description: 'Reach level 5',
+                icon: '⭐',
+                condition: () => gameState.level >= 5
+            },
+            {
+                id: 'master_builder',
+                name: 'Master Builder',
+                description: 'Build 5 different structures',
+                icon: '🏠',
+                condition: () => gameState.detailedStats.totalBuildings >= 5
+            },
+            {
+                id: 'crop_master',
+                name: 'Crop Master',
+                description: 'Harvest 50 crops',
+                icon: '🌱',
+                condition: () => gameState.detailedStats.totalHarvests >= 50
+            },
+            {
+                id: 'seasonal_farmer',
+                name: 'Seasonal Farmer',
+                description: 'Survive through all 4 seasons',
+                icon: '🍂',
+                condition: () => gameState.daysPlayed >= 120
+            },
+            {
+                id: 'efficient_farmer',
+                name: 'Efficient Farmer',
+                description: 'Achieve 95% farm efficiency',
+                icon: '⚡',
+                condition: () => gameState.detailedStats.farmEfficiency >= 95
+            }
+        ];
+
+        // Core Game Functions
+
+        // Initialize Floating Elements
+        function initFloatingElements() {
+            const container = document.getElementById('floatingElements');
+            const farmElements = ['🌾', '🌽', '🍅', '🥕', '🐔', '🐄', '🐷', '🐑', '🌻', '🌳', '🚜', '🏠'];
+            
+            setInterval(() => {
+                if (Math.random() < 0.15) {
+                    const element = document.createElement('div');
+                    element.className = 'farm-element';
+                    element.textContent = farmElements[Math.floor(Math.random() * farmElements.length)];
+                    element.style.left = Math.random() * 100 + '%';
+                    element.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                    container.appendChild(element);
+                    
+                    setTimeout(() => {
+                        if (element.parentNode) {
+                            element.parentNode.removeChild(element);
+                        }
+                    }, 25000);
+                }
+            }, 4000);
+        }
+
+        // Plant Crop
+        function plantCrop(cropType) {
+            const crop = cropTypes[cropType];
+            
+            if (gameState.money < crop.cost) {
+                showNotification(`Not enough coins! Need ${crop.cost} coins to plant ${crop.name}`, 'error');
+                return;
+            }
+            
+            if (gameState.energy < 10) {
+                showNotification('Not enough energy! Rest or advance to the next day.', 'error');
+                return;
+            }
+            
+            // Deduct cost and energy
+            gameState.money -= crop.cost;
+            gameState.energy -= 10;
+            
+            // Create new crop
+            const newCrop = {
+                id: ++gameState.cropCounter,
+                type: cropType,
+                plantedDay: gameState.day,
+                growthTime: crop.growthTime,
+                daysLeft: crop.growthTime,
+                ready: false
+            };
+            
+            gameState.activeCrops.push(newCrop);
+            gameState.stats.crops++;
+            
+            // Add to farm log
+            gameState.farmLog.unshift({
+                day: gameState.day,
+                season: gameState.season,
+                action: `Planted ${crop.name}`,
+                type: 'planting'
+            });
+            
+            showNotification(`${crop.name} planted! Will be ready in ${crop.growthTime} days.`, 'success');
+            updateUI();
+        }
+
+        // Buy Animal
+        function buyAnimal(animalType) {
+            const animal = animalTypes[animalType];
+            
+            if (gameState.money < animal.cost) {
+                showNotification(`Not enough coins! Need ${animal.cost} coins to buy ${animal.name}`, 'error');
+                return;
+            }
+            
+            // Deduct cost
+            gameState.money -= animal.cost;
+            
+            // Create new animal
+            const newAnimal = {
+                id: ++gameState.animalCounter,
+                type: animalType,
+                happiness: 100,
+                lastFed: gameState.day,
+                productivity: 100
+            };
+            
+            gameState.farmAnimals.push(newAnimal);
+            gameState.stats.animals++;
+            gameState.detailedStats.totalAnimals++;
+            
+            // Add to farm log
+            gameState.farmLog.unshift({
+                day: gameState.day,
+                season: gameState.season,
+                action: `Bought ${animal.name}`,
+                type: 'purchase'
+            });
+            
+            showNotification(`${animal.name} added to your farm! It will produce ${animal.product} daily.`, 'success');
+            checkAchievements();
+            updateUI();
+        }
+
+        // Build Structure
+        function buildStructure(buildingType) {
+            const building = buildingTypes[buildingType];
+            
+            if (gameState.money < building.cost) {
+                showNotification(`Not enough coins! Need ${building.cost} coins to build ${building.name}`, 'error');
+                return;
+            }
+            
+            if (gameState.buildings.includes(buildingType)) {
+                showNotification(`You already have a ${building.name}!`, 'error');
+                return;
+            }
+            
+            // Deduct cost
+            gameState.money -= building.cost;
+            
+            // Add building
+            gameState.buildings.push(buildingType);
+            gameState.stats.buildings++;
+            gameState.detailedStats.totalBuildings++;
+            
+            // Apply building effects
+            applyBuildingEffects(buildingType);
+            
+            // Add to farm log
+            gameState.farmLog.unshift({
+                day: gameState.day,
+                season: gameState.season,
+                action: `Built ${building.name}`,
+                type: 'construction'
+            });
+            
+            showNotification(`${building.name} built! ${building.benefit}`, 'success');
+            checkAchievements();
+            updateUI();
+        }
+
+        // Apply Building Effects
+        function applyBuildingEffects(buildingType) {
+            const effects = buildingTypes[buildingType].effect;
+            
+            if (effects.cropYield) {
+                gameState.detailedStats.cropYield += effects.cropYield;
+            }
+            if (effects.animalHappiness) {
+                gameState.farmAnimals.forEach(animal => {
+                    animal.happiness = Math.min(100, animal.happiness + effects.animalHappiness);
+                });
+            }
+            if (effects.farmEfficiency) {
+                gameState.detailedStats.farmEfficiency += effects.farmEfficiency;
+            }
+        }
+
+        // Harvest All Crops
+        function harvestAll() {
+            const readyCrops = gameState.activeCrops.filter(crop => crop.ready);
+            
+            if (readyCrops.length === 0) {
+                showNotification('No crops ready for harvest!', 'info');
+                return;
+            }
+            
+            let totalIncome = 0;
+            let totalExperience = 0;
+            let harvestedCount = 0;
+            
+            readyCrops.forEach(crop => {
+                const cropType = cropTypes[crop.type];
+                const income = Math.floor(cropType.sellPrice * (gameState.detailedStats.cropYield / 100));
+                totalIncome += income;
+                totalExperience += cropType.experience;
+                harvestedCount++;
+                
+                // Remove crop from active crops
+                gameState.activeCrops = gameState.activeCrops.filter(c => c.id !== crop.id);
+            });
+            
+            gameState.money += totalIncome;
+            gameState.experience += totalExperience;
+            gameState.detailedStats.totalHarvests += harvestedCount;
+            gameState.stats.crops -= harvestedCount;
+            
+            // Add to farm log
+            gameState.farmLog.unshift({
+                day: gameState.day,
+                season: gameState.season,
+                action: `Harvested ${harvestedCount} crops for ${totalIncome} coins`,
+                type: 'harvest'
+            });
+            
+            showNotification(`Harvested ${harvestedCount} crops! Earned ${totalIncome} coins and ${totalExperience} XP!`, 'success');
+            checkLevelUp();
+            checkAchievements();
+            updateUI();
+        }
+
+        // Feed Animals
+        function feedAnimals() {
+            if (gameState.farmAnimals.length === 0) {
+                showNotification('No animals to feed!', 'info');
+                return;
+            }
+            
+            const feedCost = gameState.farmAnimals.length * 5;
+            
+            if (gameState.money < feedCost) {
+                showNotification(`Not enough coins! Need ${feedCost} coins to feed all animals.`, 'error');
+                return;
+            }
+            
+            gameState.money -= feedCost;
+            
+            gameState.farmAnimals.forEach(animal => {
+                animal.happiness = Math.min(100, animal.happiness + 20);
+                animal.lastFed = gameState.day;
+                animal.productivity = Math.min(100, animal.productivity + 15);
+            });
+            
+            // Add to farm log
+            gameState.farmLog.unshift({
+                day: gameState.day,
+                season: gameState.season,
+                action: `Fed all animals (${feedCost} coins)`,
+                type: 'care'
+            });
+            
+            showNotification(`All animals fed! Happiness and productivity increased!`, 'success');
+            updateUI();
+        }
+
+        // Advance Day
+        function advanceDay() {
+            gameState.day++;
+            gameState.detailedStats.daysPlayed++;
+            gameState.energy = 100; // Restore energy
+            
+            // Update season
+            updateSeason();
+            
+            // Update weather
+            updateWeather();
+            
+            // Grow crops
+            growCrops();
+            
+            // Collect animal products
+            collectAnimalProducts();
+            
+            // Update animal happiness (decreases if not fed)
+            updateAnimalHappiness();
+            
+            // Calculate daily income
+            calculateDailyIncome();
+            
+            // Add to farm log
+            gameState.farmLog.unshift({
+                day: gameState.day,
+                season: gameState.season,
+                action: `New day begins - ${gameState.season} Day ${gameState.day}`,
+                type: 'day_change'
+            });
+            
+            showNotification(`Day ${gameState.day} begins! Energy restored to 100.`, 'info');
+            checkAchievements();
+            updateUI();
+        }
+
+        // Update Season
+        function updateSeason() {
+            const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+            const seasonIndex = Math.floor((gameState.day - 1) / 30) % 4;
+            gameState.season = seasons[seasonIndex];
+        }
+
+        // Update Weather
+        function updateWeather() {
+            const weathers = ['sunny', 'rainy', 'cloudy', 'stormy'];
+            const weights = [0.4, 0.3, 0.2, 0.1]; // Probability weights
+            
+            let random = Math.random();
+            let cumulativeWeight = 0;
+            
+            for (let i = 0; i < weathers.length; i++) {
+                cumulativeWeight += weights[i];
+                if (random <= cumulativeWeight) {
+                    gameState.weather = weathers[i];
+                    break;
+                }
+            }
+        }
+
+        // Grow Crops
+        function growCrops() {
+            gameState.activeCrops.forEach(crop => {
+                if (!crop.ready) {
+                    let growthRate = 1;
+                    
+                    // Weather effects
+                    if (gameState.weather === 'rainy') growthRate = 1.2;
+                    else if (gameState.weather === 'stormy') growthRate = 0.75;
+                    
+                    // Building effects
+                    if (gameState.buildings.includes('greenhouse')) growthRate *= 1.25;
+                    
+                    crop.daysLeft -= growthRate;
+                    
+                    if (crop.daysLeft <= 0) {
+                        crop.ready = true;
+                        crop.daysLeft = 0;
+                    }
+                }
+            });
+        }
+
+        // Collect Animal Products
+        function collectAnimalProducts() {
+            let totalIncome = 0;
+            let totalProducts = 0;
+            
+            gameState.farmAnimals.forEach(animal => {
+                const animalType = animalTypes[animal.type];
+                const productivity = animal.productivity / 100;
+                const income = Math.floor(animalType.dailyIncome * productivity);
+                
+                totalIncome += income;
+                totalProducts++;
+                
+                // Decrease productivity if not fed recently
+                if (gameState.day - animal.lastFed > 2) {
+                    animal.productivity = Math.max(50, animal.productivity - 5);
+                }
+            });
+            
+            if (totalIncome > 0) {
+                gameState.money += totalIncome;
+                gameState.detailedStats.animalProducts += totalProducts;
+                
+                gameState.farmLog.unshift({
+                    day: gameState.day,
+                    season: gameState.season,
+                    action: `Collected animal products: ${totalIncome} coins`,
+                    type: 'collection'
+                });
+            }
+        }
+
+        // Update Animal Happiness
+        function updateAnimalHappiness() {
+            gameState.farmAnimals.forEach(animal => {
+                // Happiness decreases over time if not cared for
+                if (gameState.day - animal.lastFed > 1) {
+                    animal.happiness = Math.max(20, animal.happiness - 5);
+                }
+                
+                // Weather effects
+                if (gameState.weather === 'stormy') {
+                    animal.happiness = Math.max(20, animal.happiness - 10);
+                } else if (gameState.weather === 'sunny') {
+                    animal.happiness = Math.min(100, animal.happiness + 2);
+                }
+            });
+            
+            // Calculate average happiness
+            if (gameState.farmAnimals.length > 0) {
+                const avgHappiness = gameState.farmAnimals.reduce((sum, animal) => sum + animal.happiness, 0) / gameState.farmAnimals.length;
+                gameState.detailedStats.animalHappiness = Math.floor(avgHappiness);
+            }
+        }
+
+        // Calculate Daily Income
+        function calculateDailyIncome() {
+            let income = 0;
+            
+            gameState.farmAnimals.forEach(animal => {
+                const animalType = animalTypes[animal.type];
+                income += Math.floor(animalType.dailyIncome * (animal.productivity / 100));
+            });
+            
+            gameState.detailedStats.dailyIncome = income;
+        }
+
+        // Check Level Up
+        function checkLevelUp() {
+            while (gameState.experience >= gameState.experienceToNext) {
+                gameState.experience -= gameState.experienceToNext;
+                gameState.level++;
+                gameState.experienceToNext = Math.floor(gameState.experienceToNext * 1.5);
+                
+                showNotification(`Level Up! You are now level ${gameState.level}!`, 'success');
+                
+                // Level up rewards
+                gameState.money += gameState.level * 50;
+                gameState.happiness = Math.min(100, gameState.happiness + 10);
+            }
+        }
+
+        // Check Achievements
+        function checkAchievements() {
+            achievements.forEach(achievement => {
+                if (!gameState.achievements.includes(achievement.id) && achievement.condition()) {
+                    gameState.achievements.push(achievement.id);
+                    gameState.stats.achievements++;
+                    gameState.detailedStats.totalAchievements++;
+                    
+                    showNotification(`🏆 Achievement Unlocked: ${achievement.name}!`, 'success');
+                    
+                    // Add to farm log
+                    gameState.farmLog.unshift({
+                        day: gameState.day,
+                        season: gameState.season,
+                        action: `Achievement: ${achievement.name}`,
+                        type: 'achievement'
+                    });
+                }
+            });
+        }
+
+        // Show Notification
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-600',
+                error: 'bg-red-600',
+                info: 'bg-blue-600',
+                warning: 'bg-yellow-600'
+            };
+            
+            notification.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg notification-slide max-w-sm`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        // Show Crop Details
+        function showCropDetails() {
+            const modal = document.getElementById('cropModal');
+            const content = document.getElementById('cropModalContent');
+            
+            if (gameState.activeCrops.length === 0) {
+                content.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🌱</div>
+                        <p class="title-font text-xl">No active crops</p>
+                        <p class="text-sm">Plant some seeds to get started!</p>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        ${gameState.activeCrops.map(crop => {
+                            const cropType = cropTypes[crop.type];
+                            return `
+                                <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center gap-4">
+                                            <div class="text-3xl">${cropType.icon}</div>
+                                            <div>
+                                                <h4 class="font-bold title-font text-green-400">${cropType.name}</h4>
+                                                <p class="text-gray-300 text-sm">${cropType.description}</p>
+                                                <p class="text-xs text-gray-400">Planted on day ${crop.plantedDay}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            ${crop.ready ? 
+                                                '<div class="text-green-400 font-bold">READY!</div>' :
+                                                `<div class="text-yellow-400">${Math.ceil(crop.daysLeft)} days left</div>`
+                                            }
+                                            <div class="text-sm text-gray-400">Sell: ${cropType.sellPrice} coins</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Crop Modal
+        function closeCropModal() {
+            const modal = document.getElementById('cropModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Show Achievement Details
+        function showAchievementDetails() {
+            const modal = document.getElementById('achievementModal');
+            const content = document.getElementById('achievementModalContent');
+            
+            if (gameState.achievements.length === 0) {
+                content.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-6xl mb-4">🏆</div>
+                        <p class="title-font text-xl">No achievements yet</p>
+                        <p class="text-sm">Keep farming to unlock achievements!</p>
+                    </div>
+                `;
+            } else {
+                const earnedAchievements = achievements.filter(a => gameState.achievements.includes(a.id));
+                const lockedAchievements = achievements.filter(a => !gameState.achievements.includes(a.id));
+                
+                content.innerHTML = `
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-bold title-font text-green-400 mb-4">🏆 EARNED ACHIEVEMENTS</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                ${earnedAchievements.map(achievement => `
+                                    <div class="bg-green-600/20 rounded-lg p-4 border border-green-500/30">
+                                        <div class="flex items-center gap-4">
+                                            <div class="text-3xl">${achievement.icon}</div>
+                                            <div>
+                                                <h4 class="font-bold title-font text-green-400">${achievement.name}</h4>
+                                                <p class="text-gray-300 text-sm">${achievement.description}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold title-font text-gray-400 mb-4">🔒 LOCKED ACHIEVEMENTS</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                ${lockedAchievements.map(achievement => `
+                                    <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-600/30">
+                                        <div class="flex items-center gap-4">
+                                            <div class="text-3xl opacity-50">${achievement.icon}</div>
+                                            <div>
+                                                <h4 class="font-bold title-font text-gray-400">${achievement.name}</h4>
+                                                <p class="text-gray-500 text-sm">${achievement.description}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close Achievement Modal
+        function closeAchievementModal() {
+            const modal = document.getElementById('achievementModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Update Weather Info Display
+        function updateWeatherInfo() {
+            const container = document.getElementById('weatherInfo');
+            const weather = weatherTypes[gameState.weather];
+            
+            container.innerHTML = `
+                <div class="flex items-center gap-6 mb-4">
+                    <div class="text-6xl weather-icon">${weather.icon}</div>
+                    <div>
+                        <h3 class="text-2xl font-bold title-font">${weather.name}</h3>
+                        <p class="text-gray-300 text-lg">${weather.effect}</p>
+                        <div class="text-sm text-blue-400 mt-2">Current Season: ${gameState.season}</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-blue-600/20 to-green-600/20 rounded-xl p-4 border border-blue-500/30">
+                    <h4 class="font-bold title-font text-blue-400 mb-2">🌡️ SEASONAL EFFECTS</h4>
+                    <p class="text-white text-sm">
+                        ${getSeasonalEffects()}
+                    </p>
+                </div>
+            `;
+        }
+
+        // Get Seasonal Effects
+        function getSeasonalEffects() {
+            const effects = {
+                Spring: 'Perfect growing conditions! All crops grow 10% faster.',
+                Summer: 'Hot weather increases animal product quality by 15%.',
+                Fall: 'Harvest season! Crop prices increased by 20%.',
+                Winter: 'Cold weather slows growth by 25%, but animals produce premium products.'
+            };
+            return effects[gameState.season];
+        }
+
+        // Update UI
+        function updateUI() {
+            // Header stats
+            document.getElementById('money').textContent = gameState.money.toLocaleString();
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('experience').textContent = gameState.experience;
+            document.getElementById('season').textContent = gameState.season;
+            document.getElementById('day').textContent = gameState.day;
+            document.getElementById('weatherIcon').textContent = weatherTypes[gameState.weather].icon;
+            
+            // Farmer profile
+            document.getElementById('energy').textContent = gameState.energy;
+            document.getElementById('happiness').textContent = gameState.happiness;
+            document.getElementById('farmStatus').textContent = getFarmStatus();
+            
+            // Stats
+            document.getElementById('cropsStat').textContent = gameState.stats.crops;
+            document.getElementById('animalsStat').textContent = gameState.stats.animals;
+            document.getElementById('buildingsStat').textContent = gameState.stats.buildings;
+            document.getElementById('achievementsStat').textContent = gameState.stats.achievements;
+            
+            // Experience bar
+            const expPercent = (gameState.experience / gameState.experienceToNext) * 100;
+            document.getElementById('expBar').style.width = expPercent + '%';
+            document.getElementById('expProgress').textContent = `${gameState.experience} / ${gameState.experienceToNext} XP`;
+            
+            // Detailed stats
+            for (const [stat, value] of Object.entries(gameState.detailedStats)) {
+                const element = document.getElementById(stat);
+                if (element) {
+                    if (stat === 'dailyIncome') {
+                        element.textContent = '$' + value;
+                    } else if (stat.includes('Percent') || stat === 'cropYield' || stat === 'animalHappiness' || stat === 'farmEfficiency') {
+                        element.textContent = value + '%';
+                    } else {
+                        element.textContent = value;
+                    }
+                }
+            }
+            
+            updateWeatherInfo();
+            updateActiveCropsDisplay();
+            updateFarmAnimalsDisplay();
+            updateAchievementsDisplay();
+            updateFarmLogDisplay();
+        }
+
+        // Get Farm Status
+        function getFarmStatus() {
+            if (gameState.level >= 10) return 'MASTER FARM';
+            if (gameState.level >= 7) return 'THRIVING';
+            if (gameState.level >= 5) return 'PROSPEROUS';
+            if (gameState.level >= 3) return 'GROWING';
+            return 'STARTING';
+        }
+
+        // Update Active Crops Display
+        function updateActiveCropsDisplay() {
+            const container = document.getElementById('activeCropsContainer');
+            
+            if (gameState.activeCrops.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🌱</div>
+                        <p class="title-font">No crops planted</p>
+                        <p class="text-sm">Plant some seeds to get started!</p>
+                    </div>
+                `;
+            } else {
+                const recentCrops = gameState.activeCrops.slice(0, 4);
+                container.innerHTML = recentCrops.map(crop => {
+                    const cropType = cropTypes[crop.type];
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-green-500/30 crop-planting">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-2xl">${cropType.icon}</div>
+                                    <div>
+                                        <h4 class="font-bold title-font text-green-400">${cropType.name}</h4>
+                                        <p class="text-xs text-gray-400">Day ${crop.plantedDay}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    ${crop.ready ? 
+                                        '<div class="text-green-400 font-bold harvest-celebration">READY!</div>' :
+                                        `<div class="text-yellow-400">${Math.ceil(crop.daysLeft)}d left</div>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Farm Animals Display
+        function updateFarmAnimalsDisplay() {
+            const container = document.getElementById('farmAnimalsContainer');
+            
+            if (gameState.farmAnimals.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🐄</div>
+                        <p class="title-font">No animals yet</p>
+                        <p class="text-sm">Buy some animals to start producing!</p>
+                    </div>
+                `;
+            } else {
+                const recentAnimals = gameState.farmAnimals.slice(0, 4);
+                container.innerHTML = recentAnimals.map(animal => {
+                    const animalType = animalTypes[animal.type];
+                    return `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-yellow-500/30">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-2xl">${animalType.icon}</div>
+                                    <div>
+                                        <h4 class="font-bold title-font text-yellow-400">${animalType.name}</h4>
+                                        <p class="text-xs text-gray-400">Produces ${animalType.product}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-green-400 text-sm">${animal.happiness}% happy</div>
+                                    <div class="text-blue-400 text-xs">${animal.productivity}% productive</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Achievements Display
+        function updateAchievementsDisplay() {
+            const container = document.getElementById('achievementsContainer');
+            
+            if (gameState.achievements.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">🏆</div>
+                        <p class="title-font">No achievements yet</p>
+                        <p class="text-sm">Start farming to unlock achievements!</p>
+                    </div>
+                `;
+            } else {
+                const recentAchievements = gameState.achievements.slice(0, 3);
+                container.innerHTML = recentAchievements.map(achievementId => {
+                    const achievement = achievements.find(a => a.id === achievementId);
+                    if (!achievement) return '';
+                    return `
+                        <div class="bg-purple-600/20 rounded-lg p-4 border border-purple-500/30 level-unlock">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold title-font">${achievement.icon} ${achievement.name}</h4>
+                                    <p class="text-sm text-gray-400">${achievement.description}</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-purple-400">EARNED</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Update Farm Log Display
+        function updateFarmLogDisplay() {
+            const container = document.getElementById('farmLogContainer');
+            
+            if (gameState.farmLog.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-400">
+                        <div class="text-3xl mb-2">📝</div>
+                        <p class="title-font">Welcome to your farm!</p>
+                        <p class="text-sm">Your farming activities will be logged here.</p>
+                    </div>
+                `;
+            } else {
+                const recentLog = gameState.farmLog.slice(0, 4);
+                container.innerHTML = recentLog.map(log => `
+                    <div class="bg-gray-800/50 rounded-lg p-3 border border-orange-500/30">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold title-font text-orange-400 text-sm">${log.action}</h4>
+                            <span class="text-xs text-gray-400">${log.season} Day ${log.day}</span>
+                        </div>
+                        <div class="text-xs text-orange-400 capitalize">${log.type}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize Game
+        function initGame() {
+            initFloatingElements();
+            updateUI();
+            
+            // Welcome message
+            showNotification('Welcome to your farm! Plant crops, raise animals, and build your agricultural empire!', 'info');
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9757946d839722a2',t:'MTc1NjI1NTg3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
