@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruise Ship Tycoon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .ocean-bg { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%); }
+        .ship-card { transition: all 0.3s ease; }
+        .ship-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .money-animation { animation: moneyFloat 1s ease-out; }
+        @keyframes moneyFloat { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+        .wave { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/svg%3E"); background-size: cover; height: 60px; }
+    </style>
+</head>
+<body class="ocean-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/10 backdrop-blur-sm text-white py-4 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🚢</div>
+                <h1 class="text-2xl font-bold">Cruise Ship Tycoon</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">💰</span>
+                    <span class="text-xl font-bold" id="money">$50,000</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">👥</span>
+                    <span class="text-lg" id="reputation">0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">⭐</span>
+                    <span class="text-lg" id="level">1</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Wave Animation -->
+    <div class="wave"></div>
+
+    <!-- Main Game Area -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Fleet Overview -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">🚢 Your Fleet</h2>
+                <button onclick="showShipStore()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                    Buy New Ship
+                </button>
+            </div>
+            
+            <div id="fleetContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-center py-12 text-gray-500">
+                    <div class="text-6xl mb-4">🌊</div>
+                    <p class="text-lg">No ships yet! Buy your first cruise ship to start your empire.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ship Store Modal -->
+        <div id="shipStore" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">🛒 Ship Store</h2>
+                    <button onclick="hideShipStore()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Small Cruise Ship -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 ship-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🛥️</div>
+                            <h3 class="text-xl font-bold">Small Cruise Ship</h3>
+                            <p class="text-gray-600">Perfect for starting your cruise empire</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">500 passengers</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income/Trip:</span>
+                                <span class="font-semibold text-green-600">$2,500</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Trip Duration:</span>
+                                <span class="font-semibold">10 seconds</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$200/trip</span>
+                            </div>
+                        </div>
+                        <button onclick="buyShip('small')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Buy for $25,000
+                        </button>
+                    </div>
+
+                    <!-- Medium Cruise Ship -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 ship-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🚢</div>
+                            <h3 class="text-xl font-bold">Medium Cruise Ship</h3>
+                            <p class="text-gray-600">More passengers, more profit</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">1,200 passengers</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income/Trip:</span>
+                                <span class="font-semibold text-green-600">$6,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Trip Duration:</span>
+                                <span class="font-semibold">15 seconds</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$500/trip</span>
+                            </div>
+                        </div>
+                        <button onclick="buyShip('medium')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Buy for $75,000
+                        </button>
+                    </div>
+
+                    <!-- Large Cruise Ship -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 ship-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🛳️</div>
+                            <h3 class="text-xl font-bold">Large Cruise Ship</h3>
+                            <p class="text-gray-600">Luxury cruising experience</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">2,500 passengers</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income/Trip:</span>
+                                <span class="font-semibold text-green-600">$15,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Trip Duration:</span>
+                                <span class="font-semibold">20 seconds</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$1,200/trip</span>
+                            </div>
+                        </div>
+                        <button onclick="buyShip('large')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Buy for $200,000
+                        </button>
+                    </div>
+
+                    <!-- Mega Cruise Ship -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6 ship-card">
+                        <div class="text-center mb-4">
+                            <div class="text-6xl mb-2">🚢</div>
+                            <h3 class="text-xl font-bold">Mega Cruise Ship</h3>
+                            <p class="text-gray-600">The ultimate floating city</p>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between">
+                                <span>Capacity:</span>
+                                <span class="font-semibold">5,000 passengers</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Income/Trip:</span>
+                                <span class="font-semibold text-green-600">$35,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Trip Duration:</span>
+                                <span class="font-semibold">30 seconds</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$3,000/trip</span>
+                            </div>
+                        </div>
+                        <button onclick="buyShip('mega')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                            Buy for $500,000
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrades & Research -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Upgrades -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">🔧 Upgrades</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                        <div>
+                            <h3 class="font-semibold">Fuel Efficiency</h3>
+                            <p class="text-sm text-gray-600">Reduce maintenance costs by 10%</p>
+                        </div>
+                        <button onclick="buyUpgrade('fuel')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                            $10,000
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                        <div>
+                            <h3 class="font-semibold">Luxury Amenities</h3>
+                            <p class="text-sm text-gray-600">Increase income per trip by 15%</p>
+                        </div>
+                        <button onclick="buyUpgrade('luxury')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                            $25,000
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                        <div>
+                            <h3 class="font-semibold">Speed Boost</h3>
+                            <p class="text-sm text-gray-600">Reduce trip duration by 20%</p>
+                        </div>
+                        <button onclick="buyUpgrade('speed')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                            $50,000
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">📊 Statistics</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Ships:</span>
+                        <span class="font-bold text-xl" id="totalShips">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Passengers:</span>
+                        <span class="font-bold text-xl" id="totalPassengers">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Revenue:</span>
+                        <span class="font-bold text-xl text-green-600" id="totalRevenue">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Trips Completed:</span>
+                        <span class="font-bold text-xl" id="tripsCompleted">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Income per Second:</span>
+                        <span class="font-bold text-xl text-blue-600" id="incomePerSecond">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🏆 Achievements</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="achievementsContainer">
+                <!-- Achievements will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Game State
+        let gameState = {
+            money: 50000,
+            reputation: 0,
+            level: 1,
+            ships: [],
+            upgrades: {
+                fuel: 0,
+                luxury: 0,
+                speed: 0
+            },
+            stats: {
+                totalRevenue: 0,
+                tripsCompleted: 0,
+                totalPassengers: 0
+            },
+            achievements: []
+        };
+
+        // Ship Types
+        const shipTypes = {
+            small: {
+                name: 'Small Cruise Ship',
+                emoji: '🛥️',
+                cost: 25000,
+                capacity: 500,
+                baseIncome: 2500,
+                baseDuration: 10000,
+                maintenance: 200
+            },
+            medium: {
+                name: 'Medium Cruise Ship',
+                emoji: '🚢',
+                cost: 75000,
+                capacity: 1200,
+                baseIncome: 6000,
+                baseDuration: 15000,
+                maintenance: 500
+            },
+            large: {
+                name: 'Large Cruise Ship',
+                emoji: '🛳️',
+                cost: 200000,
+                capacity: 2500,
+                baseIncome: 15000,
+                baseDuration: 20000,
+                maintenance: 1200
+            },
+            mega: {
+                name: 'Mega Cruise Ship',
+                emoji: '🚢',
+                cost: 500000,
+                capacity: 5000,
+                baseIncome: 35000,
+                baseDuration: 30000,
+                maintenance: 3000
+            }
+        };
+
+        // Achievements
+        const achievements = [
+            { id: 'first_ship', name: 'Captain', description: 'Buy your first ship', icon: '⚓', unlocked: false },
+            { id: 'millionaire', name: 'Millionaire', description: 'Earn $1,000,000', icon: '💰', unlocked: false },
+            { id: 'fleet_commander', name: 'Fleet Commander', description: 'Own 5 ships', icon: '🚢', unlocked: false },
+            { id: 'passenger_king', name: 'Passenger King', description: 'Transport 100,000 passengers', icon: '👥', unlocked: false }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            updateUI();
+            renderAchievements();
+            setInterval(updateStats, 1000);
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('money').textContent = '$' + gameState.money.toLocaleString();
+            document.getElementById('reputation').textContent = gameState.reputation.toLocaleString();
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('totalShips').textContent = gameState.ships.length;
+            document.getElementById('totalPassengers').textContent = gameState.stats.totalPassengers.toLocaleString();
+            document.getElementById('totalRevenue').textContent = '$' + gameState.stats.totalRevenue.toLocaleString();
+            document.getElementById('tripsCompleted').textContent = gameState.stats.tripsCompleted.toLocaleString();
+            
+            // Calculate income per second
+            let incomePerSecond = 0;
+            gameState.ships.forEach(ship => {
+                const shipType = shipTypes[ship.type];
+                const income = calculateIncome(shipType.baseIncome);
+                const maintenance = calculateMaintenance(shipType.maintenance);
+                const duration = calculateDuration(shipType.baseDuration);
+                incomePerSecond += (income - maintenance) / (duration / 1000);
+            });
+            document.getElementById('incomePerSecond').textContent = '$' + Math.round(incomePerSecond).toLocaleString();
+            
+            renderFleet();
+        }
+
+        // Show/Hide Ship Store
+        function showShipStore() {
+            document.getElementById('shipStore').classList.remove('hidden');
+            document.getElementById('shipStore').classList.add('flex');
+        }
+
+        function hideShipStore() {
+            document.getElementById('shipStore').classList.add('hidden');
+            document.getElementById('shipStore').classList.remove('flex');
+        }
+
+        // Buy Ship
+        function buyShip(type) {
+            const shipType = shipTypes[type];
+            if (gameState.money >= shipType.cost) {
+                gameState.money -= shipType.cost;
+                const ship = {
+                    id: Date.now(),
+                    type: type,
+                    status: 'idle',
+                    tripProgress: 0
+                };
+                gameState.ships.push(ship);
+                
+                // Check achievements
+                checkAchievement('first_ship');
+                if (gameState.ships.length >= 5) checkAchievement('fleet_commander');
+                
+                updateUI();
+                hideShipStore();
+                showMoneyAnimation(-shipType.cost);
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        // Calculate modified values based on upgrades
+        function calculateIncome(baseIncome) {
+            return Math.round(baseIncome * (1 + gameState.upgrades.luxury * 0.15));
+        }
+
+        function calculateMaintenance(baseMaintenance) {
+            return Math.round(baseMaintenance * (1 - gameState.upgrades.fuel * 0.1));
+        }
+
+        function calculateDuration(baseDuration) {
+            return Math.round(baseDuration * (1 - gameState.upgrades.speed * 0.2));
+        }
+
+        // Start Trip
+        function startTrip(shipId) {
+            const ship = gameState.ships.find(s => s.id === shipId);
+            if (ship && ship.status === 'idle') {
+                ship.status = 'sailing';
+                ship.tripProgress = 0;
+                
+                const shipType = shipTypes[ship.type];
+                const duration = calculateDuration(shipType.baseDuration);
+                
+                const interval = setInterval(() => {
+                    ship.tripProgress += 100;
+                    if (ship.tripProgress >= duration) {
+                        clearInterval(interval);
+                        completeTrip(shipId);
+                    }
+                    updateUI();
+                }, 100);
+            }
+        }
+
+        // Complete Trip
+        function completeTrip(shipId) {
+            const ship = gameState.ships.find(s => s.id === shipId);
+            const shipType = shipTypes[ship.type];
+            
+            const income = calculateIncome(shipType.baseIncome);
+            const maintenance = calculateMaintenance(shipType.maintenance);
+            const profit = income - maintenance;
+            
+            gameState.money += profit;
+            gameState.stats.totalRevenue += income;
+            gameState.stats.tripsCompleted++;
+            gameState.stats.totalPassengers += shipType.capacity;
+            gameState.reputation += Math.floor(shipType.capacity / 100);
+            
+            ship.status = 'idle';
+            ship.tripProgress = 0;
+            
+            // Check achievements
+            if (gameState.stats.totalRevenue >= 1000000) checkAchievement('millionaire');
+            if (gameState.stats.totalPassengers >= 100000) checkAchievement('passenger_king');
+            
+            showMoneyAnimation(profit);
+            updateUI();
+        }
+
+        // Buy Upgrade
+        function buyUpgrade(type) {
+            const costs = { fuel: 10000, luxury: 25000, speed: 50000 };
+            const cost = costs[type] * (gameState.upgrades[type] + 1);
+            
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                gameState.upgrades[type]++;
+                updateUI();
+                showMoneyAnimation(-cost);
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        // Render Fleet
+        function renderFleet() {
+            const container = document.getElementById('fleetContainer');
+            
+            if (gameState.ships.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <div class="text-6xl mb-4">🌊</div>
+                        <p class="text-lg">No ships yet! Buy your first cruise ship to start your empire.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = gameState.ships.map(ship => {
+                const shipType = shipTypes[ship.type];
+                const income = calculateIncome(shipType.baseIncome);
+                const maintenance = calculateMaintenance(shipType.maintenance);
+                const duration = calculateDuration(shipType.baseDuration);
+                const profit = income - maintenance;
+                
+                let statusDisplay = '';
+                let actionButton = '';
+                
+                if (ship.status === 'idle') {
+                    statusDisplay = '<span class="text-green-600 font-semibold">⚓ Docked</span>';
+                    actionButton = `<button onclick="startTrip(${ship.id})" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-colors">Start Cruise</button>`;
+                } else {
+                    const progress = (ship.tripProgress / duration) * 100;
+                    statusDisplay = `<span class="text-blue-600 font-semibold">🌊 Sailing (${Math.round(progress)}%)</span>`;
+                    actionButton = `
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                            <div class="bg-blue-600 h-3 rounded-full transition-all duration-100" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600 text-center">Trip in progress...</div>
+                    `;
+                }
+                
+                return `
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-6 ship-card">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl mb-2">${shipType.emoji}</div>
+                            <h3 class="font-bold text-lg">${shipType.name}</h3>
+                            <p class="text-sm text-gray-600">${shipType.capacity} passengers</p>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4 text-sm">
+                            <div class="flex justify-between">
+                                <span>Income:</span>
+                                <span class="font-semibold text-green-600">$${income.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Maintenance:</span>
+                                <span class="font-semibold text-red-600">$${maintenance.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Profit:</span>
+                                <span class="font-semibold text-blue-600">$${profit.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Duration:</span>
+                                <span class="font-semibold">${duration/1000}s</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 text-center">
+                            ${statusDisplay}
+                        </div>
+                        
+                        ${actionButton}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Show Money Animation
+        function showMoneyAnimation(amount) {
+            const moneyElement = document.getElementById('money');
+            const animationElement = document.createElement('div');
+            animationElement.className = 'absolute text-xl font-bold money-animation';
+            animationElement.style.color = amount > 0 ? '#10b981' : '#ef4444';
+            animationElement.textContent = (amount > 0 ? '+' : '') + '$' + Math.abs(amount).toLocaleString();
+            animationElement.style.left = '50%';
+            animationElement.style.transform = 'translateX(-50%)';
+            
+            moneyElement.parentElement.style.position = 'relative';
+            moneyElement.parentElement.appendChild(animationElement);
+            
+            setTimeout(() => {
+                animationElement.remove();
+            }, 1000);
+        }
+
+        // Check Achievement
+        function checkAchievement(id) {
+            const achievement = achievements.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                gameState.achievements.push(id);
+                showAchievementNotification(achievement);
+                renderAchievements();
+            }
+        }
+
+        // Show Achievement Notification
+        function showAchievementNotification(achievement) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-yellow-400 text-black p-4 rounded-xl shadow-xl z-50 transform translate-x-full transition-transform duration-500';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">${achievement.icon}</span>
+                    <div>
+                        <div class="font-bold">Achievement Unlocked!</div>
+                        <div class="text-sm">${achievement.name}: ${achievement.description}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Render Achievements
+        function renderAchievements() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-xl ${achievement.unlocked ? 'bg-yellow-100 border-2 border-yellow-300' : 'bg-gray-100 border-2 border-gray-200'} text-center">
+                    <div class="text-3xl mb-2 ${achievement.unlocked ? '' : 'grayscale opacity-50'}">${achievement.icon}</div>
+                    <h3 class="font-semibold text-sm ${achievement.unlocked ? 'text-yellow-800' : 'text-gray-600'}">${achievement.name}</h3>
+                    <p class="text-xs ${achievement.unlocked ? 'text-yellow-700' : 'text-gray-500'}">${achievement.description}</p>
+                    ${achievement.unlocked ? '<div class="text-xs text-yellow-600 font-semibold mt-1">✓ UNLOCKED</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Update Stats
+        function updateStats() {
+            // Level up based on reputation
+            const newLevel = Math.floor(gameState.reputation / 1000) + 1;
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                gameState.money += gameState.level * 5000; // Level up bonus
+                showMoneyAnimation(gameState.level * 5000);
+            }
+            
+            updateUI();
+        }
+
+        // Start the game
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972ea9ce3587f947',t:'MTc1NTgyNjgzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
