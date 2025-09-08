@@ -191,6 +191,7 @@
         <div class="toolbar">
             <div class="tool-group">
                 <button class="tool-btn active" id="drawBtn">✏️ Draw</button>
+                <button class="tool-btn" id="vanishBtn">👻 Vanish</button>
                 <button class="tool-btn" id="textBtn">📝 Text</button>
                 <button class="tool-btn" id="shapeBtn">🔷 Shapes</button>
             </div>
@@ -199,13 +200,22 @@
                 <button class="tool-btn active" id="lineBtn">📏 Line</button>
                 <button class="tool-btn" id="arrowBtn">➡️ Arrow</button>
                 <button class="tool-btn" id="rectBtn">⬜ Rectangle</button>
-                <button class="tool-btn" id="rectFilledBtn">⬛ Filled Rect</button>
                 <button class="tool-btn" id="circleBtn">⭕ Circle</button>
-                <button class="tool-btn" id="circleFilledBtn">⚫ Filled Circle</button>
+            </div>
+            
+            <div class="tool-group" id="shapeSettings" style="display: none;">
+                <label class="tool-btn">
+                    <input type="checkbox" id="fillShape" style="margin-right: 4px;">
+                    Fill
+                </label>
             </div>
             
             <div class="tool-group">
                 <input type="color" class="color-picker" id="colorPicker" value="#000000">
+                <div class="slider-container">
+                    <input type="range" class="slider" id="opacity" min="0.1" max="1" step="0.1" value="1">
+                    <span class="slider-label">Opacity</span>
+                </div>
             </div>
             
             <div class="tool-group">
@@ -228,9 +238,9 @@
             </div>
             
             <div class="tool-group">
-                <button class="tool-btn" id="zoomOutBtn">🔍-</button>
-                <button class="tool-btn" id="resetZoomBtn">100%</button>
-                <button class="tool-btn" id="zoomInBtn">🔍+</button>
+                <button class="tool-btn" id="exportBtn">💾 Export</button>
+                <button class="tool-btn" id="importBtn">📁 Import</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
             </div>
             
             <div class="tool-group">
@@ -238,6 +248,7 @@
                 <span class="page-indicator" id="pageIndicator">Page 1</span>
                 <button class="tool-btn" id="nextPageBtn">▶</button>
                 <button class="tool-btn" id="addPageBtn">+ Page</button>
+                <button class="tool-btn" id="deletePageBtn">🗑️ Page</button>
             </div>
             
             <div class="tool-group">
@@ -265,7 +276,11 @@
                 this.currentColor = '#000000';
                 this.penThickness = 3;
                 this.fontSize = 16;
-                this.zoom = 1;
+                this.opacity = 1;
+                
+                // Vanishing pen support
+                this.vanishingStrokes = [];
+                this.vanishingTimeout = 3000; // 3 seconds
                 
                 // Shape drawing variables
                 this.isDrawingShape = false;
@@ -345,6 +360,7 @@
             setupTools() {
                 // Tool buttons
                 document.getElementById('drawBtn').addEventListener('click', () => this.setTool('draw'));
+                document.getElementById('vanishBtn').addEventListener('click', () => this.setTool('vanish'));
                 document.getElementById('textBtn').addEventListener('click', () => this.setTool('text'));
                 document.getElementById('shapeBtn').addEventListener('click', () => this.setTool('shape'));
                 
@@ -352,9 +368,7 @@
                 document.getElementById('lineBtn').addEventListener('click', () => this.setShape('line'));
                 document.getElementById('arrowBtn').addEventListener('click', () => this.setShape('arrow'));
                 document.getElementById('rectBtn').addEventListener('click', () => this.setShape('rectangle'));
-                document.getElementById('rectFilledBtn').addEventListener('click', () => this.setShape('rectangleFilled'));
                 document.getElementById('circleBtn').addEventListener('click', () => this.setShape('circle'));
-                document.getElementById('circleFilledBtn').addEventListener('click', () => this.setShape('circleFilled'));
                 
                 // Color picker
                 document.getElementById('colorPicker').addEventListener('change', (e) => {
@@ -371,19 +385,25 @@
                     this.fontSize = e.target.value;
                 });
                 
+                // Opacity
+                document.getElementById('opacity').addEventListener('input', (e) => {
+                    this.opacity = e.target.value;
+                });
+                
                 // Undo/Redo buttons
                 document.getElementById('undoBtn').addEventListener('click', () => this.undo());
                 document.getElementById('redoBtn').addEventListener('click', () => this.redo());
                 
-                // Zoom buttons
-                document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
-                document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
-                document.getElementById('resetZoomBtn').addEventListener('click', () => this.resetZoom());
+                // Import/Export buttons
+                document.getElementById('exportBtn').addEventListener('click', () => this.exportWhiteboard());
+                document.getElementById('importBtn').addEventListener('click', () => this.importWhiteboard());
+                document.getElementById('importFile').addEventListener('change', (e) => this.handleImportFile(e));
                 
                 // Page navigation
                 document.getElementById('prevPageBtn').addEventListener('click', () => this.previousPage());
                 document.getElementById('nextPageBtn').addEventListener('click', () => this.nextPage());
                 document.getElementById('addPageBtn').addEventListener('click', () => this.addPage());
+                document.getElementById('deletePageBtn').addEventListener('click', () => this.deletePage());
                 
                 // Clear button
                 document.getElementById('clearBtn').addEventListener('click', () => this.clearCanvas());
@@ -401,12 +421,15 @@
                 document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
                 document.getElementById(tool + 'Btn').classList.add('active');
                 
-                // Show/hide shape tools
+                // Show/hide shape tools and settings
                 const shapeTools = document.getElementById('shapeTools');
+                const shapeSettings = document.getElementById('shapeSettings');
                 if (tool === 'shape') {
                     shapeTools.style.display = 'flex';
+                    shapeSettings.style.display = 'flex';
                 } else {
                     shapeTools.style.display = 'none';
+                    shapeSettings.style.display = 'none';
                 }
                 
                 // Update cursor
@@ -422,13 +445,7 @@
                 
                 // Update shape button states
                 document.querySelectorAll('#shapeTools .tool-btn').forEach(btn => btn.classList.remove('active'));
-                if (shape === 'rectangleFilled') {
-                    document.getElementById('rectFilledBtn').classList.add('active');
-                } else if (shape === 'circleFilled') {
-                    document.getElementById('circleFilledBtn').classList.add('active');
-                } else {
-                    document.getElementById(shape + 'Btn').classList.add('active');
-                }
+                document.getElementById(shape + 'Btn').classList.add('active');
             }
             
             saveState() {
@@ -468,15 +485,26 @@
             
             startDrawing(e) {
                 const rect = this.canvas.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / this.zoom;
-                const y = (e.clientY - rect.top) / this.zoom;
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
-                if (this.currentTool === 'draw') {
+                if (this.currentTool === 'draw' || this.currentTool === 'vanish') {
                     this.isDrawing = true;
                     this.ctx.beginPath();
                     this.ctx.moveTo(x, y);
                     this.ctx.strokeStyle = this.currentColor;
                     this.ctx.lineWidth = this.penThickness;
+                    this.ctx.globalAlpha = this.opacity;
+                    
+                    if (this.currentTool === 'vanish') {
+                        this.currentStroke = {
+                            points: [{x, y}],
+                            color: this.currentColor,
+                            thickness: this.penThickness,
+                            opacity: this.opacity,
+                            timestamp: Date.now()
+                        };
+                    }
                 } else if (this.currentTool === 'shape') {
                     this.isDrawingShape = true;
                     this.shapeStartX = x;
@@ -486,12 +514,16 @@
             
             draw(e) {
                 const rect = this.canvas.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / this.zoom;
-                const y = (e.clientY - rect.top) / this.zoom;
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
-                if (this.isDrawing && this.currentTool === 'draw') {
+                if (this.isDrawing && (this.currentTool === 'draw' || this.currentTool === 'vanish')) {
                     this.ctx.lineTo(x, y);
                     this.ctx.stroke();
+                    
+                    if (this.currentTool === 'vanish' && this.currentStroke) {
+                        this.currentStroke.points.push({x, y});
+                    }
                 } else if (this.isDrawingShape && this.currentTool === 'shape') {
                     this.drawShapePreview(this.shapeStartX, this.shapeStartY, x, y);
                 }
@@ -501,16 +533,26 @@
                 if (this.isDrawing) {
                     this.isDrawing = false;
                     this.ctx.beginPath();
+                    this.ctx.globalAlpha = 1; // Reset alpha
+                    
+                    if (this.currentTool === 'vanish' && this.currentStroke) {
+                        this.vanishingStrokes.push(this.currentStroke);
+                        this.scheduleVanish(this.currentStroke);
+                        this.currentStroke = null;
+                    }
+                    
                     this.saveState();
                 } else if (this.isDrawingShape) {
                     const rect = this.canvas.getBoundingClientRect();
-                    const endX = (e.clientX - rect.left) / this.zoom;
-                    const endY = (e.clientY - rect.top) / this.zoom;
+                    const endX = e.clientX - rect.left;
+                    const endY = e.clientY - rect.top;
                     
                     this.ctx.strokeStyle = this.currentColor;
                     this.ctx.fillStyle = this.currentColor;
                     this.ctx.lineWidth = this.penThickness;
+                    this.ctx.globalAlpha = this.opacity;
                     this.drawShape(this.ctx, this.shapeStartX, this.shapeStartY, endX, endY, this.currentShape);
+                    this.ctx.globalAlpha = 1; // Reset alpha
                     
                     this.isDrawingShape = false;
                     this.clearPreview();
@@ -533,8 +575,8 @@
                 if (this.currentTool !== 'text') return;
                 
                 const rect = this.canvas.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / this.zoom;
-                const y = (e.clientY - rect.top) / this.zoom;
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
                 this.createTextInput(x, y);
             }
@@ -544,14 +586,13 @@
                 this.previewCtx.strokeStyle = this.currentColor;
                 this.previewCtx.fillStyle = this.currentColor;
                 this.previewCtx.lineWidth = this.penThickness;
-                this.previewCtx.transform(this.zoom, 0, 0, this.zoom, 0, 0);
                 
                 this.drawShape(this.previewCtx, startX, startY, endX, endY, this.currentShape);
-                this.previewCtx.setTransform(1, 0, 0, 1, 0, 0);
             }
             
             drawShape(ctx, startX, startY, endX, endY, shape) {
                 ctx.beginPath();
+                const isFilled = document.getElementById('fillShape').checked;
                 
                 switch (shape) {
                     case 'line':
@@ -568,13 +609,11 @@
                         const width = endX - startX;
                         const height = endY - startY;
                         ctx.rect(startX, startY, width, height);
-                        ctx.stroke();
-                        break;
-                        
-                    case 'rectangleFilled':
-                        const widthFilled = endX - startX;
-                        const heightFilled = endY - startY;
-                        ctx.fillRect(startX, startY, widthFilled, heightFilled);
+                        if (isFilled) {
+                            ctx.fill();
+                        } else {
+                            ctx.stroke();
+                        }
                         break;
                         
                     case 'circle':
@@ -582,15 +621,11 @@
                         const centerY = (startY + endY) / 2;
                         const radius = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)) / 2;
                         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                        ctx.stroke();
-                        break;
-                        
-                    case 'circleFilled':
-                        const centerXFilled = (startX + endX) / 2;
-                        const centerYFilled = (startY + endY) / 2;
-                        const radiusFilled = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)) / 2;
-                        ctx.arc(centerXFilled, centerYFilled, radiusFilled, 0, 2 * Math.PI);
-                        ctx.fill();
+                        if (isFilled) {
+                            ctx.fill();
+                        } else {
+                            ctx.stroke();
+                        }
                         break;
                 }
             }
@@ -617,24 +652,118 @@
                 this.previewCtx.clearRect(0, 0, this.previewCanvas.width, this.previewCanvas.height);
             }
             
-            zoomIn() {
-                this.zoom = Math.min(this.zoom * 1.2, 5);
-                this.updateZoom();
+            scheduleVanish(stroke) {
+                setTimeout(() => {
+                    this.vanishStroke(stroke);
+                }, this.vanishingTimeout);
             }
             
-            zoomOut() {
-                this.zoom = Math.max(this.zoom / 1.2, 0.1);
-                this.updateZoom();
+            vanishStroke(stroke) {
+                // Remove from vanishing strokes array
+                const index = this.vanishingStrokes.indexOf(stroke);
+                if (index > -1) {
+                    this.vanishingStrokes.splice(index, 1);
+                }
+                
+                // Redraw canvas without this stroke
+                this.redrawCanvas();
             }
             
-            resetZoom() {
-                this.zoom = 1;
-                this.updateZoom();
+            redrawCanvas() {
+                // Clear canvas
+                this.ctx.fillStyle = 'white';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Redraw all remaining vanishing strokes
+                this.vanishingStrokes.forEach(stroke => {
+                    this.ctx.strokeStyle = stroke.color;
+                    this.ctx.lineWidth = stroke.thickness;
+                    this.ctx.globalAlpha = stroke.opacity;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.lineJoin = 'round';
+                    
+                    this.ctx.beginPath();
+                    if (stroke.points.length > 0) {
+                        this.ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+                        for (let i = 1; i < stroke.points.length; i++) {
+                            this.ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+                        }
+                        this.ctx.stroke();
+                    }
+                });
+                
+                this.ctx.globalAlpha = 1; // Reset alpha
             }
             
-            updateZoom() {
-                this.canvas.style.transform = `scale(${this.zoom})`;
-                document.getElementById('resetZoomBtn').textContent = Math.round(this.zoom * 100) + '%';
+            exportWhiteboard() {
+                const whiteboardData = {
+                    pages: this.pages.map(page => page.toDataURL()),
+                    currentPageIndex: this.currentPageIndex,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(whiteboardData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `whiteboard_${new Date().toISOString().slice(0, 10)}.json`;
+                link.click();
+            }
+            
+            importWhiteboard() {
+                document.getElementById('importFile').click();
+            }
+            
+            handleImportFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const whiteboardData = JSON.parse(event.target.result);
+                        this.loadWhiteboardData(whiteboardData);
+                    } catch (error) {
+                        alert('Error loading file: Invalid whiteboard file format');
+                    }
+                };
+                reader.readAsText(file);
+            }
+            
+            loadWhiteboardData(data) {
+                if (!data.pages || !Array.isArray(data.pages)) {
+                    alert('Invalid whiteboard file format');
+                    return;
+                }
+                
+                // Clear current pages
+                this.pages = [];
+                
+                // Load each page
+                const loadPromises = data.pages.map((pageDataUrl, index) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = window.innerWidth;
+                            canvas.height = window.innerHeight;
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                            this.pages[index] = canvas;
+                            resolve();
+                        };
+                        img.src = pageDataUrl;
+                    });
+                });
+                
+                Promise.all(loadPromises).then(() => {
+                    this.currentPageIndex = Math.min(data.currentPageIndex || 0, this.pages.length - 1);
+                    this.loadCurrentPage();
+                    this.updatePageIndicator();
+                });
             }
             
             addPage() {
@@ -689,8 +818,8 @@
                 
                 const textInput = document.createElement('textarea');
                 textInput.className = 'text-input';
-                textInput.style.left = (x * this.zoom) + 'px';
-                textInput.style.top = (y * this.zoom) + 'px';
+                textInput.style.left = x + 'px';
+                textInput.style.top = y + 'px';
                 textInput.style.fontSize = this.fontSize + 'px';
                 textInput.style.color = this.currentColor;
                 textInput.style.width = '200px';
@@ -781,5 +910,5 @@
             whiteboard.updateUndoRedoButtons();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bae11e910ffa2a',t:'MTc1NzI5NzExMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97baf38400d37adc',t:'MTc1NzI5Nzg2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
