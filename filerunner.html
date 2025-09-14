@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileRunner - Universal File Executor</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .file-item:hover { transform: translateY(-2px); }
+        .drag-zone.drag-over { 
+            border-color: #10b981; 
+            background-color: #ecfdf5; 
+            transform: scale(1.02);
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .runner-frame {
+            border: none;
+            border-radius: 12px;
+            background: #000;
+        }
+        .code-editor {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #f8f8f2;
+        }
+        .terminal {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+        .syntax-highlight {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen font-sans">
+    <!-- Back to Main Button -->
+    <div class="fixed top-4 right-4 z-50">
+        <a href="main.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors flex items-center space-x-2 text-sm">
+            <span>←</span>
+            <span>Back to Main</span>
+        </a>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-green-500">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">⚡</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">FileRunner</h1>
+                        <p class="text-sm text-gray-600">Universal File Executor & Code Runner</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-600">
+                        <span id="file-count">0 Files</span> • <span class="text-green-600">Ready to Execute</span>
+                    </div>
+                    <button onclick="clearAllFiles()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Upload & Code Editor Section -->
+            <div class="lg:col-span-1">
+                <!-- File Upload -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        📁 Load Files
+                    </h2>
+                    
+                    <div id="drop-zone" class="drag-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-all duration-300 cursor-pointer hover:border-green-400"
+                         ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('file-input').click()">
+                        <div class="text-3xl mb-3">📂</div>
+                        <p class="text-gray-600 mb-2">Drop files or click to browse</p>
+                        <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                            Choose Files
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="file-input" multiple class="hidden" onchange="handleFileSelect(event)">
+                    
+                    <div id="upload-progress" class="mt-4 hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-600">Loading...</span>
+                            <span id="progress-percent" class="text-sm text-green-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progress-bar" class="progress-bar bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Code Editor -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">⚡ Quick Code Runner</h3>
+                    <div class="mb-3">
+                        <select id="code-language" class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <option value="html">HTML</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="css">CSS Demo</option>
+                            <option value="python">Python (Simulated)</option>
+                            <option value="json">JSON Viewer</option>
+                        </select>
+                    </div>
+                    <textarea id="code-editor" class="code-editor w-full h-32 p-3 rounded-lg border text-sm resize-none" 
+                              placeholder="Write your code here..."></textarea>
+                    <button onclick="runQuickCode()" class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors font-medium">
+                        ▶️ Run Code
+                    </button>
+                </div>
+
+                <!-- Supported File Types -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🚀 Executable Files</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">🌐</span>
+                            <div>
+                                <p class="font-medium">Web Files</p>
+                                <p class="text-gray-600">HTML, CSS, JS, JSON</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">🎮</span>
+                            <div>
+                                <p class="font-medium">Games & Apps</p>
+                                <p class="text-gray-600">HTML5 Games, WebGL</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">🎨</span>
+                            <div>
+                                <p class="font-medium">Media</p>
+                                <p class="text-gray-600">Images, Videos, Audio</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">📊</span>
+                            <div>
+                                <p class="font-medium">Data</p>
+                                <p class="text-gray-600">CSV, XML, Markdown</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Library & Runner -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                            ⚡ File Runner
+                        </h2>
+                        <div class="flex items-center space-x-4">
+                            <select id="execution-mode" class="border rounded-lg px-3 py-2 text-sm">
+                                <option value="iframe">Sandboxed (Safe)</option>
+                                <option value="window">New Window</option>
+                                <option value="inline">Inline Display</option>
+                            </select>
+                            <button onclick="toggleConsole()" class="bg-gray-700 hover:bg-gray-800 text-white px-3 py-2 rounded-lg text-sm">
+                                🖥️ Console
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="mb-6">
+                        <input type="text" id="search-input" placeholder="Search files to run..." 
+                               class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                               oninput="searchFiles()">
+                    </div>
+
+                    <!-- Files Grid -->
+                    <div id="files-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="col-span-full text-center py-12 text-gray-500">
+                            <div class="text-6xl mb-4">⚡</div>
+                            <p class="text-lg">No files loaded yet</p>
+                            <p class="text-sm">Upload files to start running code!</p>
+                        </div>
+                    </div>
+
+                    <!-- Execution Area -->
+                    <div id="execution-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center text-gray-500 hidden">
+                        <div class="text-4xl mb-4">🚀</div>
+                        <p class="text-lg mb-2">Execution Output</p>
+                        <p class="text-sm">Run a file to see the results here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Execution Modal -->
+    <div id="runner-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-7xl w-full max-h-full flex flex-col">
+            <div class="flex items-center justify-between p-6 border-b">
+                <div class="flex items-center space-x-3">
+                    <h3 id="runner-title" class="text-xl font-bold text-gray-800">File Runner</h3>
+                    <div id="execution-status" class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        ● Running
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="refreshExecution()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        🔄 Refresh
+                    </button>
+                    <button onclick="downloadCurrentFile()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        💾 Download
+                    </button>
+                    <button onclick="closeRunner()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                </div>
+            </div>
+            <div id="runner-content" class="flex-1 overflow-hidden">
+                <!-- Execution content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Console Panel -->
+    <div id="console-panel" class="fixed bottom-0 left-0 right-0 bg-black text-green-400 p-4 transform translate-y-full transition-transform duration-300 z-40">
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold">🖥️ FileRunner Console</h4>
+            <button onclick="clearConsole()" class="text-red-400 hover:text-red-300">Clear</button>
+        </div>
+        <div id="console-output" class="terminal h-32 overflow-y-auto text-sm font-mono">
+            <div class="text-green-500">FileRunner Console initialized...</div>
+        </div>
+    </div>
+
+    <script>
+        let files = [];
+        let currentRunningFile = null;
+        let consoleVisible = false;
+
+        // Console functions
+        function log(message, type = 'info') {
+            const console = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-green-400',
+                error: 'text-red-400',
+                warn: 'text-yellow-400',
+                success: 'text-blue-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || 'text-green-400';
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            console.appendChild(logEntry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function toggleConsole() {
+            const panel = document.getElementById('console-panel');
+            consoleVisible = !consoleVisible;
+            
+            if (consoleVisible) {
+                panel.style.transform = 'translateY(0)';
+                log('Console opened', 'info');
+            } else {
+                panel.style.transform = 'translateY(100%)';
+            }
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '<div class="text-green-500">Console cleared...</div>';
+        }
+
+        // File handling
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('drop-zone').classList.remove('drag-over');
+            const droppedFiles = Array.from(e.dataTransfer.files);
+            processFiles(droppedFiles);
+        }
+
+        function handleFileSelect(e) {
+            const selectedFiles = Array.from(e.target.files);
+            processFiles(selectedFiles);
+        }
+
+        function processFiles(fileList) {
+            if (fileList.length === 0) return;
+
+            showUploadProgress();
+            let processed = 0;
+            const total = fileList.length;
+
+            fileList.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        id: Date.now() + index,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        data: e.target.result,
+                        uploadDate: new Date().toISOString(),
+                        executable: isExecutable(file.name, file.type)
+                    };
+
+                    files.push(fileData);
+                    processed++;
+                    
+                    const progress = (processed / total) * 100;
+                    updateProgress(progress);
+
+                    if (processed === total) {
+                        hideUploadProgress();
+                        renderFiles();
+                        updateFileCount();
+                        log(`Loaded ${total} file(s) successfully`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function isExecutable(name, type) {
+            const executableTypes = [
+                'text/html', 'text/javascript', 'text/css', 'application/json',
+                'text/plain', 'text/markdown', 'text/xml', 'text/csv'
+            ];
+            const executableExtensions = ['.html', '.htm', '.js', '.css', '.json', '.py', '.md', '.xml', '.csv'];
+            
+            return executableTypes.includes(type) || 
+                   executableExtensions.some(ext => name.toLowerCase().endsWith(ext)) ||
+                   type.startsWith('image/') || type.startsWith('video/') || type.startsWith('audio/');
+        }
+
+        function showUploadProgress() {
+            document.getElementById('upload-progress').classList.remove('hidden');
+        }
+
+        function hideUploadProgress() {
+            setTimeout(() => {
+                document.getElementById('upload-progress').classList.add('hidden');
+                updateProgress(0);
+            }, 1000);
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-percent').textContent = Math.round(percent) + '%';
+        }
+
+        function renderFiles() {
+            const container = document.getElementById('files-container');
+            
+            if (files.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <div class="text-6xl mb-4">⚡</div>
+                        <p class="text-lg">No files loaded yet</p>
+                        <p class="text-sm">Upload files to start running code!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = files.map(file => createFileCard(file)).join('');
+        }
+
+        function createFileCard(file) {
+            const icon = getFileIcon(file.type, file.name);
+            const size = formatFileSize(file.size);
+            const isExec = file.executable;
+
+            return `
+                <div class="file-item bg-gray-50 rounded-lg p-4 transition-transform hover:shadow-md border-2 ${isExec ? 'border-green-200 hover:border-green-400' : 'border-gray-200 hover:border-gray-400'}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="text-3xl">${icon}</div>
+                        <div class="flex space-x-1">
+                            ${isExec ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">EXEC</span>' : ''}
+                            <button onclick="deleteFile(${file.id})" class="text-red-500 hover:text-red-700 p-1 text-sm" title="Delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium text-gray-800 mb-2 truncate" title="${file.name}">${file.name}</h3>
+                    <div class="text-sm text-gray-600 mb-3">
+                        <p>${size}</p>
+                        <p>${getFileTypeDescription(file.type, file.name)}</p>
+                    </div>
+                    <button onclick="runFile(${file.id})" class="w-full ${isExec ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white py-2 px-4 rounded-lg transition-colors font-medium flex items-center justify-center space-x-2">
+                        <span>${isExec ? '⚡' : '👁️'}</span>
+                        <span>${isExec ? 'RUN' : 'VIEW'}</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function getFileIcon(type, name) {
+            if (type.startsWith('image/')) return '🖼️';
+            if (type.startsWith('video/')) return '🎬';
+            if (type.startsWith('audio/')) return '🎵';
+            if (type.includes('html') || name.endsWith('.html')) return '🌐';
+            if (type.includes('javascript') || name.endsWith('.js')) return '⚡';
+            if (type.includes('css') || name.endsWith('.css')) return '🎨';
+            if (type.includes('json') || name.endsWith('.json')) return '📊';
+            if (name.endsWith('.py')) return '🐍';
+            if (name.endsWith('.md')) return '📝';
+            if (type.includes('pdf')) return '📄';
+            return '📄';
+        }
+
+        function getFileTypeDescription(type, name) {
+            if (type.includes('html')) return 'HTML Document';
+            if (type.includes('javascript')) return 'JavaScript';
+            if (type.includes('css')) return 'Stylesheet';
+            if (type.includes('json')) return 'JSON Data';
+            if (name.endsWith('.py')) return 'Python Script';
+            if (name.endsWith('.md')) return 'Markdown';
+            if (type.startsWith('image/')) return 'Image';
+            if (type.startsWith('video/')) return 'Video';
+            if (type.startsWith('audio/')) return 'Audio';
+            return 'Document';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function runFile(fileId) {
+            const file = files.find(f => f.id === fileId);
+            if (!file) {
+                log('File not found!', 'error');
+                return;
+            }
+
+            currentRunningFile = file;
+            document.getElementById('runner-title').textContent = file.name;
+            document.getElementById('execution-status').innerHTML = '● Running';
+            document.getElementById('execution-status').className = 'px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm';
+            
+            log(`Executing: ${file.name}`, 'info');
+            
+            const runnerContent = document.getElementById('runner-content');
+            const mode = document.getElementById('execution-mode').value;
+            
+            if (file.type.includes('html') || file.name.toLowerCase().endsWith('.html')) {
+                executeHTML(file, runnerContent, mode);
+            } else if (file.type.includes('javascript') || file.name.toLowerCase().endsWith('.js')) {
+                executeJavaScript(file, runnerContent);
+            } else if (file.type.includes('css') || file.name.toLowerCase().endsWith('.css')) {
+                executeCSS(file, runnerContent);
+            } else if (file.type.includes('json') || file.name.toLowerCase().endsWith('.json')) {
+                executeJSON(file, runnerContent);
+            } else if (file.name.toLowerCase().endsWith('.py')) {
+                executePython(file, runnerContent);
+            } else if (file.name.toLowerCase().endsWith('.md')) {
+                executeMarkdown(file, runnerContent);
+            } else if (file.type.startsWith('image/')) {
+                displayImage(file, runnerContent);
+            } else if (file.type.startsWith('video/')) {
+                displayVideo(file, runnerContent);
+            } else if (file.type.startsWith('audio/')) {
+                displayAudio(file, runnerContent);
+            } else {
+                displayText(file, runnerContent);
+            }
+
+            document.getElementById('runner-modal').classList.remove('hidden');
+        }
+
+        function executeHTML(file, container, mode) {
+            if (mode === 'window') {
+                const newWindow = window.open();
+                if (newWindow) {
+                    newWindow.document.write(atob(file.data.split(',')[1]));
+                    newWindow.document.close();
+                    log('HTML opened in new window', 'success');
+                } else {
+                    log('Popup blocked - please allow popups for this site', 'error');
+                }
+                return;
+            }
+
+            const htmlContent = atob(file.data.split(',')[1]);
+            
+            // Try multiple methods to display HTML content
+            if (mode === 'inline') {
+                // Direct HTML injection (most compatible)
+                container.innerHTML = `
+                    <div class="p-6">
+                        <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+                            <strong>HTML Content:</strong> Displaying directly in page
+                        </div>
+                        <div class="border-2 border-gray-300 rounded-lg p-4 bg-white">
+                            ${htmlContent}
+                        </div>
+                    </div>
+                `;
+                log('HTML displayed inline', 'success');
+            } else {
+                // Use srcdoc for better compatibility
+                container.innerHTML = `
+                    <iframe srcdoc="${htmlContent.replace(/"/g, '&quot;')}" 
+                            class="runner-frame w-full h-full" 
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                            onload="log('HTML executed in sandboxed iframe', 'success')"
+                            onerror="log('HTML execution failed - trying alternative method', 'warn'); executeHTMLFallback('${file.id}')"></iframe>
+                `;
+            }
+        }
+
+        function executeHTMLFallback(fileId) {
+            const file = files.find(f => f.id == fileId) || currentRunningFile;
+            if (!file) return;
+            
+            const container = document.getElementById('runner-content');
+            const htmlContent = atob(file.data.split(',')[1]);
+            
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                        <strong>Fallback Mode:</strong> Content security restrictions detected. Showing HTML source and preview.
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold mb-2">📝 HTML Source:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-auto max-h-64">
+                                <pre>${htmlContent}</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-2">🖼️ Safe Preview:</h4>
+                            <div class="border-2 border-gray-300 rounded-lg p-4 bg-white max-h-64 overflow-auto">
+                                ${htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '<div class="bg-red-100 p-2 text-red-700 text-sm rounded">⚠️ Script removed for security</div>')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="downloadCurrentFile()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mr-2">
+                            💾 Download HTML File
+                        </button>
+                        <button onclick="openInNewTab()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                            🔗 Try Opening in New Tab
+                        </button>
+                    </div>
+                </div>
+            `;
+            log('Using fallback HTML display method', 'info');
+        }
+
+        function openInNewTab() {
+            if (currentRunningFile) {
+                const htmlContent = atob(currentRunningFile.data.split(',')[1]);
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const newTab = window.open(url, '_blank');
+                if (newTab) {
+                    log('HTML opened in new tab', 'success');
+                } else {
+                    log('Please allow popups to open in new tab', 'error');
+                }
+            }
+        }
+
+        function executeJavaScript(file, container) {
+            const jsContent = atob(file.data.split(',')[1]);
+            
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4">
+                        <h4 class="font-bold mb-2">🖥️ JavaScript Console Output:</h4>
+                        <div id="js-output" class="font-mono text-sm"></div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">📝 Source Code:</h4>
+                        <pre class="syntax-highlight p-3 rounded text-sm overflow-auto max-h-64">${jsContent}</pre>
+                    </div>
+                </div>
+            `;
+
+            // Execute JavaScript safely
+            try {
+                const originalLog = console.log;
+                const jsOutput = document.getElementById('js-output');
+                
+                console.log = function(...args) {
+                    jsOutput.innerHTML += args.join(' ') + '<br>';
+                    originalLog.apply(console, args);
+                };
+
+                eval(jsContent);
+                console.log = originalLog;
+                log('JavaScript executed successfully', 'success');
+            } catch (error) {
+                document.getElementById('js-output').innerHTML = `<span class="text-red-400">Error: ${error.message}</span>`;
+                log(`JavaScript error: ${error.message}`, 'error');
+            }
+        }
+
+        function executeCSS(file, container) {
+            const cssContent = atob(file.data.split(',')[1]);
+            
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="mb-6">
+                        <h4 class="font-bold mb-4">🎨 CSS Preview:</h4>
+                        <div class="border-2 border-dashed border-gray-300 p-8 rounded-lg">
+                            <div class="css-demo">
+                                <h1>Heading 1</h1>
+                                <h2>Heading 2</h2>
+                                <p>This is a paragraph with some <strong>bold text</strong> and <em>italic text</em>.</p>
+                                <button>Sample Button</button>
+                                <div class="box">Sample Box</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">📝 CSS Code:</h4>
+                        <pre class="syntax-highlight p-3 rounded text-sm overflow-auto max-h-64">${cssContent}</pre>
+                    </div>
+                </div>
+            `;
+
+            // Apply CSS to demo
+            const style = document.createElement('style');
+            style.textContent = `.css-demo { ${cssContent} }`;
+            document.head.appendChild(style);
+            
+            log('CSS applied to preview', 'success');
+        }
+
+        function executeJSON(file, container) {
+            const jsonContent = atob(file.data.split(',')[1]);
+            
+            try {
+                const jsonData = JSON.parse(jsonContent);
+                const formatted = JSON.stringify(jsonData, null, 2);
+                
+                container.innerHTML = `
+                    <div class="p-6">
+                        <h4 class="font-bold mb-4">📊 JSON Data Viewer:</h4>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-auto">
+                            <pre>${formatted}</pre>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600">
+                            <p>Objects: ${typeof jsonData === 'object' ? Object.keys(jsonData).length : 'N/A'}</p>
+                            <p>Size: ${new Blob([jsonContent]).size} bytes</p>
+                        </div>
+                    </div>
+                `;
+                log('JSON parsed and displayed', 'success');
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="p-6">
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            <strong>JSON Parse Error:</strong> ${error.message}
+                        </div>
+                        <div class="mt-4 bg-gray-100 p-4 rounded-lg">
+                            <pre class="text-sm">${jsonContent}</pre>
+                        </div>
+                    </div>
+                `;
+                log(`JSON parse error: ${error.message}`, 'error');
+            }
+        }
+
+        function executePython(file, container) {
+            const pythonContent = atob(file.data.split(',')[1]);
+            
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                        <strong>Note:</strong> Python execution is simulated. This is a code viewer only.
+                    </div>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg mb-4">
+                        <h4 class="font-bold mb-2">🐍 Python Code:</h4>
+                        <pre class="font-mono text-sm overflow-auto">${pythonContent}</pre>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">📊 Code Analysis:</h4>
+                        <p>Lines: ${pythonContent.split('\n').length}</p>
+                        <p>Characters: ${pythonContent.length}</p>
+                        <p>Functions: ${(pythonContent.match(/def\s+\w+/g) || []).length}</p>
+                    </div>
+                </div>
+            `;
+            log('Python code displayed (simulation mode)', 'warn');
+        }
+
+        function executeMarkdown(file, container) {
+            const mdContent = atob(file.data.split(',')[1]);
+            
+            // Simple markdown to HTML conversion
+            let htmlContent = mdContent
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+                .replace(/\*(.*)\*/gim, '<em>$1</em>')
+                .replace(/\n/gim, '<br>');
+            
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="prose max-w-none mb-6">
+                        <h4 class="font-bold mb-4">📝 Markdown Preview:</h4>
+                        <div class="border p-4 rounded-lg bg-white">
+                            ${htmlContent}
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">📄 Raw Markdown:</h4>
+                        <pre class="text-sm overflow-auto max-h-64">${mdContent}</pre>
+                    </div>
+                </div>
+            `;
+            log('Markdown rendered successfully', 'success');
+        }
+
+        function displayImage(file, container) {
+            container.innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${file.data}" alt="${file.name}" class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg">
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p>${file.name}</p>
+                        <p>${formatFileSize(file.size)}</p>
+                    </div>
+                </div>
+            `;
+            log('Image displayed successfully', 'success');
+        }
+
+        function displayVideo(file, container) {
+            container.innerHTML = `
+                <div class="p-6 text-center">
+                    <video controls class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg">
+                        <source src="${file.data}" type="${file.type}">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p>${file.name}</p>
+                        <p>${formatFileSize(file.size)}</p>
+                    </div>
+                </div>
+            `;
+            log('Video loaded successfully', 'success');
+        }
+
+        function displayAudio(file, container) {
+            container.innerHTML = `
+                <div class="p-6 text-center">
+                    <div class="bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg p-8 mb-4">
+                        <div class="text-6xl text-white mb-4">🎵</div>
+                        <h3 class="text-white text-xl font-semibold">${file.name}</h3>
+                    </div>
+                    <audio controls class="w-full max-w-md">
+                        <source src="${file.data}" type="${file.type}">
+                        Your browser does not support the audio tag.
+                    </audio>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p>${formatFileSize(file.size)}</p>
+                    </div>
+                </div>
+            `;
+            log('Audio loaded successfully', 'success');
+        }
+
+        function displayText(file, container) {
+            const textContent = atob(file.data.split(',')[1]);
+            
+            container.innerHTML = `
+                <div class="p-6">
+                    <h4 class="font-bold mb-4">📄 Text Content:</h4>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <pre class="whitespace-pre-wrap text-sm overflow-auto max-h-96">${textContent}</pre>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p>Lines: ${textContent.split('\n').length}</p>
+                        <p>Characters: ${textContent.length}</p>
+                        <p>Size: ${formatFileSize(file.size)}</p>
+                    </div>
+                </div>
+            `;
+            log('Text file displayed', 'success');
+        }
+
+        function runQuickCode() {
+            const code = document.getElementById('code-editor').value;
+            const language = document.getElementById('code-language').value;
+            
+            if (!code.trim()) {
+                log('No code to execute', 'warn');
+                return;
+            }
+
+            const quickFile = {
+                id: 'quick-' + Date.now(),
+                name: `quick-code.${language}`,
+                type: getTypeFromLanguage(language),
+                data: 'data:text/plain;base64,' + btoa(code),
+                size: code.length,
+                executable: true
+            };
+
+            log(`Executing quick ${language} code`, 'info');
+            runFile(quickFile.id);
+            
+            // Temporarily add to files for execution
+            files.unshift(quickFile);
+            setTimeout(() => {
+                files = files.filter(f => f.id !== quickFile.id);
+            }, 1000);
+        }
+
+        function getTypeFromLanguage(lang) {
+            const types = {
+                'html': 'text/html',
+                'javascript': 'text/javascript',
+                'css': 'text/css',
+                'json': 'application/json',
+                'python': 'text/plain'
+            };
+            return types[lang] || 'text/plain';
+        }
+
+        function refreshExecution() {
+            if (currentRunningFile) {
+                log('Refreshing execution...', 'info');
+                runFile(currentRunningFile.id);
+            }
+        }
+
+        function closeRunner() {
+            document.getElementById('runner-modal').classList.add('hidden');
+            currentRunningFile = null;
+            log('Runner closed', 'info');
+        }
+
+        function downloadCurrentFile() {
+            if (currentRunningFile) {
+                const link = document.createElement('a');
+                link.href = currentRunningFile.data;
+                link.download = currentRunningFile.name;
+                link.click();
+                log(`Downloaded: ${currentRunningFile.name}`, 'success');
+            }
+        }
+
+        function deleteFile(fileId) {
+            files = files.filter(f => f.id !== fileId);
+            renderFiles();
+            updateFileCount();
+            log('File deleted', 'info');
+        }
+
+        function clearAllFiles() {
+            if (confirm('Clear all files?')) {
+                files = [];
+                renderFiles();
+                updateFileCount();
+                log('All files cleared', 'info');
+            }
+        }
+
+        function searchFiles() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('files-container');
+            
+            const filteredFiles = files.filter(file => 
+                file.name.toLowerCase().includes(query)
+            );
+            
+            if (filteredFiles.length === 0 && query) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <div class="text-6xl mb-4">🔍</div>
+                        <p class="text-lg">No files found</p>
+                        <p class="text-sm">Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = (query ? filteredFiles : files).map(file => createFileCard(file)).join('');
+        }
+
+        function updateFileCount() {
+            document.getElementById('file-count').textContent = `${files.length} Files`;
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            renderFiles();
+            updateFileCount();
+            log('FileRunner initialized and ready', 'success');
+        });
+
+        // Prevent default drag behavior
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f1239082b8eb1e',t:'MTc1Nzg2NjA2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
