@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to Data URL Converter</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="mb-4">
+                <a href="main.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Main
+                </a>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">HTML to Data URL Converter</h1>
+            <p class="text-gray-600">Paste your HTML code and get an instant data URL link</p>
+        </div>
+
+        <!-- Main Container -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <!-- Input Section -->
+            <div class="mb-6">
+                <label for="htmlInput" class="block text-sm font-semibold text-gray-700 mb-2">
+                    HTML Code Input
+                </label>
+                <textarea 
+                    id="htmlInput" 
+                    placeholder="Paste your HTML code here..."
+                    class="w-full h-64 p-4 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none resize-none font-mono text-sm"
+                ></textarea>
+            </div>
+
+            <!-- Convert Button -->
+            <div class="text-center mb-6">
+                <button 
+                    id="convertBtn"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+                >
+                    Convert to Data URL
+                </button>
+            </div>
+
+            <!-- Output Section -->
+            <div id="outputSection" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Generated Data URL
+                </label>
+                <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600">Click to preview or copy the link:</span>
+                        <button 
+                            id="copyBtn"
+                            class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md transition-colors duration-200"
+                        >
+                            Copy Link
+                        </button>
+                    </div>
+                    <a 
+                        id="dataUrlLink" 
+                        href="#" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="block w-full p-3 bg-white border border-gray-300 rounded-md text-blue-600 hover:text-blue-800 break-all text-sm font-mono"
+                    ></a>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="border-t pt-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-700">Live Preview</span>
+                        <button 
+                            id="togglePreview"
+                            class="bg-gray-600 hover:bg-gray-700 text-white text-sm px-4 py-2 rounded-md transition-colors duration-200"
+                        >
+                            Show Preview
+                        </button>
+                    </div>
+                    <div id="previewContainer" class="hidden">
+                        <iframe 
+                            id="previewFrame"
+                            class="w-full h-96 border-2 border-gray-300 rounded-lg"
+                            sandbox="allow-scripts allow-same-origin"
+                        ></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 class="font-semibold text-blue-800 mb-2">💡 How it works:</h3>
+            <ul class="text-blue-700 text-sm space-y-1">
+                <li>• Paste any HTML code into the text area above</li>
+                <li>• Click "Convert to Data URL" to generate a data:text/html link</li>
+                <li>• The link can be opened in any browser to view your HTML</li>
+                <li>• Perfect for sharing HTML snippets or quick prototypes</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const htmlInput = document.getElementById('htmlInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const outputSection = document.getElementById('outputSection');
+        const dataUrlLink = document.getElementById('dataUrlLink');
+        const copyBtn = document.getElementById('copyBtn');
+        const togglePreview = document.getElementById('togglePreview');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewFrame = document.getElementById('previewFrame');
+
+        let isPreviewVisible = false;
+
+        // Sample HTML to demonstrate
+        htmlInput.value = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Sample Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
+        h1 { color: #333; text-align: center; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>Hello World!</h1>
+        <p>This is a sample HTML page converted to a data URL.</p>
+        <button onclick="alert('Button clicked!')">Click me!</button>
+    </div>
+</body>
+</html>`;
+
+        convertBtn.addEventListener('click', function() {
+            const htmlCode = htmlInput.value.trim();
+            
+            if (!htmlCode) {
+                alert('Please enter some HTML code first!');
+                return;
+            }
+
+            // Create data URL
+            const encodedHtml = encodeURIComponent(htmlCode);
+            const dataUrl = `data:text/html,${encodedHtml}`;
+            
+            // Update the link
+            dataUrlLink.href = dataUrl;
+            dataUrlLink.textContent = dataUrl;
+            
+            // Show output section
+            outputSection.classList.remove('hidden');
+            
+            // Update preview if visible
+            if (isPreviewVisible) {
+                previewFrame.src = dataUrl;
+            }
+        });
+
+        copyBtn.addEventListener('click', function() {
+            const dataUrl = dataUrlLink.href;
+            navigator.clipboard.writeText(dataUrl).then(function() {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                copyBtn.classList.add('bg-green-800');
+                
+                setTimeout(function() {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('bg-green-800');
+                    copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                }, 2000);
+            }).catch(function() {
+                alert('Failed to copy. Please select and copy the link manually.');
+            });
+        });
+
+        togglePreview.addEventListener('click', function() {
+            isPreviewVisible = !isPreviewVisible;
+            
+            if (isPreviewVisible) {
+                previewContainer.classList.remove('hidden');
+                togglePreview.textContent = 'Hide Preview';
+                
+                // Load preview if we have a data URL
+                if (dataUrlLink.href && dataUrlLink.href !== '#') {
+                    previewFrame.src = dataUrlLink.href;
+                }
+            } else {
+                previewContainer.classList.add('hidden');
+                togglePreview.textContent = 'Show Preview';
+                previewFrame.src = '';
+            }
+        });
+
+        // Auto-convert on input change (with debounce)
+        let timeoutId;
+        htmlInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(function() {
+                if (htmlInput.value.trim()) {
+                    convertBtn.click();
+                }
+            }, 1000);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98247c24c55c944c',t:'MTc1ODQwNDQ2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
