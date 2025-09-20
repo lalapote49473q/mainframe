@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to Base64 Converter</title>
+    <link rel="icon" href="images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <a href="main.html" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Main
+                </a>
+                <div></div>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">HTML to Base64 Converter</h1>
+            <p class="text-gray-600">Convert your HTML code to Base64 encoding instantly</p>
+        </div>
+
+        <!-- Main Converter -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Input Section -->
+                <div>
+                    <label for="htmlInput" class="block text-sm font-semibold text-gray-700 mb-2">
+                        HTML Code Input
+                    </label>
+                    <textarea 
+                        id="htmlInput" 
+                        placeholder="Paste your HTML code here..."
+                        class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                    ></textarea>
+                    <div class="flex gap-2 mt-3">
+                        <button 
+                            onclick="convertToBase64()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                            Convert to Base64
+                        </button>
+                        <button 
+                            onclick="clearInput()" 
+                            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div>
+                    <label for="base64Output" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Base64 Output
+                    </label>
+                    <textarea 
+                        id="base64Output" 
+                        placeholder="Base64 encoded result will appear here..."
+                        readonly
+                        class="w-full h-64 p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm resize-none"
+                    ></textarea>
+                    <div class="flex gap-2 mt-3">
+                        <button 
+                            onclick="copyToClipboard()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                            Copy Result
+                        </button>
+                        <button 
+                            onclick="downloadBase64()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reverse Converter -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Base64 to HTML Decoder</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Base64 Input -->
+                <div>
+                    <label for="base64Input" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Base64 Input
+                    </label>
+                    <textarea 
+                        id="base64Input" 
+                        placeholder="Paste Base64 encoded text here..."
+                        class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm"
+                    ></textarea>
+                    <button 
+                        onclick="decodeFromBase64()" 
+                        class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors mt-3"
+                    >
+                        Decode to HTML
+                    </button>
+                </div>
+
+                <!-- Decoded Output -->
+                <div>
+                    <label for="decodedOutput" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Decoded HTML
+                    </label>
+                    <textarea 
+                        id="decodedOutput" 
+                        placeholder="Decoded HTML will appear here..."
+                        readonly
+                        class="w-full h-32 p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm resize-none"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">💡 How to Use</h3>
+            <ul class="text-blue-700 space-y-1 text-sm">
+                <li>• Paste your HTML code in the input area</li>
+                <li>• Click "Convert to Base64" to encode</li>
+                <li>• Copy the result or download it as a text file</li>
+                <li>• Use the decoder section to convert Base64 back to HTML</li>
+            </ul>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="hidden fixed top-4 right-4 px-4 py-2 rounded-lg text-white font-medium z-50"></div>
+    </div>
+
+    <script>
+        function convertToBase64() {
+            const htmlInput = document.getElementById('htmlInput').value;
+            
+            if (!htmlInput.trim()) {
+                showStatus('Please enter some HTML code first!', 'error');
+                return;
+            }
+
+            try {
+                // Convert HTML to Base64
+                const base64Result = btoa(unescape(encodeURIComponent(htmlInput)));
+                document.getElementById('base64Output').value = base64Result;
+                showStatus('Successfully converted to Base64!', 'success');
+            } catch (error) {
+                showStatus('Error converting to Base64', 'error');
+                console.error('Conversion error:', error);
+            }
+        }
+
+        function decodeFromBase64() {
+            const base64Input = document.getElementById('base64Input').value;
+            
+            if (!base64Input.trim()) {
+                showStatus('Please enter Base64 text first!', 'error');
+                return;
+            }
+
+            try {
+                // Convert Base64 back to HTML
+                const decodedResult = decodeURIComponent(escape(atob(base64Input)));
+                document.getElementById('decodedOutput').value = decodedResult;
+                showStatus('Successfully decoded from Base64!', 'success');
+            } catch (error) {
+                showStatus('Invalid Base64 format', 'error');
+                console.error('Decoding error:', error);
+            }
+        }
+
+        function copyToClipboard() {
+            const base64Output = document.getElementById('base64Output');
+            
+            if (!base64Output.value) {
+                showStatus('Nothing to copy! Convert some HTML first.', 'error');
+                return;
+            }
+
+            base64Output.select();
+            document.execCommand('copy');
+            showStatus('Copied to clipboard!', 'success');
+        }
+
+        function downloadBase64() {
+            const base64Output = document.getElementById('base64Output').value;
+            
+            if (!base64Output) {
+                showStatus('Nothing to download! Convert some HTML first.', 'error');
+                return;
+            }
+
+            // Create download
+            const blob = new Blob([base64Output], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'base64-encoded.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('File downloaded!', 'success');
+        }
+
+        function clearInput() {
+            document.getElementById('htmlInput').value = '';
+            document.getElementById('base64Output').value = '';
+            showStatus('Cleared input and output', 'success');
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white font-medium z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            statusDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Auto-convert on input (with debounce)
+        let convertTimeout;
+        document.getElementById('htmlInput').addEventListener('input', function() {
+            clearTimeout(convertTimeout);
+            convertTimeout = setTimeout(() => {
+                if (this.value.trim()) {
+                    convertToBase64();
+                }
+            }, 500);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9824a8a2912e9453',t:'MTc1ODQwNjI4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
