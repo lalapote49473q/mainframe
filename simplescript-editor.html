@@ -676,11 +676,51 @@ compareAges(person1, person2);</textarea>
                 let current = 0;
                 const MAX_ITERATIONS = 50;
                 
-                const peek = () => current < tokens.length ? tokens[current] : null;
-                const consume = () => current < tokens.length ? tokens[current++] : null;
+                const skipIgnorable = () => {
+                    while (current < tokens.length && tokens[current].type === 'INDENT') {
+                        current++;
+                    }
+                };
+                const peek = () => {
+                    skipIgnorable();
+                    return current < tokens.length ? tokens[current] : null;
+                };
+                const consume = () => {
+                    skipIgnorable();
+                    return current < tokens.length ? tokens[current++] : null;
+                };
                 const match = (value) => {
                     const token = peek();
                     return token && token.value === value;
+                };
+                const parseReference = (name) => {
+                    if (match('.')) {
+                        consume(); // .
+                        const propToken = peek();
+                        if (propToken && propToken.type === 'IDENTIFIER') {
+                            const propName = consume().value;
+                            
+                            if (match('(')) {
+                                consume(); // (
+                                const args = [];
+                                let argCount = 0;
+                                
+                                while (!match(')') && peek() && argCount < 10) {
+                                    const expr = parseExpression();
+                                    if (expr) args.push(expr);
+                                    if (match(',')) consume();
+                                    argCount++;
+                                }
+                                
+                                if (match(')')) consume(); // )
+                                return { type: 'MethodCall', object: { type: 'Identifier', name }, method: propName, args };
+                            }
+                            
+                            return { type: 'PropertyAccess', object: { type: 'Identifier', name }, property: propName };
+                        }
+                    }
+                    
+                    return { type: 'Identifier', name };
                 };
                 
                 // Simple expression parser - handles basic math only
@@ -732,7 +772,7 @@ compareAges(person1, person2);</textarea>
                     if (token.type === 'IDENTIFIER') {
                         const name = consume().value;
                         
-                        // Function call or method call
+                        // Function call or method/property access
                         if (match('(')) {
                             consume(); // (
                             const args = [];
@@ -749,36 +789,12 @@ compareAges(person1, person2);</textarea>
                             return { type: 'FunctionCall', name, args };
                         }
                         
-                        // Property access
-                        if (match('.')) {
-                            consume(); // .
-                            const propToken = peek();
-                            if (propToken && propToken.type === 'IDENTIFIER') {
-                                const propName = consume().value;
-                                
-                                // Method call
-                                if (match('(')) {
-                                    consume(); // (
-                                    const args = [];
-                                    let argCount = 0;
-                                    
-                                    while (!match(')') && peek() && argCount < 10) {
-                                        const expr = parseExpression();
-                                        if (expr) args.push(expr);
-                                        if (match(',')) consume();
-                                        argCount++;
-                                    }
-                                    
-                                    if (match(')')) consume(); // )
-                                    return { type: 'MethodCall', object: { type: 'Identifier', name }, method: propName, args };
-                                }
-                                
-                                // Property access
-                                return { type: 'PropertyAccess', object: { type: 'Identifier', name }, property: propName };
-                            }
-                        }
-                        
-                        return { type: 'Identifier', name };
+                        return parseReference(name);
+                    }
+                    
+                    if (token.type === 'KEYWORD' && token.value === 'this') {
+                        consume(); // this
+                        return parseReference('this');
                     }
                     
                     // Object creation with 'new'
@@ -973,8 +989,9 @@ compareAges(person1, person2);</textarea>
                                         consume(); // =
                                         defaultValue = parseExpression();
                                     }
-                                    
+                                     
                                     properties.push({ name: propName, dataType, defaultValue });
+                                    if (match(';')) consume(); // Optional semicolon
                                 }
                             }
                             // Method declaration
@@ -1012,12 +1029,17 @@ compareAges(person1, person2);</textarea>
                                         
                                         if (match('{')) {
                                             consume(); // {
-                                            
+                                             
                                             const body = [];
                                             let bodyCount = 0;
                                             while (!match('}') && peek() && bodyCount < 20) {
                                                 const stmt = parseStatement();
-                                                if (stmt) body.push(stmt);
+                                                if (stmt) {
+                                                    body.push(stmt);
+                                                    if (match(';')) consume(); // Optional semicolon
+                                                } else if (peek()) {
+                                                    consume();
+                                                }
                                                 bodyCount++;
                                             }
                                             
@@ -1084,7 +1106,12 @@ compareAges(person1, person2);</textarea>
                         let bodyCount = 0;
                         while (!match('}') && peek() && bodyCount < 20) {
                             const stmt = parseStatement();
-                            if (stmt) body.push(stmt);
+                            if (stmt) {
+                                body.push(stmt);
+                                if (match(';')) consume(); // Optional semicolon
+                            } else if (peek()) {
+                                consume();
+                            }
                             bodyCount++;
                         }
                         
@@ -1114,7 +1141,12 @@ compareAges(person1, person2);</textarea>
                         let thenCount = 0;
                         while (!match('}') && peek() && thenCount < 10) {
                             const stmt = parseStatement();
-                            if (stmt) thenBranch.push(stmt);
+                            if (stmt) {
+                                thenBranch.push(stmt);
+                                if (match(';')) consume(); // Optional semicolon
+                            } else if (peek()) {
+                                consume();
+                            }
                             thenCount++;
                         }
                         
@@ -1129,7 +1161,12 @@ compareAges(person1, person2);</textarea>
                                 let elseCount = 0;
                                 while (!match('}') && peek() && elseCount < 10) {
                                     const stmt = parseStatement();
-                                    if (stmt) elseBranch.push(stmt);
+                                    if (stmt) {
+                                        elseBranch.push(stmt);
+                                        if (match(';')) consume(); // Optional semicolon
+                                    } else if (peek()) {
+                                        consume();
+                                    }
                                     elseCount++;
                                 }
                                 if (match('}')) consume(); // }
@@ -1137,6 +1174,11 @@ compareAges(person1, person2);</textarea>
                         }
                         
                         return { type: 'If', condition, thenBranch, elseBranch };
+                    }
+                    
+                    const expr = parseExpression();
+                    if (expr && (expr.type === 'FunctionCall' || expr.type === 'MethodCall')) {
+                        return { type: 'ExpressionStatement', expression: expr };
                     }
                     
                     return null;
@@ -1350,6 +1392,10 @@ compareAges(person1, person2);</textarea>
                             const printValue = evaluate(stmt.value);
                             const printStr = this.formatValue(printValue);
                             this.output.push(printStr);
+                            break;
+                        
+                        case 'ExpressionStatement':
+                            evaluate(stmt.expression);
                             break;
                             
                         case 'Return':
